@@ -1,0 +1,5 @@
+{
+  "main": "../../dist/connectors/klip.js",
+  "module": "../../dist/connectors/klip.mjs",
+  "types": "../../dist/connectors/klip.d.ts"
+}
