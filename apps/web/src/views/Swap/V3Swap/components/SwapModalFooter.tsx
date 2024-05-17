@@ -203,7 +203,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
                         style={{ display: 'inline' }}
                         ml="4px"
                         external
-                        href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#what-will-be-the-trading-fee-breakdown-for-v3-exchange"
+                        href="https://docs.dgswap.io/products/fees"
                       >
                         {t('Fee Breakdown and Tokenomics')}
                       </Link>

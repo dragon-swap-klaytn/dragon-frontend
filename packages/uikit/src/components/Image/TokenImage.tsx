@@ -7,7 +7,7 @@ const TokenImage = styled(Image)`
   }
   &:before {
     border-radius: 50%;
-    border: 1px solid rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     content: "";
     height: 100%;
     left: 0;

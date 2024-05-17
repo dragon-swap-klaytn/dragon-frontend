@@ -1,5 +1,5 @@
-import { Percent } from '@pancakeswap/swap-sdk-core'
 import { ChainId } from '@pancakeswap/chains'
+import { Percent } from '@pancakeswap/swap-sdk-core'
 import { Address, Hash } from 'viem'
 import { ERC20Token } from './entities/token'
 
@@ -121,6 +121,17 @@ export const WNATIVE = {
   [ChainId.KLAYTN]: WETH9[ChainId.KLAYTN],
   [ChainId.KLAYTN_TESTNET]: WETH9[ChainId.KLAYTN_TESTNET],
 } satisfies Record<ChainId, ERC20Token>
+
+export const WNATIVE2 = {
+  [ChainId.KLAYTN]: new ERC20Token(
+    ChainId.KLAYTN,
+    '0xf898c138f9c8825ceF83CA75535Ed77100497296',
+    18,
+    'RKLAY',
+    'Reward KLAY',
+    'https://klaytn.foundation'
+  ),
+}
 
 const ETHER = { name: 'Ether', symbol: 'ETH', decimals: 18 } as const
 const BNB = {

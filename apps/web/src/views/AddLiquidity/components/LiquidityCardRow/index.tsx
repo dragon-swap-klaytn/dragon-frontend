@@ -1,12 +1,11 @@
-import { Text, Card, Flex, Tag, SyncAltIcon } from '@pancakeswap/uikit'
-import NextLink from 'next/link'
-import { styled } from 'styled-components'
-import { useMemo } from 'react'
+import { Card, Flex, SyncAltIcon, Tag, Text } from '@pancakeswap/uikit'
 import { Pool } from '@pancakeswap/v3-sdk'
+import NextLink from 'next/link'
+import { useMemo } from 'react'
+import { styled } from 'styled-components'
 
+import { Currency, Percent } from '@pancakeswap/sdk'
 import DoubleCurrencyLogo from 'components/Logo/DoubleLogo'
-import { Percent, Currency } from '@pancakeswap/sdk'
-import { MerklRewardsTag } from 'components/Merkl/MerklTag'
 
 const TagCell = styled(Flex)`
   padding: 8px 0;
@@ -89,11 +88,15 @@ export const LiquidityCardRow = ({
 
   if (link) {
     return (
-      <Card mb="8px">
+      <Card mb="8px" style={{ maxHeight: '150px' }}>
         <NextLink href={link}>{content}</NextLink>
       </Card>
     )
   }
 
-  return <Card mb="8px">{content}</Card>
+  return (
+    <Card mb="8px" style={{ maxHeight: '150px' }}>
+      {content}
+    </Card>
+  )
 }

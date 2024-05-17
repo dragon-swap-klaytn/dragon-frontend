@@ -20,7 +20,7 @@ export const tokenImageChainNameMapping = {
 }
 
 export const getImageUrlFromToken = (token: Token) => {
-  return `${ASSET_CDN}/web/native/${token.chainId}.png`
+  return `${ASSET_CDN}/images/tokens/${tokenImageChainNameMapping[token.chainId]}${token.address}.png`
 }
 
 export const TokenPairImage: React.FC<React.PropsWithChildren<TokenPairImageProps>> = ({

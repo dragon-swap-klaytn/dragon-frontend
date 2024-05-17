@@ -1,9 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, ERC20Token } from '@pancakeswap/sdk'
 import { MaxUint256 } from '@pancakeswap/swap-sdk-core'
-import { useToast } from '@pancakeswap/uikit'
+import { useModal, useToast } from '@pancakeswap/uikit'
 import isUndefinedOrNull from '@pancakeswap/utils/isUndefinedOrNull'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
+import { createElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { getViemErrorMessage } from 'utils/errors'
@@ -22,6 +23,14 @@ export enum ApprovalState {
   APPROVED,
 }
 
+// <ApprovalConfirmationModal
+// minWidth={['100%', null, '420px']}
+// title={t('Confirm Approval')}
+// content={() => <></>}
+// hash={undefined}
+// attemptingTxn
+// />,
+
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
 export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,
@@ -29,8 +38,10 @@ export function useApproveCallback(
   options: {
     addToTransaction
     targetAmount?: bigint
+    useA2AQr?: boolean
   } = {
     addToTransaction: true,
+    useA2AQr: true,
   },
 ): {
   approvalState: ApprovalState
@@ -49,6 +60,20 @@ export function useApproveCallback(
   const pendingApproval = useHasPendingApproval(token?.address, spender)
   const [pending, setPending] = useState<boolean>(pendingApproval)
   const [isPendingError, setIsPendingError] = useState<boolean>(false)
+
+  const [onPresentApprovalConfirmModal, onDismissApprovalConfirmModal] = useModal(
+    createElement(ApprovalConfirmationModal, {
+      minWidth: ['100%', null, '420px'],
+      title: 'Confirm Approval',
+      content: () => '',
+      hash: undefined,
+      attemptingTxn: true,
+    }),
+
+    true,
+    true,
+    'ApprovalConfirmationModal',
+  )
 
   useEffect(() => {
     if (pendingApproval) {
@@ -126,6 +151,22 @@ export function useApproveCallback(
         .catch(() => {
           // general fallback for tokens who restrict approval amounts
           useExact = true
+          if (token?.address === '0xE06597D02A2C3AA7a9708DE2Cfa587B128bd3815') {
+            return tokenContract.estimateGas
+              .increaseAllowance(
+                [spender as Address, overrideAmountApprove ?? amountToApprove?.quotient ?? targetAmount ?? MaxUint256],
+                // @ts-ignore
+                {
+                  account: tokenContract.account,
+                },
+              )
+              .catch((e) => {
+                console.error('estimate gas failure', e)
+                toastError(t('Error'), t('Unexpected error. Could not estimate gas for the approve.'))
+                setIsPendingError(true)
+                return null
+              })
+          }
           return tokenContract.estimateGas
             .approve(
               [spender as Address, overrideAmountApprove ?? amountToApprove?.quotient ?? targetAmount ?? MaxUint256],
@@ -144,9 +185,15 @@ export function useApproveCallback(
 
       if (!estimatedGas) return undefined
 
+      if (options?.useA2AQr) {
+        onPresentApprovalConfirmModal()
+      }
+
       return callWithGasPrice(
         tokenContract,
-        'approve' as const,
+        token?.address === '0xE06597D02A2C3AA7a9708DE2Cfa587B128bd3815'
+          ? ('increaseAllowance' as const)
+          : ('approve' as const),
         [
           spender as Address,
           overrideAmountApprove ?? (useExact ? amountToApprove?.quotient ?? targetAmount ?? MaxUint256 : MaxUint256),
@@ -156,6 +203,9 @@ export function useApproveCallback(
         },
       )
         .then((response) => {
+          if (options?.useA2AQr) {
+            onDismissApprovalConfirmModal({ force: true })
+          }
           if (addToTransaction) {
             addTransaction(response, {
               summary: `Approve ${overrideAmountApprove ?? amountToApprove?.currency?.symbol}`,
@@ -167,6 +217,7 @@ export function useApproveCallback(
               type: 'approve',
             })
           }
+
           return response
         })
         .catch((error: any) => {
@@ -184,10 +235,13 @@ export function useApproveCallback(
       tokenContract,
       amountToApprove,
       spender,
+      options?.useA2AQr,
       callWithGasPrice,
       targetAmount,
       toastError,
       t,
+      onPresentApprovalConfirmModal,
+      onDismissApprovalConfirmModal,
       addToTransaction,
       addTransaction,
     ],

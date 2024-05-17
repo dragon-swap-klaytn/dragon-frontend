@@ -2,7 +2,8 @@ import { WalletConfigV2 } from '@pancakeswap/ui-wallets'
 import { WalletFilledIcon } from '@pancakeswap/uikit'
 import KaikasIcon from 'components/Svg/KaikasIcon'
 import type { ExtendEthereum } from 'global'
-import { klipConnector } from '../utils/wagmi'
+import { klipConnector, walletConnectNoQrCodeConnector } from '../utils/wagmi'
+import { ASSET_CDN } from './constants/endpoints'
 
 export enum ConnectorNames {
   Kaikas = 'kaikas',
@@ -18,6 +19,17 @@ export enum ConnectorNames {
   Ledger = 'ledger',
   TrustWallet = 'trustWallet',
   CyberWallet = 'cyberwallet',
+}
+
+const createQrCode = (chainId: number, connect) => async () => {
+  connect({ connector: walletConnectNoQrCodeConnector, chainId })
+
+  const r = await walletConnectNoQrCodeConnector.getProvider()
+  return new Promise<string>((resolve) => {
+    r.on('display_uri', (uri) => {
+      resolve(uri)
+    })
+  })
 }
 
 const createQrCodeForA2A = (chainId: number, connect, type) => async () => {
@@ -58,6 +70,7 @@ const walletsConfig = ({
   chainId: number
   connect: (connectorID: ConnectorNames) => void
 }): WalletConfigV2<ConnectorNames>[] => {
+  const qrCode = createQrCode(chainId, connect)
   return [
     {
       id: 'klip',
@@ -84,7 +97,18 @@ const walletsConfig = ({
         // && metaMaskConnector.ready
       },
       connectorId: ConnectorNames.MetaMask,
-      downloadLink: 'https://metamask.io/download/',
+      downloadLink: 'https://metamask.app.link/dapp/dgswap.io',
+      deepLink: 'https://metamask.app.link/dapp/dgswap.io',
+    },
+    {
+      id: 'tokenpocket',
+      title: 'TokenPocket',
+      icon: `/images/wallets/tokenpocket.png`,
+      connectorId: ConnectorNames.Injected,
+      get installed() {
+        return typeof window !== 'undefined' && Boolean(window.ethereum?.isTokenPocket)
+      },
+      qrCode,
     },
     ...(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID
       ? [
@@ -116,18 +140,10 @@ export const createWallets = (chainId: number, connect: any) => {
       ]
 }
 
-const docLangCodeMapping: Record<string, string> = {
-  it: 'italian',
-  ja: 'japanese',
-  fr: 'french',
-  tr: 'turkish',
-  vi: 'vietnamese',
-  id: 'indonesian',
-  'zh-cn': 'chinese',
-  'pt-br': 'portuguese-brazilian',
-}
+export const getDocLink = (code: string) => {
+  if (code !== 'en-US') {
+    /* empty */
+  }
 
-export const getDocLink = (code: string) =>
-  docLangCodeMapping[code]
-    ? `https://docs.dgswap.io/v/${docLangCodeMapping[code]}/get-started/wallet-guide`
-    : `https://docs.dgswap.io/get-started/wallet-guide`
+  return 'https://docs.dgswap.io/getting-started/supported-wallets'
+}

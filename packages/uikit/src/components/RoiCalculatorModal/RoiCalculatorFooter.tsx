@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import { useMemo, useState } from "react";
 import { styled } from "styled-components";
 
-import { CAKE_SYMBOL } from "@pancakeswap/tokens";
+import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
 import { BIG_ONE_HUNDRED } from "@pancakeswap/utils/bigNumber";
 import { useTooltip } from "../../hooks/useTooltip";
 import { Box, Flex, Grid } from "../Box";
@@ -133,7 +133,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
                   {displayApr}%
                 </Text>
                 <Text color="textSubtle" small>
-                  {`*${t("Base APR (%symbol% yield only)", { symbol: CAKE_SYMBOL })}`}
+                  {`*${t("Base APR (%symbol% yield only)", { symbol: CAKE_SYMBOL_VIEW })}`}
                 </Text>
                 <Text small textAlign="right">
                   {`${cakeRewardAPRDisplay?.toLocaleString("en-US", {

@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { Skeleton, useModal, useToast } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
@@ -101,7 +101,7 @@ export const HarvestAction: React.FunctionComponent<React.PropsWithChildren<Harv
       toastSuccess(
         `${t('Harvested')}!`,
         <ToastDescriptionWithTx txHash={receipt.transactionHash}>
-          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL })}
+          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL_VIEW })}
         </ToastDescriptionWithTx>,
       )
       onDone?.()

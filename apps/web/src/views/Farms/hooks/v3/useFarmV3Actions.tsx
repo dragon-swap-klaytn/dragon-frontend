@@ -1,8 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { useToast } from '@pancakeswap/uikit'
 import { MasterChefV3, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
-import { WNATIVE } from '@pancakeswap/sdk'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useCatchTxError from 'hooks/useCatchTxError'
@@ -14,6 +13,7 @@ import { Address, hexToBigInt } from 'viem'
 import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUnwrapReward } from 'views/Farms/hooks/useUnwrapReward'
+import { useFinishedFarm } from 'views/Farms/hooks/useFinishedFarm'
 
 interface FarmV3ActionContainerChildrenProps {
   attemptingTxn: boolean
@@ -42,7 +42,8 @@ const useFarmV3Actions = ({
 
   const { loading, fetchWithCatchTxError } = useCatchTxError()
 
-  const masterChefV3Address = useMasterchefV3()?.address as Address
+  const isFinished = useFinishedFarm()
+  const masterChefV3Address = useMasterchefV3(isFinished)?.address as Address
   const nftPositionManagerAddress = useV3NFTPositionManagerContract()?.address
 
   const { onAlert } = useUnwrapReward({
@@ -72,7 +73,9 @@ const useFarmV3Actions = ({
       }),
     )
     if (resp?.status) {
+      await onAlert()
       onDone?.()
+
       toastSuccess(
         `${t('Unstaked')}!`,
         <ToastDescriptionWithTx txHash={resp.transactionHash}>
@@ -175,7 +178,7 @@ const useFarmV3Actions = ({
       toastSuccess(
         `${t('Harvested')}!`,
         <ToastDescriptionWithTx txHash={resp.transactionHash}>
-          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL })}
+          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL_VIEW })}
         </ToastDescriptionWithTx>,
       )
       queryClient.invalidateQueries({ queryKey: ['mcv3-harvest'] })
@@ -242,7 +245,7 @@ export function useFarmsV3BatchHarvest() {
         toastSuccess(
           `${t('Harvested')}!`,
           <ToastDescriptionWithTx txHash={resp.transactionHash}>
-            {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL })}
+            {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL_VIEW })}
           </ToastDescriptionWithTx>,
         )
         queryClient.invalidateQueries({ queryKey: ['mcv3-harvest'] })

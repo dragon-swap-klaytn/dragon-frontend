@@ -1,6 +1,6 @@
 import { PositionDetails } from "@pancakeswap/farms";
 import { useTranslation } from "@pancakeswap/localization";
-import { CAKE_SYMBOL } from "@pancakeswap/tokens";
+import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
 import { Balance, Box, Button, Flex, Heading, PreTitle, Text } from "@pancakeswap/uikit";
 import { styled } from "styled-components";
 
@@ -36,7 +36,7 @@ const TotalStakedBalance: React.FunctionComponent<React.PropsWithChildren<TotalS
           <Flex flexDirection="column">
             <Flex>
               <Text bold textTransform="uppercase" color="textSubtle" fontSize="12px" pr="4px">
-                {CAKE_SYMBOL}
+                {CAKE_SYMBOL_VIEW}
               </Text>
               <Text bold textTransform="uppercase" color="textSubtle" fontSize="12px">
                 {t("Earned")}

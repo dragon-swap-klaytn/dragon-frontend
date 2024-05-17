@@ -33,6 +33,7 @@ import { warningSeverity } from 'utils/exchange'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useConfirmModalState } from 'views/Swap/V3Swap/hooks/useConfirmModalState'
 import { useAccount } from 'wagmi'
+import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
 import { useParsedAmounts, useSlippageAdjustedAmounts, useSwapCallback, useSwapInputError } from '../hooks'
 import { TransactionRejectedError } from '../hooks/useSendSwapTransaction'
 import { useWallchainApi } from '../hooks/useWallchain'
@@ -66,12 +67,30 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   const outputCurrency = useCurrency(outputCurrencyId)
   const swapIsUnsupported = useIsTransactionUnsupported(inputCurrency, outputCurrency)
   const { onUserInput } = useSwapActionHandlers()
+
+  const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
+    <ApprovalConfirmationModal
+      minWidth={['100%', null, '420px']}
+      title="Confirm Transaction"
+      content={() => ''}
+      pendingText="wating confirm..."
+      hash={undefined}
+      attemptingTxn
+    />,
+    true,
+    true,
+    'WrapConfirmationModal',
+  )
   const {
     wrapType,
     execute: onWrap,
     inputError: wrapInputError,
-  } = useWrapCallback(inputCurrency, outputCurrency, typedValue)
+  } = useWrapCallback(inputCurrency, outputCurrency, typedValue, {
+    open: onPresentKlipTxModal,
+    close: onDismissKlipTxModal
+  })
   const showWrap = wrapType !== WrapType.NOT_APPLICABLE
+
   const [isRoutingSettingChange, resetRoutingSetting] = useRoutingSettingChanged()
   const slippageAdjustedAmounts = useSlippageAdjustedAmounts(trade)
 
@@ -96,7 +115,12 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   const { approvalState, approveCallback, revokeCallback, currentAllowance, isPendingError } = useApproveCallback(
     amountToApprove,
     routerAddress,
+    {
+      addToTransaction: true,
+      useA2AQr: false,
+    },
   )
+
   const { priceImpactWithoutFee } = useMemo(
     () => (!showWrap ? computeTradePriceBreakdown(trade) : {}),
     [showWrap, trade],

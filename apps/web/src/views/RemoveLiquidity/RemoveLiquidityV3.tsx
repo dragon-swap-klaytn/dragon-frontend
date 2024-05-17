@@ -20,6 +20,7 @@ import {
   Message,
 } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
+import { CAKE_SYMBOL } from '@pancakeswap/tokens'
 
 import { NonfungiblePositionManager, MasterChefV3 } from '@pancakeswap/v3-sdk'
 import { AppBody, AppHeader } from 'components/App'
@@ -527,9 +528,9 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
           )}
           {isStakedInMCv3 ? (
             <Message variant="primary" mb="20px">
-              {t(
-                'This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed CAKE to your wallet.',
-              )}
+              {t('This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed %cake% to your wallet.', {
+                cake: CAKE_SYMBOL
+              })}
             </Message>
           ) : null}
 

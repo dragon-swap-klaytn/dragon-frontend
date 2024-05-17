@@ -11,6 +11,7 @@ import { v3Clients, v3InfoClients } from 'utils/graphql'
 import { useBlockFromTimeStampQuery } from 'views/Info/hooks/useBlocksFromTimestamps'
 
 import { useQuery } from '@tanstack/react-query'
+import { useBeforeBlockPerDayUnits } from 'state/block/hooks'
 import { DURATION_INTERVAL, SUBGRAPH_START_BLOCK } from '../constants'
 import { fetchPoolChartData } from '../data/pool/chartData'
 import { fetchPoolDatas } from '../data/pool/poolData'
@@ -184,6 +185,8 @@ export const useTopTokensData = ():
       [address: string]: TokenData
     }
   | undefined => {
+  const beforeBlocks = useBeforeBlockPerDayUnits()
+
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const [t24, t48, t7d] = getDeltaTimestamps()
@@ -194,7 +197,7 @@ export const useTopTokensData = ():
     () =>
       fetchTopTokens(
         v3InfoClients[chainId],
-        blocks?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[chainId]),
+        (blocks ?? beforeBlocks)?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[chainId]),
       ),
     {
       enabled: true,
@@ -343,6 +346,7 @@ export const useTopPoolsData = ():
       [address: string]: PoolData
     }
   | undefined => {
+  const beforeBlocks = useBeforeBlockPerDayUnits()
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const [t24, t48, t7d] = getDeltaTimestamps()
@@ -354,7 +358,7 @@ export const useTopPoolsData = ():
       fetchTopPools(
         v3InfoClients[chainId],
         chainId,
-        blocks?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[chainId]),
+        (blocks ?? beforeBlocks).filter((d) => d.number >= SUBGRAPH_START_BLOCK[chainId]),
       ),
     {
       enabled: true,

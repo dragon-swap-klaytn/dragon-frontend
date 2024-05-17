@@ -1,7 +1,12 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CHAIN_QUERY_NAME } from 'config/chains'
-import { WalletConnectorNotFoundError, WalletSwitchChainError } from '@pancakeswap/ui-wallets'
+import {
+  walletLocalStorageKey,
+  addressLocalStorageKey,
+  WalletConnectorNotFoundError,
+  WalletSwitchChainError,
+} from '@pancakeswap/ui-wallets'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
+import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ConnectorNames } from 'config/wallet'
 import { useCallback } from 'react'
 import { useAppDispatch } from 'state'
@@ -22,6 +27,7 @@ const useAuth = () => {
   const login = useCallback(
     async (connectorID: ConnectorNames) => {
       const findConnector = connectors.find((c) => c.id === connectorID)
+
       try {
         const connected = await connectAsync({ connector: findConnector, chainId })
         if (!connected.chain.unsupported && connected.chain.id !== chainId) {
@@ -52,6 +58,10 @@ const useAuth = () => {
     } catch (error) {
       console.error(error)
     } finally {
+      // clear web2app state
+      localStorage.removeItem(walletLocalStorageKey)
+      localStorage.removeItem(addressLocalStorageKey)
+
       clearUserStates(dispatch, { chainId: chain?.id })
     }
   }, [disconnectAsync, dispatch, chain?.id])

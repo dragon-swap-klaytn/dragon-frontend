@@ -19,10 +19,12 @@ import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { useDebounce } from '@pancakeswap/hooks'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWallet/AddToWalletButton'
+import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
+import { useTokenLogo } from 'hooks/useTokenLogo'
 import { ConfirmModalState, PendingConfirmModalState } from '../types'
 
 import ConfirmSwapModalContainer from '../../components/ConfirmSwapModalContainer'
@@ -75,8 +77,10 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
   const { recipient } = useSwapState()
   const [wallchainStatus] = useWallchainStatus()
   const isBonus = useDebounce(wallchainStatus === 'found', 500)
+  const qrUri = useA2AConnectorQRUri()
 
   const token: Token | undefined = wrappedCurrency(trade?.outputAmount?.currency, chainId)
+  const tokenLogo = useTokenLogo(token)
 
   const handleDismiss = useCallback(() => {
     if (customOnDismiss) {
@@ -105,6 +109,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
           title={t('Enable spending %symbol%', { symbol: `${trade?.inputAmount?.currency?.symbol}` })}
           isMM={isMM}
           isBonus={isBonus}
+          qrUri={qrUri}
         />
       )
     }
@@ -129,6 +134,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
           currencyB={currencyB}
           amountA={amountA}
           amountB={amountB}
+          qrUri={qrUri}
         />
       )
     }
@@ -154,7 +160,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
             tokenAddress={token?.address}
             tokenSymbol={currencyB?.symbol}
             tokenDecimals={token?.decimals}
-            tokenLogo={token instanceof WrappedTokenInfo ? token?.logoURI : undefined}
+            tokenLogo={tokenLogo}
           />
         </SwapPendingModalContent>
       )
@@ -180,7 +186,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
             tokenAddress={token?.address}
             tokenSymbol={currencyB?.symbol}
             tokenDecimals={token?.decimals}
-            tokenLogo={token instanceof WrappedTokenInfo ? token?.logoURI : undefined}
+            tokenLogo={tokenLogo}
           />
         </SwapTransactionReceiptModalContent>
       )
@@ -215,6 +221,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     recipient,
     allowedSlippage,
     confirmModalState,
+    qrUri,
     t,
     handleDismiss,
     startSwapFlow,

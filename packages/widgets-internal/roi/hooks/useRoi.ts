@@ -16,6 +16,7 @@ interface Params extends Omit<FeeParams, "amount" | "currency"> {
   cakeApr?: number;
   editCakeApr?: number;
   cakePrice?: number;
+  log?: boolean;
 }
 
 export function useRoi({

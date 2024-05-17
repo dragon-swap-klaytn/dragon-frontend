@@ -1,5 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
-import { masterChefAddresses, masterChefV3Addresses } from '@pancakeswap/farms'
+import { masterChefAddresses, masterChefV3Addresses, masterChefV3FinishedAddresses } from '@pancakeswap/farms'
 import { GAUGES_ADDRESS, GAUGES_CALC_ADDRESS } from '@pancakeswap/gauges'
 import { ICAKE } from '@pancakeswap/ifos'
 import { CAKE_VAULT } from '@pancakeswap/pools'
@@ -14,6 +14,7 @@ export default {
     [ChainId.BSC_TESTNET]: '0x1d32c2945C8FDCBc7156c553B7cEa4325a17f4f9',
     [ChainId.BSC]: '0x73feaa1eE314F8c655E354234017bE2193C9E24E',
   },
+  masterChefV3Finished: masterChefV3FinishedAddresses,
   sousChef: {
     [ChainId.BSC_TESTNET]: '0xD3af5Fe61DBaF8f73149bfcFa9FB653ff096029A',
     [ChainId.BSC]: '0x6Ab8463a4185b80905E05A9ff80A2d6b714B9e95',

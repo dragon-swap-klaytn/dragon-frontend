@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
-import { styled } from 'styled-components'
 import type { ReactNode } from 'react'
+import { styled } from 'styled-components'
 import { CHAIN_IDS } from 'utils/wagmi'
 
 export const FEE_AMOUNT_DETAIL: Record<
@@ -44,4 +44,9 @@ export const SelectContainer = styled.div`
   display: grid;
   grid-auto-flow: column;
   grid-gap: 4px;
+  max-width: 282px;
+  overflow-x: auto;
+  ${({ theme }) => theme.mediaQueries.lg} {
+    max-width: 370px;
+  }
 `

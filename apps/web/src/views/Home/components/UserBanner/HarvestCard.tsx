@@ -14,7 +14,7 @@ import {
   useToast,
 } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
@@ -89,7 +89,7 @@ const HarvestCard: React.FC<React.PropsWithChildren<HarvestCardProps>> = ({ onHa
         toastSuccess(
           `${t('Harvested')}!`,
           <ToastDescriptionWithTx txHash={receipt.transactionHash}>
-            {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL })}
+            {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL_VIEW })}
           </ToastDescriptionWithTx>,
         )
       }

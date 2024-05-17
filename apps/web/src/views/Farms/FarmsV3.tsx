@@ -27,7 +27,6 @@ import {
 } from '@pancakeswap/uikit'
 
 import { BIG_ONE, BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import Page from 'components/Layout/Page'
 import { V3SubgraphHealthIndicator } from 'components/SubgraphHealthIndicator'
@@ -44,6 +43,7 @@ import { ViewMode } from 'state/user/actions'
 import { useUserFarmStakedOnly, useUserFarmsViewMode } from 'state/user/hooks'
 import { keyframes, styled } from 'styled-components'
 import { getFarmApr } from 'utils/apr'
+import { useFinishedFarm } from 'views/Farms/hooks/useFinishedFarm'
 import { getStakedFarms } from 'views/Farms/utils/getStakedFarms'
 import { useAccount } from 'wagmi'
 import Table from './components/FarmTable/FarmTable'
@@ -193,6 +193,8 @@ export type V2StakeValueAndV3Farm = V3Farm | V2Farm
 
 const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { pathname, query: urlQuery } = useRouter()
+  const isFinished = useFinishedFarm()
+
   const mockApr = Boolean(urlQuery.mockApr)
   const { t } = useTranslation()
   const { chainId } = useActiveChainId()
@@ -202,7 +204,7 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
     poolLength: v3PoolLength,
     isLoading,
     userDataLoaded: v3UserDataLoaded,
-  } = useFarmsV3WithPositionsAndBooster({ mockApr })
+  } = useFarmsV3WithPositionsAndBooster({ mockApr }, isFinished)
 
   // FIXME: temporary sort sable v2 farm in front of v3 farms
   const farmsLP: V2AndV3Farms = useMemo(() => {
@@ -266,7 +268,7 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const activeFarms = farmsLP.filter(
     (farm) =>
       farm.pid !== 0 &&
-      farm.multiplier !== '0X' &&
+      // (isFinished ? farm.multiplier === '0X' : farm.multiplier !== '0X') &&
       (farm.version === 3 ? !v3PoolLength || v3PoolLength >= farm.pid : !v2PoolLength || v2PoolLength > farm.pid),
   )
 
@@ -330,6 +332,10 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
     if (isArchived) {
       chosenFs = stakedOnly ? farmsList(stakedArchivedFarms) : farmsList(archivedFarms)
     }
+
+    chosenFs = chosenFs.filter(
+      (farm) => farm.lpAddress.toLowerCase() !== '0xb39A385dba6aB12B09391F9a30ea927EAa4754Ef'.toLowerCase(),
+    )
 
     if (v3FarmOnly || v2FarmOnly || boostedOnly || stableSwapOnly) {
       const filterFarmsWithTypes = chosenFs.filter(
@@ -462,79 +468,85 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
         </Flex>
       </PageHeader>
       <Page>
-        <ControlContainer>
-          <ViewControls>
-            <Flex mt="20px">
-              <ToggleView idPrefix="clickFarm" viewMode={viewMode} onToggle={setViewMode} />
-            </Flex>
-            <FarmWidget.FarmTabButtons hasStakeInFinishedFarms={stakedInactiveFarms.length > 0} />
-            <Flex mt="20px" ml="16px">
-              <FarmTypesFilter
-                v3FarmOnly={v3FarmOnly}
-                handleSetV3FarmOnly={setV3FarmOnly}
-                v2FarmOnly={v2FarmOnly}
-                handleSetV2FarmOnly={setV2FarmOnly}
-                boostedOnly={boostedOnly}
-                handleSetBoostedOnly={setBoostedOnly}
-                stableSwapOnly={stableSwapOnly}
-                handleSetStableSwapOnly={setStableSwapOnly}
-                farmTypesEnableCount={farmTypesEnableCount}
-                handleSetFarmTypesEnableCount={setFarmTypesEnableCount}
-              />
-              <ToggleWrapper>
-                <Toggle
-                  id="staked-only-farms"
-                  checked={stakedOnly}
-                  onChange={() => setStakedOnly(!stakedOnly)}
-                  scale="sm"
+        {!isFinished && (
+          <ControlContainer>
+            <ViewControls>
+              <Flex mt="20px">
+                <ToggleView idPrefix="clickFarm" viewMode={viewMode} onToggle={setViewMode} />
+              </Flex>
+              {/* <FarmWidget.FarmTabButtons hasStakeInFinishedFarms={stakedInactiveFarms.length > 0} /> */}
+              <Flex mt="20px" ml="16px">
+                <FarmTypesFilter
+                  v3FarmOnly={v3FarmOnly}
+                  handleSetV3FarmOnly={setV3FarmOnly}
+                  v2FarmOnly={v2FarmOnly}
+                  handleSetV2FarmOnly={setV2FarmOnly}
+                  boostedOnly={boostedOnly}
+                  handleSetBoostedOnly={setBoostedOnly}
+                  stableSwapOnly={stableSwapOnly}
+                  handleSetStableSwapOnly={setStableSwapOnly}
+                  farmTypesEnableCount={farmTypesEnableCount}
+                  handleSetFarmTypesEnableCount={setFarmTypesEnableCount}
                 />
-                <Text> {t('Staked only')}</Text>
-              </ToggleWrapper>
-            </Flex>
-          </ViewControls>
-          <FilterContainer>
-            <LabelWrapper>
-              <Text textTransform="uppercase" color="textSubtle" fontSize="12px" bold>
-                {t('Sort by')}
-              </Text>
-              <Select
-                options={[
-                  {
-                    label: t('Hot'),
-                    value: 'hot',
-                  },
-                  {
-                    label: t('APR'),
-                    value: 'apr',
-                  },
-                  {
-                    label: t('Multiplier'),
-                    value: 'multiplier',
-                  },
-                  {
-                    label: t('Earned'),
-                    value: 'earned',
-                  },
-                  {
-                    label: t('Liquidity'),
-                    value: 'liquidity',
-                  },
-                  {
-                    label: t('Latest'),
-                    value: 'latest',
-                  },
-                ]}
-                onOptionChange={handleSortOptionChange}
-              />
-            </LabelWrapper>
-            <LabelWrapper style={{ marginLeft: 16 }}>
-              <Text textTransform="uppercase" color="textSubtle" fontSize="12px" bold>
-                {t('Search')}
-              </Text>
-              <SearchInput initialValue={normalizedUrlSearch} onChange={handleChangeQuery} placeholder="Search Farms" />
-            </LabelWrapper>
-          </FilterContainer>
-        </ControlContainer>
+                <ToggleWrapper>
+                  <Toggle
+                    id="staked-only-farms"
+                    checked={stakedOnly}
+                    onChange={() => setStakedOnly(!stakedOnly)}
+                    scale="sm"
+                  />
+                  <Text> {t('Staked only')}</Text>
+                </ToggleWrapper>
+              </Flex>
+            </ViewControls>
+            <FilterContainer>
+              <LabelWrapper>
+                <Text textTransform="uppercase" color="textSubtle" fontSize="12px" bold>
+                  {t('Sort by')}
+                </Text>
+                <Select
+                  options={[
+                    {
+                      label: t('Hot'),
+                      value: 'hot',
+                    },
+                    {
+                      label: t('APR'),
+                      value: 'apr',
+                    },
+                    {
+                      label: t('Multiplier'),
+                      value: 'multiplier',
+                    },
+                    {
+                      label: t('Earned'),
+                      value: 'earned',
+                    },
+                    {
+                      label: t('Liquidity'),
+                      value: 'liquidity',
+                    },
+                    {
+                      label: t('Latest'),
+                      value: 'latest',
+                    },
+                  ]}
+                  onOptionChange={handleSortOptionChange}
+                />
+              </LabelWrapper>
+              <LabelWrapper style={{ marginLeft: 16 }}>
+                <Text textTransform="uppercase" color="textSubtle" fontSize="12px" bold>
+                  {t('Search')}
+                </Text>
+                <SearchInput
+                  initialValue={normalizedUrlSearch}
+                  onChange={handleChangeQuery}
+                  placeholder="Search Farms"
+                />
+              </LabelWrapper>
+            </FilterContainer>
+          </ControlContainer>
+        )}
         {isInactive && (
           <Box mb="32px">
             {chainId && V3_MIGRATION_SUPPORTED_CHAINS.includes(chainId) && (

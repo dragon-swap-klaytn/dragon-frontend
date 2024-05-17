@@ -31,7 +31,7 @@ import { ToastDescriptionWithTx } from 'components/Toast'
 import { useFarmCProxyAddress } from 'views/Farms/hooks/useFarmCProxyAddress'
 import useNonBscHarvestFarm from 'views/Farms/hooks/useNonBscHarvestFarm'
 import { farmFetcher } from 'state/farms'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 
 const TokenWrapper = styled.div`
   padding-right: 8px;
@@ -95,7 +95,7 @@ const MultiChainHarvestModal: React.FC<MultiChainHarvestModalProp> = ({
       toastSuccess(
         `${t('Harvested')}!`,
         <ToastDescriptionWithTx txHash={receipt.transactionHash}>
-          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL })}
+          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL_VIEW })}
         </ToastDescriptionWithTx>,
       )
       handleCancel()
@@ -139,7 +139,7 @@ const MultiChainHarvestModal: React.FC<MultiChainHarvestModalProp> = ({
         <LightGreyCard padding="16px">
           <Box mb="8px">
             <Text fontSize="12px" color="secondary" bold as="span">
-              {CAKE_SYMBOL}
+              {CAKE_SYMBOL_VIEW}
             </Text>
             <Text fontSize="12px" color="textSubtle" ml="4px" bold as="span">
               {t('Earned')}

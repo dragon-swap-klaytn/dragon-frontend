@@ -1,11 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
-import partition_ from 'lodash/partition'
-import { AutoRenewIcon, AutoRow, Box, Button, Flex, PreTitle, Text } from '@pancakeswap/uikit'
+import { AutoRenewIcon, AutoRow, Box, Button, Flex, PreTitle, Text, useModal } from '@pancakeswap/uikit'
 import { isPositionOutOfRange } from '@pancakeswap/utils/isPositionOutOfRange'
+import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
+import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import { usePool } from 'hooks/v3/usePools'
-import SingleFarmV3Card from 'views/Farms/components/FarmCard/V3/SingleFarmV3Card'
-import { V3Farm } from 'views/Farms/FarmsV3'
+import partition_ from 'lodash/partition'
 import { useCallback } from 'react'
+import { V3Farm } from 'views/Farms/FarmsV3'
+import SingleFarmV3Card from 'views/Farms/components/FarmCard/V3/SingleFarmV3Card'
 import { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
 
 interface FarmV3CardListProps {
@@ -28,9 +30,31 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
   const { stakedPositions, unstakedPositions, lpSymbol, token, quoteToken, pendingCakeByTokenIds, multiplier } = farm
   const [, pool] = usePool(farm.token, farm.quoteToken, farm.feeAmount)
 
+  const showKlipQr = useKlipQrCondition()
+  const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
+    <ApprovalConfirmationModal
+      minWidth={['100%', null, '420px']}
+      title="Confirm Transaction"
+      content={() => ''}
+      pendingText="wating confirm..."
+      hash={undefined}
+      attemptingTxn
+    />,
+    true,
+    true,
+    'TxConfirmationModal',
+  )
+
   const harvestAllFarms = useCallback(async () => {
-    onHarvestAll(stakedPositions.map((value) => value.tokenId.toString()))
-  }, [onHarvestAll, stakedPositions])
+    if (showKlipQr) {
+      onPresentKlipTxModal()
+    }
+    onHarvestAll(stakedPositions.map((value) => value.tokenId.toString())).then(() => {
+      if (showKlipQr) {
+        onDismissKlipTxModal({ force: true })
+      }
+    })
+  }, [onDismissKlipTxModal, onHarvestAll, onPresentKlipTxModal, showKlipQr, stakedPositions])
 
   return (
     <Box width="100%">

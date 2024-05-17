@@ -60,7 +60,7 @@ const Questions = () => {
                 <Link
                   style={{ display: 'inline-block' }}
                   external
-                  href="https://docs.dgswap.io/products/pancakeswap-exchange/fees-and-routes#check-the-fee-rate-and-fee-amount-that-is-currently-applied"
+                  href="https://docs.dgswap.io/products/fees-and-routes#check-the-fee-rate-and-fee-amount-that-is-currently-applied"
                 >
                   <Text color="primary" ml="4px" as="span">
                     {t('this tutorial')}

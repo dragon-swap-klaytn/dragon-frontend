@@ -1,7 +1,9 @@
 import { ChainId } from '@pancakeswap/chains'
 import { BigintIsh, Currency, CurrencyAmount, TradeType, ZERO } from '@pancakeswap/sdk'
+import filter from 'lodash/filter'
 
 import { ROUTE_CONFIG_BY_CHAIN } from './constants'
+import disabledTokens from '../constants/disabled'
 import { computeAllRoutes, getBestRouteCombinationByQuotes } from './functions'
 import { createGasModel } from './gasModel'
 import { getRoutesWithValidQuote } from './getRoutesWithValidQuote'
@@ -74,8 +76,23 @@ async function getBestRoutes(
     protocols: allowedPoolTypes,
     signal,
   })
+  const availableCandidatePools = filter(candidatePools, pool => {
+    // v3
+    if (pool.type === 1) {
+      // @ts-ignore
+      return !disabledTokens[chainId].has(pool.token0.address) && !disabledTokens[chainId].has(pool.token1.address)
+    }
 
-  let baseRoutes = computeAllRoutes(inputCurrency, outputCurrency, candidatePools, maxHops)
+    // v2
+    if (pool.type === 0) {
+      // @ts-ignore
+      return !disabledTokens[chainId].has(pool.reserve0.currency.address) && !disabledTokens[chainId].has(pool.reserve1.currency.address)
+    }
+
+    return true
+  })
+
+  let baseRoutes = computeAllRoutes(inputCurrency, outputCurrency, availableCandidatePools, maxHops)
   // Do not support mix route on exact output
   if (tradeType === TradeType.EXACT_OUTPUT) {
     baseRoutes = baseRoutes.filter(({ type }) => type !== RouteType.MIXED)

@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { checkIsStableSwap } from 'state/info/constant'
 import { useAllPoolDataQuery, useStableSwapTopPoolsAPR } from 'state/info/hooks'
@@ -30,6 +29,7 @@ export const usePoolsData = () => {
 
 export const useNonSpamPoolsData = () => {
   const { poolsData: rawPoolsData, ...others } = usePoolsData()
+
   // top 10 pair need create at least 4 days
   const poolsData = useMemo(
     () =>
@@ -39,10 +39,11 @@ export const useNonSpamPoolsData = () => {
           return acc
         }
 
-        const maySpam = dayjs().diff(dayjs.unix(data.timestamp), 'day') < 4
+        // [Comment] process block spam
+        // const maySpam = dayjs().diff(dayjs.unix(data.timestamp), 'day') <= 0
 
         // top 10 should not show may spam tokens,
-        if (maySpam) return acc
+        // if (maySpam) return acc
 
         // after top 10 will not filtered
         acc.push(data)

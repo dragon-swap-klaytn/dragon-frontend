@@ -2,7 +2,7 @@
 import { PositionDetails } from '@pancakeswap/farms'
 import { masterChefV3ABI } from '@pancakeswap/v3-sdk'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useV3NFTPositionManagerContract } from 'hooks/useContract'
+import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useEffect, useMemo } from 'react'
 import { Address, useContractRead, useContractReads } from 'wagmi'
 
@@ -168,24 +168,24 @@ export function useV3TokenIdsByAccount(
 
 export function useV3Positions(account: Address | null | undefined): UseV3PositionsResults {
   const positionManager = useV3NFTPositionManagerContract()
+  const masterchefV3 = useMasterchefV3()
+
   const { tokenIds, loading: tokenIdsLoading } = useV3TokenIdsByAccount(positionManager?.address, account)
 
-  /*
-  const masterchefV3 = useMasterchefV3()
   const { tokenIds: stakedTokenIds } = useV3TokenIdsByAccount(masterchefV3?.address, account)
-  const totalTokenIds = useMemo(() => [...tokenIds], [tokenIds])
-  */
 
-  const { positions, loading: positionsLoading } = useV3PositionsFromTokenIds(tokenIds)
+  const totalTokenIds = useMemo(() => [...stakedTokenIds, ...tokenIds], [stakedTokenIds, tokenIds])
+
+  const { positions, loading: positionsLoading } = useV3PositionsFromTokenIds(totalTokenIds)
 
   return useMemo(
     () => ({
       loading: tokenIdsLoading || positionsLoading,
       positions: positions?.map((position) => ({
         ...position,
-        // isStaked: Boolean(stakedTokenIds?.find((s) => s === position.tokenId)),
+        isStaked: Boolean(stakedTokenIds?.find((s) => s === position.tokenId)),
       })),
     }),
-    [positions, positionsLoading, tokenIdsLoading],
+    [positions, positionsLoading, stakedTokenIds, tokenIdsLoading],
   )
 }

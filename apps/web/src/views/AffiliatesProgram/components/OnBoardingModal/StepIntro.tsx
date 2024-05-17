@@ -1,5 +1,5 @@
 import { Trans } from '@pancakeswap/localization'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { Box, ChevronLeftIcon, ChevronRightIcon, Flex, Heading, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import useTheme from 'hooks/useTheme'
 import Image from 'next/image'
@@ -39,7 +39,7 @@ const IntroSteps = [
     icon: '/images/affiliates-program/slider/3.png',
     description: (
       <Trans>
-        {`Earn ${CAKE_SYMBOL} tokens on most trades made on PancakeSwap. Stake for more rewards or use them in our Lottery
+        {`Earn ${CAKE_SYMBOL_VIEW} tokens on most trades made on PancakeSwap. Stake for more rewards or use them in our Lottery
       and Pottery`}
       </Trans>
     ),

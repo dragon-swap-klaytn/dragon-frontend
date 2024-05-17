@@ -116,8 +116,8 @@ export const TradeSummary = memo(function TradeSummary({
                       external
                       href={
                         isMM
-                          ? 'https://docs.dgswap.io/products/pancakeswap-exchange/market-maker-integration#fees'
-                          : 'https://docs.dgswap.io/products/pancakeswap-exchange/faq#what-will-be-the-trading-fee-breakdown-for-v3-exchange'
+                          ? 'https://docs.dgswap.io/products/market-maker-integration#fees'
+                          : 'https://docs.dgswap.io/products/fees'
                       }
                     >
                       {t('Fee Breakdown and Tokenomics')}

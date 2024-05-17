@@ -26,6 +26,6 @@ export function getChainName(chainId: ChainId) {
     case ChainId.ETHEREUM:
       return 'ETH'
     default:
-      return 'BSC'
+      return 'KLAYTN'
   }
 }

@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import {
   Box,
   Button,
@@ -71,7 +71,7 @@ export const useBCakeTooltipContent = () => {
       <Box mb="20px">
         {t(
           'Yield Boosters allow you to boost your farming yields by locking %symbol% in the fixed-term staking %symbol% pool. The more %symbol% you lock, and the longer you lock them, the higher the boost you will receive.',
-          { symbol: CAKE_SYMBOL },
+          { symbol: CAKE_SYMBOL_VIEW },
         )}
       </Box>
       <Box>

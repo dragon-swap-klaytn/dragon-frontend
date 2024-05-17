@@ -14,7 +14,6 @@ import {
   Modal,
   ModalV2,
   NotificationDot,
-  PancakeToggle,
   PreTitle,
   QuestionHelper,
   RowFixed,
@@ -257,7 +256,7 @@ const SettingsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> = ({ 
                 onChange={handleExpertModeToggle}
               />
             </Flex>
-            <Flex justifyContent="space-between" alignItems="center" mb="24px">
+            {/* <Flex justifyContent="space-between" alignItems="center" mb="24px">
               <Flex alignItems="center">
                 <Text>{t('Flippy sounds')}</Text>
                 <QuestionHelper
@@ -267,7 +266,7 @@ const SettingsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> = ({ 
                 />
               </Flex>
               <PancakeToggle checked={audioPlay} onChange={() => setAudioMode((s) => !s)} scale="md" />
-            </Flex>
+            </Flex> */}
             <RoutingSettingsButton />
           </>
         )}

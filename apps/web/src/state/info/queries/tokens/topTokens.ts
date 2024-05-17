@@ -31,17 +31,17 @@ interface StableSwapTopTokensResponse {
 const fetchTopTokens = async (chainName: MultiChainNameExtend, timestamp24hAgo: number): Promise<string[]> => {
   const whereCondition =
     chainName === 'ETH' || chainName === 'KLAYTN' || chainName === 'KLAYTN_TESTNET'
-      ? `where: { date_gt: ${timestamp24hAgo}, token_not_in: $blacklist, dailyVolumeUSD_gt:2000 }`
+      ? `where: { token_not_in: $blacklist }`
       : checkIsStableSwap()
       ? ''
       : `where: { dailyTxns_gt: ${chainName === 'BSC' ? 300 : 0}, id_not_in: $blacklist, date_gt: ${timestamp24hAgo}}`
   const firstCount = 50
   try {
+    // [Comment] turn off blaclist
     const query = gql`
       query topTokens($blacklist: [ID!]) {
         tokenDayDatas(
           first: ${firstCount}
-          ${whereCondition}
           orderBy: dailyVolumeUSD
           orderDirection: desc
         ) {

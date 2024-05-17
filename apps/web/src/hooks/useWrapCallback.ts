@@ -1,12 +1,13 @@
-import { Currency, WNATIVE } from '@pancakeswap/sdk'
-import { useMemo } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
+import { Currency, WNATIVE, WNATIVE2 } from '@pancakeswap/sdk'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
+import type { Handler, HandlerWithArgs } from '@pancakeswap/uikit/widgets/Modal/types'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { useMemo } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
-import { useWNativeContract } from './useContract'
 import { useCallWithGasPrice } from './useCallWithGasPrice'
+import { useRNativeContract, useWNativeContract } from './useContract'
 
 export enum WrapType {
   NOT_APPLICABLE,
@@ -20,16 +21,19 @@ const NOT_APPLICABLE = { wrapType: WrapType.NOT_APPLICABLE }
  * @param inputCurrency the selected input currency
  * @param outputCurrency the selected output currency
  * @param typedValue the user input value
+ * @param qrHandlers functions about web2app tx(like klip)
  */
 export default function useWrapCallback(
   inputCurrency: Currency | undefined | null,
   outputCurrency: Currency | undefined | null,
   typedValue: string | undefined,
+  qrHandlers?: { open: Handler, close: HandlerWithArgs },
 ): { wrapType: WrapType; execute?: undefined | (() => Promise<void>); inputError?: string } {
   const { t } = useTranslation()
   const { account, chainId } = useAccountActiveChain()
   const { callWithGasPrice } = useCallWithGasPrice()
   const wbnbContract = useWNativeContract()
+  const rklayContract = useRNativeContract()
   const balance = useCurrencyBalance(account ?? undefined, inputCurrency)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
   const inputAmount = useMemo(() => tryParseAmount(typedValue, inputCurrency), [inputCurrency, typedValue])
@@ -40,16 +44,31 @@ export default function useWrapCallback(
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
-    if (inputCurrency?.isNative && WNATIVE[chainId]?.equals(outputCurrency)) {
+    const isWNative = WNATIVE[chainId]?.equals(outputCurrency) || WNATIVE[chainId]?.equals(inputCurrency)
+
+    if (
+      (inputCurrency?.isNative && WNATIVE[chainId]?.equals(outputCurrency)) ||
+      WNATIVE2[chainId]?.equals(outputCurrency)
+    ) {
       return {
         wrapType: WrapType.WRAP,
         execute:
           sufficientBalance && inputAmount
             ? async () => {
                 try {
-                  const txReceipt = await callWithGasPrice(wbnbContract, 'deposit', undefined, {
-                    value: inputAmount.quotient,
-                  })
+                  if (qrHandlers) {
+                    qrHandlers.open()
+                  }
+
+                  const txReceipt = await callWithGasPrice(
+                    isWNative ? wbnbContract : rklayContract,
+                    'deposit',
+                    undefined,
+                    {
+                      value: inputAmount.quotient,
+                    },
+                  )
+
                   const amount = inputAmount.toSignificant(6)
                   const native = inputCurrency.symbol
                   const wrap = WNATIVE[chainId].symbol
@@ -60,6 +79,10 @@ export default function useWrapCallback(
                   })
                 } catch (error) {
                   console.error('Could not deposit', error)
+                } finally {
+                  if (qrHandlers) {
+                    qrHandlers.close({ force: true })
+                  }
                 }
               }
             : undefined,
@@ -68,14 +91,23 @@ export default function useWrapCallback(
           : t('Insufficient %symbol% balance', { symbol: inputCurrency.symbol }),
       }
     }
-    if (WNATIVE[chainId]?.equals(inputCurrency) && outputCurrency?.isNative) {
+    if (
+      WNATIVE[chainId]?.equals(inputCurrency) ||
+      (WNATIVE2[chainId]?.equals(inputCurrency) && outputCurrency?.isNative)
+    ) {
       return {
         wrapType: WrapType.UNWRAP,
         execute:
           sufficientBalance && inputAmount
             ? async () => {
                 try {
-                  const txReceipt = await callWithGasPrice(wbnbContract, 'withdraw', [inputAmount.quotient])
+                  if (qrHandlers) {
+                    qrHandlers.open()
+                  }
+
+                  const txReceipt = await callWithGasPrice(isWNative ? wbnbContract : rklayContract, 'withdraw', [
+                    inputAmount.quotient,
+                  ])
                   const amount = inputAmount.toSignificant(6)
                   const wrap = WNATIVE[chainId].symbol
                   const native = outputCurrency.symbol
@@ -85,6 +117,10 @@ export default function useWrapCallback(
                   })
                 } catch (error) {
                   console.error('Could not withdraw', error)
+                } finally {
+                  if (qrHandlers) {
+                    qrHandlers.close({ force: true })
+                  }
                 }
               }
             : undefined,

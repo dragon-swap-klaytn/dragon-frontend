@@ -2,9 +2,11 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { isAddress } from 'viem'
 
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
+import { useBeforeBlockPerDayUnits } from 'state/block/hooks'
 import fetchPoolChartData from 'state/info/queries/pools/chartData'
 import { fetchAllPoolData, fetchAllPoolDataWithAddress } from 'state/info/queries/pools/poolData'
 import fetchPoolTransactions from 'state/info/queries/pools/transactions'
@@ -90,15 +92,21 @@ export const useProtocolTransactionsQuery = (): Transaction[] | undefined => {
 }
 
 export const useAllPoolDataQuery = () => {
+  const beforeBlocks = useBeforeBlockPerDayUnits()
+
   const chainName = useChainNameByQuery()
   const [t24h, t48h, t7d, t14d] = getDeltaTimestamps()
   const { blocks } = useBlockFromTimeStampQuery([t24h, t48h, t7d, t14d])
   const type = checkIsStableSwap() ? 'stableSwap' : 'swap'
-  const { data } = useQuery([`info/pools/data/${type}`, chainName], () => fetchAllPoolData(blocks ?? [], chainName), {
-    enabled: true,
-    ...QUERY_SETTINGS_IMMUTABLE,
-    ...QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH,
-  })
+  const { data } = useQuery(
+    [`info/pools/data/${type}`, chainName],
+    () => fetchAllPoolData(blocks ?? beforeBlocks, chainName),
+    {
+      enabled: true,
+      ...QUERY_SETTINGS_IMMUTABLE,
+      ...QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH,
+    },
+  )
   return useMemo(() => {
     return data ?? {}
   }, [data])
@@ -138,6 +146,7 @@ export const usePoolChartDataQuery = (address: string): ChartEntry[] | undefined
     {
       ...QUERY_SETTINGS_IMMUTABLE,
       ...QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH,
+      enabled: isAddress(address),
     },
   )
   return data?.data ?? undefined
@@ -152,6 +161,7 @@ export const usePoolTransactionsQuery = (address: string): Transaction[] | undef
     {
       ...QUERY_SETTINGS_IMMUTABLE,
       ...QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH,
+      enabled: isAddress(address),
     },
   )
   return data?.data ?? undefined
@@ -198,15 +208,21 @@ export const useAllTokenHighLight = ({
 export const useAllTokenDataQuery = (): {
   [address: string]: { data?: TokenData }
 } => {
+  const beforeBlocks = useBeforeBlockPerDayUnits()
+
   const chainName = useChainNameByQuery()
   const [t24h, t48h, t7d, t14d] = getDeltaTimestamps()
   const { blocks } = useBlockFromTimeStampQuery([t24h, t48h, t7d, t14d])
   const type = 'swap'
-  const { data } = useQuery([`info/token/data/${type}`, chainName], () => fetchAllTokenData(chainName, blocks ?? []), {
-    enabled: true,
-    ...QUERY_SETTINGS_IMMUTABLE,
-    ...QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH,
-  })
+  const { data } = useQuery(
+    [`info/token/data/${type}`, chainName],
+    () => fetchAllTokenData(chainName, blocks ?? beforeBlocks),
+    {
+      enabled: true,
+      ...QUERY_SETTINGS_IMMUTABLE,
+      ...QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH,
+    },
+  )
   return data ?? {}
 }
 

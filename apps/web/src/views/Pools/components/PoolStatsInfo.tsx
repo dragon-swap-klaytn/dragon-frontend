@@ -15,6 +15,7 @@ import { VaultKey } from 'state/types'
 import { getBlockExploreLink } from 'utils'
 import { getVaultPoolAddress } from 'utils/addressHelpers'
 import { getPoolBlockInfo } from 'views/Pools/helpers'
+import { useTokenLogo } from 'hooks/useTokenLogo'
 import MaxStakeRow from './MaxStakeRow'
 import { AprInfo, DurationAvg, TotalLocked } from './Stat'
 
@@ -68,6 +69,7 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
     () => (chainId ? getTokenInfoPath(chainId, earningToken.address) : ''),
     [chainId, earningToken.address],
   )
+  const tokenLogo = useTokenLogo(earningToken)
 
   return (
     <>
@@ -164,7 +166,7 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
             tokenAddress={tokenAddress}
             tokenSymbol={earningToken.symbol}
             tokenDecimals={earningToken.decimals}
-            tokenLogo={`https://tokens.pancakeswap.finance/images/${tokenAddress}.png`}
+            tokenLogo={tokenLogo}
           />
         </Flex>
       )}

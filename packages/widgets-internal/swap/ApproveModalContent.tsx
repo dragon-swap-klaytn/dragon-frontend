@@ -1,16 +1,20 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { Spinner, Text, Box, Flex, TooltipText, AutoColumn, ColumnCenter, useTooltip } from "@pancakeswap/uikit";
+import { AutoColumn, Box, ColumnCenter, Flex, Spinner, Text, TooltipText, useTooltip } from "@pancakeswap/uikit";
+import { Suspense, lazy } from "react";
+
+const QRCodeSVG = lazy(() => import("qrcode.react").then((module) => ({ default: module.QRCodeSVG })));
 
 interface ApproveModalContentProps {
   title: string;
   isMM?: boolean;
   isBonus: boolean;
+  qrUri?: string;
 }
 
-export const ApproveModalContent: React.FC<ApproveModalContentProps> = ({ title, isMM, isBonus }) => {
+export const ApproveModalContent: React.FC<ApproveModalContentProps> = ({ title, isMM, isBonus, qrUri }) => {
   const { t } = useTranslation();
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    <Text>{t("Pancakeswap AMM includes V3, V2 and stable swap.")}</Text>,
+    <Text>{t("Dragonswap AMM includes V3, V2 and stable swap.")}</Text>,
     { placement: "top" }
   );
 
@@ -18,7 +22,13 @@ export const ApproveModalContent: React.FC<ApproveModalContentProps> = ({ title,
     <Box width="100%">
       <Box mb="16px">
         <ColumnCenter>
-          <Spinner />
+          {qrUri ? (
+            <Suspense fallback={<Spinner />}>
+              <QRCodeSVG value={qrUri} size={144} level="H" includeMargin />
+            </Suspense>
+          ) : (
+            <Spinner />
+          )}
         </ColumnCenter>
       </Box>
       <AutoColumn gap="12px" justify="center">

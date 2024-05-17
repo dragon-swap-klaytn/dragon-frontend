@@ -144,6 +144,7 @@ const CollectWinningsPopup = () => {
   useEffect(() => {
     let isCancelled = false
     if (account && config) {
+      // @ts-ignore
       timer = setInterval(async () => {
         const bets = await getBetHistory(
           { user: account.toLowerCase(), claimed: false },

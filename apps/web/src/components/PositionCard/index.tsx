@@ -226,7 +226,7 @@ function MinimalPositionCardView({
         <LightCard>
           <Text fontSize="14px" style={{ textAlign: 'center' }}>
             <span role="img" aria-label="pancake-icon">
-              🥞
+              🐉
             </span>{' '}
             {isStableLP ? (
               <>
@@ -244,7 +244,7 @@ function MinimalPositionCardView({
               </>
             ) : (
               t(
-                "By adding liquidity you'll earn 0.17% of all trades on this pair proportional to your share in the trading pair. Fees are added to the pair, accrue in real time and can be claimed by withdrawing your liquidity.",
+                "By adding liquidity you'll earn 0.24% of all trades on this pair proportional to your share in the trading pair. Fees are added to the pair, accrue in real time and can be claimed by withdrawing your liquidity.",
               )
             )}
           </Text>

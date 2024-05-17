@@ -1096,7 +1096,7 @@ const prepare = {
       }),
     }).then((res) => res.json())
   },
-  executeContract: ({ bappName, from, to, value, abi, params, successLink, failLink }) => {
+  executeContract: ({ bappName, from, to, value, abi, params, successLink, failLink, encoded_function_call }) => {
     return fetch(`${SERVER_URL}/prepare`, {
       method: 'POST',
       headers: {
@@ -1114,9 +1114,8 @@ const prepare = {
         transaction: {
           from: from,
           to: to,
-          value: value,
-          abi: abi,
-          params: params,
+          value: value ?? '0',
+          ...(encoded_function_call ? { encoded_function_call: encoded_function_call } : { abi: abi, params: params }),
         },
       }),
     }).then((res) => res.json())

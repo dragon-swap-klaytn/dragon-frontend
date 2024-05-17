@@ -12,24 +12,25 @@ import {
   supportedChainIdV3,
 } from '@pancakeswap/farms'
 import { priceHelperTokens } from '@pancakeswap/farms/constants/common'
-import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
+import { farmsV3ConfigChainMap, farmsV3FinishedConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterVeCake'
 import { TvlMap, fetchCommonTokenUSDValue } from '@pancakeswap/farms/src/fetchFarmsV3'
 import { deserializeToken } from '@pancakeswap/token-lists'
 import { useQuery } from '@tanstack/react-query'
+import { usePreviousValue } from '@pancakeswap/hooks'
 import { FAST_INTERVAL } from 'config/constants'
+import { gql } from 'graphql-request'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
 import { useBCakeFarmBoosterVeCakeContract, useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useV3PositionsFromTokenIds, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import toLower from 'lodash/toLower'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
 import { publicClient } from 'utils/wagmi'
-import { Hex, decodeFunctionResult, encodeFunctionData } from 'viem'
 import { useAccount } from 'wagmi'
-import { gql } from 'graphql-request'
-import { v3Clients } from 'utils/graphql'
 
 export const farmV3ApiFetch = (chainId: number): Promise<FarmsV3Response> =>
   fetch(`/api/v3/${chainId}/farms`)
@@ -74,8 +75,10 @@ export const useFarmsV3Public = () => {
         })
       }
 
+      const isFinished = window.location.pathname === '/farms/finished'
+
       // direct copy from api routes, the client side fetch is preventing cache due to migration phase we want fresh data
-      const farms = farmsV3ConfigChainMap[chainId as ChainId]
+      const farms = isFinished ? farmsV3FinishedConfigChainMap[chainId as ChainId] : farmsV3ConfigChainMap[chainId as ChainId]
 
       const commonPrice = await fetchCommonTokenUSDValue(priceHelperTokens[chainId ?? -1])
 
@@ -84,6 +87,7 @@ export const useFarmsV3Public = () => {
           chainId: chainId ?? -1,
           farms,
           commonPrice,
+          isFinished
         })
 
         return data
@@ -109,11 +113,14 @@ interface UseFarmsOptions {
 export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
   const { chainId } = useActiveChainId()
 
+  const { pathname } = useRouter()
+  const prevPathname = usePreviousValue(pathname)
+
   const farmV3 = useFarmsV3Public()
 
   const cakePrice = useCakePrice()
 
-  const { data } = useQuery<FarmsV3Response<FarmV3DataWithPriceTVL>>(
+  const { data, refetch } = useQuery<FarmsV3Response<FarmV3DataWithPriceTVL>>(
     [chainId, 'cake-apr-tvl'],
     async () => {
       if (chainId !== farmV3?.data.chainId) {
@@ -123,28 +130,28 @@ export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
       const tvls: TvlMap = {}
 
       if (supportedChainIdV3.includes(chainId)) {
-        const addresses = farmV3.data.farmsWithPrice.map(f => f.lpAddress.toLowerCase())
+        const addresses = farmV3.data.farmsWithPrice.map((f) => f.lpAddress.toLowerCase())
         const query = gql`
-            query fetchV3Pools ($addresses: [String]) {
-                pools(where: { id_in: $addresses }) {
-                    id
-                    totalValueLockedToken0
-                    totalValueLockedToken1
-                    token0 {
-                        derivedUSD
-                    }
-                    token1 {
-                        derivedUSD
-                    }
-                }
+          query fetchV3Pools($addresses: [String]) {
+            pools(where: { id_in: $addresses }, orderBy: createdAtTimestamp) {
+              id
+              totalValueLockedToken0
+              totalValueLockedToken1
+              token0 {
+                derivedUSD
+              }
+              token1 {
+                derivedUSD
+              }
             }
+          }
         `
         const { pools } = await v3Clients[chainId].request(query, {
           addresses,
         })
         const updatedAt = String(new Date().valueOf())
 
-        for(let i = 0; i < pools.length; i++) {
+        for (let i = 0; i < pools.length; i++) {
           const pool = pools[i]
 
           tvls[pool.id] = {
@@ -152,10 +159,12 @@ export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
             token1: pool.totalValueLockedToken1,
             updatedAt,
           }
+
           farmV3.data.farmsWithPrice[i] = {
             ...farmV3.data.farmsWithPrice[i],
+            lpAddress: pool.id,
             tokenPriceBusd: pool.token0.derivedUSD,
-            quoteTokenPriceBusd: pool.token1.derivedUSD
+            quoteTokenPriceBusd: pool.token1.derivedUSD,
           }
         }
       }
@@ -201,6 +210,13 @@ export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
     },
   )
 
+  useEffect(() => {
+    if (prevPathname && pathname !== prevPathname) {
+      farmV3.remove()
+      setTimeout(() => farmV3.refetch().then(refetch), 1000)
+    }
+  }, [pathname, prevPathname])
+
   return {
     data: useMemo(() => {
       return farmV3.isLoading || farmV3.data.chainId !== chainId
@@ -212,42 +228,52 @@ export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
   }
 }
 
-export const useStakedPositionsByUser = (stakedTokenIds: bigint[]) => {
+export const useStakedPositionsByUser = (stakedTokenIds: bigint[], isFinished?: boolean) => {
   const { address: account } = useAccount()
   const { chainId } = useActiveChainId()
-  const masterchefV3 = useMasterchefV3()
+  const masterchefV3 = useMasterchefV3(isFinished)
 
-  const harvestCalls = useMemo(() => {
+  const callDatas = useMemo(() => {
     if (!account || !supportedChainIdV3.includes(chainId ?? -1)) return []
-    const callData: Hex[] = []
+
+    const callData: any[] = []
     for (const stakedTokenId of stakedTokenIds) {
-      callData.push(
-        encodeFunctionData({
-          abi: masterchefV3?.abi ?? [],
-          functionName: 'harvest',
-          args: [stakedTokenId, account],
-        }),
-      )
+      callData.push({
+        address: masterchefV3?.address,
+        abi: masterchefV3?.abi ?? [],
+        functionName: 'pendingCake',
+        args: [Number(stakedTokenId)],
+      })
     }
+
     return callData
-  }, [account, masterchefV3?.abi, stakedTokenIds, chainId])
+  }, [account, masterchefV3?.abi, masterchefV3?.address, stakedTokenIds, chainId])
 
   const { data } = useQuery(
-    ['mcv3-harvest', harvestCalls],
-    () => {
-      return masterchefV3?.simulate.multicall([harvestCalls], { account, value: 0n }).then((res) => {
-        return res.result
-          .map((r) =>
-            decodeFunctionResult({
-              abi: masterchefV3?.abi,
-              functionName: 'harvest',
-              data: r,
-            }),
-          )
-          .map((r) => {
-            return r
-          })
+    ['mcv3-userPositionInfos', callDatas],
+    async () => {
+      if (isFinished) {
+        const emptyResult: bigint[] = []
+        stakedTokenIds.forEach(() => {
+          emptyResult.push(0n)
+        })
+
+        return emptyResult
+      }
+
+      const res = await publicClient({ chainId }).multicall({
+        contracts: callDatas
+      }).catch(() => {
+        return [{ status: 'error' }]
       })
+      const rewards: bigint[] = []
+
+      for (const call of res) {
+        // @ts-ignore
+        rewards.push(call.status !== 'success' ? 0n : (call?.result ?? 0n))
+      }
+
+      return rewards
     },
     {
       enabled: Boolean(account),
@@ -255,18 +281,19 @@ export const useStakedPositionsByUser = (stakedTokenIds: bigint[]) => {
     },
   )
 
-  return { tokenIdResults: data || [], isLoading: harvestCalls.length > 0 && !data }
+  return { tokenIdResults: data || [], isLoading: callDatas.length > 0 && !data }
 }
 
 const usePositionsByUserFarms = (
   farmsV3: FarmV3DataWithPrice[],
+  isFinished?: boolean
 ): {
   farmsWithPositions: FarmV3DataWithPriceAndUserInfo[]
   userDataLoaded: boolean
 } => {
   const { address: account } = useAccount()
   const positionManager = useV3NFTPositionManagerContract()
-  const masterchefV3 = useMasterchefV3()
+  const masterchefV3 = useMasterchefV3(isFinished)
 
   const { tokenIds: stakedTokenIds } = useV3TokenIdsByAccount(masterchefV3?.address, account)
 
@@ -278,7 +305,7 @@ const usePositionsByUserFarms = (
 
   const { positions } = useV3PositionsFromTokenIds(uniqueTokenIds)
 
-  const { tokenIdResults, isLoading: isStakedPositionLoading } = useStakedPositionsByUser(stakedIds)
+  const { tokenIdResults, isLoading: isStakedPositionLoading } = useStakedPositionsByUser(stakedIds, isFinished)
 
   const [unstakedPositions, stakedPositions] = useMemo(() => {
     if (!positions) return [[], []]
@@ -352,7 +379,7 @@ const usePositionsByUserFarms = (
   }
 }
 
-export function useFarmsV3WithPositionsAndBooster(options: UseFarmsOptions = {}): {
+export function useFarmsV3WithPositionsAndBooster(options: UseFarmsOptions = {}, isFinished?: boolean): {
   farmsWithPositions: FarmV3DataWithPriceAndUserInfo[]
   userDataLoaded: boolean
   cakePerSecond: string
@@ -365,6 +392,7 @@ export function useFarmsV3WithPositionsAndBooster(options: UseFarmsOptions = {})
   return {
     ...usePositionsByUserFarms(
       data.farmsWithPrice?.map((d, index) => ({ ...d, boosted: boosterWhitelist?.[index]?.boosted })),
+      isFinished,
     ),
     poolLength: data.poolLength,
     cakePerSecond: data.cakePerSecond,

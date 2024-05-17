@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { RoiCalculatorModal, Text, TooltipText, useModal, useTooltip } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import BigNumber from 'bignumber.js'
 import _toNumber from 'lodash/toNumber'
 import { MouseEvent, useContext, useState } from 'react'
@@ -139,7 +140,7 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
           </Text>
         </Text>
       )}
-      {strikethrough && <Text color="secondary">{t('Boost only applies to base APR (CAKE yield)')}</Text>}
+      {strikethrough && <Text color="secondary">{t('Boost only applies to base APR (CAKE yield)', { cake: CAKE_SYMBOL_VIEW })}</Text>}
     </>,
     {
       placement: 'top',

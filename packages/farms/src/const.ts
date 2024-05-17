@@ -35,8 +35,17 @@ export const masterChefV3Addresses = {
   [ChainId.GOERLI]: '0x864ED564875BdDD6F421e226494a0E7c071C06f8',
   [ChainId.BSC]: '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
   [ChainId.BSC_TESTNET]: '0x4c650FB471fe4e0f476fD3437C3411B1122c4e3B',
-  [ChainId.KLAYTN]: '0xa120A272a90C39e3E932ef2D18cb6d45E7485F7d',
+  [ChainId.KLAYTN]: '0x6AC953CAD04b0Ce38a454f17D1d92620e456c9C0',
   [ChainId.KLAYTN_TESTNET]: '0x084B5eF28B51aEB6D5De82140eA5f8FeA52B70ab',
+} as const satisfies Record<FarmV3SupportedChainId, string>
+
+export const masterChefV3FinishedAddresses = {
+  [ChainId.ETHEREUM]: '0x',
+  [ChainId.GOERLI]: '0x',
+  [ChainId.BSC]: '0x',
+  [ChainId.BSC_TESTNET]: '0x',
+  [ChainId.KLAYTN]: '0xB845fB78C78d349ec08d47C2cCdC564baD2f67B0',
+  [ChainId.KLAYTN_TESTNET]: '0x',
 } as const satisfies Record<FarmV3SupportedChainId, string>
 
 export const nonBSCVaultAddresses = {

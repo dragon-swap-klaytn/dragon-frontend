@@ -7,12 +7,11 @@ import {
   Card,
   Flex,
   Heading,
-  Image,
+  ScanLink,
   Spinner,
   Text,
   Link as UIKitLink,
   useMatchBreakpoints,
-  ScanLink,
 } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
@@ -23,13 +22,15 @@ import truncateHash from '@pancakeswap/utils/truncateHash'
 import Page from 'components/Layout/Page'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ONE_HOUR_SECONDS } from 'config/constants/info'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
 import { useMemo } from 'react'
 import {
+  ChainLinkSupportChains,
   multiChainId,
   multiChainScan,
   subgraphTokenName,
   subgraphTokenSymbol,
-  ChainLinkSupportChains,
 } from 'state/info/constant'
 import {
   useChainIdByQuery,
@@ -52,9 +53,6 @@ import PoolTable from 'views/Info/components/InfoTables/PoolsTable'
 import TransactionTable from 'views/Info/components/InfoTables/TransactionsTable'
 import Percent from 'views/Info/components/Percent'
 import SaveIcon from 'views/Info/components/SaveIcon'
-import useCMCLink from 'views/Info/hooks/useCMCLink'
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
 
 dayjs.extend(duration)
 
@@ -88,8 +86,6 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
 
   // In case somebody pastes checksummed address into url (since GraphQL expects lowercase address)
   const address = routeAddress.toLowerCase()
-
-  const cmcLink = useCMCLink(address)
 
   const tokenData = useTokenDataQuery(address)
   const poolsForToken = usePoolsForTokenQuery(address)
@@ -161,11 +157,12 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
                 >
                   {t('View on %site%', { site: multiChainScan[chainName] })}
                 </ScanLink>
-                {cmcLink && (
+                {/* [Comment] if you want to show coin marketcap link, remove commnet after register api key */}
+                {/* {cmcLink && (
                   <StyledCMCLink href={cmcLink} rel="noopener noreferrer nofollow" target="_blank">
                     <Image src="/images/CMC-logo.svg" height={22} width={22} alt={t('View token on CoinMarketCap')} />
                   </StyledCMCLink>
-                )}
+                )} */}
                 <SaveIcon fill={savedTokens.includes(address)} onClick={() => addToken(address)} />
               </Flex>
             </Flex>

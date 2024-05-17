@@ -8,6 +8,7 @@ import {
   bCakeSupportedChainId,
   masterChefAddresses,
   masterChefV3Addresses,
+  masterChefV3FinishedAddresses,
   supportedChainId,
   supportedChainIdV2,
   supportedChainIdV3,
@@ -80,12 +81,14 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
     farms,
     chainId,
     commonPrice,
+    isFinished
   }: {
     farms: ComputedFarmConfigV3[]
     chainId: FarmV3SupportedChainId
-    commonPrice: CommonPrice
+    commonPrice: CommonPrice,
+    isFinished?: boolean
   }) => {
-    const masterChefAddress = masterChefV3Addresses[chainId]
+    const masterChefAddress = isFinished ? masterChefV3FinishedAddresses[chainId] : masterChefV3Addresses[chainId]
 
     if (!masterChefAddress || !provider) {
       throw new Error('Unsupported chain')
@@ -156,4 +159,4 @@ export type { FarmWithPrices } from './v2/farmPrices'
 export * from './v2/farmsPriceHelpers'
 export * from './v2/filterFarmsByQuery'
 
-export { fetchCommonTokenUSDValue, fetchTokenUSDValues, masterChefAddresses, masterChefV3Addresses }
+export { fetchCommonTokenUSDValue, fetchTokenUSDValues, masterChefAddresses, masterChefV3Addresses, masterChefV3FinishedAddresses }

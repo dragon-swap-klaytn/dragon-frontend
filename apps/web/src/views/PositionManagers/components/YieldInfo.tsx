@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, Flex, RowBetween, Text } from '@pancakeswap/uikit'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { memo, useMemo } from 'react'
 import { AprResult } from '../hooks'
 import { AprButton } from './AprButton'
@@ -41,7 +41,7 @@ export const YieldInfo = memo(function YieldInfo({
   const { t } = useTranslation()
 
   const earning = useMemo(
-    () => (withCakeReward && apr.isInCakeRewardDateRange ? t('%cake% + Fees', { cake: CAKE_SYMBOL }) : t('Fees')),
+    () => (withCakeReward && apr.isInCakeRewardDateRange ? t('%cake% + Fees', { cake: CAKE_SYMBOL_VIEW }) : t('Fees')),
     [withCakeReward, t, apr.isInCakeRewardDateRange],
   )
 

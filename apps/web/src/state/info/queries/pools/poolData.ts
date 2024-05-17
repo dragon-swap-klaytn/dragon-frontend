@@ -104,10 +104,10 @@ export const fetchPoolData = async (
   block7d: number,
   block14d: number,
   poolAddresses: string[],
-  chainName: MultiChainName = 'BSC',
+  chainName: MultiChainName = 'KLAYTN',
 ) => {
   const isStableSwap = checkIsStableSwap()
-  const startBlock = isStableSwap ? STABLESWAP_SUBGRAPHS_START_BLOCK[chainName] : undefined
+  const startBlock = isStableSwap ? STABLESWAP_SUBGRAPHS_START_BLOCK[chainName] : 145315220
   try {
     const query = gql`
       query pools {

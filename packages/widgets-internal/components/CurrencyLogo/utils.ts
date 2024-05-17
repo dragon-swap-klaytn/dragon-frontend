@@ -1,6 +1,6 @@
 import { ChainId } from "@pancakeswap/chains";
 import { Currency, NATIVE, Token } from "@pancakeswap/sdk";
-import { bscTokens, ethereumTokens } from "@pancakeswap/tokens";
+import { klaytnTokens, ethereumTokens, bscTokens } from "@pancakeswap/tokens";
 import memoize from "lodash/memoize";
 import { getAddress } from "viem";
 
@@ -40,13 +40,9 @@ const chainName: { [key: number]: string } = {
   [ChainId.KLAYTN]: "klaytn",
 };
 
-// TODO: move to utils or token-list
-export const getTokenListBaseURL = (chainId: number) =>
-  `https://tokens.pancakeswap.finance/images/${chainName[chainId]}`;
-
 export const getTokenListTokenUrl = (token: Token) =>
   Object.keys(chainName).includes(String(token.chainId))
-    ? `https://tokens.pancakeswap.finance/images/${
+    ? `/images/tokens/${
         token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`
       }${token.address}.png`
     : null;
@@ -60,6 +56,10 @@ const commonCurrencySymbols = [
   NATIVE[ChainId.BSC],
   bscTokens.busd,
   ethereumTokens.dai,
+  NATIVE[ChainId.KLAYTN],
+  klaytnTokens.weth,
+  klaytnTokens.usdt,
+  klaytnTokens.fnsa
 ].map(({ symbol }) => symbol);
 
 export const getCommonCurrencyUrl = memoize(
@@ -70,7 +70,7 @@ export const getCommonCurrencyUrl = memoize(
 export const getCommonCurrencyUrlBySymbol = memoize(
   (symbol?: string): string | undefined =>
     symbol && commonCurrencySymbols.includes(symbol)
-      ? `https://tokens.pancakeswap.finance/images/symbol/${symbol.toLocaleLowerCase()}.png`
+      ? `/images/symbol/${symbol.toLocaleLowerCase()}.png`
       : undefined,
   (symbol?: string) => `logoUrls#symbol#${symbol}`
 );

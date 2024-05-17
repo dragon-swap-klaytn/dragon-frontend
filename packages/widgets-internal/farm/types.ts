@@ -100,7 +100,7 @@ export const DesktopColumnSchema: ColumnsDefTypes[] = [
     id: 5,
     name: "liquidity",
     sortable: true,
-    label: "Staked Liquidity",
+    label: "Liquidity",
   },
   {
     id: 6,
@@ -145,7 +145,7 @@ export const V3DesktopColumnSchema: ColumnsDefTypes[] = [
     id: 5,
     name: "stakedLiquidity",
     sortable: true,
-    label: "Staked Liquidity",
+    label: "Liquidity",
   },
   {
     id: 6,

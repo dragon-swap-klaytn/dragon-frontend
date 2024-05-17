@@ -1,7 +1,9 @@
-import { ReactNode } from "react";
 import { Currency } from "@pancakeswap/sdk";
-import { Spinner, Text, Box, ArrowUpIcon, ColumnCenter, AutoColumn } from "@pancakeswap/uikit";
+import { ArrowUpIcon, AutoColumn, Box, ColumnCenter, Spinner, Text } from "@pancakeswap/uikit";
+import { ReactNode, Suspense, lazy } from "react";
 import TokenTransferInfo from "./TokenTransferInfo";
+
+const QRCodeSVG = lazy(() => import("qrcode.react").then((module) => ({ default: module.QRCodeSVG })));
 
 interface SwapPendingModalContentProps {
   title: string;
@@ -11,6 +13,7 @@ interface SwapPendingModalContentProps {
   amountA: string;
   amountB: string;
   children?: ReactNode;
+  qrUri?: string;
 }
 
 export const SwapPendingModalContent: React.FC<SwapPendingModalContentProps> = ({
@@ -21,6 +24,7 @@ export const SwapPendingModalContent: React.FC<SwapPendingModalContentProps> = (
   amountA,
   amountB,
   children,
+  qrUri,
 }) => {
   const symbolA = currencyA?.symbol;
   const symbolB = currencyB?.symbol;
@@ -34,7 +38,13 @@ export const SwapPendingModalContent: React.FC<SwapPendingModalContentProps> = (
       ) : (
         <Box mb="16px">
           <ColumnCenter>
-            <Spinner />
+            {qrUri ? (
+              <Suspense fallback={<Spinner />}>
+                <QRCodeSVG value={qrUri} size={144} level="H" includeMargin />
+              </Suspense>
+            ) : (
+              <Spinner />
+            )}
           </ColumnCenter>
         </Box>
       )}

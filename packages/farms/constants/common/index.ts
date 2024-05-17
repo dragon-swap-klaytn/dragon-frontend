@@ -26,6 +26,10 @@ export const priceHelperTokens = {
     chain: 'bsc',
     list: [bscTokens.wbnb, bscTokens.usdt, bscTokens.busd, bscTokens.eth],
   },
+  [ChainId.KLAYTN]: {
+    chain: 'klaytn',
+    list: [],
+  },
 } satisfies Record<number, PriceHelper>
 
 // for testing purposes

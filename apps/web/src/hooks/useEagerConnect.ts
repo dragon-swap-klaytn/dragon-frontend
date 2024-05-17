@@ -2,10 +2,14 @@ import { useEffect } from 'react'
 import { useConfig, useConnect } from 'wagmi'
 
 import { CHAINS } from 'config/chains'
+import useAuth from 'hooks/useAuth'
+import { ConnectorNames } from 'config/wallet'
 
 const useEagerConnect = () => {
   const config = useConfig()
   const { connectAsync, connectors } = useConnect()
+  const { login } = useAuth()
+
   useEffect(() => {
     if (
       !(typeof window === 'undefined') &&
@@ -19,6 +23,19 @@ const useEagerConnect = () => {
           config.autoConnect()
         })
       })
+      return
+    }
+
+    if (config.storage.getItem('wallet') === ConnectorNames.Klip) {
+      const prevAccount = localStorage.getItem('address') ?? ''
+
+      if (prevAccount !== '') {
+        login(ConnectorNames.Klip).catch(() => {
+          localStorage.removeItem('wallet')
+          localStorage.removeItem('address')
+        })
+      }
+
       return
     }
 

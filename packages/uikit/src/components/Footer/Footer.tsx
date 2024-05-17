@@ -33,12 +33,7 @@ const MenuItem: React.FC<React.PropsWithChildren<FooterProps>> = ({
   const isMounted = useIsMounted();
   const { isXl } = useMatchBreakpoints();
   return (
-    <StyledFooter
-      p={["40px 16px", null, "56px 40px 32px 40px"]}
-      position="relative"
-      {...props}
-      justifyContent="center"
-    >
+    <StyledFooter p={["40px 16px", null, "56px 40px 32px 40px"]} position="relative" {...props} justifyContent="center">
       <Flex flexDirection="column" width={["100%", null, "1200px;"]}>
         {/* <StyledIconMobileContainer display={["block", null, "none"]}>
             <LogoWithTextIcon width="130px" />
@@ -46,9 +41,9 @@ const MenuItem: React.FC<React.PropsWithChildren<FooterProps>> = ({
         <Flex
           order={[2, null, 1]}
           flexDirection={["column", "column", "column", "column", "row", "row"]}
-          justifyContent="space-between"
           alignItems="flex-start"
           mb={["42px", null, "36px"]}
+          style={{ gap: "120px" }}
         >
           {items?.map((item) => (
             <StyledList key={item.label}>

@@ -6,6 +6,8 @@ import {
   EarnIcon,
   MenuItemsType,
   MoreIcon,
+  NftFillIcon,
+  NftIcon,
   SwapFillIcon,
   SwapIcon,
 } from '@pancakeswap/uikit'
@@ -66,17 +68,47 @@ const config: (
           href: '/farms',
           supportChainIds: SUPPORT_FARMS,
         },
+        {
+          label: t('Finished'),
+          href: '/farms/finished',
+          supportChainIds: SUPPORT_FARMS,
+        },
+        {
+          label: t('Position Manager'),
+          href: 'https://kibblefarm.xyz/?chain=klaytn',
+          type: DropdownMenuItemType.EXTERNAL_LINK,
+        },
       ].map((item) => addMenuItemSupported(item, chainId)),
     },
     {
+      label: t('Point'),
+      href: '/point',
+      icon: NftIcon,
+      fillIcon: NftFillIcon,
+      image: '/images/decorations/pe2.png',
+      showItemsOnMobile: false,
+      // items: [
+      //   {
+      //     label: t('Farms'),
+      //     href: '/farms',
+      //     supportChainIds: SUPPORT_FARMS,
+      //   },
+      // ].map((item) => addMenuItemSupported(item, chainId)),
+    },
+    {
       label: '',
-      href: '/info',
+      href: '/info/v3',
       icon: MoreIcon,
       hideSubNav: true,
       items: [
         {
           label: t('Info'),
           href: '/info/v3',
+        },
+        {
+          label: t('Portal Bridge'),
+          href: 'https://portalbridge.com/advanced-tools/#/transfer',
+          type: DropdownMenuItemType.EXTERNAL_LINK,
         },
         {
           label: t('Docs'),

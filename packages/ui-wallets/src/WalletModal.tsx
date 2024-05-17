@@ -159,7 +159,7 @@ function MobileModal<T>({
       <AtomBox flex={1} py="16px" style={{ maxHeight: '230px' }} overflow="auto">
         <WalletSelect
           displayCount={MOBILE_DEFAULT_DISPLAY_COUNT}
-          wallets={walletsToShow}
+          wallets={wallets}
           onClick={(wallet) => {
             connectWallet(wallet)
             if (wallet.deepLink && wallet.installed === false) {
@@ -167,6 +167,14 @@ function MobileModal<T>({
             }
           }}
         />
+      </AtomBox>
+      <AtomBox px="48px">
+        <Text color="textSubtle" small pt="24px" pb="32px">
+          By connecting a wallet, you agree to Dragonswap{' '}
+          <a href="/terms" style={{ fontWeight: 'bold' }}>
+            Terms of Service
+          </a>
+        </Text>
       </AtomBox>
       <AtomBox p="24px" borderTop="1">
         <AtomBox>
@@ -272,6 +280,8 @@ function WalletSelect<T>({
 
 export const walletLocalStorageKey = 'wallet'
 
+export const addressLocalStorageKey = 'address'
+
 const lastUsedWalletNameAtom = atom<string>('')
 
 lastUsedWalletNameAtom.onMount = (set) => {
@@ -354,6 +364,14 @@ function DesktopModal<T>({
             }
           }}
         />
+        <AtomBox px="48px">
+          <Text color="textSubtle" small pt="24px" pb="32px">
+            By connecting a wallet, you agree to Dragonswap{' '}
+            <a href="/terms" style={{ fontWeight: 'bold' }}>
+              Terms of Service
+            </a>
+          </Text>
+        </AtomBox>
       </AtomBox>
       <AtomBox
         flex={1}
@@ -408,11 +426,13 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
   const connectWallet = (wallet: WalletConfigV2<T>) => {
     setSelected(wallet)
     setError('')
-    if (wallet.installed !== false) {
+    if (wallet.installed !== false || wallet.connectorId === 'klip') {
       login(wallet.connectorId)
         .then((v) => {
           if (v) {
-            localStorage.setItem(walletLocalStorageKey, wallet.title)
+            localStorage?.setItem(walletLocalStorageKey, wallet.title)
+            localStorage?.setItem(addressLocalStorageKey, v.account)
+
             try {
               onWalletConnectCallBack?.(wallet.title)
             } catch (e) {
@@ -469,7 +489,7 @@ const NotInstalled = ({ wallet, qrCode }: { wallet: WalletConfigV2; qrCode?: str
   return (
     <>
       <Heading as="h1" fontSize="20px" color="secondary">
-        {t('%wallet% is not installed', { wallet: wallet.title })}
+        {t('Please Scan the QR Code through %wallet%', { wallet: wallet.title })}
       </Heading>
       {qrCode && (
         <Suspense>
@@ -478,7 +498,7 @@ const NotInstalled = ({ wallet, qrCode }: { wallet: WalletConfigV2; qrCode?: str
           </AtomBox>
         </Suspense>
       )}
-      {!qrCode && !wallet.isNotExtension && (
+      {!qrCode && !wallet.isNotExtension && wallet.id !== 'klip' && (
         <Text maxWidth="246px" m="auto">
           {t('Please install the %wallet% browser extension to connect the %wallet% wallet.', {
             wallet: wallet.title,

@@ -22,9 +22,9 @@ export const nativeStableLpMap = {
     stable: 'BUSD',
   },
   [ChainId.KLAYTN]: {
-    address: '0x',
+    address: '0xb64BA987eD3BD9808dBCc19EE3C2A3C79A977E66',
     wNative: 'WKLAY',
-    stable: 'oUSDT',
+    stable: 'USDT',
   },
   [ChainId.KLAYTN_TESTNET]: {
     address: '0x',

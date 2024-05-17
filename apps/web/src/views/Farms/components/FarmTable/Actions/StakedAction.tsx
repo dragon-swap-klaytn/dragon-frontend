@@ -5,11 +5,12 @@ import { NATIVE, WNATIVE } from '@pancakeswap/sdk'
 import { useModal, useToast } from '@pancakeswap/uikit'
 import { formatLpBalance } from '@pancakeswap/utils/formatBalance'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import BigNumber from 'bignumber.js'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import WalletModal, { WalletView } from 'components/Menu/UserMenu/WalletModal'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import { BASE_ADD_LIQUIDITY_URL, DEFAULT_TOKEN_DECIMAL } from 'config'
+import { DEFAULT_TOKEN_DECIMAL } from 'config'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useCakePrice } from 'hooks/useCakePrice'
 import useCatchTxError from 'hooks/useCatchTxError'
@@ -168,8 +169,9 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
 
   const crossChainWarningText = useMemo(() => {
     return isFirstTime
-      ? t('A small amount of %nativeToken% is required for the first-time setup of cross-chain CAKE farming.', {
+      ? t('A small amount of %nativeToken% is required for the first-time setup of cross-chain %cake% farming.', {
           nativeToken: native.symbol,
+          cake: CAKE_SYMBOL_VIEW
         })
       : t('For safety, cross-chain transactions will take around 30 minutes to confirm.')
   }, [isFirstTime, native, t])

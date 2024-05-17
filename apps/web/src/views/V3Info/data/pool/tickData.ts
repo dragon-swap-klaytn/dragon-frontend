@@ -11,8 +11,12 @@ const FEE_TIER_TO_TICK_SPACING = (feeTier: string): number => {
   switch (feeTier) {
     case '10000':
       return 200
-    case '2500':
-      return 50
+    case '5000':
+      return 100
+    case '2000':
+      return 40
+    case '1000':
+      return 20
     case '500':
       return 10
     case '100':

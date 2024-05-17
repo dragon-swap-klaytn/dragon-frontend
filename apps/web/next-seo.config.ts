@@ -10,7 +10,7 @@ export const SEO: DefaultSeoProps = {
     site: '@DragonSwap',
   },
   openGraph: {
-    title: "🥞 DragonSwap - Last of Klaytn and First of Project Dragon",
+    title: "🐉 DragonSwap - Last of Klaytn and First of Project Dragon",
     description: 'Last of Klaytn and First of Project Dragon DEX',
     images: [{ url: '/images/decorations/dgs-light.png' }],
   },

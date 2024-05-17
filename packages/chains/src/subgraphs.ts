@@ -35,7 +35,7 @@ export function getBlocksSubgraphs() {
   return {
     [ChainId.BSC]: 'https://api.thegraph.com/subgraphs/name/pancakeswap/blocks',
     [ChainId.ETHEREUM]: 'https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks',
-    [ChainId.KLAYTN]: 'https://graph.dgswap.io/subgraphs/name/dragonswap/block',
+    [ChainId.KLAYTN]: 'https://graph.dgswap.io/subgraphs/name/dragonswap/blocks',
     [ChainId.KLAYTN_TESTNET]: '',
   }
 }

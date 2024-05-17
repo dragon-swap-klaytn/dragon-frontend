@@ -242,6 +242,8 @@ class KlipProvider implements IEthereumProvider {
 
   public timeout: number = KLIP_TIMEOUT
 
+  private isRequestEnable = false
+
   constructor(opts?: KlipProviderOptions) {
     this.rpc = opts?.rpc
     this.chainId = opts?.chainId || this.chainId
@@ -327,13 +329,27 @@ class KlipProvider implements IEthereumProvider {
   public enable(): Promise<any> {
     const eventBus = initPromiseEvent()
 
-    this._connect(eventBus).then((res: any) => {
-      if (!res.success) {
-        return eventBus.error(res.error, true)
-      }
+    if (this.isRequestEnable) {
+      return eventBus.emitter
+    }
 
-      return eventBus.finish([this.accounts])
-    })
+    const prevAccount = localStorage.getItem('address') ?? ''
+
+    // if address cached
+    if (localStorage.getItem('wallet') === 'Klip' && prevAccount !== '') {
+      this.accounts = [localStorage.getItem('address') ?? '']
+      eventBus.finish([this.accounts])
+    } else {
+      this.isRequestEnable = true
+      this._connect(eventBus).then((res: any) => {
+        if (!res.success) {
+          return eventBus.error(res.error, true)
+        }
+
+        this.isRequestEnable = false
+        return eventBus.finish([this.accounts])
+      })
+    }
 
     return eventBus.emitter
   }
@@ -658,6 +674,10 @@ class KlipProvider implements IEthereumProvider {
       },
     }
 
+    if (this.isRequestEnable) {
+      return eventBus.emitter
+    }
+
     if (!klipOptions.body) {
       setTimeout(() => {
         eventBus.error(new Error(WalletErrors.INVALID_BODY))
@@ -692,39 +712,46 @@ class KlipProvider implements IEthereumProvider {
       requestBody.value = txParams.amount
       requestBody.abi = txParams.method.abi
       requestBody.params = txParams.method.params
+      requestBody.encoded_function_call = tx.data
     }
 
+    this.isRequestEnable = true
+
     // eslint-disable-next-line consistent-return
-    this._prepare(klipOptions.eventName, requestBody).then(async (prepareResult) => {
-      const pollingResult = await this._handleAfterPrepare(prepareResult, eventBus)
+    this._prepare(klipOptions.eventName, requestBody)
+      .then(async (prepareResult) => {
+        const pollingResult = await this._handleAfterPrepare(prepareResult, eventBus)
 
-      if (pollingResult.status === 'canceled') {
-        return eventBus.error(new Error('User Rejected Transaction'), true)
-      }
+        if (pollingResult.status === 'canceled') {
+          return eventBus.error(new Error('User Rejected Transaction'), true)
+        }
 
-      if (!pollingResult.success) {
-        return eventBus.error(new Error(pollingResult.error), true)
-      }
+        if (!pollingResult.success) {
+          return eventBus.error(new Error(pollingResult.error), true)
+        }
 
-      if (pollingResult.success) {
-        const txHash = pollingResult.data.result.tx_hash
+        if (pollingResult.success) {
+          const txHash = pollingResult.data.result.tx_hash
 
-        eventBus.txHash(txHash)
+          eventBus.txHash(txHash)
 
-        // @ts-ignore
-        this.http
-          .request({
-            method: 'klay_getTransactionReceipt',
-            params: [txHash],
-          })
-          .then((receipt: Receipt) => {
-            eventBus.receipt(receipt)
-          })
-          .catch((error: Error) => {
-            eventBus.error(error, true)
-          })
-      }
-    })
+          // @ts-ignore
+          this.http
+            .request({
+              method: 'klay_getTransactionReceipt',
+              params: [txHash],
+            })
+            .then((receipt: Receipt) => {
+              eventBus.receipt(receipt)
+            })
+            .catch((error: Error) => {
+              eventBus.error(error, true)
+            })
+        }
+      })
+      .finally(() => {
+        this.isRequestEnable = false
+      })
 
     return eventBus.emitter
   }

@@ -1,6 +1,6 @@
 import { FarmWithStakedValue } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL, CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { Card, ExpandableSectionButton, Flex, Skeleton, Text, useModalV2 } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
@@ -77,7 +77,7 @@ const FarmCard: React.FC<React.PropsWithChildren<FarmCardProps>> = ({
       : `$${Number(0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
 
   const lpLabel = farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, '')
-  const earnLabel = t('%cake% + Fees', { cake: CAKE_SYMBOL })
+  const earnLabel = t('%cake% + Fees', { cake: CAKE_SYMBOL_VIEW })
 
   const liquidityUrlPathParts = getLiquidityUrlPathParts({
     quoteTokenAddress: farm.quoteToken.address,
@@ -86,7 +86,7 @@ const FarmCard: React.FC<React.PropsWithChildren<FarmCardProps>> = ({
   })
   const addLiquidityUrl = `/add/v2/${liquidityUrlPathParts}`
   const { lpAddress, stableSwapAddress, stableLpFee } = farm
-  const isPromotedFarm = farm.token.symbol === 'CAKE'
+  const isPromotedFarm = farm.token.symbol === CAKE_SYMBOL
 
   const infoUrl = useMemo(() => {
     if (farm.isStable) {

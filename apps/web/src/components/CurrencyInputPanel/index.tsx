@@ -5,7 +5,6 @@ import { Swap as SwapUI, CurrencyLogo, DoubleCurrencyLogo } from '@pancakeswap/w
 import { styled } from 'styled-components'
 import { safeGetAddress } from 'utils'
 import { useTranslation } from '@pancakeswap/localization'
-import { WrappedTokenInfo } from '@pancakeswap/token-lists'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 
 import { useStablecoinPriceAmount } from 'hooks/useBUSDPrice'
@@ -15,8 +14,9 @@ import { StablePair } from 'views/AddLiquidity/AddStableLiquidity/hooks/useStabl
 import { FiatLogo } from 'components/Logo/CurrencyLogo'
 import { useAccount } from 'wagmi'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 
+import { useTokenLogo } from 'hooks/useTokenLogo'
+import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import AddToWalletButton from '../AddToWallet/AddToWalletButton'
 
 const InputRow = styled.div<{ selected: boolean }>`
@@ -149,6 +149,9 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
   const isAtPercentMax = (maxAmount && value === maxAmount.toExact()) || (lpPercent && lpPercent === '100')
 
   const balance = !hideBalance && !!currency ? formatAmount(selectedCurrencyBalance, 6) : undefined
+
+  const tokenLogo = useTokenLogo(token)
+
   return (
     <SwapUI.CurrencyInputPanel
       id={id}
@@ -213,7 +216,7 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
                   tokenAddress={tokenAddress}
                   tokenSymbol={token.symbol}
                   tokenDecimals={token.decimals}
-                  tokenLogo={token instanceof WrappedTokenInfo ? token.logoURI : undefined}
+                  tokenLogo={tokenLogo}
                 />
               </Flex>
             ) : null}

@@ -166,7 +166,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
     //   { name: 'verifyingContract', type: 'address' },
     // ]
     // const domain = {
-    //   name: 'Pancake LPs',
+    //   name: 'Dragon LPs',
     //   version: '1',
     //   chainId,
     //   verifyingContract: pair.liquidityToken.address as `0x${string}`,
@@ -374,6 +374,11 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
               type: 'remove-liquidity',
             },
           )
+
+          // back to list after all remove
+          if (parsedAmounts[Field.LIQUIDITY_PERCENT].toSignificant() === '100') {
+            router.push('/liquidity')
+          }
         })
         .catch((err: any) => {
           if (err && !isUserRejected(err)) {

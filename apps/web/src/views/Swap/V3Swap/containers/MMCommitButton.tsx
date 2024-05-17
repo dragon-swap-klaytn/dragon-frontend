@@ -42,6 +42,10 @@ export function MMCommitButton({ mmOrderBookTrade, mmRFQTrade, mmQuoteExpiryRema
   const { approvalState, approveCallback, revokeCallback, currentAllowance, isPendingError } = useApproveCallback(
     mmTradeInfo?.slippageAdjustedAmounts[Field.INPUT],
     mmTradeInfo?.routerAddress,
+    {
+      addToTransaction: true,
+      useA2AQr: false,
+    },
   )
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change

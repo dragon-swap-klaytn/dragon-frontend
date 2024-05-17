@@ -127,6 +127,10 @@ export const getMasterChefV3Address = (chainId?: number) => {
   return getAddressFromMapNoFallback(addresses.masterChefV3, chainId)
 }
 
+export const getMasterChefV3FinishedAddress = (chainId?: number) => {
+  return getAddressFromMapNoFallback(addresses.masterChefV3Finished, chainId)
+}
+
 export const getV3MigratorAddress = (chainId?: number) => {
   return getAddressFromMap(addresses.v3Migrator, chainId)
 }

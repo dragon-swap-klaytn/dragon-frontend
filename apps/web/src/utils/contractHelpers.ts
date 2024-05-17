@@ -43,6 +43,7 @@ import {
   getV3MigratorAddress,
   getVCakeAddress,
   getVeCakeAddress,
+  getMasterChefV3FinishedAddress
 } from 'utils/addressHelpers'
 
 // ABI
@@ -382,8 +383,8 @@ export const getMasterChefContract = (signer?: WalletClient, chainId?: number) =
     signer,
   })
 }
-export const getMasterChefV3Contract = (signer?: WalletClient, chainId?: number) => {
-  const mcv3Address = getMasterChefV3Address(chainId)
+export const getMasterChefV3Contract = (signer?: WalletClient, chainId?: number, isFinished?: boolean) => {
+  const mcv3Address = isFinished ? getMasterChefV3FinishedAddress(chainId) : getMasterChefV3Address(chainId)
   return mcv3Address
     ? getContract({
         abi: masterChefV3ABI,

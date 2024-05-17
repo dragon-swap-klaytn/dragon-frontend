@@ -37,7 +37,7 @@ const ConnectWalletButton = ({ children, ...props }: ButtonProps) => {
   const wallets = useMemo(
     () =>
       isMobile
-        ? createWallets(chainId, connectAsync).filter(({ id }) => id !== 'Kaikas')
+        ? createWallets(chainId, connectAsync).filter(({ id }) => id !== 'injected' && id !== 'Kaikas')
         : createWallets(chainId, connectAsync),
     [chainId, connectAsync, isMobile],
   )

@@ -1,5 +1,7 @@
 import { ConnectorNames } from 'config/wallet'
 import { ExtendEthereum } from 'global'
+import { useEffect } from 'react'
+import Router from 'next/router'
 import { useAccount, useNetwork } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
 import { styled, useTheme } from 'styled-components'
@@ -25,6 +27,12 @@ const FarmsV3PageLayoutDiv = styled.div<FarmsV3PageLayoutDivProps>`
 
 export const FarmsV3PageLayout: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
   const { isDark } = useTheme()
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DISABLE_FARM === '1') {
+      Router.replace('/liquidity').finally(() => {})
+    }
+  }, [])
 
   return (
     <FarmsV3PageLayoutDiv isDark={isDark}>

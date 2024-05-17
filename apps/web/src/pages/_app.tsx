@@ -16,7 +16,7 @@ import { NextPage } from 'next'
 import { DefaultSeo } from 'next-seo'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-// import Script from 'next/script'
+import Script from 'next/script'
 import { Fragment } from 'react'
 import { PersistGate } from 'redux-persist/integration/react'
 
@@ -92,7 +92,6 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
           </PersistGate>
         </Blocklist>
       </Providers>
-      {/*
       <Script
         strategy="afterInteractive"
         id="google-tag"
@@ -106,7 +105,6 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
           `,
         }}
       />
-      */}
     </>
   )
 }

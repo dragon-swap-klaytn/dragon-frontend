@@ -6,16 +6,24 @@ import { useQuery } from '@tanstack/react-query'
 import { v3Clients } from 'utils/graphql'
 
 export interface UsePoolAvgInfoParams {
-  numberOfDays?: number
   address?: string
   chainId?: ChainId
 }
 
-export const averageArray = (dataToCalculate: number[]): number => {
-  let data = [...dataToCalculate]
+export const sumArray = (dataToCalculate: number[]): number => {
+  const data = [...dataToCalculate]
   // Remove the highest and lowest volume to be more accurate
   if (data.length > 3) {
-    data = data.sort((a: number, b: number) => a - b).slice(1, data.length - 1)
+    // data = data.sort((a: number, b: number) => a - b).slice(1, data.length - 1)
+  }
+
+  return data.reduce((result, val) => result + val)
+}
+export const averageArray = (dataToCalculate: number[]): number => {
+  const data = [...dataToCalculate]
+  // Remove the highest and lowest volume to be more accurate
+  if (data.length > 3) {
+    // data = data.sort((a: number, b: number) => a - b).slice(1, data.length - 1)
   }
 
   return data.reduce((result, val) => result + val, 0) / data.length
@@ -33,7 +41,7 @@ const defaultInfo: Info = {
   feeUSD: 0,
 }
 
-export function usePoolAvgInfo({ address = '', numberOfDays = 7, chainId }: UsePoolAvgInfoParams) {
+export function usePoolAvgInfo({ address = '', chainId }: UsePoolAvgInfoParams) {
   const { data } = useQuery(
     [address, chainId],
     async () => {
@@ -45,8 +53,8 @@ export function usePoolAvgInfo({ address = '', numberOfDays = 7, chainId }: UseP
       }
 
       const query = gql`
-        query getVolume($days: Int!, $address: String!) {
-          poolDayDatas(first: $days, orderBy: date, orderDirection: desc, where: { pool: $address }) {
+        query getVolume($hours: Int!, $address: ID!) {
+          poolHourDatas(first: $hours, orderBy: periodStartUnix, orderDirection: desc, where: { pool: $address }) {
             volumeUSD
             tvlUSD
             feesUSD
@@ -54,18 +62,20 @@ export function usePoolAvgInfo({ address = '', numberOfDays = 7, chainId }: UseP
           }
         }
       `
-      const { poolDayDatas } = await client.request(query, {
-        days: numberOfDays,
+      // TODO : 7 days?
+      const { poolHourDatas } = await client.request(query, {
+        hours: 24,
         address: address.toLocaleLowerCase(),
       })
-      const volumes = poolDayDatas.map((d: { volumeUSD: string }) => Number(d.volumeUSD))
-      const feeUSDs = poolDayDatas.map(
+      const volumes = poolHourDatas.map((d: { volumeUSD: string }) => Number(d.volumeUSD))
+      const feeUSDs = poolHourDatas.map(
         (d: { feesUSD: string; protocolFeesUSD: string }) => Number(d.feesUSD) - Number(d.protocolFeesUSD),
       )
+
       return {
-        volumeUSD: averageArray(volumes),
-        tvlUSD: parseFloat(poolDayDatas[0]?.tvlUSD) || 0,
-        feeUSD: averageArray(feeUSDs),
+        volumeUSD: sumArray(volumes),
+        tvlUSD: parseFloat(poolHourDatas[0]?.tvlUSD) || 0,
+        feeUSD: sumArray(feeUSDs),
       }
     },
     {

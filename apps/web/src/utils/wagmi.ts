@@ -22,11 +22,18 @@ export const walletConnectConnector = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID
       chains,
       options: {
         showQrModal: true,
-        projectId: 'e542ff314e26ff34de2d4fba98db70bb',
+        projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID,
       },
     })
   : undefined
 
+export const walletConnectNoQrCodeConnector = new WalletConnectConnector({
+  chains,
+  options: {
+    showQrModal: false,
+    projectId: '7eb02e7ebd6f7197f9e238e8a0331476',
+  },
+})
 export const metaMaskConnector = new MetaMaskConnector({
   chains,
   options: {

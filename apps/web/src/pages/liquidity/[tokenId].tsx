@@ -80,6 +80,7 @@ import { MerklSection } from 'components/Merkl/MerklSection'
 import { MerklTag } from 'components/Merkl/MerklTag'
 import { useMerklInfo } from 'hooks/useMerkl'
 */
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { isUserRejected } from 'utils/sentry'
@@ -516,7 +517,10 @@ export default function PoolPage() {
           <Text display="inline" bold mr="0.25em">{`${currencyQuote?.symbol}-${currencyBase?.symbol}`}</Text>
           <Text display="inline">
             {t(
-              'has an active PancakeSwap farm. Stake your position in the farm to start earning with the indicated APR with CAKE farming.',
+              'has an active DragonSwap farm. Stake your position in the farm to start earning with the indicated APR with %cake% farming.',
+              {
+                cake: CAKE_SYMBOL_VIEW,
+              },
             )}
           </Text>
           <NextLinkFromReactRouter to="/farms">
@@ -1080,7 +1084,7 @@ function PositionHistoryRow({
         <AutoRow>
           <ScanLink
             useBscCoinFallback={chainId ? ChainLinkSupportChains.includes(chainId) : false}
-            href={getBlockExploreLink(positionTx.id, 'transaction', chainId)}
+            href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
           >
             <Flex flexDirection="column" alignItems="center">
               <Text ellipsis>{mobileDate}</Text>
@@ -1133,7 +1137,7 @@ function PositionHistoryRow({
       <AutoRow justifyContent="center">
         <ScanLink
           useBscCoinFallback={chainId ? ChainLinkSupportChains.includes(chainId) : false}
-          href={getBlockExploreLink(positionTx.id, 'transaction', chainId)}
+          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
         >
           <Text ellipsis>{desktopDate}</Text>
         </ScanLink>

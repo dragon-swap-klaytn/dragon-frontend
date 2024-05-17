@@ -1,7 +1,7 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { Balance, Button, Heading, Skeleton, Text, TooltipText, useTooltip } from "@pancakeswap/uikit";
 import BigNumber from "bignumber.js";
-import { CAKE_SYMBOL } from "@pancakeswap/tokens";
+import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
 
 import { FARMS_SMALL_AMOUNT_THRESHOLD } from "../../../constants";
 import { ActionContainer, ActionContent, ActionTitles } from "./styles";
@@ -39,7 +39,7 @@ const HarvestAction: React.FunctionComponent<React.PropsWithChildren<HarvestActi
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     `${toolTipBalance} ${t(
-      `${CAKE_SYMBOL} has been harvested to the farm booster contract and will be automatically sent to your wallet upon the next harvest.`
+      `${CAKE_SYMBOL_VIEW} has been harvested to the farm booster contract and will be automatically sent to your wallet upon the next harvest.`
     )}`,
     {
       placement: "bottom",
@@ -50,7 +50,7 @@ const HarvestAction: React.FunctionComponent<React.PropsWithChildren<HarvestActi
     <ActionContainer style={{ minHeight: 124.5 }}>
       <ActionTitles>
         <Text bold textTransform="uppercase" color="secondary" fontSize="12px" pr="4px">
-          {CAKE_SYMBOL}
+          {CAKE_SYMBOL_VIEW}
         </Text>
         <Text bold textTransform="uppercase" color="textSubtle" fontSize="12px">
           {t("Earned")}

@@ -109,7 +109,7 @@ export const TEXT = {
       },
       {
         title: <Trans>Staking to V3 Farms</Trans>,
-        subTitle: <Trans>Start earning CAKE by staking your liquidity positions to V3 Farms!</Trans>,
+        subTitle: <Trans>Start earning by staking your liquidity positions to V3 Farms!</Trans>,
         button: <Trans>Finish</Trans>,
       },
     ],

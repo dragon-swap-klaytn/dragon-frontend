@@ -5,6 +5,7 @@ import { NATIVE, WNATIVE } from '@pancakeswap/sdk'
 import { AddIcon, Button, Flex, IconButton, MinusIcon, useModal, useToast } from '@pancakeswap/uikit'
 import { formatLpBalance } from '@pancakeswap/utils/formatBalance'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import BigNumber from 'bignumber.js'
 import WalletModal, { WalletView } from 'components/Menu/UserMenu/WalletModal'
 import { ToastDescriptionWithTx } from 'components/Toast'
@@ -22,7 +23,6 @@ import { FarmTransactionStatus, NonBscFarmStepType } from 'state/transactions/ac
 import { useNonBscFarmPendingTransaction, useTransactionAdder } from 'state/transactions/hooks'
 import { styled } from 'styled-components'
 import { useIsBloctoETH } from 'views/Farms'
-import BCakeCalculator from 'views/Farms/components/YieldBooster/components/BCakeCalculator'
 import { SendTransactionResult } from 'wagmi/actions'
 import { useFirstTimeCrossFarming } from '../../hooks/useFirstTimeCrossFarming'
 import { YieldBoosterStateContext } from '../YieldBooster/components/ProxyFarmContainer'
@@ -89,8 +89,9 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
 
   const crossChainWarningText = useMemo(() => {
     return isFirstTime
-      ? t('A small amount of %nativeToken% is required for the first-time setup of cross-chain CAKE farming.', {
+      ? t('A small amount of %nativeToken% is required for the first-time setup of cross-chain %cake% farming.', {
           nativeToken: native.symbol,
+          cake: CAKE_SYMBOL_VIEW
         })
       : t('For safety, cross-chain transactions will take around 30 minutes to confirm.')
   }, [isFirstTime, native, t])

@@ -22,7 +22,7 @@ import { useCakePrice } from 'hooks/useCakePrice'
 import { useMemo, useState } from 'react'
 import { styled } from 'styled-components'
 
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { Bound } from 'config/constants/types'
 import { usePoolAvgInfo } from 'hooks/usePoolAvgInfo'
 import { useAllV3Ticks } from 'hooks/v3/usePoolTickData'
@@ -171,22 +171,6 @@ function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, tokenId }:
     currencyBUsdPrice: isSorted ? currencyBUsdPrice : currencyAUsdPrice,
     volume24H,
   })
-  // console.log({
-  //   tickLower,
-  //   tickUpper,
-  //   sqrtRatioX96,
-  //   fee: feeAmount,
-  //   mostActiveLiquidity: pool?.liquidity,
-  //   amountA: existingPosition?.amount0,
-  //   amountB: existingPosition?.amount1,
-  //   compoundOn: false,
-  //   currencyAUsdPrice: isSorted ? currencyAUsdPrice : currencyBUsdPrice,
-  //   currencyBUsdPrice: isSorted ? currencyBUsdPrice : currencyAUsdPrice,
-  //   volume24H,
-  // })
-
-  // amountA, amountB, tickLower, tickUpper : underfined
-  // volume24H ,currencyAUsdPrice,currencyBUsdPrice 는 0
 
   const lpApr = existingPosition ? +apr.toFixed(2) : globalLpApr
   const cakeApr = +(farm.cakeApr ?? 0)
@@ -235,7 +219,7 @@ function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, tokenId }:
       <br />
       <Text>
         {t('Calculated using the total active liquidity staked versus the %symbol% reward emissions for the farm.', {
-          symbol: CAKE_SYMBOL,
+          symbol: CAKE_SYMBOL_VIEW,
         })}
       </Text>
       {canBoosted && (

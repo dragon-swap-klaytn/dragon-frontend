@@ -231,7 +231,7 @@ const FarmV3StakeAndUnStake: React.FunctionComponent<React.PropsWithChildren<Far
           {t('Inactive')}
           <QuestionHelper
             ml="4px"
-            text={t('Inactive positions will NOT earn CAKE rewards from farm.')}
+            text={t('Inactive positions will NOT earn rewards from farm.')}
             size="20px"
             color="white"
             placement="bottom"

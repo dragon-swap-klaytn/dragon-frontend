@@ -27,7 +27,7 @@ export const getBlocksFromTimestamps = async (
   timestamps: number[],
   sortDirection: 'asc' | 'desc' | undefined = 'desc',
   skipCount: number | undefined = 500,
-  chainName: MultiChainNameExtend | undefined = 'BSC',
+  chainName: MultiChainNameExtend | undefined = 'KLAYTN',
 ): Promise<Block[]> => {
   if (timestamps?.length === 0) {
     return []
@@ -44,12 +44,10 @@ export const getBlocksFromTimestamps = async (
   if (fetchedData) {
     // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(fetchedData)) {
-      if (fetchedData[key].length > 0) {
-        blocks.push({
-          timestamp: key.split('t')[1],
-          number: parseInt(fetchedData[key][0].number, 10),
-        })
-      }
+      blocks.push({
+        timestamp: key.split('t')[1],
+        number: parseInt(fetchedData[key][0]?.number ?? 145315220, 10),
+      })
     }
     // graphql-request does not guarantee same ordering of batched requests subqueries, hence manual sorting
     return orderBy(blocks, (block) => block.number, sortDirection)

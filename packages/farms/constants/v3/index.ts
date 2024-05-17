@@ -6,7 +6,7 @@ import { farmsV3 as bscFarms } from '../bsc'
 import { farmsV3 as bscTestnetFarms } from '../bscTestnet'
 import { farmsV3 as ethFarms } from '../eth'
 import { farmsV3 as goerliFarms } from '../goerli'
-import { farmsV3 as klaytnFarms } from '../klaytn'
+import { farmsV3 as klaytnFarms, farmsV3Finished as klaytnFinishedFarms } from '../klaytn'
 import { farmsV3 as klaytnTestnetFarms } from '../klaytnTestnet'
 
 // DEV_NOTE [체인설정]_11-1 : default farms
@@ -17,6 +17,10 @@ export const farmsV3ConfigChainMap: Record<FarmV3SupportedChainId, ComputedFarmC
   [ChainId.BSC_TESTNET]: bscTestnetFarms,
   [ChainId.KLAYTN]: klaytnFarms,
   [ChainId.KLAYTN_TESTNET]: klaytnTestnetFarms,
+}
+
+export const farmsV3FinishedConfigChainMap: Record<number, ComputedFarmConfigV3[]> = {
+  [ChainId.KLAYTN]: klaytnFinishedFarms,
 }
 
 export type Addresses = {

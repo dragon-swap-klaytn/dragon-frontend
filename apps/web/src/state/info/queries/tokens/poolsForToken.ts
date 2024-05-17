@@ -6,7 +6,7 @@ import { MultiChainName, getMultiChainQueryEndPointWithStableSwap, multiChainQue
  * Data for showing Pools table on the Token page
  */
 const POOLS_FOR_TOKEN = (chainName: MultiChainName) => {
-  const transactionGT = chainName === 'ETH' ? 1 : 100
+  const transactionGT = chainName === 'ETH' || chainName === 'KLAYTN' ? 1 : 100
   return gql`
   query poolsForToken($address: String!, $blacklist: [String!]) {
     asToken0: pairs(

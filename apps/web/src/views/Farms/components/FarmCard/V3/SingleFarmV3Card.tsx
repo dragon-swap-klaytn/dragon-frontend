@@ -12,6 +12,7 @@ import {
   RowBetween,
   StyledTooltip,
   Text,
+  useModal,
   useModalV2,
 } from '@pancakeswap/uikit'
 import { formatBigInt } from '@pancakeswap/utils/formatBalance'
@@ -19,14 +20,16 @@ import { isPositionOutOfRange } from '@pancakeswap/utils/isPositionOutOfRange'
 import { Pool } from '@pancakeswap/v3-sdk'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import { BigNumber } from 'bignumber.js'
+import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
 import { LightCard } from 'components/Card'
 import { RangeTag } from 'components/RangeTag'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
+import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { useCallback, useMemo } from 'react'
+import { lazy, useCallback, useMemo } from 'react'
 import { styled, useTheme } from 'styled-components'
 import { logGTMClickStakeFarmEvent } from 'utils/customGTMEventTracking'
 import { V3Farm } from 'views/Farms/FarmsV3'
@@ -43,6 +46,7 @@ import { useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
 import FarmV3StakeAndUnStake, { FarmV3LPPosition, FarmV3LPPositionDetail, FarmV3LPTitle } from './FarmV3StakeAndUnStake'
 
 const { FarmV3HarvestAction } = FarmWidget.FarmV3Table
+const QRCodeSVG = lazy(() => import('qrcode.react').then((module) => ({ default: module.QRCodeSVG })))
 
 export const ActionContainer = styled(Flex)`
   width: 100%;
@@ -148,27 +152,68 @@ const SingleFarmV3Card: React.FunctionComponent<
 
   const unstakedModal = useModalV2()
 
+  const showKlipQrCode = useKlipQrCondition()
+
+  const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
+    <ApprovalConfirmationModal
+      minWidth={['100%', null, '420px']}
+      title="Confirm Transaction"
+      content={() => ''}
+      pendingText="wating confirm..."
+      hash={undefined}
+      attemptingTxn
+    />,
+    true,
+    true,
+    'TxConfirmationModal',
+  )
+
   const handleStake = async () => {
+    if (showKlipQrCode) {
+      onPresentKlipTxModal()
+    }
+
     await onStake()
+
+    if (showKlipQrCode) {
+      onDismissKlipTxModal({ force: true })
+    }
+
     if (!attemptingTxn) {
       onDismiss?.()
     }
     logGTMClickStakeFarmEvent()
   }
 
-  const handleStakeInactivePosition = () => {
+  const handleStakeInactivePosition = useCallback(() => {
     unstakedModal.onOpen()
-  }
+  }, [unstakedModal])
 
   const handleUnStake = async () => {
+    if (showKlipQrCode) {
+      onPresentKlipTxModal()
+    }
+
     await onUnstake()
+
+    if (showKlipQrCode) {
+      onDismissKlipTxModal({ force: true })
+    }
     if (!attemptingTxn) {
       unstakedModal.onDismiss()
     }
   }
 
   const handleHarvest = async () => {
+    if (showKlipQrCode) {
+      onPresentKlipTxModal()
+    }
+
     await onHarvest()
+
+    if (showKlipQrCode) {
+      onDismissKlipTxModal({ force: true })
+    }
     if (!attemptingTxn) {
       onDismiss?.()
     }
@@ -213,6 +258,7 @@ const SingleFarmV3Card: React.FunctionComponent<
             handleStake={outOfRangeUnstaked ? handleStakeInactivePosition : handleStake}
             handleUnStake={unstakedModal.onOpen}
           />
+
           <ModalV2 {...unstakedModal} closeOnOverlayClick>
             <Modal
               title={outOfRangeUnstaked ? t('Staking') : t('Unstaking')}
@@ -245,7 +291,7 @@ const SingleFarmV3Card: React.FunctionComponent<
                         <>
                           {t('Inactive positions will')}
                           <b> {t('NOT')} </b>
-                          {t('earn CAKE rewards from farm.')}
+                          {t('earn KLAY rewards from farm.')}
                         </>
                       ) : (
                         t('You may add or remove liquidity on the position detail page without unstake')

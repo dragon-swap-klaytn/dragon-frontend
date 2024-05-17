@@ -1,6 +1,6 @@
 import { Language } from "../LangSelector/types";
+import { GithubIcon, MailIcon, MediumIcon, TelegramIcon, TwitterIcon } from "../Svg";
 import { FooterLinkType } from "./types";
-import { TwitterIcon, TelegramIcon, GithubIcon } from "../Svg";
 
 export const footerLinks: FooterLinkType[] = [
   {
@@ -8,7 +8,7 @@ export const footerLinks: FooterLinkType[] = [
     items: [
       {
         label: "Guides",
-        href: "https://docs.dgswap.io/get-started",
+        href: "https://docs.dgswap.io/introduction/dragonswap-overview",
       },
     ],
   },
@@ -47,6 +47,16 @@ export const socials = [
     label: "Github",
     icon: GithubIcon,
     href: "https://github.com/dragon-swap-klaytn",
+  },
+  {
+    label: "Supprot",
+    icon: MailIcon,
+    href: "mailto:support@dgswap.io",
+  },
+  {
+    label: "Medium",
+    icon: MediumIcon,
+    href: "https://dgswap.medium.com/",
   },
 ];
 

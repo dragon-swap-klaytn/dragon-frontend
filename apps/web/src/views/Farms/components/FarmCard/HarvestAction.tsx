@@ -11,7 +11,7 @@ import { useCakePrice } from 'hooks/useCakePrice'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { getBalanceAmount } from '@pancakeswap/utils/formatBalance'
 import { Token } from '@pancakeswap/sdk'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import MultiChainHarvestModal from 'views/Farms/components/MultiChainHarvestModal'
 import { useUnwrapReward } from 'views/Farms/hooks/useUnwrapReward'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -52,7 +52,7 @@ const HarvestAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = (
     : '< 0.00001'
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     `${tooltipBalance} ${t(
-      `${CAKE_SYMBOL} has been harvested to the farm booster contract and will be automatically sent to your wallet upon the next harvest.`,
+      `${CAKE_SYMBOL_VIEW} has been harvested to the farm booster contract and will be automatically sent to your wallet upon the next harvest.`,
     )}`,
     {
       placement: 'bottom',
@@ -84,7 +84,7 @@ const HarvestAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = (
       toastSuccess(
         `${t('Harvested')}!`,
         <ToastDescriptionWithTx txHash={receipt.transactionHash}>
-          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL })}
+          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: CAKE_SYMBOL_VIEW })}
         </ToastDescriptionWithTx>,
       )
       onDone?.()

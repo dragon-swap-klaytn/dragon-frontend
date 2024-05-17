@@ -85,7 +85,7 @@ const fetchTokenData = async (
   tokenAddresses: string[],
 ) => {
   const isStableSwap = checkIsStableSwap()
-  const startBlock = isStableSwap ? STABLESWAP_SUBGRAPHS_START_BLOCK[chainName] : undefined
+  const startBlock = isStableSwap ? STABLESWAP_SUBGRAPHS_START_BLOCK[chainName] : 145315220
   try {
     const query = gql`
       query tokens {

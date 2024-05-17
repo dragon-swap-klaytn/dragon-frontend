@@ -1,5 +1,5 @@
 import { languageList, useTranslation } from '@pancakeswap/localization'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { Menu as UikitMenu, footerLinks, useModal } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
@@ -81,7 +81,7 @@ const Menu = (props) => {
         footerLinks={getFooterLinks}
         activeItem={activeMenuItem?.href}
         activeSubItem={activeSubMenuItem?.href}
-        buyCakeLabel={t('Buy CAKE', { cake: CAKE_SYMBOL })}
+        buyCakeLabel={t('Buy CAKE', { cake: CAKE_SYMBOL_VIEW })}
         buyCakeLink="/swap?outputCurrency=KLAY&chainId=8217"
         {...props}
       />

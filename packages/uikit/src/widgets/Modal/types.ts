@@ -5,6 +5,7 @@ export interface ModalTheme {
 }
 
 export type Handler = () => void;
+export type HandlerWithArgs = (...args: any[]) => void;
 
 export interface InjectedProps {
   onDismiss?: Handler;

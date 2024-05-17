@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import {
   BalanceInput,
   Box,
@@ -98,7 +98,7 @@ const BCakeCalculator: React.FC<React.PropsWithChildren<BCakeCalculatorProps>> =
     tooltip: myBalanceTooltip,
     tooltipVisible: myBalanceTooltipVisible,
   } = useTooltip(
-    t(`Boost multiplier calculation does not include profit from %symbol% staking pool`, { symbol: CAKE_SYMBOL }),
+    t(`Boost multiplier calculation does not include profit from %symbol% staking pool`, { symbol: CAKE_SYMBOL_VIEW }),
     {
       placement: 'top-end',
       tooltipOffset: [20, 10],

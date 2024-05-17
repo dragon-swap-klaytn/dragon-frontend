@@ -133,38 +133,26 @@ export const CAKE = {
   ),
   [ChainId.BSC]: CAKE_MAINNET,
   [ChainId.BSC_TESTNET]: CAKE_TESTNET,
-  [ChainId.KLAYTN]: new ERC20Token(
-    ChainId.KLAYTN,
-    '0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432',
-    18,
-    'WKLAY',
-    'Wrapped Klay',
-    'https://klaytn.foundation'
-  ),
+  [ChainId.KLAYTN]: new ERC20Token(8217, '0xf898c138f9c8825ceF83CA75535Ed77100497296', 18, 'RKLAY', 'Reward Klay'),
   [ChainId.KLAYTN_TESTNET]: new ERC20Token(
     ChainId.KLAYTN_TESTNET,
     '0x043c471bEe060e00A56CcD02c0Ca286808a5A436',
     18,
     'WKLAY',
     'Wrapped KLAY',
-    'https://klaytn.foundation'
+    'https://klaytn.foundation',
   ),
 }
 
-export const CAKE_SYMBOL = 'WKLAY'
+export const CAKE_SYMBOL = 'RKLAY'
+export const CAKE_SYMBOL_VIEW = 'KLAY'
 
 export const USDC = {
   [ChainId.BSC]: USDC_BSC,
   [ChainId.BSC_TESTNET]: USDC_TESTNET,
   [ChainId.ETHEREUM]: USDC_ETH,
   [ChainId.GOERLI]: USDC_GOERLI,
-  [ChainId.KLAYTN]: new ERC20Token(
-    8217,
-  '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A',
-  18,
-    'USDC',
-    'USD Coin'
-  )
+  [ChainId.KLAYTN]: new ERC20Token(8217, '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A', 6, 'USDC', 'USD Coin'),
 }
 
 export const USDT = {

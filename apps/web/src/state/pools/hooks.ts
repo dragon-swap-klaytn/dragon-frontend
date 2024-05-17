@@ -10,6 +10,7 @@ import { Token } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
 import { getLivePoolsConfig } from '@pancakeswap/pools'
 import { isIfoSupported, getSourceChain } from '@pancakeswap/ifos'
+import { CAKE_SYMBOL, CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
@@ -48,7 +49,7 @@ const getActiveFarms = async (chainId: number) => {
   const lPoolAddresses = livePools
     .filter(({ sousId }) => sousId !== 0)
     .map(({ earningToken, stakingToken }) => {
-      if (earningToken.symbol === 'CAKE') {
+      if (earningToken.symbol === CAKE_SYMBOL) {
         return stakingToken.address
       }
       return earningToken.address
@@ -58,7 +59,7 @@ const getActiveFarms = async (chainId: number) => {
     .filter(
       ({ token, pid, quoteToken }) =>
         pid !== 0 &&
-        ((token.symbol === 'CAKE' && quoteToken.symbol === 'WBNB') ||
+        ((token.symbol === CAKE_SYMBOL && quoteToken.symbol === 'WBNB') ||
           (token.symbol === 'BUSD' && quoteToken.symbol === 'WBNB') ||
           (token.symbol === 'USDT' && quoteToken.symbol === 'BUSD') ||
           lPoolAddresses.find((poolAddress) => poolAddress === token.address)),

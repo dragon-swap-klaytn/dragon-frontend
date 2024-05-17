@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL, CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { Box, Card, ExpandableSectionButton, Flex, Text, TooltipText, useModalV2, useTooltip } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
@@ -63,7 +63,7 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
   const farmCakePerSecond = getFarmCakePerSecond(farm.poolWeight)
 
   const lpLabel = farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, '')
-  const earnLabel = t('%cake% + Fees', { cake: CAKE_SYMBOL })
+  const earnLabel = t('%cake% + Fees', { cake: CAKE_SYMBOL_VIEW })
   const { lpAddress } = farm
   const isPromotedFarm = farm.token.symbol === CAKE_SYMBOL
   const { status: boostStatus } = useBoostStatus(farm.pid)
@@ -158,7 +158,7 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
               ).toLocaleString(undefined, {
                 maximumFractionDigits: 0,
               })}`}
-              totalValueLabel={t('Staked Liquidity')}
+              totalValueLabel={t('Liquidity')}
               lpLabel={lpLabel}
               onAddLiquidity={addLiquidityModal.onOpen}
               isCommunity={farm.isCommunity}

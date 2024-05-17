@@ -1,7 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
-import { WrappedTokenInfo } from '@pancakeswap/token-lists'
 import {
   ArrowUpIcon,
   AutoColumn,
@@ -13,17 +12,15 @@ import {
   Modal,
   ModalProps,
   Text,
-  useMatchBreakpoints,
 } from '@pancakeswap/uikit'
-import KlipProvider from '@pancakeswap/wagmi/connectors/klip/interface'
 import { ConfirmationPendingContent, TransactionErrorContent } from '@pancakeswap/widgets-internal'
+import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback } from 'react'
 import { styled } from 'styled-components'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
-import { klipConnector } from 'utils/wagmi'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
-import { useAccount } from 'wagmi'
+import { useTokenLogo } from 'hooks/useTokenLogo'
 import AddToWalletButton, { AddToWalletTextOptions } from '../AddToWallet/AddToWalletButton'
 
 const Wrapper = styled.div`
@@ -51,6 +48,7 @@ export function TransactionSubmittedContent({
   const { t } = useTranslation()
 
   const token: Token | undefined = wrappedCurrency(currencyToAdd, chainId)
+  const tokenLogo = useTokenLogo(token)
 
   return (
     <Wrapper>
@@ -78,7 +76,7 @@ export function TransactionSubmittedContent({
               tokenAddress={token?.address}
               tokenSymbol={currencyToAdd.symbol}
               tokenDecimals={token?.decimals}
-              tokenLogo={token instanceof WrappedTokenInfo ? token.logoURI : undefined}
+              tokenLogo={tokenLogo}
             />
           )}
           <Button onClick={onDismiss} mt="20px">
@@ -115,60 +113,9 @@ const TransactionConfirmationModal: React.FC<
   currencyToAdd,
   ...props
 }) => {
-  const a2aProviderRef = useRef<KlipProvider | null>(null)
+  const qrUri = useA2AConnectorQRUri()
 
   const { chainId } = useActiveChainId()
-
-  const { connector } = useAccount()
-
-  const { isMobile } = useMatchBreakpoints()
-
-  const [qrUri, setQrUri] = useState('')
-  const [requestKey, setRequestKey] = useState('')
-
-  const isA2AConnector = connector?.id === 'klip'
-
-  const displayUriHandler = (uri) => {
-    setQrUri(uri)
-  }
-
-  const requestKeyHandler = (key) => {
-    setRequestKey(key)
-  }
-
-  useEffect(() => {
-    if (isMobile || !isA2AConnector || qrUri) return
-
-    let provider
-
-    klipConnector.getProvider().then((klipProvider) => {
-      if (!klipProvider) return
-      a2aProviderRef.current = klipProvider
-
-      provider = klipProvider
-      provider.on('display_uri', displayUriHandler)
-      provider.on('requestKey', requestKeyHandler)
-    })
-
-    // eslint-disable-next-line consistent-return
-    return () => {
-      if (provider) {
-        provider?.off('display_uri', displayUriHandler)
-        provider?.off('requestKey', requestKeyHandler)
-      }
-    }
-  }, [isA2AConnector, qrUri, isMobile])
-
-  useEffect(() => {
-    return () => {
-      if (a2aProviderRef.current && requestKey) {
-        a2aProviderRef.current.events.emit('cancelRequest', requestKey)
-        a2aProviderRef.current?.off('display_uri', displayUriHandler)
-        a2aProviderRef.current?.off('requestKey', requestKeyHandler)
-        a2aProviderRef.current = null
-      }
-    }
-  }, [a2aProviderRef, requestKey])
 
   const handleDismiss = useCallback(() => {
     if (customOnDismiss) {

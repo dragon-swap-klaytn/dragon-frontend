@@ -30,7 +30,7 @@ export const SwapTransactionErrorContent = ({ onDismiss, message, openSettingMod
             </Text>
           </Text>
           <LinkExternal
-            href="https://docs.dgswap.io/products/pancakeswap-exchange/trade-guide"
+            href="https://docs.dgswap.io/products/how-to-trade"
             style={{ width: '100%', justifyContent: 'center' }}
           >
             {t('What are the potential issues with the token?')}

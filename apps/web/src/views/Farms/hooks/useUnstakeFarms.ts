@@ -1,16 +1,16 @@
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
+// import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useMasterchef, useNonBscVault } from 'hooks/useContract'
 import { useCallback } from 'react'
 import { useFeeDataWithGasPrice } from 'state/user/hooks'
 import { unstakeFarm } from 'utils/calls'
-import { useOraclePrice } from 'views/Farms/hooks/useFetchOraclePrice'
+// import { useOraclePrice } from 'views/Farms/hooks/useFetchOraclePrice'
 
 const useUnstakeFarms = (pid: number, vaultPid?: number) => {
-  const { account, chainId } = useAccountActiveChain()
+  // const { account, chainId } = useAccountActiveChain()
   const { gasPrice } = useFeeDataWithGasPrice()
-  const oraclePrice = useOraclePrice(chainId)
+  // const oraclePrice = useOraclePrice(chainId)
   const masterChefContract = useMasterchef()
-  const nonBscVaultContract = useNonBscVault()
+  // const nonBscVaultContract = useNonBscVault()
 
   const handleUnstake = useCallback(
     async (amount: string) => {

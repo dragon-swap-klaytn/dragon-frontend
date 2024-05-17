@@ -63,7 +63,7 @@ import {
 
 import { ChainId } from '@pancakeswap/chains'
 import { ifoV7ABI } from '@pancakeswap/ifos'
-import { WNATIVE, pancakePairV2ABI } from '@pancakeswap/sdk'
+import { WNATIVE, WNATIVE2, pancakePairV2ABI } from '@pancakeswap/sdk'
 import { CAKE } from '@pancakeswap/tokens'
 import { nonfungiblePositionManagerABI } from '@pancakeswap/v3-sdk'
 import { multicallABI } from 'config/abi/Multicall'
@@ -79,6 +79,7 @@ import { VaultKey } from 'state/types'
 
 import { erc721CollectionABI } from 'config/abi/erc721collection'
 import { infoStableSwapABI } from 'config/abi/infoStableSwap'
+import { neopin } from 'config/abi/neopin'
 import { wethABI } from 'config/abi/weth'
 /**
  * Helper hooks to get specific contracts (by ABI)
@@ -276,12 +277,17 @@ export function useContract<TAbi extends Abi>(
 }
 
 export function useTokenContract(tokenAddress?: Address) {
-  return useContract(tokenAddress, erc20ABI)
+  return useContract(tokenAddress, tokenAddress === '0xE06597D02A2C3AA7a9708DE2Cfa587B128bd3815' ? neopin : erc20ABI)
 }
 
-export function useWNativeContract() {
+export function useWNativeContract(address?: Address) {
   const { chainId } = useActiveChainId()
-  return useContract(chainId ? WNATIVE[chainId]?.address : undefined, wethABI)
+  return useContract(address ?? (chainId ? WNATIVE[chainId]?.address : undefined), wethABI)
+}
+
+export function useRNativeContract() {
+  const { chainId } = useActiveChainId()
+  return useContract(chainId ? WNATIVE2[chainId]?.address : undefined, wethABI)
 }
 
 export function useWBETHContract() {
@@ -404,10 +410,10 @@ export function useV3NFTPositionManagerContract() {
   return useContract(addresses.nftPositionManager, nonfungiblePositionManagerABI)
 }
 
-export function useMasterchefV3() {
+export function useMasterchefV3(isFinished?: boolean) {
   const { chainId } = useActiveChainId()
   const { data: signer } = useWalletClient()
-  return useMemo(() => getMasterChefV3Contract(signer ?? undefined, chainId), [signer, chainId])
+  return useMemo(() => getMasterChefV3Contract(signer ?? undefined, chainId, isFinished), [signer, chainId, isFinished])
 }
 
 export function useV3MigratorContract() {

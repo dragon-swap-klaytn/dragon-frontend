@@ -15,4 +15,22 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
       },
     ],
   },
+  {
+    label: t("Support"),
+    items: [
+      {
+        label: t("Contact"),
+        href: "mailto:support@dgswap.io",
+      },
+    ],
+  },
+  {
+    label: t("ABOUT"),
+    items: [
+      {
+        label: t("Terms Of Service"),
+        href: "/terms",
+      },
+    ],
+  },
 ];
