@@ -1,361 +1,345 @@
-export const oraklNetworkOracleABI =  [
+export const oraklNetworkOracleABI = [
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "aggregator",
-    "outputs": [
+    name: 'aggregator',
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "aggregatorProxies",
-    "outputs": [
+    name: 'aggregatorProxies',
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "decimals",
-    "outputs": [
+    name: 'decimals',
+    outputs: [
       {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "description",
-    "outputs": [
+    name: 'description',
+    outputs: [
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
       },
       {
-        "internalType": "uint80",
-        "name": "roundId",
-        "type": "uint80"
-      }
+        internalType: 'uint80',
+        name: 'roundId',
+        type: 'uint80',
+      },
     ],
-    "name": "getRoundData",
-    "outputs": [
+    name: 'getRoundData',
+    outputs: [
       {
-        "internalType": "uint80",
-        "name": "id",
-        "type": "uint80"
+        internalType: 'uint80',
+        name: 'id',
+        type: 'uint80',
       },
       {
-        "internalType": "int256",
-        "name": "answer",
-        "type": "int256"
+        internalType: 'int256',
+        name: 'answer',
+        type: 'int256',
       },
       {
-        "internalType": "uint256",
-        "name": "startedAt",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'startedAt',
+        type: 'uint256',
       },
       {
-        "internalType": "uint256",
-        "name": "updatedAt",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'updatedAt',
+        type: 'uint256',
       },
       {
-        "internalType": "uint80",
-        "name": "answeredInRound",
-        "type": "uint80"
-      }
+        internalType: 'uint80',
+        name: 'answeredInRound',
+        type: 'uint80',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [],
+    name: 'latestRoundData',
+    outputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'uint80',
+        name: 'id',
+        type: 'uint80',
+      },
+      {
+        internalType: 'int256',
+        name: 'answer',
+        type: 'int256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'updatedAt',
+        type: 'uint256',
+      },
     ],
-    "name": "latestRoundData",
-    "outputs": [
-      {
-        "internalType": "uint80",
-        "name": "id",
-        "type": "uint80"
-      },
-      {
-        "internalType": "int256",
-        "name": "answer",
-        "type": "int256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "startedAt",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "updatedAt",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint80",
-        "name": "answeredInRound",
-        "type": "uint80"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
       },
       {
-        "internalType": "uint16",
-        "name": "phaseId_",
-        "type": "uint16"
-      }
+        internalType: 'uint16',
+        name: 'phaseId_',
+        type: 'uint16',
+      },
     ],
-    "name": "phaseAggregators",
-    "outputs": [
+    name: 'phaseAggregators',
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "phaseId",
-    "outputs": [
+    name: 'phaseId',
+    outputs: [
       {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      }
+        internalType: 'uint16',
+        name: '',
+        type: 'uint16',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "proposedAggregator",
-    "outputs": [
+    name: 'proposedAggregator',
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
       },
       {
-        "internalType": "uint80",
-        "name": "roundId",
-        "type": "uint80"
-      }
+        internalType: 'uint80',
+        name: 'roundId',
+        type: 'uint80',
+      },
     ],
-    "name": "proposedGetRoundData",
-    "outputs": [
+    name: 'proposedGetRoundData',
+    outputs: [
       {
-        "internalType": "uint80",
-        "name": "id",
-        "type": "uint80"
+        internalType: 'uint80',
+        name: 'id',
+        type: 'uint80',
       },
       {
-        "internalType": "int256",
-        "name": "answer",
-        "type": "int256"
+        internalType: 'int256',
+        name: 'answer',
+        type: 'int256',
       },
       {
-        "internalType": "uint256",
-        "name": "startedAt",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'startedAt',
+        type: 'uint256',
       },
       {
-        "internalType": "uint256",
-        "name": "updatedAt",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'updatedAt',
+        type: 'uint256',
       },
       {
-        "internalType": "uint80",
-        "name": "answeredInRound",
-        "type": "uint80"
-      }
+        internalType: 'uint80',
+        name: 'answeredInRound',
+        type: 'uint80',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "proposedLatestRoundData",
-    "outputs": [
+    name: 'proposedLatestRoundData',
+    outputs: [
       {
-        "internalType": "uint80",
-        "name": "id",
-        "type": "uint80"
+        internalType: 'uint80',
+        name: 'id',
+        type: 'uint80',
       },
       {
-        "internalType": "int256",
-        "name": "answer",
-        "type": "int256"
+        internalType: 'int256',
+        name: 'answer',
+        type: 'int256',
       },
       {
-        "internalType": "uint256",
-        "name": "startedAt",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'startedAt',
+        type: 'uint256',
       },
       {
-        "internalType": "uint256",
-        "name": "updatedAt",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'updatedAt',
+        type: 'uint256',
       },
       {
-        "internalType": "uint80",
-        "name": "answeredInRound",
-        "type": "uint80"
-      }
+        internalType: 'uint80',
+        name: 'answeredInRound',
+        type: 'uint80',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
+      },
     ],
-    "name": "typeAndVersion",
-    "outputs": [
+    name: 'typeAndVersion',
+    outputs: [
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "feedName",
-        "type": "string"
+        internalType: 'string',
+        name: 'feedName',
+        type: 'string',
       },
       {
-        "internalType": "address",
-        "name": "proxyAddress",
-        "type": "address"
-      }
+        internalType: 'address',
+        name: 'proxyAddress',
+        type: 'address',
+      },
     ],
-    "name": "updateProxy",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: 'updateProxy',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string[]",
-        "name": "feedNames",
-        "type": "string[]"
+        internalType: 'string[]',
+        name: 'feedNames',
+        type: 'string[]',
       },
       {
-        "internalType": "address[]",
-        "name": "proxyAddresses",
-        "type": "address[]"
-      }
+        internalType: 'address[]',
+        name: 'proxyAddresses',
+        type: 'address[]',
+      },
     ],
-    "name": "updateProxyBulk",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
+    name: 'updateProxyBulk',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ]
