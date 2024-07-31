@@ -21,4 +21,5 @@ export const klaytnTokens = {
   azit: new ERC20Token(8217, '0x6CEF6Dd9a3C4ad226b8B66EffEEa2c125dF194F1', 18, 'AZIT', 'AziT'),
   d0: new ERC20Token(8217, '0x3ac780e2c6906ab85912f4aF2a8fD390Dc7e5B06', 18, 'D_0', 'Dragon0'),
   d1: new ERC20Token(8217, '0x3DaeFf09Db758C210B980624241FB3532A32DF1F', 18, 'D_1', 'Dragon1'),
+  xgrnd: new ERC20Token(8217, '0x9bcb2EFC545f89986CF70d3aDC39079a1B730D63', 18, 'xGRND', 'Staked GRND'),
 }
