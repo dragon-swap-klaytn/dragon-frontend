@@ -1,6 +1,5 @@
 import { Card, Flex, SyncAltIcon, Tag, Text } from '@pancakeswap/uikit'
 import { Pool } from '@pancakeswap/v3-sdk'
-import NextLink from 'next/link'
 import { useMemo } from 'react'
 import { styled } from 'styled-components'
 
@@ -88,9 +87,18 @@ export const LiquidityCardRow = ({
 
   if (link) {
     return (
-      <Card mb="8px" style={{ maxHeight: '150px' }}>
-        <NextLink href={link}>{content}</NextLink>
-      </Card>
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+      <div
+        style={{ cursor: 'pointer' }}
+        onClick={(e) => {
+          e.preventDefault()
+          window.location.href = link
+        }}
+      >
+        <Card mb="8px" style={{ maxHeight: '150px' }}>
+          {content}
+        </Card>
+      </div>
     )
   }
 

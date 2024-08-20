@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { ChainId } from '@pancakeswap/chains'
 import { isActiveV3Farm } from '@pancakeswap/farms'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@pancakeswap/sdk'
@@ -587,19 +589,31 @@ export default function PoolPage() {
                 currency0 &&
                 currency1 && (
                   <>
-                    <NextLinkFromReactRouter
-                      to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
+                    <div
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        window.location.href = `/increase/${currencyId(currency0)}/${currencyId(
+                          currency1,
+                        )}/${feeAmount}/${tokenId}`
+                      }}
                     >
                       <Button disabled={!isOwnNFT} width="100%">
                         {t('Add')}
                       </Button>
-                    </NextLinkFromReactRouter>
+                    </div>
                     {!removed && (
-                      <NextLinkFromReactRouter to={`/remove/${tokenId}`}>
+                      <div
+                        style={{ cursor: 'pointer' }}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          window.location.href = `/remove/${tokenId}`
+                        }}
+                      >
                         <Button disabled={!isOwnNFT} ml="4px" variant="secondary" width="100%">
                           {t('Remove')}
                         </Button>
-                      </NextLinkFromReactRouter>
+                      </div>
                     )}
                   </>
                 )
@@ -608,19 +622,31 @@ export default function PoolPage() {
             <CardBody>
               {isMobile && (
                 <>
-                  <NextLinkFromReactRouter
-                    to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
+                  <div
+                    style={{ cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      window.location.href = `/increase/${currencyId(currency0)}/${currencyId(
+                        currency1,
+                      )}/${feeAmount}/${tokenId}`
+                    }}
                   >
                     <Button disabled={!isOwnNFT} width="100%" mb="8px">
                       {t('Add')}
                     </Button>
-                  </NextLinkFromReactRouter>
+                  </div>
                   {!removed && (
-                    <NextLinkFromReactRouter to={`/remove/${tokenId}`}>
+                    <div
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        window.location.href = `/remove/${tokenId}`
+                      }}
+                    >
                       <Button disabled={!isOwnNFT} variant="secondary" width="100%" mb="8px">
                         {t('Remove')}
                       </Button>
-                    </NextLinkFromReactRouter>
+                    </div>
                   )}
                 </>
               )}
