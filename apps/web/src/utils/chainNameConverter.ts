@@ -6,6 +6,8 @@ export const chainNameConverter = (name: string) => {
       return 'BNB Chain'
     case linea.name:
       return 'Linea'
+    case 'Klaytn':
+      return 'Kaia'
     default:
       return name
   }
