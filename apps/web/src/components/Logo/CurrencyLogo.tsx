@@ -1,11 +1,11 @@
-import { Currency } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
-import { BinanceIcon, TokenLogo } from '@pancakeswap/uikit'
-import { useMemo } from 'react'
-import { WrappedTokenInfo } from '@pancakeswap/token-lists'
-import { styled } from 'styled-components'
-import { ASSET_CDN } from 'config/constants/endpoints'
 import { useHttpLocations } from '@pancakeswap/hooks'
+import { Currency } from '@pancakeswap/sdk'
+import { WrappedTokenInfo } from '@pancakeswap/token-lists'
+import { BinanceIcon, TokenLogo } from '@pancakeswap/uikit'
+import { ASSET_CDN } from 'config/constants/endpoints'
+import { useMemo } from 'react'
+import { styled } from 'styled-components'
 import getTokenLogoURL from '../../utils/getTokenLogoURL'
 
 const StyledLogo = styled(TokenLogo)<{ size: string }>`
@@ -58,7 +58,7 @@ export default function CurrencyLogo({ currency, size = '24px', style }: LogoPro
       return (
         <StyledLogo
           size={size}
-          srcs={['https://klaytn.foundation/wp-content/uploads/2022/12/cropped-favicon-180x180.png']}
+          srcs={['https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png']}
           width={size}
           style={style}
         />
