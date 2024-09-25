@@ -35,7 +35,7 @@ const fetchTopTokens = async (chainName: MultiChainNameExtend, timestamp24hAgo: 
       : checkIsStableSwap()
       ? ''
       : `where: { dailyTxns_gt: ${chainName === 'BSC' ? 300 : 0}, id_not_in: $blacklist, date_gt: ${timestamp24hAgo}}`
-  const firstCount = 50
+  const firstCount = 10
   try {
     // [Comment] turn off blaclist
     const query = gql`
