@@ -57,10 +57,7 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   ],
   [ChainId.BSC_TESTNET]: [bscTestnetTokens.wbnb, bscTestnetTokens.cake, bscTestnetTokens.busd],
   [ChainId.KLAYTN]: [klaytnTokens.weth, klaytnTokens.usdt],
-  [ChainId.KLAYTN_TESTNET]: [
-    klaytnTestnetTokens.usdt,
-    klaytnTestnetTokens.weth,
-  ],
+  [ChainId.KLAYTN_TESTNET]: [klaytnTestnetTokens.usdt, klaytnTestnetTokens.weth],
 }
 
 const czusd = new ERC20Token(ChainId.BSC, '0xE68b79e51bf826534Ff37AA9CeE71a3842ee9c70', 18, 'CZUSD', 'CZUSD')
@@ -105,6 +102,32 @@ export const ADDITIONAL_BASES: {
 
     // rETH - ETH
     [ethereumTokens.weth.address]: [ethereumTokens.rETH],
+  },
+  [ChainId.KLAYTN]: {
+    '0x608E8512d31cAE43Cd8058D81E6B56203A112539': [
+      // PING
+      new ERC20Token(ChainId.KLAYTN, '0xB242cb981952C183421E4aC9B0D4861c27D9Dc73', 18, 'DrumPing', 'DPING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0x4Cad05F5AfDD4bfC072E356e88B05C33316bb1c5', 18, 'SeryukPing', 'KPING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0x8882ec400E9348ff60Ae85d3D90A93cF97Ce8869', 18, 'MultaPing', 'MPING', ''),
+    ],
+    '0xB242cb981952C183421E4aC9B0D4861c27D9Dc73': [
+      // DPING
+      new ERC20Token(ChainId.KLAYTN, '0x608E8512d31cAE43Cd8058D81E6B56203A112539', 18, 'BirdsPing', 'PING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0x4Cad05F5AfDD4bfC072E356e88B05C33316bb1c5', 18, 'SeryukPing', 'KPING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0x8882ec400E9348ff60Ae85d3D90A93cF97Ce8869', 18, 'MultaPing', 'MPING', ''),
+    ],
+    '0x4Cad05F5AfDD4bfC072E356e88B05C33316bb1c5': [
+      // KPING
+      new ERC20Token(ChainId.KLAYTN, '0x608E8512d31cAE43Cd8058D81E6B56203A112539', 18, 'BirdsPing', 'PING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0xB242cb981952C183421E4aC9B0D4861c27D9Dc73', 18, 'DrumPing', 'DPING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0x8882ec400E9348ff60Ae85d3D90A93cF97Ce8869', 18, 'MultaPing', 'MPING', ''),
+    ],
+    '0x8882ec400E9348ff60Ae85d3D90A93cF97Ce8869': [
+      // MPING
+      new ERC20Token(ChainId.KLAYTN, '0x608E8512d31cAE43Cd8058D81E6B56203A112539', 18, 'BirdsPing', 'PING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0xB242cb981952C183421E4aC9B0D4861c27D9Dc73', 18, 'DrumPing', 'DPING', ''),
+      new ERC20Token(ChainId.KLAYTN, '0x8882ec400E9348ff60Ae85d3D90A93cF97Ce8869', 18, 'MultaPing', 'MPING', ''),
+    ],
   },
 }
 
