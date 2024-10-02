@@ -1,11 +1,6 @@
 import { ChainId, chainNames } from '@pancakeswap/chains'
 import memoize from 'lodash/memoize'
-import {
-  Chain,
-  bsc as bsc_,
-  klaytn,
-  klaytnBaobab
-} from 'wagmi/chains'
+import { Chain, bsc as bsc_, klaytn, klaytnBaobab } from 'wagmi/chains'
 
 export const CHAIN_QUERY_NAME = chainNames
 
@@ -37,40 +32,41 @@ const bsc = {
 } satisfies Chain
 
 const _klaytnRpc = [
-  'https://public-en-cypress.klaytn.net',
+  'https://public-en.node.kaia.io',
   'https://klaytn-mainnet-rpc.allthatnode.com:8551',
-  'https://klaytn.blockpi.network/v1/rpc/public',
+  'https://kaia.blockpi.network/v1/rpc/public	',
   'https://klaytn-rpc.gateway.pokt.network',
-  'https://klaytn.drpc.org'
+  'https://klaytn.drpc.org',
 ]
 export const _klaytn = {
   ...klaytn,
   rpcUrls: {
     public: {
-      http: _klaytnRpc
+      http: _klaytnRpc,
     },
     default: {
-      http: _klaytnRpc
-    }
-  }
+      http: _klaytnRpc,
+    },
+  },
 }
 
 const _klaytnBaobabRPC = [
+  'https://public-en-kairos.node.kaia.io',
   'https://api.baobab.klaytn.net:8651',
   'https://rpc.ankr.com/klaytn_testnet',
-  'https://klaytn-baobab-rpc.allthatnode.com:8551',
-  'https://klaytn-baobab.blockpi.network/v1/rpc/public'
+  'https://kaia-kairos.blockpi.network/v1/rpc/public',
+  'https://klaytn-baobab.blockpi.network/v1/rpc/public',
 ]
 export const _klaytnBaobab = {
   ...klaytnBaobab,
   rpcUrls: {
     public: {
-      http: _klaytnBaobabRPC
+      http: _klaytnBaobabRPC,
     },
     default: {
-      http: _klaytnBaobabRPC
-    }
-  }
+      http: _klaytnBaobabRPC,
+    },
+  },
 }
 
 /**
@@ -80,7 +76,4 @@ export const _klaytnBaobab = {
 export const L2_CHAIN_IDS: ChainId[] = []
 
 // DEV_NOTE [체인설정]_2 : 목록 설정
-export const CHAINS = process.env.NEXT_PUBLIC_ENV === 'dev' ? [
-  _klaytn,
-  _klaytnBaobab
-] : [_klaytn]
+export const CHAINS = process.env.NEXT_PUBLIC_ENV === 'dev' ? [_klaytn, _klaytnBaobab] : [_klaytn]
