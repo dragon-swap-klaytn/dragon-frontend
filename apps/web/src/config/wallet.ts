@@ -3,7 +3,6 @@ import { WalletFilledIcon } from '@pancakeswap/uikit'
 import KaikasIcon from 'components/Svg/KaikasIcon'
 import type { ExtendEthereum } from 'global'
 import { klipConnector, walletConnectNoQrCodeConnector } from '../utils/wagmi'
-import { ASSET_CDN } from './constants/endpoints'
 
 export enum ConnectorNames {
   Kaikas = 'kaikas',
@@ -84,7 +83,7 @@ const walletsConfig = ({
     },
     {
       id: 'Kaikas',
-      title: 'Kaikas',
+      title: 'KaiaWallet',
       icon: KaikasIcon,
       connectorId: ConnectorNames.Kaikas,
     },
