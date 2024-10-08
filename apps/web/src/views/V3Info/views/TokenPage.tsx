@@ -216,7 +216,8 @@ const TokenPage: React.FC<{ address: string }> = ({ address }) => {
                       fontSize={isXs || isSm ? '24px' : '40px'}
                       id="info-token-name-title"
                     >
-                      {(address && subgraphTokenName[safeGetAddress(address)]) || tokenData.name}
+                      {(address && subgraphTokenName[safeGetAddress(address)]) ||
+                        (tokenData.name === 'Korean Won tOt' ? 'KRWO' : tokenData.name)}
                     </Text>
                     <Text ml="12px" lineHeight="1" color="textSubtle" fontSize={isXs || isSm ? '14px' : '20px'}>
                       ({subgraphTokenSymbol[safeGetAddress(address)] ?? tokenData.symbol})

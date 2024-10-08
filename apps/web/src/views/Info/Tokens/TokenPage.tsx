@@ -177,7 +177,8 @@ const TokenPage: React.FC<React.PropsWithChildren<{ routeAddress: string }>> = (
                     fontSize={isXs || isSm ? '24px' : '40px'}
                     id="info-token-name-title"
                   >
-                    {(checksummedAddress && subgraphTokenName[checksummedAddress]) || tokenData.name}
+                    {(checksummedAddress && subgraphTokenName[checksummedAddress]) ||
+                      (tokenData.name === 'Korean Won tOt' ? 'KRWO' : tokenData.name)}
                   </Text>
                   <Text ml="12px" lineHeight="1" color="textSubtle" fontSize={isXs || isSm ? '14px' : '20px'}>
                     ({(checksummedAddress && subgraphTokenSymbol[checksummedAddress]) || tokenData.symbol})
