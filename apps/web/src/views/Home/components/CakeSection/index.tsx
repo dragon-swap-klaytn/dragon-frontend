@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Button, Flex, Link, OpenNewIcon, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
-import useTheme from 'hooks/useTheme'
 import { ASSET_CDN } from 'config/constants/endpoints'
+import useTheme from 'hooks/useTheme'
 import React, { memo, useCallback, useLayoutEffect, useRef } from 'react'
 import { css, styled } from 'styled-components'
 import { useDrawCanvas } from '../../hooks/useDrawCanvas'
@@ -426,7 +426,7 @@ const CakeSection: React.FC = () => {
         </Text>
       </Flex>
       <Flex justifyContent="center" style={{ gap: 14 }}>
-        <Link href="/swap?outputCurrency=KLAY&chainId=8217">
+        <Link href="/swap?outputCurrency=KAIA&chainId=8217">
           <Button variant="primary">{t('Buy CAKE')}</Button>
         </Link>
         <Link href="https://docs.dgswap.io/governance-and-tokenomics/cake-tokenomics">

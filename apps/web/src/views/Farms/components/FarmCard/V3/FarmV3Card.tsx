@@ -88,7 +88,7 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
     <>
       <Text>
         {t(
-          'Global APR calculated using the total amount of active & staked liquidity with the pool KLAY reward emissions.',
+          'Global APR calculated using the total amount of active & staked liquidity with the pool KAIA reward emissions.',
         )}
       </Text>
       <br />

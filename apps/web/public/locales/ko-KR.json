@@ -2142,7 +2142,7 @@
   "Inactive positions will": "비활성 포지션은 팜에서 리워드를 받지",
   "NOT": "못하게",
   "earn rewards from farm.": "됩니다.",
-  "Global APR calculated using the total amount of active & staked liquidity with the pool KLAY reward emissions.": "풀 KLAY 리워드 생성과 함께 활성 및 스테이킹 유동성의 총량을 사용하여 계산된 글로벌 APR.",
+  "Global APR calculated using the total amount of active & staked liquidity with the pool KAIA reward emissions.": "풀 KAIA 리워드 생성과 함께 활성 및 스테이킹 유동성의 총량을 사용하여 계산된 글로벌 APR.",
   "APRs for individual positions may vary depend on their price range settings.": "개별 포지션의 APR은 가격 범위 설정에 따라 다를 수 있습니다.",
   "Removing V2 liquidity": "V2 유동성 제거",
   "All trading fee earnings are included in the tokens returned.": "모든 거래 수수료 수익은 반환된 토큰에 포함됩니다.",

@@ -25,10 +25,7 @@ export const PageHead = () => {
       <Flex flex="1" flexDirection="column" mr={[0, 0, '8px']}>
         <Heading />
         <Description />
-        <NextLinkFromReactRouter
-          to="/swap?chain=klaytn&outputCurrency=KLAY"
-          prefetch={false}
-        >
+        <NextLinkFromReactRouter to="/swap?chain=klaytn&outputCurrency=KAIA" prefetch={false}>
           <Button p="0" variant="text" mt="4px">
             <Text color="primary" bold fontSize="16px" mr="4px">
               {t('Get CAKE')}

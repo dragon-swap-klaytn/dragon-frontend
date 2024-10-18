@@ -72,16 +72,16 @@ export const WETH9 = {
     ChainId.KLAYTN,
     '0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432',
     18,
-    'WKLAY',
-    'Wrapped Klay',
+    'WKAIA',
+    'Wrapped KAIA',
     'https://klaytn.foundation'
   ),
   [ChainId.KLAYTN_TESTNET]: new ERC20Token(
     ChainId.KLAYTN_TESTNET,
     '0x043c471bEe060e00A56CcD02c0Ca286808a5A436',
     18,
-    'WKLAY',
-    'Wrapped KLAY',
+    'WKAIA',
+    'Wrapped KAIA',
     'https://klaytn.foundation'
   ),
 }
@@ -139,9 +139,9 @@ const BNB = {
   symbol: 'BNB',
   decimals: 18,
 } as const
-const KLAY = {
-  name: 'Klay',
-  symbol: 'KLAY',
+const KAIA = {
+  name: 'Kaia',
+  symbol: 'KAIA',
   decimals: 18,
 } as const
 
@@ -155,8 +155,8 @@ export const NATIVE = {
     symbol: 'tBNB',
     decimals: 18,
   },
-  [ChainId.KLAYTN]: KLAY,
-  [ChainId.KLAYTN_TESTNET]: KLAY,
+  [ChainId.KLAYTN]: KAIA,
+  [ChainId.KLAYTN_TESTNET]: KAIA,
 } satisfies Record<
   ChainId,
   {

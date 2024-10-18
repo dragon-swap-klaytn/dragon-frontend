@@ -1,9 +1,9 @@
 import React from "react";
 import { styled } from "styled-components";
+import { Colors } from "../../theme";
+import Skeleton from "../Skeleton/Skeleton";
 import LogoRound from "../Svg/Icons/LogoRound";
 import Text from "../Text/Text";
-import Skeleton from "../Skeleton/Skeleton";
-import { Colors } from "../../theme";
 
 export interface Props {
   color?: keyof Colors;
@@ -33,7 +33,7 @@ const CakePrice: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   return cakePriceUsd ? (
     <PriceLink
-      href={`/swap?inputCurrency=0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2&outputCurrency=KLAY&chainId=${chainId}`}
+      href={`/swap?inputCurrency=0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2&outputCurrency=KAIA&chainId=${chainId}`}
       target="_blank"
     >
       <LogoRound width={24} mr={8} />

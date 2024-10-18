@@ -144,8 +144,8 @@ export const CAKE = {
   ),
 }
 
-export const CAKE_SYMBOL = 'RKLAY'
-export const CAKE_SYMBOL_VIEW = 'KLAY'
+export const CAKE_SYMBOL = 'RKAIA'
+export const CAKE_SYMBOL_VIEW = 'KAIA'
 
 export const USDC = {
   [ChainId.BSC]: USDC_BSC,
