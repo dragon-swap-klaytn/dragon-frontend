@@ -171,8 +171,8 @@ export async function fetchedTokenDatas(
       accum[address] = {
         exists: !!current,
         address,
-        name: current?.name ?? '',
-        symbol: current?.symbol ?? '',
+        name: current?.name === 'Wrapped Klay' ? 'Wrapped Kaia' : current?.name ?? '',
+        symbol: current?.symbol === 'WKLAY' ? 'WKAIA' : current?.symbol ?? '',
         decimals,
         volumeUSD,
         volumeUSDChange,

@@ -1,5 +1,5 @@
-import { gql, GraphQLClient } from 'graphql-request'
 import BigNumber from 'bignumber.js'
+import { gql, GraphQLClient } from 'graphql-request'
 import { Block } from 'state/info/types'
 import { PoolData } from '../../types'
 import { get2DayChange } from '../../utils/data'
@@ -213,15 +213,15 @@ export async function fetchPoolDatas(
           tick: parseFloat(current.tick),
           token0: {
             address: current.token0.id,
-            name: current.token0.name,
-            symbol: current.token0.symbol,
+            name: current.token0.name === 'Wrapped Klay' ? 'Wrapped Kaia' : current.token0.name,
+            symbol: current.token0.symbol === 'WKLAY' ? 'WKAIA' : current.token0.symbol,
             decimals: parseInt(current.token0.decimals),
             derivedETH: parseFloat(current.token0.derivedETH),
           },
           token1: {
             address: current.token1.id,
-            name: current.token1.name,
-            symbol: current.token1.symbol,
+            name: current.token1.name === 'Wrapped Klay' ? 'Wrapped Kaia' : current.token1.name,
+            symbol: current.token1.symbol === 'WKLAY' ? 'WKAIA' : current.token1.symbol,
             decimals: parseInt(current.token1.decimals),
             derivedETH: parseFloat(current.token1.derivedETH),
           },

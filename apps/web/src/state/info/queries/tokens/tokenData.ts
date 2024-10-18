@@ -289,8 +289,8 @@ export const fetchAllTokenDataByAddresses = async (
       data: {
         exists: !!current,
         address,
-        name: current ? current.name : '',
-        symbol: current ? current.symbol : '',
+        name: current?.name === 'Wrapped Klay' ? 'Wrapped Kaia' : current?.name ?? '',
+        symbol: current?.symbol === 'WKLAY' ? 'WKAIA' : current?.symbol ?? '',
         volumeUSD,
         volumeUSDChange,
         volumeUSDWeek,

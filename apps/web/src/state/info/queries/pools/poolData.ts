@@ -221,13 +221,21 @@ export const fetchAllPoolDataWithAddress = async (
           address,
           token0: {
             address: current?.token0?.id ?? '',
-            name: current?.token0?.name ?? '',
-            symbol: !token0Address ? '' : subgraphTokenSymbol[token0Address] ?? current?.token0?.symbol ?? '',
+            name: current?.token0?.name === 'Wrapped Klay' ? 'Wrapped Kaia' : current?.token0?.name ?? '',
+            symbol: !token0Address
+              ? ''
+              : subgraphTokenSymbol[token0Address] ??
+                (current?.token0?.symbol === 'WKLAY' ? 'WKAIA' : current?.token0?.symbol) ??
+                '',
           },
           token1: {
             address: current?.token1?.id ?? '',
-            name: current?.token1?.name ?? '',
-            symbol: !token1Address ? '' : subgraphTokenSymbol[token1Address] ?? current?.token1?.symbol ?? '',
+            name: current?.token1?.name === 'Wrapped Klay' ? 'Wrapped Kaia' : current?.token1?.name ?? '',
+            symbol: !token0Address
+              ? ''
+              : subgraphTokenSymbol[token0Address] ??
+                (current?.token1?.symbol === 'WKLAY' ? 'WKAIA' : current?.token1?.symbol) ??
+                '',
           },
           timestamp,
           token0Price: current.token0Price,
