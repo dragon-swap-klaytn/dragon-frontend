@@ -159,7 +159,8 @@ function MinimalPositionCardView({
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin size={20} />
                   <Text small color="textSubtle">
-                    {currency0.symbol}-{currency1.symbol} LP
+                    {currency0.name === 'Tether USD (Stargate)' ? 'USDT(Stargate)' : currency0.symbol}-
+                    {currency1.name === 'Tether USD (Stargate)' ? 'USDT(Stargate)' : currency1.symbol} LP
                   </Text>
                 </RowFixed>
                 <RowFixed>
