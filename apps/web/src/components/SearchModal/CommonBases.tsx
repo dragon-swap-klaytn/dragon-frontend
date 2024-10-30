@@ -1,10 +1,10 @@
-import { Currency, Token } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
-import { Text, QuestionHelper, AutoColumn } from '@pancakeswap/uikit'
-import { CurrencyLogo } from '@pancakeswap/widgets-internal'
-import { styled } from 'styled-components'
-import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useTranslation } from '@pancakeswap/localization'
+import { Currency, Token } from '@pancakeswap/sdk'
+import { AutoColumn, QuestionHelper, Text } from '@pancakeswap/uikit'
+import { CurrencyLogo } from '@pancakeswap/widgets-internal'
+import useNativeCurrency from 'hooks/useNativeCurrency'
+import { styled } from 'styled-components'
 
 import { SUGGESTED_BASES } from 'config/constants/exchange'
 import { AutoRow } from '../Layout/Row'
@@ -86,7 +86,17 @@ export default function CommonBases({
             <ButtonWrapper key={`buttonBase#${token.address}`}>
               <BaseWrapper onClick={() => !selected && onSelect(token)} disable={selected}>
                 <CurrencyLogo currency={token} style={{ marginRight: 8, borderRadius: '50%' }} />
-                <Text>{token.symbol}</Text>
+                <Text>
+                  {token.address === '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'
+                    ? 'USDT(Wormhole)'
+                    : token.address === '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A'
+                    ? 'USDC(Wormhole)'
+                    : token.address === '0x9025095263d1E548dc890A7589A4C78038aC40ab'
+                    ? 'USDT(Stargate)'
+                    : token.address === '0xE2053BCf56D2030d2470Fb454574237cF9ee3D4B'
+                    ? 'USDC(Stargate)'
+                    : token.symbol}
+                </Text>
               </BaseWrapper>
             </ButtonWrapper>
           )
