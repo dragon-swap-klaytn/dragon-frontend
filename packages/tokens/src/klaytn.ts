@@ -23,4 +23,6 @@ export const klaytnTokens = {
   d1: new ERC20Token(8217, '0x3DaeFf09Db758C210B980624241FB3532A32DF1F', 18, 'D_1', 'Dragon1'),
   xgrnd: new ERC20Token(8217, '0x9bcb2EFC545f89986CF70d3aDC39079a1B730D63', 18, 'xGRND', 'Staked GRND'),
   stkaia: new ERC20Token(8217, '0x42952B873ed6f7f0A7E4992E2a9818E3A9001995', 18, 'stKAIA', 'Lair Staked KAIA'),
+  usdt_e: new ERC20Token(8217, '0x9025095263d1E548dc890A7589A4C78038aC40ab', 6, 'USDT', 'Tether USD'),
+  usdc_e: new ERC20Token(8217, '0xE2053BCf56D2030d2470Fb454574237cF9ee3D4B', 6, 'USDC.e', 'Bridged USDC (Stargate)'),
 }
