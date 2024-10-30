@@ -159,11 +159,25 @@ export const farmsV3 = defineFarmV3Configs([
     feeAmount: FeeAmount.HIGHEST,
   },
   {
+    pid: 25,
+    lpAddress: '0xf8eaF84197187CBB9F00b3D3CD456e32A0D11E91',
+    token0: klaytnTokens.weth,
+    token1: klaytnTokens.krwo,
+    feeAmount: FeeAmount.MEDIUM,
+  },
+  {
     pid: 22,
     lpAddress: '0x238b5AD6Ab76b886CE6463C0E3a36A956Ff58ca1',
     token0: klaytnTokens.weth,
     token1: klaytnTokens.stkaia,
     feeAmount: FeeAmount.LOW,
+  },
+  {
+    pid: 26,
+    lpAddress: '0xA53048153dE2b74f92A8636BcE1349192c58d1a1',
+    token0: klaytnTokens.usdt,
+    token1: klaytnTokens.krwo,
+    feeAmount: FeeAmount.MEDIUM,
   },
   {
     pid: 23,
@@ -233,6 +247,14 @@ export const farmsV3Finished = defineFarmV3Configs([
   },
 ])
 
-const farmsV2: SerializedFarmConfig[] = []
+const farmsV2: SerializedFarmConfig[] = [
+  {
+    pid: 0,
+    lpSymbol: 'D0_D1',
+    lpAddress: '0x21Ae4EC70Cf93cf4Ce58843660915Dbb1bdc2C09',
+    token: klaytnTokens.d0,
+    quoteToken: klaytnTokens.d1,
+  },
+]
 
 export default farmsV2

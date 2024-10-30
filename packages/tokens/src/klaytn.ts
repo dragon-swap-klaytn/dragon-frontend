@@ -37,4 +37,5 @@ export const klaytnTokens = {
     'USDC(Stargate)',
     'Bridged USDC (Stargate)',
   ),
+  krwo: new ERC20Token(8217, '0x7FC692699f2216647a0E06225d8bdF8cDeE40e7F', 18, 'KRWO', 'KRWO'),
 }
