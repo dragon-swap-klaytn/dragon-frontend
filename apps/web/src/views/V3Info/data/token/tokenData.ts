@@ -172,12 +172,31 @@ export async function fetchedTokenDatas(
         exists: !!current,
         address,
         name:
-          current?.name === 'Wrapped Klay'
+          address === '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'
+            ? 'Tether USD(Wormhole)'
+            : address === '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A'
+            ? 'USD Coin(Wormhole)'
+            : address === '0x9025095263d1E548dc890A7589A4C78038aC40ab'
+            ? 'Tether USD(Stargate)'
+            : address === '0xE2053BCf56D2030d2470Fb454574237cF9ee3D4B'
+            ? 'Bridged USDC(Stargate)'
+            : current?.name === 'Wrapped Klay'
             ? 'Wrapped Kaia'
             : current?.name === 'Korean Won tOt'
             ? 'KRWO'
             : current?.name ?? '',
-        symbol: current?.symbol === 'WKLAY' ? 'WKAIA' : current?.symbol ?? '',
+        symbol:
+          address === '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'
+            ? 'USDT(Wormhole)'
+            : address === '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A'
+            ? 'USDC(Wormhole)'
+            : address === '0x9025095263d1E548dc890A7589A4C78038aC40ab'
+            ? 'USDT(Stargate)'
+            : address === '0xE2053BCf56D2030d2470Fb454574237cF9ee3D4B'
+            ? 'USDC(Stargate)'
+            : current?.symbol === 'WKLAY'
+            ? 'WKAIA'
+            : current?.symbol ?? '',
         decimals,
         volumeUSD,
         volumeUSDChange,

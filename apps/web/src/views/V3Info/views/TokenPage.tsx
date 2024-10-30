@@ -217,10 +217,31 @@ const TokenPage: React.FC<{ address: string }> = ({ address }) => {
                       id="info-token-name-title"
                     >
                       {(address && subgraphTokenName[safeGetAddress(address)]) ||
-                        (tokenData.name === 'Korean Won tOt' ? 'KRWO' : tokenData.name)}
+                        (address === '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'
+                          ? 'Tether USD(Wormhole)'
+                          : address === '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A'
+                          ? 'USD Coin(Wormhole)'
+                          : address === '0x9025095263d1E548dc890A7589A4C78038aC40ab'
+                          ? 'Tether USD(Stargate)'
+                          : address === '0xE2053BCf56D2030d2470Fb454574237cF9ee3D4B'
+                          ? 'Bridged USDC(Stargate)'
+                          : tokenData.name === 'Korean Won tOt'
+                          ? 'KRWO'
+                          : tokenData.name)}
                     </Text>
                     <Text ml="12px" lineHeight="1" color="textSubtle" fontSize={isXs || isSm ? '14px' : '20px'}>
-                      ({subgraphTokenSymbol[safeGetAddress(address)] ?? tokenData.symbol})
+                      (
+                      {subgraphTokenSymbol[safeGetAddress(address)] ??
+                      address === '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'
+                        ? 'USDT(Wormhole)'
+                        : address === '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A'
+                        ? 'USDC(Wormhole)'
+                        : address === '0x9025095263d1E548dc890A7589A4C78038aC40ab'
+                        ? 'USDT(Stargate)'
+                        : address === '0xE2053BCf56D2030d2470Fb454574237cF9ee3D4B'
+                        ? 'USDC(Stargate)'
+                        : tokenData.symbol}
+                      )
                     </Text>
                   </Flex>
                   <Flex mt="8px" ml="46px" alignItems="center">
