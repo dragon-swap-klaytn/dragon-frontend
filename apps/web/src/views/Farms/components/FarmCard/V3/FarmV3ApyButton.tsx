@@ -65,7 +65,7 @@ function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, tokenId }:
 
   const [priceTimeWindow, setPriceTimeWindow] = useState(0)
 
-  const { ticks: data } = useAllV3Ticks(baseCurrency, quoteCurrency, feeAmount)
+  const { ticks: data } = useAllV3Ticks(roiModal.isOpen ? baseCurrency : undefined, quoteCurrency, feeAmount)
 
   const formState = useV3FormState()
 
