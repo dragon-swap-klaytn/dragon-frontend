@@ -3,13 +3,9 @@ FROM node:18.16.0-alpine
 
 WORKDIR /workspace
 
-# install git, ssh
-RUN apk add --no-cache git bash openssh
-
-# install pnpm, turbo
-RUN npm install -g pnpm turbo tsup typescript
-RUN apk add --no-cache libc6-compat
-RUN apk update
+# install git, ssh, pnpm, turbo
+RUN apk add --no-cache git bash openssh python3 build-base libc6-compat && \
+    npm install -g pnpm turbo tsup typescript
 
 # set pnpm env
 ENV PNPM_HOME=/app/.pnpm
@@ -22,7 +18,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .eslintrc .prettierrc .styl
 COPY ./packages ./packages
 COPY ./apps ./apps
 COPY ./apis ./apis
-COPY ./examples ./examples
 COPY ./scripts ./scripts
 COPY ./patches ./patches
 
