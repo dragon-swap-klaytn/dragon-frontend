@@ -25,10 +25,10 @@ COPY ./patches ./patches
 RUN pnpm install
 
 ARG NODE_ENV=production
-ARG NEXT_DGSWAP_GATEWAY=https://gateway.graph.dgswap.io
+ARG NEXT_PUBLIC_DGSWAP_GATEWAY=https://gateway.graph.dgswap.io
 
 ENV NODE_ENV=${NODE_ENV}
-ENV NEXT_DGSWAP_GATEWAY=${NEXT_DGSWAP_GATEWAY}
+ENV NEXT_PUBLIC_DGSWAP_GATEWAY=${NEXT_PUBLIC_DGSWAP_GATEWAY}
 
 # build and start
 RUN pnpm build
