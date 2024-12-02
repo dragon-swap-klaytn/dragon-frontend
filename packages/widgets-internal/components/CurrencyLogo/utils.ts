@@ -1,6 +1,6 @@
 import { ChainId } from "@pancakeswap/chains";
 import { Currency, NATIVE, Token } from "@pancakeswap/sdk";
-import { klaytnTokens, ethereumTokens, bscTokens } from "@pancakeswap/tokens";
+import { bscTokens, ethereumTokens, klaytnTokens } from "@pancakeswap/tokens";
 import memoize from "lodash/memoize";
 import { getAddress } from "viem";
 
@@ -42,9 +42,7 @@ const chainName: { [key: number]: string } = {
 
 export const getTokenListTokenUrl = (token: Token) =>
   Object.keys(chainName).includes(String(token.chainId))
-    ? `/images/tokens/${
-        token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`
-      }${token.address}.png`
+    ? `/images/tokens/${token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`}${token.address}.png`
     : null;
 
 const commonCurrencySymbols = [
@@ -59,7 +57,7 @@ const commonCurrencySymbols = [
   NATIVE[ChainId.KLAYTN],
   klaytnTokens.weth,
   klaytnTokens.usdt,
-  klaytnTokens.fnsa
+  klaytnTokens.fnsa,
 ].map(({ symbol }) => symbol);
 
 export const getCommonCurrencyUrl = memoize(
@@ -69,11 +67,13 @@ export const getCommonCurrencyUrl = memoize(
 
 export const getCommonCurrencyUrlBySymbol = memoize(
   (symbol?: string): string | undefined =>
-    symbol && commonCurrencySymbols.includes(symbol)
-      ? `/images/symbol/${symbol.toLocaleLowerCase()}.png`
-      : undefined,
+    symbol && commonCurrencySymbols.includes(symbol) ? `/images/symbol/${symbol.toLocaleLowerCase()}.png` : undefined,
   (symbol?: string) => `logoUrls#symbol#${symbol}`
 );
+
+export const getTokenLogoFromSs = (token?: Token) => {
+  return token ? `https://api.swapscanner.io/v0/tokens/${getAddress(token.address).toLocaleLowerCase()}/icon` : null;
+};
 
 type GetLogoUrlsOptions = {
   useTrustWallet?: boolean;
@@ -83,6 +83,7 @@ export const getCurrencyLogoUrls = memoize(
   (currency: Currency | undefined, { useTrustWallet = true }: GetLogoUrlsOptions = {}): string[] => {
     const trustWalletLogo = getTokenLogoURL(currency?.wrapped);
     const logoUrl = currency ? getTokenListTokenUrl(currency.wrapped) : null;
+
     return [getCommonCurrencyUrl(currency), useTrustWallet ? trustWalletLogo : undefined, logoUrl].filter(
       (url): url is string => !!url
     );
