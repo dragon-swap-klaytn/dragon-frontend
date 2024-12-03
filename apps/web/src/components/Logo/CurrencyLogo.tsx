@@ -2,8 +2,8 @@ import { ChainId } from '@pancakeswap/chains'
 import { useHttpLocations } from '@pancakeswap/hooks'
 import { Currency } from '@pancakeswap/sdk'
 import { WrappedTokenInfo } from '@pancakeswap/token-lists'
-import { BinanceIcon, TokenLogo } from '@pancakeswap/uikit'
-import { getTokenLogoFromSs } from '@pancakeswap/widgets-internal'
+import { BinanceIcon, TokenLogo, ZERO_ADDRESS } from '@pancakeswap/uikit'
+import getTokenIconSrcFromSs from '@pancakeswap/utils/getTokenIconSrcFromSs'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { useMemo } from 'react'
 import { styled } from 'styled-components'
@@ -39,7 +39,7 @@ export default function CurrencyLogo({ currency, size = '24px', style }: LogoPro
     if (currency?.isNative) return []
 
     if (currency?.isToken) {
-      const tokenLogoFromSs = getTokenLogoFromSs(currency.wrapped)
+      const tokenLogoFromSs = getTokenIconSrcFromSs(currency?.wrapped?.address)
       if (tokenLogoFromSs) {
         return [tokenLogoFromSs]
       }
@@ -64,7 +64,10 @@ export default function CurrencyLogo({ currency, size = '24px', style }: LogoPro
       return (
         <StyledLogo
           size={size}
-          srcs={['https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png']}
+          srcs={[
+            getTokenIconSrcFromSs(ZERO_ADDRESS) ||
+              'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
+          ]}
           width={size}
           style={style}
         />

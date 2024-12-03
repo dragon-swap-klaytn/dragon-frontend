@@ -1,6 +1,7 @@
 import { ChainId } from "@pancakeswap/chains";
 import { Currency, NATIVE, Token } from "@pancakeswap/sdk";
 import { bscTokens, ethereumTokens, klaytnTokens } from "@pancakeswap/tokens";
+import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
 import memoize from "lodash/memoize";
 import { getAddress } from "viem";
 
@@ -13,6 +14,10 @@ const mapping: { [key: number]: string } = {
 export const getTokenLogoURL = memoize(
   (token?: Token) => {
     if (token && mapping[token.chainId]) {
+      if (token.chainId === ChainId.KLAYTN) {
+        return getTokenIconSrcFromSs(token.address);
+      }
+
       return `https://assets-cdn.trustwallet.com/blockchains/${mapping[token.chainId]}/assets/${getAddress(
         token.address
       )}/logo.png`;
@@ -25,6 +30,10 @@ export const getTokenLogoURL = memoize(
 export const getTokenLogoURLByAddress = memoize(
   (address?: string, chainId?: number) => {
     if (address && chainId && mapping[chainId]) {
+      if (chainId === ChainId.KLAYTN) {
+        return getTokenIconSrcFromSs(address);
+      }
+
       return `https://assets-cdn.trustwallet.com/blockchains/${mapping[chainId]}/assets/${getAddress(
         address
       )}/logo.png`;
@@ -42,7 +51,9 @@ const chainName: { [key: number]: string } = {
 
 export const getTokenListTokenUrl = (token: Token) =>
   Object.keys(chainName).includes(String(token.chainId))
-    ? `/images/tokens/${token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`}${token.address}.png`
+    ? token.chainId === ChainId.KLAYTN
+      ? getTokenIconSrcFromSs(token.address)
+      : `/images/tokens/${token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`}${token.address}.png`
     : null;
 
 const commonCurrencySymbols = [
@@ -70,10 +81,6 @@ export const getCommonCurrencyUrlBySymbol = memoize(
     symbol && commonCurrencySymbols.includes(symbol) ? `/images/symbol/${symbol.toLocaleLowerCase()}.png` : undefined,
   (symbol?: string) => `logoUrls#symbol#${symbol}`
 );
-
-export const getTokenLogoFromSs = (token?: Token) => {
-  return token ? `https://api.swapscanner.io/v0/tokens/${getAddress(token.address).toLocaleLowerCase()}/icon` : null;
-};
 
 type GetLogoUrlsOptions = {
   useTrustWallet?: boolean;
