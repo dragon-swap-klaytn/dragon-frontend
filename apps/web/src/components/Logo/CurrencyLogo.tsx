@@ -3,6 +3,7 @@ import { useHttpLocations } from '@pancakeswap/hooks'
 import { Currency } from '@pancakeswap/sdk'
 import { WrappedTokenInfo } from '@pancakeswap/token-lists'
 import { BinanceIcon, TokenLogo } from '@pancakeswap/uikit'
+import { getTokenLogoFromSs } from '@pancakeswap/widgets-internal'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { useMemo } from 'react'
 import { styled } from 'styled-components'
@@ -38,6 +39,11 @@ export default function CurrencyLogo({ currency, size = '24px', style }: LogoPro
     if (currency?.isNative) return []
 
     if (currency?.isToken) {
+      const tokenLogoFromSs = getTokenLogoFromSs(currency.wrapped)
+      if (tokenLogoFromSs) {
+        return [tokenLogoFromSs]
+      }
+
       const tokenLogoURL = getTokenLogoURL(currency)
 
       if (currency instanceof WrappedTokenInfo) {

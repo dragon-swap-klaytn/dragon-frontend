@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { styled } from "styled-components";
 import { SpaceProps, space } from "styled-system";
 
-import { getCurrencyLogoUrls } from "./utils";
+import { getCurrencyLogoUrls, getTokenLogoFromSs } from "./utils";
 
 const StyledLogo = styled(TokenLogo)<{ size: string }>`
   width: ${({ size }) => size};
@@ -36,11 +36,17 @@ export function CurrencyLogo({
     if (currency?.isNative) return [];
 
     if (currency?.isToken) {
+      const logoFromSs = getTokenLogoFromSs(currency.wrapped);
+      if (logoFromSs) {
+        return [logoFromSs];
+      }
+
       const logoUrls = getCurrencyLogoUrls(currency, { useTrustWallet: useTrustWalletUrl });
 
       if (currency?.logoURI) {
         return [...uriLocations, ...logoUrls];
       }
+
       return [...logoUrls];
     }
     return [];
