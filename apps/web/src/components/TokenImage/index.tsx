@@ -6,7 +6,7 @@ import {
   TokenPairImage as UIKitTokenPairImage,
   TokenPairImageProps as UIKitTokenPairImageProps,
 } from '@pancakeswap/uikit'
-import { ASSET_CDN } from 'config/constants/endpoints'
+import { getTokenLogoFromSs } from '@pancakeswap/widgets-internal'
 
 interface TokenPairImageProps extends Omit<UIKitTokenPairImageProps, 'primarySrc' | 'secondarySrc'> {
   primaryToken: Token
@@ -19,10 +19,6 @@ export const tokenImageChainNameMapping = {
   [ChainId.KLAYTN]: 'klaytn/',
 }
 
-export const getImageUrlFromToken = (token: Token) => {
-  return `${ASSET_CDN}/images/tokens/${tokenImageChainNameMapping[token.chainId]}${token.address}.png`
-}
-
 export const TokenPairImage: React.FC<React.PropsWithChildren<TokenPairImageProps>> = ({
   primaryToken,
   secondaryToken,
@@ -30,8 +26,8 @@ export const TokenPairImage: React.FC<React.PropsWithChildren<TokenPairImageProp
 }) => {
   return (
     <UIKitTokenPairImage
-      primarySrc={getImageUrlFromToken(primaryToken)}
-      secondarySrc={getImageUrlFromToken(secondaryToken)}
+      primarySrc={getTokenLogoFromSs(primaryToken) ?? ''}
+      secondarySrc={getTokenLogoFromSs(secondaryToken) ?? ''}
       {...props}
     />
   )
@@ -42,5 +38,5 @@ interface TokenImageProps extends ImageProps {
 }
 
 export const TokenImage: React.FC<React.PropsWithChildren<TokenImageProps>> = ({ token, ...props }) => {
-  return <UIKitTokenImage src={getImageUrlFromToken(token)} {...props} />
+  return <UIKitTokenImage src={getTokenLogoFromSs(token) ?? ''} {...props} />
 }
