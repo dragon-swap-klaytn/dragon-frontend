@@ -2,8 +2,8 @@ import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { PredictionConfig, PredictionSupportedSymbol, targetChains } from '@pancakeswap/prediction'
 import { Box, Flex, OptionProps, Select, Text } from '@pancakeswap/uikit'
+import { getTokenLogoFromSs } from '@pancakeswap/widgets-internal'
 import Container from 'components/Layout/Container'
-import { getImageUrlFromToken } from 'components/TokenImage'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import useLocalDispatch from 'contexts/LocalRedux/useLocalDispatch'
 import { useMemo, useState } from 'react'
@@ -93,7 +93,7 @@ const Filters: React.FC<React.PropsWithChildren<FiltersProps>> = ({
       ? Object.values(predictionConfigs)?.map((i) => ({
           label: i?.token?.symbol ?? '',
           value: i?.token?.symbol ?? '',
-          imageUrl: getImageUrlFromToken(i?.token),
+          imageUrl: getTokenLogoFromSs(i?.token),
         }))
       : []
   }, [predictionConfigs])
