@@ -1,12 +1,13 @@
 import { ChainId } from "@pancakeswap/chains";
 import { useHttpLocations } from "@pancakeswap/hooks";
 import { Currency } from "@pancakeswap/sdk";
-import { BinanceIcon, TokenLogo } from "@pancakeswap/uikit";
+import { BinanceIcon, TokenLogo, ZERO_ADDRESS } from "@pancakeswap/uikit";
 import { useMemo } from "react";
 import { styled } from "styled-components";
 import { SpaceProps, space } from "styled-system";
 
-import { getCurrencyLogoUrls, getTokenLogoFromSs } from "./utils";
+import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
+import { getCurrencyLogoUrls } from "./utils";
 
 const StyledLogo = styled(TokenLogo)<{ size: string }>`
   width: ${({ size }) => size};
@@ -36,7 +37,7 @@ export function CurrencyLogo({
     if (currency?.isNative) return [];
 
     if (currency?.isToken) {
-      const logoFromSs = getTokenLogoFromSs(currency.wrapped);
+      const logoFromSs = getTokenIconSrcFromSs(currency?.wrapped?.address);
       if (logoFromSs) {
         return [logoFromSs];
       }
@@ -57,7 +58,13 @@ export function CurrencyLogo({
       return <BinanceIcon width={size} style={style} {...props} />;
     }
     return (
-      <StyledLogo size={size} srcs={[`/images/chains/${currency.chainId}.png`]} width={size} style={style} {...props} />
+      <StyledLogo
+        size={size}
+        srcs={[getTokenIconSrcFromSs(ZERO_ADDRESS) || `/images/chains/${currency.chainId}.png`]}
+        width={size}
+        style={style}
+        {...props}
+      />
     );
   }
 

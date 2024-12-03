@@ -1,6 +1,8 @@
 import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { Currency } from '@pancakeswap/sdk'
 import { TokenAddressMap } from '@pancakeswap/token-lists'
+import { ZERO_ADDRESS } from '@pancakeswap/uikit'
+import getTokenIconSrcFromSs from '@pancakeswap/utils/getTokenIconSrcFromSs'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import memoize from 'lodash/memoize'
 import { Address, getAddress } from 'viem'
@@ -75,8 +77,12 @@ export function isTokenOnList(defaultTokens: TokenAddressMap<ChainId>, currency?
 export function getChainIcon(chainId: ChainId) {
   return (
     {
-      8217: 'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
-      1001: 'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
+      8217:
+        getTokenIconSrcFromSs(ZERO_ADDRESS) ||
+        'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
+      1001:
+        getTokenIconSrcFromSs(ZERO_ADDRESS) ||
+        'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
     }[chainId] ?? `${ASSET_CDN}/web/chains/${chainId}.png`
   )
 }

@@ -1,6 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Token } from '@pancakeswap/sdk'
-import { getTokenLogoFromSs } from '@pancakeswap/widgets-internal'
+import getTokenIconSrcFromSs from '@pancakeswap/utils/getTokenIconSrcFromSs'
 import memoize from 'lodash/memoize'
 import { safeGetAddress } from 'utils'
 import { isAddress } from 'viem'
@@ -14,7 +14,7 @@ const mapping = {
 const getTokenLogoURL = memoize(
   (token?: Token) => {
     if (token && mapping[token.chainId] && isAddress(token.address)) {
-      return getTokenLogoFromSs(token)
+      return getTokenIconSrcFromSs(token.address)
     }
     return null
   },

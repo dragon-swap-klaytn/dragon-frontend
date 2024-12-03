@@ -97,7 +97,7 @@ export interface SelectProps extends BoxProps {
 export interface OptionProps {
   label: string;
   value: any;
-  imageUrl?: string;
+  imageUrl?: string | null;
 }
 
 const Select: React.FunctionComponent<React.PropsWithChildren<SelectProps>> = ({

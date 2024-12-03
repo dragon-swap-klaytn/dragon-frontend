@@ -1,6 +1,7 @@
+import { Box, HelpIcon, ZERO_ADDRESS } from "@pancakeswap/uikit";
+import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
 import Image from "next/image";
 import { memo } from "react";
-import { HelpIcon, Box } from "@pancakeswap/uikit";
 import { SpaceProps } from "styled-system";
 
 export const ChainLogo = memo(
@@ -14,7 +15,7 @@ export const ChainLogo = memo(
       <Image
         alt={`chain-${chainId}`}
         style={{ maxHeight: `${height}px` }}
-        src={`/images/chains/${chainId}.png`}
+        src={getTokenIconSrcFromSs(ZERO_ADDRESS) || `/images/chains/${chainId}.png`}
         width={width}
         height={height}
         unoptimized
