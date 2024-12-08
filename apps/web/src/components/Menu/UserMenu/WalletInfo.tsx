@@ -1,38 +1,36 @@
+import { ChainId } from '@pancakeswap/chains'
+import { useTranslation } from '@pancakeswap/localization'
+import { WNATIVE } from '@pancakeswap/sdk'
 import {
   Box,
   Button,
+  CopyAddress,
   Flex,
+  FlexGap,
+  InfoFilledIcon,
   InjectedModalProps,
   LinkExternal,
   Message,
   Skeleton,
   Text,
-  CopyAddress,
-  FlexGap,
-  useTooltip,
   TooltipText,
-  InfoFilledIcon,
-  ScanLink,
+  useTooltip,
 } from '@pancakeswap/uikit'
-import { WNATIVE } from '@pancakeswap/sdk'
-import { ChainId } from '@pancakeswap/chains'
+import { ChainLogo } from 'components/Logo/ChainLogo'
 import { FetchStatus } from 'config/constants/types'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
-import { useTranslation } from '@pancakeswap/localization'
 import useAuth from 'hooks/useAuth'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import useTokenBalance, { useBSCCakeBalance } from 'hooks/useTokenBalance'
-import { ChainLogo } from 'components/Logo/ChainLogo'
+import useTokenBalance from 'hooks/useTokenBalance'
 
-import { getBlockExploreLink, getBlockExploreName } from 'utils'
-import { getFullDisplayBalance, formatBigInt } from '@pancakeswap/utils/formatBalance'
-import { useBalance } from 'wagmi'
-import { useDomainNameForAddress } from 'hooks/useDomain'
-import { isMobile } from 'react-device-detect'
-import { useState } from 'react'
+import { formatBigInt, getFullDisplayBalance } from '@pancakeswap/utils/formatBalance'
 import InternalLink from 'components/Links'
 import { SUPPORT_BUY_CRYPTO } from 'config/constants/supportChains'
-import CakeBenefitsCard from './CakeBenefitsCard'
+import { useDomainNameForAddress } from 'hooks/useDomain'
+import { useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { getBlockExploreLink, getBlockExploreName } from 'utils'
+import { useBalance } from 'wagmi'
 
 const COLORS = {
   ETH: '#627EEA',
@@ -128,7 +126,8 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ hasLowNativeBalance, onDismiss 
             <Flex bg={COLORS.ETH} borderRadius="16px" pl="4px" pr="8px" py="2px">
               <ChainLogo chainId={chain.id} />
               <Text color="white" ml="4px">
-                {chain.name}
+                {/* {chain.name} */}
+                Kaia
               </Text>
             </Flex>
             <LinkExternal href={getBlockExploreLink(account, 'address', chainId)}>

@@ -1,4 +1,4 @@
-import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
+import { ChainId } from '@pancakeswap/chains'
 import { Currency } from '@pancakeswap/sdk'
 import { TokenAddressMap } from '@pancakeswap/token-lists'
 import { ZERO_ADDRESS } from '@pancakeswap/uikit'
@@ -7,7 +7,6 @@ import { ASSET_CDN } from 'config/constants/endpoints'
 import memoize from 'lodash/memoize'
 import { Address, getAddress } from 'viem'
 import { bsc } from 'wagmi/chains'
-import { chains } from './wagmi'
 
 // returns the checksummed address if the address is valid, otherwise returns undefined
 export const safeGetAddress = memoize((value: any): Address | undefined => {
@@ -27,33 +26,28 @@ export function getBlockExploreLink(
   type: 'transaction' | 'token' | 'address' | 'block' | 'countdown',
   chainIdOverride?: number,
 ): string {
-  const chainId = chainIdOverride || DEFAULT_CHAIN_ID
-  const chain = chains.find((c) => c.id === chainId)
-  if (!chain) return bsc.blockExplorers.default.url
+  const blockExplorer = 'https://kaiascope.com'
   switch (type) {
     case 'transaction': {
-      return `${chain.blockExplorers.default.url}/tx/${data}`
+      return `${blockExplorer}/tx/${data}`
     }
     case 'token': {
-      return `${chain.blockExplorers.default.url}/token/${data}`
+      return `${blockExplorer}/token/${data}`
     }
     case 'block': {
-      return `${chain.blockExplorers.default.url}/block/${data}`
+      return `${blockExplorer}/block/${data}`
     }
     case 'countdown': {
-      return `${chain.blockExplorers.default.url}/block/countdown/${data}`
+      return `${blockExplorer}/block/countdown/${data}`
     }
     default: {
-      return `${chain.blockExplorers.default.url}/address/${data}`
+      return `${blockExplorer}/address/${data}`
     }
   }
 }
 
 export function getBlockExploreName(chainIdOverride?: number) {
-  const chainId = chainIdOverride || ChainId.BSC
-  const chain = chains.find((c) => c.id === chainId)
-
-  return chain?.blockExplorers?.default.name || bsc.blockExplorers.default.name
+  return 'KaiaScope'
 }
 
 export function getBscScanLinkForNft(collectionAddress: string, tokenId: string): string {
