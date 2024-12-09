@@ -1,6 +1,6 @@
+import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Token } from '@pancakeswap/sdk'
-import { ChainId } from '@pancakeswap/chains'
 import {
   AtomBox,
   AutoRow,
@@ -18,7 +18,6 @@ import { AppBody, AppHeader } from 'components/App'
 import { LightGreyCard } from 'components/Card'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { LiquidityCardRow } from 'views/AddLiquidity/components/LiquidityCardRow'
 import { DoubleCurrencyLogo } from 'components/Logo'
 import { RangeTag } from 'components/RangeTag'
 import { useToken } from 'hooks/Tokens'
@@ -29,6 +28,7 @@ import { useAtom } from 'jotai'
 import Image from 'next/image'
 import { useState } from 'react'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+import { LiquidityCardRow } from 'views/AddLiquidity/components/LiquidityCardRow'
 import PositionListItem from 'views/AddLiquidityV3/formViews/V3FormView/components/PoolListItem'
 import { AddLiquidityV3Modal } from 'views/AddLiquidityV3/Modal'
 import { useAccount } from 'wagmi'
@@ -121,7 +121,7 @@ export function Step4() {
       </ModalV2>
       <AtomBox p="24px">
         {!account ? (
-          <ConnectWalletButton width="100%" />
+          <ConnectWalletButton />
         ) : removedPairsCurrentChainAsArray.length === 0 ? (
           <>
             <Button width="100%" onClick={addLiquidityModal.onOpen}>

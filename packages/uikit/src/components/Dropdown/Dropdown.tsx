@@ -1,9 +1,9 @@
 import shouldForwardProp from "@styled-system/should-forward-prop";
-import React, { useEffect, useState } from "react";
 import throttle from "lodash/throttle";
-import { styled, css } from "styled-components";
-import { DropdownProps, PositionProps, Position } from "./types";
+import React, { useEffect, useState } from "react";
+import { css, styled } from "styled-components";
 import { useMatchBreakpoints } from "../../contexts";
+import { DropdownProps, Position, PositionProps } from "./types";
 
 const getLeft = ({ position }: PositionProps) => {
   if (position === "top-right") {

@@ -1,12 +1,12 @@
-import { useAccount } from 'wagmi'
-import ConnectWalletButton from 'components/ConnectWalletButton'
-import { Flex, Text, Button, ButtonMenu, ButtonMenuItem, Message, Link } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { Button, ButtonMenu, ButtonMenuItem, Flex, Link, Message, Text } from '@pancakeswap/uikit'
+import ConnectWalletButton from 'components/ConnectWalletButton'
+import { FetchStatus, TFetchStatus } from 'config/constants/types'
 import { NftToken } from 'state/nftMarket/types'
 import { getBscScanLinkForNft } from 'utils'
-import { FetchStatus, TFetchStatus } from 'config/constants/types'
+import { useAccount } from 'wagmi'
 import { Divider, RoundedImage } from '../shared/styles'
-import { BorderedBox, BnbAmountCell } from './styles'
+import { BnbAmountCell, BorderedBox } from './styles'
 import { PaymentCurrency } from './types'
 
 interface ReviewStageProps {
@@ -82,7 +82,7 @@ const ReviewStage: React.FC<React.PropsWithChildren<ReviewStageProps>> = ({
           </Text>
           {!account ? (
             <Flex justifySelf="flex-end">
-              <ConnectWalletButton scale="sm" />
+              <ConnectWalletButton  />
             </Flex>
           ) : (
             <BnbAmountCell

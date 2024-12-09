@@ -8,7 +8,7 @@ import { FiatLogo } from 'components/Logo/CurrencyLogo'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useRouter } from 'next/router'
-import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
+import { CSSProperties, MutableRefObject, useCallback, useEffect, useMemo } from 'react'
 import { FixedSizeList } from 'react-window'
 import { styled } from 'styled-components'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
@@ -143,6 +143,9 @@ export default function CurrencyList({
   const native = useNativeCurrency()
   const { pathname } = useRouter()
   const onRampFlow = pathname === '/buy-crypto'
+  useEffect(() => {
+    console.log('currencies', currencies)
+  }, [currencies])
 
   const itemData: (Currency | undefined)[] = useMemo(() => {
     if (onRampFlow) return mode === 'onramp-output' ? [native, ...currencies] : [...currencies]
@@ -176,6 +179,9 @@ export default function CurrencyList({
         otherSelected = Boolean(otherCurrency?.symbol && currency && otherCurrency?.symbol === currency?.symbol)
       }
       const handleSelect = () => onCurrencySelect(currency)
+      // const handleSelect = () => {
+      //   console.log('__onclick')
+      // }
 
       const token = wrappedCurrency(currency, chainId)
 

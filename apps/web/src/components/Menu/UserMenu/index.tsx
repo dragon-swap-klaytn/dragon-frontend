@@ -16,13 +16,14 @@ import Trans from 'components/Trans'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 // import NextLink from 'next/link'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, PropsWithChildren } from 'react'
 import { useProfile } from 'state/profile/hooks'
 import { usePendingTransactions } from 'state/transactions/hooks'
 import { useAccount } from 'wagmi'
 import { useDomainNameForAddress } from 'hooks/useDomain'
 // import useAirdropModalStatus from 'components/GlobalCheckClaimStatus/hooks/useAirdropModalStatus'
 // import ProfileUserMenuItem from './ProfileUserMenuItem'
+import { useWindowSize } from 'hooks/useWindowSize'
 import WalletModal, { WalletView } from './WalletModal'
 import WalletUserMenuItem from './WalletUserMenuItem'
 // import ClaimYourNFT from './ClaimYourNFT'
@@ -78,7 +79,7 @@ const UserMenuItems = () => {
   )
 }
 
-const UserMenu = () => {
+const UserMenu = ({ children }: PropsWithChildren) => {
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const { domainName, avatar } = useDomainNameForAddress(account)
@@ -108,7 +109,7 @@ const UserMenu = () => {
         text={userMenuText}
         variant={userMenuVariable}
       >
-        {({ isOpen }) => (isOpen ? <UserMenuItems /> : null)}
+        {({ isOpen }) => (isOpen ? <UserMenuItems /> : <></>)}
       </UIKitUserMenu>
     )
   }
@@ -116,21 +117,12 @@ const UserMenu = () => {
   if (isWrongNetwork) {
     return (
       <UIKitUserMenu text={t('Network')} variant="danger">
-        {({ isOpen }) => (isOpen ? <UserMenuItems /> : null)}
+        {({ isOpen }) => (isOpen ? <UserMenuItems /> : <></>)}
       </UIKitUserMenu>
     )
   }
 
-  return (
-    <ConnectWalletButton scale="sm">
-      <Box display={['none', , , 'block']}>
-        <Trans>Connect Wallet</Trans>
-      </Box>
-      <Box display={['block', , , 'none']}>
-        <Trans>Connect</Trans>
-      </Box>
-    </ConnectWalletButton>
-  )
+  return <ConnectWalletButton>{children || <Trans>Connect Wallet</Trans>}</ConnectWalletButton>
 }
 
 export default UserMenu

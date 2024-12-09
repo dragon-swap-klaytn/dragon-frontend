@@ -18,7 +18,7 @@ export async function fetchChunk(
   chunk: Call[],
   minBlockNumber: number,
 ): Promise<{ results: any[]; blockNumber: number }> {
-  console.debug('Fetching chunk', chainId, chunk, minBlockNumber)
+  // console.debug('Fetching chunk', chainId, chunk, minBlockNumber)
   let resultsBlockNumber: bigint | undefined
   let returnData: any
   const client = getViemClients({ chainId })

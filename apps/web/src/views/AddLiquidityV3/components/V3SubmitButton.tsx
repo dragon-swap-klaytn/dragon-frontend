@@ -1,5 +1,4 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { SendTransactionResult } from 'wagmi/actions'
 import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
 import { AutoColumn, Button } from '@pancakeswap/uikit'
 import { CommitButton } from 'components/CommitButton'
@@ -7,6 +6,7 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { ReactNode, useMemo } from 'react'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
+import { SendTransactionResult } from 'wagmi/actions'
 import { Field } from '../formViews/V3FormView/form/actions'
 
 interface V3SubmitButtonProps {
@@ -86,7 +86,7 @@ export function V3SubmitButton({
       </Button>
     )
   } else if (!account) {
-    buttons = <ConnectWalletButton width="100%" />
+    buttons = <ConnectWalletButton />
   } else if (isWrongNetwork) {
     buttons = <CommitButton />
   } else {

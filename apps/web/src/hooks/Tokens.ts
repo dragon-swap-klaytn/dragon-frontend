@@ -4,9 +4,10 @@ import { ERC20Token } from '@pancakeswap/sdk'
 import { Currency, NativeCurrency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
+import { ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { GELATO_NATIVE } from 'config/constants'
 import { useAtomValue } from 'jotai'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   combinedCurrenciesMapFromActiveUrlsAtom,
   combinedTokenMapFromActiveUrlsAtom,
@@ -49,8 +50,10 @@ export function useAllTokens(): { [address: string]: ERC20Token } {
   const { chainId } = useActiveChainId()
   const tokenMap = useAtomValue(combinedTokenMapFromActiveUrlsAtom)
   const userAddedTokens = useUserAddedTokens()
-  return useMemo(() => {
-    return (
+  // console.log('__tokenMap', tokenMap)
+  // console.log('__userAddedTokens', userAddedTokens)
+  const tokens = useMemo(
+    () =>
       userAddedTokens
         // reduce into all ALL_TOKENS filtered by the current chain
         .reduce<{ [address: string]: ERC20Token }>(
@@ -66,9 +69,77 @@ export function useAllTokens(): { [address: string]: ERC20Token } {
           // must make a copy because reduce modifies the map, and we do not
           // want to make a copy in every iteration
           mapWithoutUrls(tokenMap, chainId),
-        )
-    )
-  }, [userAddedTokens, tokenMap, chainId])
+        ),
+    [userAddedTokens, tokenMap, chainId],
+  )
+
+  //   {
+  //     "chainId": 8217,
+  //     "decimals": 8,
+  //     "symbol": "oWBTC",
+  //     "name": "Orbit Bridge Klaytn Wrapped BTC",
+  //     "isNative": false,
+  //     "isToken": true,
+  //     "address": "0x16D0e1fBD024c600Ca0380A4C5D57Ee7a2eCBf9c"
+  // }
+  // {
+  //   "address": "0x2b5d75db09af26e53d051155f5eae811db7aef67",
+  //   "symbol": "KP",
+  //   "name": "KlayPay Token",
+  //   "decimals": "18"
+  // }
+
+  // return {
+  //   ...tokens,
+  //   ...(tokensFromSs || {}),
+  // }
+  return tokens
+}
+
+/**
+ * Returns all tokens that are from active urls and user added tokens
+ */
+export function useTokensFromSs(): { [address: string]: ERC20Token } | null {
+  const [tokensFromSs, setTokensFromSs] = useState<{ [address: string]: ERC20Token } | null>(null)
+
+  useEffect(() => {
+    fetch('https://api.swapscanner.io/v0/tokens')
+      .then(
+        (res) =>
+          res.json() as Promise<{
+            [address: string]: {
+              address: string
+              symbol: string
+              name: string
+              decimals: number
+            }
+          }>,
+      )
+      .then((t) => {
+        const parsedTokens = Object.values(t).reduce((acc, token) => {
+          if (token.address === ZERO_ADDRESS) return acc
+
+          acc[token.address] = {
+            chainId: ChainId.KLAYTN,
+            address: token.address as `0x${string}`,
+            decimals: +token.decimals,
+            symbol: token.symbol,
+            name: token.name,
+          } as ERC20Token
+
+          return acc
+        }, {} as { [address: string]: ERC20Token })
+
+        setTokensFromSs(parsedTokens)
+      })
+      .catch((e) => {
+        console.error('failed to fetch tokens from Ss', e)
+        // set tokensFromSs to empty object
+        setTokensFromSs({})
+      })
+  }, [])
+
+  return tokensFromSs
 }
 
 export function useAllOnRampTokens(): { [address: string]: Currency } {
@@ -163,10 +234,40 @@ export function useToken(tokenAddress?: string): ERC20Token | undefined | null {
     // consider longer stale time
   })
 
+  //   {
+  //     "chainId": 8217,
+  //     "decimals": 8,
+  //     "symbol": "oWBTC",
+  //     "name": "Orbit Bridge Klaytn Wrapped BTC",
+  //     "isNative": false,
+  //     "isToken": true,
+  //     "address": "0x16D0e1fBD024c600Ca0380A4C5D57Ee7a2eCBf9c"
+  // }
+  // {
+  //   "address": "0x2b5d75db09af26e53d051155f5eae811db7aef67",
+  //   "symbol": "KP",
+  //   "name": "KlayPay Token",
+  //   "decimals": "18"
+  // }
+
+  const tokensFromSs = useTokensFromSs()
+
   return useMemo(() => {
+    if (!tokensFromSs) return null
     if (token) return token
     if (!chainId || !address) return undefined
     if (unsupportedTokens[address]) return undefined
+
+    if (tokensFromSs[address]) {
+      return new ERC20Token(
+        chainId,
+        tokensFromSs[address].address,
+        tokensFromSs[address].decimals,
+        tokensFromSs[address].symbol,
+        tokensFromSs[address].name,
+      )
+    }
+
     if (isLoading) return null
     if (data) {
       return new ERC20Token(
@@ -177,8 +278,98 @@ export function useToken(tokenAddress?: string): ERC20Token | undefined | null {
         data.name ?? 'Unknown Token',
       )
     }
+
     return undefined
-  }, [token, chainId, address, isLoading, data, unsupportedTokens])
+  }, [token, chainId, address, isLoading, data, unsupportedTokens, tokensFromSs])
+}
+
+export function useTokens(key?: string): ERC20Token[] | undefined | null {
+  const { chainId } = useActiveChainId()
+  const unsupportedTokens = useUnsupportedTokens()
+  const tokens = useAllTokens()
+
+  const address = safeGetAddress(key)
+
+  const token: ERC20Token | undefined = address ? tokens[address] : undefined
+
+  const { data, isLoading } = useToken_({
+    address: address || undefined,
+    chainId,
+    enabled: Boolean(!!address && !token),
+    // consider longer stale time
+  })
+
+  useEffect(() => {
+    console.log('address', address)
+  }, [address])
+  useEffect(() => {
+    console.log('data', data)
+  }, [data])
+
+  //   {
+  //     "chainId": 8217,
+  //     "decimals": 8,
+  //     "symbol": "oWBTC",
+  //     "name": "Orbit Bridge Klaytn Wrapped BTC",
+  //     "isNative": false,
+  //     "isToken": true,
+  //     "address": "0x16D0e1fBD024c600Ca0380A4C5D57Ee7a2eCBf9c"
+  // }
+  // {
+  //   "address": "0x2b5d75db09af26e53d051155f5eae811db7aef67",
+  //   "symbol": "KP",
+  //   "name": "KlayPay Token",
+  //   "decimals": "18"
+  // }
+
+  const tokensFromSs = useTokensFromSs()
+
+  return useMemo(() => {
+    if (!tokensFromSs) return null
+    if (token) return [token]
+    if (!chainId) return undefined
+
+    if (key) {
+      const filteredBySymbol = Object.values(tokensFromSs).filter((t) =>
+        t.symbol.toLowerCase().includes(key.toLowerCase()),
+      )
+
+      if (filteredBySymbol.length > 0) {
+        return filteredBySymbol.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
+      }
+
+      const filteredByName = Object.values(tokensFromSs).filter((t) =>
+        t.name?.toLowerCase().includes(key.toLowerCase()),
+      )
+
+      if (filteredByName.length > 0) {
+        return filteredByName.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
+      }
+    }
+
+    if (!address) return undefined
+    if (unsupportedTokens[address]) return undefined
+
+    if (tokensFromSs[address]) {
+      return [
+        new ERC20Token(
+          chainId,
+          tokensFromSs[address].address,
+          tokensFromSs[address].decimals,
+          tokensFromSs[address].symbol,
+          tokensFromSs[address].name,
+        ),
+      ]
+    }
+
+    if (isLoading) return null
+    if (data) {
+      return [
+        new ERC20Token(chainId, data.address, data.decimals, data.symbol ?? 'UNKNOWN', data.name ?? 'Unknown Token'),
+      ]
+    }
+    return undefined
+  }, [token, chainId, address, isLoading, data, unsupportedTokens, tokensFromSs, key])
 }
 
 export function useOnRampToken(tokenAddress?: string): Currency | undefined {

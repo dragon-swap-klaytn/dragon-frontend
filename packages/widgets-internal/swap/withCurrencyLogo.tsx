@@ -1,8 +1,8 @@
-import { CSSProperties, ReactElement } from "react";
-import { BaseCurrency } from "@pancakeswap/swap-sdk-core";
 import { useTranslation } from "@pancakeswap/localization";
-import { styled } from "styled-components";
+import { BaseCurrency } from "@pancakeswap/swap-sdk-core";
 import { AutoColumn, AutoRow, Button, Flex, RowFixed, Text, useMatchBreakpoints } from "@pancakeswap/uikit";
+import { CSSProperties, ReactElement } from "react";
+import { styled } from "styled-components";
 import { ListLogo } from "./ListLogo";
 
 const TokenSection = styled.div<{ dim?: boolean }>`
@@ -12,6 +12,7 @@ const TokenSection = styled.div<{ dim?: boolean }>`
   grid-template-columns: auto minmax(auto, 1fr) auto;
   grid-gap: 10px;
   align-items: center;
+  cursor: pointer;
 
   opacity: ${({ dim }) => (dim ? "0.4" : "1")};
 
@@ -46,6 +47,9 @@ export function withCurrencyLogo<T extends BaseCurrency>(
     list,
     isActive,
     children,
+    isAdded,
+    setImportToken,
+    showImportView,
   }: {
     token: T;
     style?: CSSProperties;
@@ -53,7 +57,10 @@ export function withCurrencyLogo<T extends BaseCurrency>(
     onCurrencySelect?: (currency: T) => void;
     list: any;
     isActive: boolean;
-    children: ReactElement;
+    children?: ReactElement;
+    isAdded: boolean;
+    setImportToken: (token: T) => void;
+    showImportView: () => void;
   }) => {
     const { t } = useTranslation();
     const { isMobile } = useMatchBreakpoints();
@@ -64,8 +71,16 @@ export function withCurrencyLogo<T extends BaseCurrency>(
         variant="text"
         as={isActive && onCurrencySelect ? Button : "a"}
         onClick={() => {
+          console.log("__________________on_click");
           if (isActive) {
+            console.log("on_click_1");
             onCurrencySelect?.(token);
+          } else if (!isAdded) {
+            console.log("on_click_2");
+            if (setImportToken) {
+              setImportToken(token);
+            }
+            showImportView();
           }
         }}
       >
@@ -88,7 +103,7 @@ export function withCurrencyLogo<T extends BaseCurrency>(
             </RowFixed>
           )}
         </AutoColumn>
-        {children}
+        {children && children}
       </TokenSection>
     );
   };

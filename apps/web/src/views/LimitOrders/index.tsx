@@ -76,7 +76,11 @@ const LimitOrders = () => {
   }, [defaultTokens, urlLoadedTokens, chainId])
 
   const [onPresentImportTokenWarningModal] = useModal(
-    <ImportTokenWarningModal tokens={importTokensNotInDefault} onCancel={() => router.push('/limit-orders')} />,
+    <ImportTokenWarningModal
+      tokens={importTokensNotInDefault}
+      onCancel={() => router.push('/limit-orders')}
+      customOnDismiss={() => router.push('/limit-orders')}
+    />,
     false,
     false,
     'limitOrderTokenWarningModal',
@@ -435,7 +439,7 @@ const LimitOrders = () => {
                   </AutoColumn>
                   <Box mt="0.25rem">
                     {!account ? (
-                      <ConnectWalletButton width="100%" />
+                      <ConnectWalletButton />
                     ) : showApproveFlow ? (
                       <Button
                         variant="primary"

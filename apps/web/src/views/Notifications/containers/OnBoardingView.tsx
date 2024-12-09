@@ -34,7 +34,7 @@ function OnboardingButton({ onClick, loading, isOnBoarded, account, isReady }: I
   if (!account)
     return (
       <AutoColumn gap="md" marginTop="24px" width="100%">
-        <ConnectWalletButton height="50px" disabled={!isReady} />
+        <ConnectWalletButton disabled={!isReady} />
       </AutoColumn>
     )
 

@@ -1,13 +1,11 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
-import { AutoColumn, BscScanIcon, Link, Text } from '@pancakeswap/uikit'
+import { AutoColumn } from '@pancakeswap/uikit'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useGetENSAddressByName } from 'hooks/useGetENSAddressByName'
 import { useCallback } from 'react'
 import { styled } from 'styled-components'
 import { safeGetAddress } from 'utils'
-import { RowBetween } from '../../../components/Layout/Row'
 import { getBlockExploreLink, getBlockExploreName } from '../../../utils'
 
 const InputPanel = styled.div`
@@ -103,19 +101,24 @@ export default function AddressInputPanel({
       <ContainerRow error={error}>
         <InputContainer>
           <AutoColumn gap="md">
-            <RowBetween>
-              <Text>{t('Recipient')}</Text>
+            <div className="flex items-center space-x-2 justify-between">
+              <h4 className="text-[13px]">{t('Recipient')}</h4>
+
               {address && chainId && (
-                <Link external small href={getBlockExploreLink(address, 'address', chainId)}>
-                  (
+                <a
+                  href={getBlockExploreLink(address, 'address', chainId)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs underline hover:opacity-70 underline-offset-2"
+                >
                   {t('View on %site%', {
                     site: getBlockExploreName(chainId),
                   })}
-                  {chainId === DEFAULT_CHAIN_ID && <BscScanIcon color="primary" ml="4px" />})
-                </Link>
+                </a>
               )}
-            </RowBetween>
-            <Input
+            </div>
+
+            {/* <Input
               className="recipient-address-input"
               type="text"
               autoComplete="off"
@@ -124,6 +127,19 @@ export default function AddressInputPanel({
               spellCheck="false"
               placeholder={t('Wallet Address')}
               error={error}
+              pattern="^(0x[a-fA-F0-9]{40})$"
+              onChange={handleInput}
+              value={value}
+            /> */}
+            <input
+              type="text"
+              className="recipient-address-input bg-transparent focus:outline-none"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              placeholder={t('Wallet Address')}
+              // error={error}
               pattern="^(0x[a-fA-F0-9]{40})$"
               onChange={handleInput}
               value={value}

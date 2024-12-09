@@ -1,20 +1,28 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { WalletModalV2 } from '@pancakeswap/ui-wallets'
-import { Button, ButtonProps, useMatchBreakpoints } from '@pancakeswap/uikit'
+
 import { createWallets, getDocLink } from 'config/wallet'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 // @ts-ignore
 // eslint-disable-next-line import/extensions
-import { useActiveHandle } from 'hooks/useEagerConnect.bmp.ts'
-import { useMemo, useState } from 'react'
+import { useMatchBreakpoints } from '@pancakeswap/uikit'
+import Button from 'components/Common/Button'
+// import { useActiveHandle } from 'hooks/useEagerConnect.bmp.ts'
+import clsx from 'clsx'
+import { PropsWithChildren, useMemo, useState } from 'react'
 import { logGTMWalletConnectEvent } from 'utils/customGTMEventTracking'
 import { useConnect } from 'wagmi'
 import Trans from './Trans'
 
-const ConnectWalletButton = ({ children, ...props }: ButtonProps) => {
+const ConnectWalletButton = ({
+  children,
+  width = 'w-full',
+  className,
+  disabled,
+}: PropsWithChildren<{ width?: string; className?: string; disabled?: boolean }>) => {
   const { isMobile } = useMatchBreakpoints()
-  const handleActive = useActiveHandle()
+  // const handleActive = useActiveHandle()
   const { login } = useAuth()
   const {
     t,
@@ -27,24 +35,28 @@ const ConnectWalletButton = ({ children, ...props }: ButtonProps) => {
   const docLink = useMemo(() => getDocLink(code), [code])
 
   const handleClick = () => {
-    if (typeof __NEZHA_BRIDGE__ !== 'undefined' && !window.ethereum) {
-      handleActive()
-    } else {
-      setOpen(true)
-    }
+    // console.log('__handleClick__', typeof __NEZHA_BRIDGE__, window.ethereum)
+    // if (typeof __NEZHA_BRIDGE__ !== 'undefined' && !window.ethereum) {
+    //   handleActive()
+    // } else {
+    //   setOpen(true)
+    // }
+    setOpen(true)
   }
 
   const wallets = useMemo(
     () =>
-      isMobile
-        ? createWallets(chainId, connectAsync).filter(({ id }) => id !== 'injected' && id !== 'Kaikas')
-        : createWallets(chainId, connectAsync),
+      chainId
+        ? isMobile
+          ? createWallets(chainId, connectAsync).filter(({ id }) => id !== 'injected' && id !== 'Kaikas')
+          : createWallets(chainId, connectAsync)
+        : [],
     [chainId, connectAsync, isMobile],
   )
 
   return (
     <>
-      <Button onClick={handleClick} {...props}>
+      <Button variant="primary" onClick={handleClick} className={clsx(width, className)} disabled={disabled}>
         {children || <Trans>Connect Wallet</Trans>}
       </Button>
       <style jsx global>{`

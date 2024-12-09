@@ -9,9 +9,15 @@ import { UnsupportedModal } from './UnsupportedModal'
 interface Props extends InjectedModalProps {
   tokens: Token[]
   onCancel: () => void
+  customOnDismiss?: () => void
 }
 
-const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({ tokens, onDismiss, onCancel }) => {
+const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({
+  tokens,
+  onDismiss,
+  onCancel,
+  customOnDismiss,
+}) => {
   const { t } = useTranslation()
 
   const unsupportedTokens = useUnsupportedTokens()
@@ -30,6 +36,7 @@ const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({ tok
     <Modal
       title={t('Import Token')}
       onDismiss={() => {
+        if (customOnDismiss) customOnDismiss()
         onDismiss?.()
         onCancel()
       }}

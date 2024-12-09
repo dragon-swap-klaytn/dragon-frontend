@@ -1,16 +1,16 @@
 import { IfoSkeletonCardActions } from '@pancakeswap/uikit'
 
-import { useAccount } from 'wagmi'
 import { Ifo, PoolIds } from '@pancakeswap/ifos'
-import { WalletIfoData, PublicIfoData } from 'views/Ifos/types'
-import { isBasicSale } from 'views/Ifos/hooks/v7/helpers'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { isBasicSale } from 'views/Ifos/hooks/v7/helpers'
+import { PublicIfoData, WalletIfoData } from 'views/Ifos/types'
+import { useAccount } from 'wagmi'
 
-import ContributeButton from './ContributeButton'
-import ClaimButton from './ClaimButton'
 import { EnableStatus } from '../types'
 import { ActivateProfileButton } from './ActivateProfileButton'
+import ClaimButton from './ClaimButton'
+import ContributeButton from './ContributeButton'
 import { SwitchNetworkTips } from './SwitchNetworkTips'
 
 interface Props {
@@ -43,7 +43,7 @@ const IfoCardActions: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   if (!account) {
-    return <ConnectWalletButton width="100%" />
+    return <ConnectWalletButton />
   }
 
   if (!hasProfile && !isBasicSale(publicIfoData[poolId]?.saleType)) {

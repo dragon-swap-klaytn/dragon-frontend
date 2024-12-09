@@ -1,17 +1,18 @@
-import { useMemo } from 'react'
 import { Token } from '@pancakeswap/sdk'
-import { createSelector } from '@reduxjs/toolkit'
 import { deserializeToken } from '@pancakeswap/token-lists'
-import { useSelector } from 'react-redux'
+import { createSelector } from '@reduxjs/toolkit'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import { AppState } from '../../index'
 
 const selectUserTokens = ({ user: { tokens } }: AppState) => tokens
 
 export const userAddedTokenSelector = (chainId: number) =>
-  createSelector(selectUserTokens, (serializedTokensMap) =>
-    Object.values(serializedTokensMap?.[chainId] ?? {}).map(deserializeToken),
-  )
+  createSelector(selectUserTokens, (serializedTokensMap) => {
+    // console.log('__serializedTokensMap', serializedTokensMap)
+    return Object.values(serializedTokensMap?.[chainId] ?? {}).map(deserializeToken)
+  })
 export default function useUserAddedTokens(): Token[] {
   const { chainId } = useActiveChainId()
   return useSelector(useMemo(() => userAddedTokenSelector(chainId), [chainId]))

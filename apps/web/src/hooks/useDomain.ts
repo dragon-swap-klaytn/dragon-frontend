@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useEnsAvatar, useEnsName, Address } from 'wagmi'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 
-export const useDomainNameForAddress = (address: `0x${string}` | string, fetchData = true) => {
+export const useDomainNameForAddress = (address?: `0x${string}` | string, fetchData = true) => {
   const { chainId } = useActiveChainId()
   const { sidName, isLoading: isSidLoading } = useSidNameForAddress(address as Address, fetchData)
   const { unsName, isLoading: isUnsLoading } = useUnsNameForAddress(

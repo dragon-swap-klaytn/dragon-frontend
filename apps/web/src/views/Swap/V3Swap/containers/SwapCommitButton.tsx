@@ -1,17 +1,15 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { TradeType } from '@pancakeswap/sdk'
 import { SMART_ROUTER_ADDRESSES, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { AutoColumn, Box, Button, Dots, Message, MessageText, Text, useModal } from '@pancakeswap/uikit'
+import { Box, Button, Dots, ModalV2, useModal } from '@pancakeswap/uikit'
 import { confirmPriceImpactWithoutFee } from '@pancakeswap/widgets-internal'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
 
 import { useExpertMode } from '@pancakeswap/utils/user'
-import { GreyCard } from 'components/Card'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { AutoRow } from 'components/Layout/Row'
-import SettingsModal, { RoutingSettingsButton, withCustomOnDismiss } from 'components/Menu/GlobalSettings/SettingsModal'
+import SettingsModal, { RoutingSettings, withCustomOnDismiss } from 'components/Menu/GlobalSettings/SettingsModal'
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
 import {
   ALLOWED_PRICE_IMPACT_HIGH,
@@ -30,10 +28,11 @@ import { useRoutingSettingChanged } from 'state/user/smartRouter'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { warningSeverity } from 'utils/exchange'
 
+import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
+import Notification from 'components/Common/Notification'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useConfirmModalState } from 'views/Swap/V3Swap/hooks/useConfirmModalState'
 import { useAccount } from 'wagmi'
-import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
 import { useParsedAmounts, useSlippageAdjustedAmounts, useSwapCallback, useSwapInputError } from '../hooks'
 import { TransactionRejectedError } from '../hooks/useSendSwapTransaction'
 import { useWallchainApi } from '../hooks/useWallchain'
@@ -87,7 +86,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     inputError: wrapInputError,
   } = useWrapCallback(inputCurrency, outputCurrency, typedValue, {
     open: onPresentKlipTxModal,
-    close: onDismissKlipTxModal
+    close: onDismissKlipTxModal,
   })
   const showWrap = wrapType !== WrapType.NOT_APPLICABLE
 
@@ -319,6 +318,8 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     }
   }, [approvalState, approvalSubmitted])
 
+  const [show, setShow] = useState(false)
+
   if (swapIsUnsupported) {
     return (
       <Button width="100%" disabled>
@@ -328,7 +329,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   }
 
   if (!account) {
-    return <ConnectWalletButton width="100%" />
+    return <ConnectWalletButton />
   }
 
   if (showWrap) {
@@ -347,11 +348,66 @@ export const SwapCommitButton = memo(function SwapCommitButton({
 
   if (noRoute && userHasSpecifiedInputOutput && !tradeLoading) {
     return (
-      <AutoColumn gap="12px">
-        <GreyCard style={{ textAlign: 'center', padding: '0.75rem' }}>
+      // <AutoColumn gap="12px">
+      <div className="flex flex-col gap-3">
+        {/* <GreyCard style={{ textAlign: 'center', padding: '0.75rem' }}>
           <Text color="textSubtle">{t('Insufficient liquidity for this trade.')}</Text>
-        </GreyCard>
+        </GreyCard> */}
+
+        <div className="p-4 rounded-[20px] bg-surface-disable">
+          <p className="text-sm text-center text-gray-400">{t('Insufficient liquidity for this trade.')}</p>
+        </div>
+
         {isRoutingSettingChange && (
+          <Notification
+            // title={t('Insufficient liquidity')}
+            variant="warning"
+            nStyle="default"
+          >
+            <div className="flex flex-col">
+              <p>{t('Unable to establish trading route due to customized routing.')}</p>
+
+              <div className="flex items-center space-x-2 mt-4">
+                {/* <RoutingSettingsButton
+                  // buttonProps={{
+                  //   scale: 'xs',
+                  //   p: 0,
+                  // }}
+                  showRedDot={false}
+                >
+                  {t('Check your settings')}
+                </RoutingSettingsButton> */}
+                <button
+                  type="button"
+                  onClick={() => setShow(true)}
+                  className="hover:opacity-70 px-2 py-1 border rounded-md text-gray-100 border-gray-100 text-xs"
+                >
+                  {t('Check your settings')}
+                </button>
+
+                {/* <MessageText>{t('or')}</MessageText> */}
+                <span className="text-sm">or</span>
+
+                {/* <Button variant="text" scale="xs" p="0" onClick={resetRoutingSetting}>
+                  {t('Reset to default')}
+                </Button> */}
+                <button
+                  type="button"
+                  onClick={resetRoutingSetting}
+                  className="hover:opacity-70 px-2 py-1 border rounded-md text-gray-100 border-gray-100 text-xs"
+                >
+                  {t('Reset to default')}
+                </button>
+              </div>
+
+              <ModalV2 isOpen={show} onDismiss={() => setShow(false)} closeOnOverlayClick>
+                <RoutingSettings />
+              </ModalV2>
+            </div>
+          </Notification>
+        )}
+
+        {/* {isRoutingSettingChange && (
           <Message variant="warning" icon={<></>}>
             <AutoColumn gap="8px">
               <MessageText>{t('Unable to establish trading route due to customized routing.')}</MessageText>
@@ -372,8 +428,8 @@ export const SwapCommitButton = memo(function SwapCommitButton({
               </AutoRow>
             </AutoColumn>
           </Message>
-        )}
-      </AutoColumn>
+        )} */}
+      </div>
     )
   }
 

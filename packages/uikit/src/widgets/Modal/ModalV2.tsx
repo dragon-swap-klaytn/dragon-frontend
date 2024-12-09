@@ -5,9 +5,8 @@ import { isMobile } from "react-device-detect";
 import { createPortal } from "react-dom";
 import { BoxProps } from "../../components/Box";
 import { Overlay } from "../../components/Overlay";
-import { animationHandler, animationMap, animationVariants } from "../../util/animationToolkit";
 import getPortalRoot from "../../util/getPortalRoot";
-import { StyledModalWrapper } from "./ModalContext";
+// import { StyledModalWrapper } from "./ModalContext";
 
 const DomMax = () => import("./motionDomMax").then((mod) => mod.default);
 const DomAnimation = () => import("./motionDomAnimation").then((mod) => mod.default);
@@ -68,18 +67,20 @@ export function ModalV2({
                 disableOutsidePointerEvents={disableOutsidePointerEvents}
                 onEscapeKeyDown={handleOverlayDismiss}
               >
-                <StyledModalWrapper
+                {/* <StyledModalWrapper */}
+                <div
                   ref={animationRef}
                   // @ts-ignore
-                  onAnimationStart={() => animationHandler(animationRef.current)}
-                  {...animationMap}
-                  variants={animationVariants}
-                  transition={{ duration: 0.3 }}
-                  {...props}
+                  // onAnimationStart={() => animationHandler(animationRef.current)}
+                  // {...animationMap}
+                  // variants={animationVariants}
+                  // transition={{ duration: 0.3 }}
+                  // {...props}
+                  className="flex flex-col justify-center items-center fixed inset-0 z-50"
                 >
                   <Overlay onClick={handleOverlayDismiss} />
                   {children}
-                </StyledModalWrapper>
+                </div>
               </DismissableLayer>
             )}
           </AnimatePresence>

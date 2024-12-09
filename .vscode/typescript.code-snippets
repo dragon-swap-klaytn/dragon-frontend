@@ -1,0 +1,14 @@
+{
+  "useconsole": {
+    "prefix": "useconsole",
+    "body": ["useEffect(()=>{console.log('ccc', ccc)},[ccc])"],
+    "description": "useConsole"
+  },
+  "useet": {
+    "prefix": "useet",
+    "body": ["useEffect(()=>{},[])"],
+    "description": "useet"
+  },
+  "editor.tabCompletion": true,
+  "editor.snippetSuggestions": "top"
+}
