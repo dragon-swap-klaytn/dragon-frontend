@@ -1,6 +1,5 @@
+import { Currency, Token } from '@pancakeswap/swap-sdk-core'
 import { CSSProperties } from 'react'
-import { Token, Currency } from '@pancakeswap/swap-sdk-core'
-import { TokenRowButton } from '@pancakeswap/widgets-internal'
 import TokenRowWithCurrencyLogo from './TokenRowWithCurrencyLogo'
 
 interface ImportTokenRowProps {
@@ -34,15 +33,10 @@ const ImportTokenRow: React.FC<React.PropsWithChildren<ImportTokenRowProps>> = (
       list={list}
       onCurrencySelect={onCurrencySelect}
       isActive={isActive}
-    >
-      <TokenRowButton<Token>
-        token={token}
-        isActive={isActive}
-        isAdded={isAdded}
-        setImportToken={setImportToken}
-        showImportView={showImportView}
-      />
-    </TokenRowWithCurrencyLogo>
+      isAdded={isAdded}
+      setImportToken={setImportToken as any}
+      showImportView={showImportView}
+    />
   )
 }
 

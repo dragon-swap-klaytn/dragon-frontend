@@ -78,6 +78,10 @@ export function useBestAMMTrade({ type = 'quoter', ...params }: useBestAMMTradeO
 
   const isQuoterAPIEnabled = useMemo(() => Boolean(!isWrapping && type === 'api'), [isWrapping, type])
 
+  console.log('autoRevalidate', autoRevalidate)
+  console.log('isQuoterEnabled', isQuoterEnabled)
+  console.log('type@@', type)
+
   const apiAutoRevalidate = typeof autoRevalidate === 'boolean' ? autoRevalidate : isQuoterAPIEnabled
 
   // switch to api when it's stable
@@ -87,6 +91,10 @@ export function useBestAMMTrade({ type = 'quoter', ...params }: useBestAMMTradeO
   //   autoRevalidate: apiAutoRevalidate,
   // })
 
+  useEffect(() => {
+    console.log('apiAutoRevalidate', apiAutoRevalidate)
+  }, [apiAutoRevalidate])
+
   const bestTradeFromQuoterApi = useBestAMMTradeFromQuoterWorker2({
     ...params,
     enabled: Boolean(enabled && isQuoterAPIEnabled),
@@ -94,6 +102,10 @@ export function useBestAMMTrade({ type = 'quoter', ...params }: useBestAMMTradeO
   })
 
   const quoterAutoRevalidate = typeof autoRevalidate === 'boolean' ? autoRevalidate : isQuoterEnabled
+
+  useEffect(() => {
+    console.log('quoterAutoRevalidate', quoterAutoRevalidate)
+  }, [quoterAutoRevalidate])
 
   const bestTradeFromQuoterWorker = useBestAMMTradeFromQuoterWorker({
     ...params,

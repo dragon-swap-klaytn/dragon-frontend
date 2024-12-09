@@ -2,10 +2,10 @@ import { DEFAULT_CHAIN_ID, DEFAULT_TESTNET_ID } from '@pancakeswap/chains'
 import { FarmWithStakedValue } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { NATIVE, WNATIVE } from '@pancakeswap/sdk'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { useModal, useToast } from '@pancakeswap/uikit'
 import { formatLpBalance } from '@pancakeswap/utils/formatBalance'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
-import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import BigNumber from 'bignumber.js'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import WalletModal, { WalletView } from 'components/Menu/UserMenu/WalletModal'
@@ -171,7 +171,7 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
     return isFirstTime
       ? t('A small amount of %nativeToken% is required for the first-time setup of cross-chain %cake% farming.', {
           nativeToken: native.symbol,
-          cake: CAKE_SYMBOL_VIEW
+          cake: CAKE_SYMBOL_VIEW,
         })
       : t('For safety, cross-chain transactions will take around 30 minutes to confirm.')
   }, [isFirstTime, native, t])
@@ -372,7 +372,7 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
   if (!account) {
     return (
       <FarmWidget.FarmTable.AccountNotConnect>
-        <ConnectWalletButton width="100%" />
+        <ConnectWalletButton />
       </FarmWidget.FarmTable.AccountNotConnect>
     )
   }

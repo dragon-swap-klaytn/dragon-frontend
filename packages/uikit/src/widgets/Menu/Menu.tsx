@@ -1,6 +1,6 @@
 import { useIsMounted } from "@pancakeswap/hooks";
 import throttle from "lodash/throttle";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from "react";
 import { styled } from "styled-components";
 import { AtomBox } from "../../components/AtomBox";
 import BottomNav from "../../components/BottomNav";
@@ -17,45 +17,57 @@ import { MENU_HEIGHT, MOBILE_MENU_HEIGHT, TOP_BANNER_HEIGHT, TOP_BANNER_HEIGHT_M
 import { MenuContext } from "./context";
 import { NavProps } from "./types";
 
-const Wrapper = styled.div`
-  position: relative;
-  width: 100%;
-  display: grid;
-  grid-template-rows: auto 1fr;
-`;
+const Wrapper = ({ children }: PropsWithChildren) => (
+  <div className="relative w-full grid auto-rows-[auto_1fr]">{children}</div>
+);
 
-const StyledNav = styled.nav`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: ${MENU_HEIGHT}px;
-  background-color: ${({ theme }) => theme.nav.background};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.cardBorder};
-  transform: translate3d(0, 0, 0);
+const StyledNav = ({ children }: PropsWithChildren) => (
+  <div
+    className="flex justify-between items-center w-full px-4"
+    style={{
+      height: `${MENU_HEIGHT}px`,
+    }}
+  >
+    {children}
+  </div>
+);
 
-  padding-left: 16px;
-  padding-right: 16px;
-`;
+// styled("div").withConfig({
+//   shouldForwardProp: (props) => !["showMenu"].includes(props),
+// })<{ showMenu: boolean; height: number }>`
+//   // position: fixed;
+//   top: ${({ showMenu, height }) => (showMenu ? 0 : `-${height}px`)};
+//   left: 0;
+//   transition: top 0.2s;
+//   height: ${({ height }) => `${height}px`};
+//   width: 100%;
+//   z-index: 20;
+// `;
 
-const FixedContainer = styled("div").withConfig({
-  shouldForwardProp: (props) => !["showMenu"].includes(props),
-})<{ showMenu: boolean; height: number }>`
-  position: fixed;
-  top: ${({ showMenu, height }) => (showMenu ? 0 : `-${height}px`)};
-  left: 0;
-  transition: top 0.2s;
-  height: ${({ height }) => `${height}px`};
-  width: 100%;
-  z-index: 20;
-`;
+const FixedContainer = ({ children, showMenu, height }: PropsWithChildren<{ showMenu: boolean; height: number }>) => (
+  <div
+    className="fixed top-0 left-0 w-full z-20 transition-top duration-200"
+    style={{
+      top: showMenu ? 0 : `-${height}px`,
+      height: `${height}px`,
+    }}
+  >
+    {children}
+  </div>
+);
 
-const TopBannerContainer = styled.div<{ height: number }>`
-  height: ${({ height }) => `${height}px`};
-  min-height: ${({ height }) => `${height}px`};
-  max-height: ${({ height }) => `${height}px`};
-  width: 100%;
-`;
+const TopBannerContainer = ({ children, height }: PropsWithChildren<{ height: number }>) => (
+  <div
+    className="fixed top-0 left-0 w-full z-20 transition-top duration-200"
+    style={{
+      height: `${height}px`,
+      minHeight: `${height}px`,
+      maxHeight: `${height}px`,
+    }}
+  >
+    {children}
+  </div>
+);
 
 const BodyWrapper = styled(Box)`
   position: relative;

@@ -27,7 +27,7 @@ export default function GetQuotesButton({ errorText, setModalView, fetchQuotes }
   const next = useCallback(() => mutate(), [mutate])
 
   if (!account) {
-    return <ConnectWalletButton width="100%" />
+    return <ConnectWalletButton />
   }
 
   let buttonText: ReactNode | string = t('Get Quotes')

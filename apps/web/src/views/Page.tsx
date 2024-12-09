@@ -24,6 +24,7 @@ const Page: React.FC<
       helpUrl={helpUrl}
       externalText=""
       externalLinkUrl=""
+      className="swap-page"
       {...props}
     >
       {children}

@@ -226,7 +226,7 @@ export function MMSwapCommitButton({
   }
 
   if (!account) {
-    return <ConnectWalletButton width="100%" />
+    return <ConnectWalletButton />
   }
 
   if (showWrap) {

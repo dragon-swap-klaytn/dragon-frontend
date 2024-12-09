@@ -1,13 +1,13 @@
+import { Ifo, PoolIds } from '@pancakeswap/ifos'
 import { useTranslation } from '@pancakeswap/localization'
-import { useMemo } from 'react'
 import { Button, IfoGetTokenModal, useModal, useToast } from '@pancakeswap/uikit'
+import { getBalanceNumber } from '@pancakeswap/utils/formatBalance'
 import { getTokenListTokenUrl, getTokenLogoURLByAddress } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import { Ifo, PoolIds } from '@pancakeswap/ifos'
 import { useTokenBalanceByChain } from 'hooks/useTokenBalance'
+import { useEffect, useMemo } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
-import { getBalanceNumber } from '@pancakeswap/utils/formatBalance'
 import { PublicIfoData, WalletIfoData } from 'views/Ifos/types'
 
 import ContributeModal from './ContributeModal'
@@ -32,6 +32,16 @@ const ContributeButton: React.FC<React.PropsWithChildren<Props>> = ({ poolId, if
     () => getTokenListTokenUrl(ifo.currency) || getTokenLogoURLByAddress(ifo.currency.address, ifo.currency.chainId),
     [ifo.currency],
   )
+  useEffect(() => {
+    console.log('currencyImageUrl', currencyImageUrl)
+  }, [currencyImageUrl])
+  const currencyImageUrl2 = useMemo(
+    () => getTokenLogoURLByAddress(ifo.currency.address, ifo.currency.chainId),
+    [ifo.currency],
+  )
+  useEffect(() => {
+    console.log('currencyImageUrl2', currencyImageUrl2)
+  }, [currencyImageUrl2])
 
   // Refetch all the data, and display a message when fetching is done
   const handleContributeSuccess = async (amount: BigNumber, txHash: string) => {

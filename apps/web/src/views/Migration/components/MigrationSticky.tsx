@@ -1,9 +1,9 @@
+import { Trans, useTranslation } from '@pancakeswap/localization'
+import { Button, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+import ConnectWalletButton from 'components/ConnectWalletButton'
 import React from 'react'
 import { styled } from 'styled-components'
 import { useAccount } from 'wagmi'
-import { Trans, useTranslation } from '@pancakeswap/localization'
-import { Text, Button, useMatchBreakpoints } from '@pancakeswap/uikit'
-import ConnectWalletButton from 'components/ConnectWalletButton'
 
 const Container = styled.div`
   position: sticky;
@@ -128,7 +128,7 @@ const MigrationSticky: React.FC<React.PropsWithChildren<MigrationStickyProps>> =
           <TextTitle bold>{TEXT[version].title}</TextTitle>
           <TextSubTitle>{t('Please connect wallet to check your pools & farms status.')}</TextSubTitle>
         </TextGroup>
-        <ConnectWalletButton width={isMobile ? '131px' : '178px'} />
+        <ConnectWalletButton />
       </Container>
     )
   }

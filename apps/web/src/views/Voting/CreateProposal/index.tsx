@@ -9,11 +9,11 @@ import {
   Flex,
   Heading,
   Input,
+  ReactMarkdown,
+  ScanLink,
   Text,
   useModal,
   useToast,
-  ReactMarkdown,
-  ScanLink,
 } from '@pancakeswap/uikit'
 import snapshot from '@snapshot-labs/snapshot.js'
 import isEmpty from 'lodash/isEmpty'
@@ -303,7 +303,7 @@ const CreateProposal = () => {
                     </Button>
                   </>
                 ) : (
-                  <ConnectWalletButton width="100%" type="button" />
+                  <ConnectWalletButton />
                 )}
               </CardBody>
             </Card>

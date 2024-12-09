@@ -1,9 +1,10 @@
+import { X } from "@phosphor-icons/react";
 import React, { MouseEvent } from "react";
 import { styled } from "styled-components";
+import { MotionBox } from "../../components";
 import Flex from "../../components/Box/Flex";
-import { MotionBox } from "../../components/Box";
-import { ArrowBackIcon, CloseIcon } from "../../components/Svg";
 import { IconButton } from "../../components/Button";
+import { ArrowBackIcon } from "../../components/Svg";
 import { ModalProps } from "./types";
 
 export const mobileFooterHeight = 73;
@@ -40,16 +41,17 @@ export const ModalCloseButton: React.FC<React.PropsWithChildren<{ onDismiss: Mod
   onDismiss,
 }) => {
   return (
-    <IconButton
-      variant="text"
+    <button
+      type="button"
       onClick={(e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         onDismiss?.();
       }}
       aria-label="Close the dialog"
+      className="hover:opacity-70 fixed right-6 top-6 z-50"
     >
-      <CloseIcon color="primary" />
-    </IconButton>
+      <X height={20} width={20} className="text-on-surface-tertiary" />
+    </button>
   );
 };
 

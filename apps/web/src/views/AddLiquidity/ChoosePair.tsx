@@ -6,8 +6,8 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import { CurrencySelect } from 'components/CurrencySelect'
 import { RowBetween } from 'components/Layout/Row'
 import { useV2Pair } from 'hooks/usePairs'
-import { formatAmount } from 'utils/formatInfoNumbers'
 import { useLPApr } from 'state/swap/useLPApr'
+import { formatAmount } from 'utils/formatInfoNumbers'
 import { useAccount } from 'wagmi'
 import { AppHeader } from '../../components/App'
 import { CommonBasesType } from '../../components/SearchModal/types'
@@ -84,7 +84,7 @@ export function ChoosePair({
       </CardBody>
       <CardFooter>
         {!account ? (
-          <ConnectWalletButton width="100%" />
+          <ConnectWalletButton />
         ) : (
           <CommitButton
             data-test="choose-pair-next"

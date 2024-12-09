@@ -1,51 +1,53 @@
-import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
-import { BottomDrawer, Flex, Modal, ModalV2, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
-import { AppBody } from 'components/App'
 import { useRouter } from 'next/router'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 import { currencyId } from 'utils/currencyId'
 
 import { useCurrency } from 'hooks/Tokens'
-import { useSwapHotTokenDisplay } from 'hooks/useSwapHotTokenDisplay'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
-import Page from '../Page'
-import PriceChartContainer from './components/Chart/PriceChartContainer'
+// import { useDefaultsFromURLSearch, useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
+import { useDefaultsFromURLSearch, useSwapState } from 'state/swap/hooks'
 // import HotTokenList from './components/HotTokenList'
 import { SwapFeaturesContext } from './SwapFeaturesContext'
 import { V3SwapForm } from './V3Swap'
 import useWarningImport from './hooks/useWarningImport'
-import { StyledInputCurrencyWrapper, StyledSwapContainer } from './styles'
 
 export default function Swap() {
   const { query } = useRouter() //= {inputCurrency, outputCurrency, chain name}
 
   const { isDesktop } = useMatchBreakpoints()
-  const {
-    isChartExpanded,
-    isChartDisplayed,
-    setIsChartDisplayed,
-    setIsChartExpanded,
-    isChartSupported,
-    isHotTokenSupported,
-  } = useContext(SwapFeaturesContext)
-  const [isSwapHotTokenDisplay, setIsSwapHotTokenDisplay] = useSwapHotTokenDisplay()
-  const { t } = useTranslation()
-  const [firstTime, setFirstTime] = useState(true)
-
+  // const {
+  //   isChartExpanded,
+  //   isChartDisplayed,
+  //   setIsChartDisplayed,
+  //   setIsChartExpanded,
+  //   isChartSupported,
+  //   isHotTokenSupported,
+  // } = useContext(SwapFeaturesContext)
+  // useEffect(() => {
+  //   console.log('isChartSupported', isChartSupported)
+  // }, [isChartSupported])
   useEffect(() => {
-    if (firstTime && query.showTradingReward) {
-      setFirstTime(false)
-      setIsSwapHotTokenDisplay(true)
+    console.log('SwapFeaturesContext', SwapFeaturesContext)
+  }, [SwapFeaturesContext])
+  // const [isSwapHotTokenDisplay, setIsSwapHotTokenDisplay] = useSwapHotTokenDisplay()
+  // const { t } = useTranslation()
+  // const [firstTime, setFirstTime] = useState(true)
 
-      if (!isSwapHotTokenDisplay && isChartDisplayed) {
-        setIsChartDisplayed((currentIsChartDisplayed) => !currentIsChartDisplayed)
-      }
-    }
-  }, [firstTime, isChartDisplayed, isSwapHotTokenDisplay, query, setIsSwapHotTokenDisplay, setIsChartDisplayed])
+  // useEffect(() => {
+  //   if (firstTime && query.showTradingReward) {
+  //     setFirstTime(false)
+  //     setIsSwapHotTokenDisplay(true)
+
+  //     // if (!isSwapHotTokenDisplay && isChartDisplayed) {
+  //     //   setIsChartDisplayed((currentIsChartDisplayed) => !currentIsChartDisplayed)
+  //     // }
+  //   }
+  //   // }, [firstTime, isChartDisplayed, isSwapHotTokenDisplay, query, setIsSwapHotTokenDisplay, setIsChartDisplayed])
+  // }, [firstTime, isSwapHotTokenDisplay, query, setIsSwapHotTokenDisplay])
 
   // swap state & price data
   const {
@@ -60,13 +62,14 @@ export default function Swap() {
     [Field.OUTPUT]: outputCurrency ?? undefined,
   }
 
-  const singleTokenPrice = useSingleTokenSwapInfo(
-    inputCurrencyId,
-    inputCurrency,
-    outputCurrencyId,
-    outputCurrency,
-    isChartSupported,
-  )
+  // const singleTokenPrice = useSingleTokenSwapInfo(
+  //   inputCurrencyId,
+  //   inputCurrency,
+  //   outputCurrencyId,
+  //   outputCurrency,
+  //   // isChartSupported,
+  //   false,
+  // )
   const warningSwapHandler = useWarningImport()
   useDefaultsFromURLSearch()
   const { onCurrencySelection } = useSwapActionHandlers()
@@ -87,9 +90,11 @@ export default function Swap() {
   )
 
   return (
-    <Page removePadding={isChartExpanded} hideFooterOnDesktop={isChartExpanded}>
-      <Flex width={['328px', '100%']} height="100%" justifyContent="center" position="relative" alignItems="flex-start">
-        {isDesktop && isChartSupported && (
+    // <Page removePadding={isChartExpanded} hideFooterOnDesktop={isChartExpanded}>
+    // <Page removePadding={false} hideFooterOnDesktop={false}>
+    <div className="h-full bg-on-surface-orange pt-5">
+      {/* <Flex width={['328px', '100%']} height="100%" justifyContent="center" position="relative" alignItems="flex-start"> */}
+      {/* {isDesktop && isChartSupported && (
           <PriceChartContainer
             inputCurrencyId={inputCurrencyId}
             inputCurrency={currencies[Field.INPUT]}
@@ -100,8 +105,8 @@ export default function Swap() {
             isChartDisplayed={isChartDisplayed}
             currentSwapPrice={singleTokenPrice}
           />
-        )}
-        {!isDesktop && isChartSupported && (
+        )} */}
+      {/* {!isDesktop && isChartSupported && (
           <BottomDrawer
             content={
               <PriceChartContainer
@@ -120,9 +125,9 @@ export default function Swap() {
             isOpen={isChartDisplayed}
             setIsOpen={setIsChartDisplayed}
           />
-        )}
+        )} */}
 
-        <ModalV2
+      {/* <ModalV2
           isOpen={!isDesktop && isSwapHotTokenDisplay && isHotTokenSupported}
           onDismiss={() => setIsSwapHotTokenDisplay(false)}
         >
@@ -132,24 +137,30 @@ export default function Swap() {
             onDismiss={() => setIsSwapHotTokenDisplay(false)}
             bodyPadding="0px"
           >
-            {/* <HotTokenList
+            <HotTokenList
               handleOutputSelect={(newCurrencyOutput: Currency) => {
                 handleOutputSelect(newCurrencyOutput)
                 setIsSwapHotTokenDisplay(false)
               }}
-            /> */}
+            />
           </Modal>
-        </ModalV2>
-        <Flex flexDirection="column">
-          <StyledSwapContainer $isChartExpanded={isChartExpanded}>
-            <StyledInputCurrencyWrapper mt={isChartExpanded ? '24px' : '0'}>
-              <AppBody>
-                <V3SwapForm />
-              </AppBody>
-            </StyledInputCurrencyWrapper>
-          </StyledSwapContainer>
-        </Flex>
-      </Flex>
-    </Page>
+        </ModalV2> */}
+      {/* <Flex flexDirection="column"> */}
+      {/* <StyledSwapContainer $isChartExpanded={isChartExpanded}> */}
+      {/* <StyledSwapContainer $isChartExpanded={false}> */}
+
+      {/* <StyledInputCurrencyWrapper mt={isChartExpanded ? '24px' : '0'}> */}
+      {/* <StyledInputCurrencyWrapper mt={false ? '24px' : '0'}> */}
+      <div className="max-w-sm mx-auto bg-surface-container rounded-2xl p-5">
+        {/* <AppBody> */}
+        <V3SwapForm />
+        {/* </AppBody> */}
+      </div>
+      {/* </StyledInputCurrencyWrapper> */}
+
+      {/* </StyledSwapContainer> */}
+      {/* </Flex> */}
+      {/* </Flex> */}
+    </div>
   )
 }

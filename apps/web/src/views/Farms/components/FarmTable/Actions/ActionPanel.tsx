@@ -303,7 +303,7 @@ export const ActionPanelV3: FC<ActionPanelV3Props> = ({
             account={account}
             hasNoPosition={hasNoPosition}
             onAddLiquidity={addLiquidityModal.onOpen}
-            connectWalletButton={<ConnectWalletButton mt="8px" width="100%" />}
+            connectWalletButton={<ConnectWalletButton />}
           />
         )}
       </ActionPanelContainer>

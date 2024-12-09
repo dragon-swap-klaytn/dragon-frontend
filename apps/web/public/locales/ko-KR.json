@@ -834,7 +834,7 @@
   "To (estimated)": "결과(예상)",
   "To": "결과",
   "+ Add a send (optional)": "+ 전송 추가(옵션)",
-  "- Remove send": "- 전송 제거",
+  "Remove send": "전송 제거",
   "Slippage Tolerance": "슬리피지 허용치",
   "Insufficient liquidity for this trade.": "이 거래를 위한 유동성이 부족합니다.",
   "Price Impact High": "가격 영향 높음",

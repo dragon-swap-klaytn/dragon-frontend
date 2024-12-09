@@ -123,8 +123,9 @@
   },
   "dependencies": {
     "@pancakeswap/hooks": "workspace:*",
-    "@pancakeswap/tokens": "workspace:*",
     "@pancakeswap/localization": "workspace:*",
+    "@pancakeswap/tokens": "workspace:*",
+    "@phosphor-icons/react": "^2.1.7",
     "@popperjs/core": "^2.9.2",
     "@radix-ui/react-dismissable-layer": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.0",

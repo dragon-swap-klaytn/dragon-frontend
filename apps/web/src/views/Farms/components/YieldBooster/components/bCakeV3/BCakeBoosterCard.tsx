@@ -135,7 +135,7 @@ const CardContent: React.FC = () => {
         <Text color="textSubtle" fontSize={12} mb="16px">
           {t('An active veCAKE staking position is required for activating farm yield boosters.')}
         </Text>
-        <ConnectWalletButton width="100%" style={{ backgroundColor: theme.colors.textSubtle }} />
+        <ConnectWalletButton />
       </Box>
     )
   if (!locked)

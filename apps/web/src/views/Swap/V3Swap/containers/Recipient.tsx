@@ -1,13 +1,12 @@
-import { ArrowDownIcon, Button } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
 import { memo } from 'react'
 
-import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 import { useSwapState } from 'state/swap/hooks'
-import { AutoRow } from 'components/Layout/Row'
+import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 
+import { ArrowCircleDown } from '@phosphor-icons/react'
+import Button from 'components/Common/Button'
 import AddressInputPanel from '../../components/AddressInputPanel'
-import { ArrowWrapper } from '../../components/styleds'
 import { useAllowRecipient } from '../hooks'
 
 export const Recipient = memo(function Recipient() {
@@ -22,14 +21,12 @@ export const Recipient = memo(function Recipient() {
 
   return (
     <>
-      <AutoRow justify="space-between" style={{ padding: '0 1rem' }}>
-        <ArrowWrapper clickable={false}>
-          <ArrowDownIcon width="16px" />
-        </ArrowWrapper>
-        <Button variant="text" id="remove-recipient-button" onClick={() => onChangeRecipient(null)}>
-          {t('- Remove send')}
+      <div className="flex items-center space-x-2">
+        <ArrowCircleDown size={24} className="text-gray-50" />
+        <Button variant="subtle" fullWidth onClick={() => onChangeRecipient(null)}>
+          {t('Remove send')}
         </Button>
-      </AutoRow>
+      </div>
       <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
     </>
   )

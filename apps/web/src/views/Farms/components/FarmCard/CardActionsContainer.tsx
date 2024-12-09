@@ -1,7 +1,7 @@
 import { FarmWithStakedValue } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
-import { Flex, Skeleton, Text } from '@pancakeswap/uikit'
 import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
+import { Flex, Skeleton, Text } from '@pancakeswap/uikit'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { useContext } from 'react'
 import { styled } from 'styled-components'
@@ -83,7 +83,7 @@ const CardActions: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
         <Skeleton width={80} height={18} mb="4px" />
       )}
       {!account ? (
-        <ConnectWalletButton mt="8px" width="100%" />
+        <ConnectWalletButton />
       ) : shouldUseProxyFarm ? (
         <ProxyStakedContainer {...farm} lpLabel={lpLabel} addLiquidityUrl={addLiquidityUrl} displayApr={displayApr}>
           {(props) => <StakeAction {...props} />}

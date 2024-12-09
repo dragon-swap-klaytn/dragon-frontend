@@ -14,6 +14,7 @@ export interface InjectedProps {
 
 export interface ModalWrapperProps extends InjectedProps, Omit<BoxProps, "title" | "content"> {
   hideCloseButton?: boolean;
+  className?: string;
 }
 
 export interface ModalProps extends ModalWrapperProps {

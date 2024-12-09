@@ -80,7 +80,7 @@ export default function V2FormView({
       </Button>
     )
   } else if (!account) {
-    buttons = <ConnectWalletButton width="100%" />
+    buttons = <ConnectWalletButton />
   } else if (isWrongNetwork) {
     buttons = <CommitButton />
   } else {

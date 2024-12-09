@@ -18,16 +18,16 @@ import {
   useModal,
   useToast,
 } from '@pancakeswap/uikit'
+import { useUserSlippage } from '@pancakeswap/utils/user'
 import { CommitButton } from 'components/CommitButton'
+import { useStableSwapNativeHelperContract } from 'hooks/useContract'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useRouter } from 'next/router'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { styled } from 'styled-components'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
-import { useStableSwapNativeHelperContract } from 'hooks/useContract'
-import { useUserSlippage } from '@pancakeswap/utils/user'
 import { Hash } from 'viem'
+import { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
 
 import { LightGreyCard } from 'components/Card'
 import { RowBetween } from 'components/Layout/Row'
@@ -39,22 +39,22 @@ import { calculateGasMargin } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { calculateSlippageAmount } from 'utils/exchange'
 
+import { SettingsMode } from 'components/Menu/GlobalSettings/types'
+import { CommonBasesType } from 'components/SearchModal/types'
 import { Field } from 'state/burn/actions'
+import { useRemoveLiquidityV2FormState } from 'state/burn/reducer'
 import { useGasPrice } from 'state/user/hooks'
 import { isUserRejected, logError } from 'utils/sentry'
-import { CommonBasesType } from 'components/SearchModal/types'
-import { SettingsMode } from 'components/Menu/GlobalSettings/types'
-import { useRemoveLiquidityV2FormState } from 'state/burn/reducer'
+import { RemoveLiquidityLayout } from '..'
+import ConnectWalletButton from '../../../components/ConnectWalletButton'
+import CurrencyInputPanel from '../../../components/CurrencyInputPanel'
+import StyledInternalLink from '../../../components/Links'
+import Dots from '../../../components/Loader/Dots'
+import { CurrencyLogo } from '../../../components/Logo'
+import SettingsModal from '../../../components/Menu/GlobalSettings/SettingsModal'
+import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
 import ConfirmLiquidityModal from '../../Swap/components/ConfirmRemoveLiquidityModal'
 import { useStableDerivedBurnInfo } from './hooks/useStableDerivedBurnInfo'
-import SettingsModal from '../../../components/Menu/GlobalSettings/SettingsModal'
-import Dots from '../../../components/Loader/Dots'
-import StyledInternalLink from '../../../components/Links'
-import useActiveWeb3React from '../../../hooks/useActiveWeb3React'
-import { CurrencyLogo } from '../../../components/Logo'
-import CurrencyInputPanel from '../../../components/CurrencyInputPanel'
-import ConnectWalletButton from '../../../components/ConnectWalletButton'
-import { RemoveLiquidityLayout } from '..'
 
 const BorderCard = styled.div`
   border: solid 1px ${({ theme }) => theme.colors.cardBorder};
@@ -539,7 +539,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
 
         <Box position="relative" mt="16px">
           {!account ? (
-            <ConnectWalletButton width="100%" />
+            <ConnectWalletButton />
           ) : isWrongNetwork ? (
             <CommitButton width="100%" />
           ) : (

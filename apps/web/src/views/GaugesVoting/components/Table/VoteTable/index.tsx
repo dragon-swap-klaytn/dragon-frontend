@@ -306,7 +306,7 @@ export const VoteTable = () => {
           style={{ marginTop: rows && rows?.length > 3 ? 0 : '8px' }}
         >
           {!account ? (
-            <ConnectWalletButton mx="auto" width={isDesktop ? '50%' : '100%'} />
+            <ConnectWalletButton />
           ) : (
             <>
               <Button

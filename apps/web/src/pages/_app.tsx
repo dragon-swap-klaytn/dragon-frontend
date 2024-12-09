@@ -1,4 +1,4 @@
-import { ResetCSS, ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
+import { ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { ErrorBoundary } from 'components/ErrorBoundary'
 import GlobalCheckClaimStatus from 'components/GlobalCheckClaimStatus'
@@ -29,7 +29,7 @@ import { Blocklist, Updaters } from '..'
 import { SEO } from '../../next-seo.config'
 import Providers from '../Providers'
 import Menu from '../components/Menu'
-import GlobalStyle from '../style/Global'
+import '../style/global.css'
 
 // This config is required for number formatting
 BigNumber.config({
@@ -83,8 +83,7 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
         )}
         <Blocklist>
           {(Component as NextPageWithLayout).mp ? <MPGlobalHooks /> : <GlobalHooks />}
-          <ResetCSS />
-          <GlobalStyle />
+          {/* <ResetCSS /> */}
           <GlobalCheckClaimStatus excludeLocations={[]} />
           <PersistGate loading={null} persistor={persistor}>
             <Updaters />
@@ -145,11 +144,17 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
 
   return (
     <ProductionErrorBoundary>
-      <ShowMenu>
+      {/* <ShowMenu>
         <Layout>
           <Component {...pageProps} />
         </Layout>
-      </ShowMenu>
+      </ShowMenu> */}
+
+      <Menu />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+
       <ToastListener />
       <FixedSubgraphHealthIndicator />
       <NetworkModal pageSupportedChains={Component.chains} />

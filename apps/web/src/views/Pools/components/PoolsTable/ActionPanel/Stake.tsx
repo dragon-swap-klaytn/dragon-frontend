@@ -211,7 +211,7 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
       return vaultKey === VaultKey.CakeVault || vaultKey === VaultKey.CakeFlexibleSideVault ? (
         <VeCakeButton type="get" />
       ) : (
-        <ConnectWalletButton width="100%" />
+        <ConnectWalletButton />
       )
     }
     if (vaultKey === VaultKey.CakeVault && isUserDelegated) return null
@@ -228,7 +228,7 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
           {vaultKey === VaultKey.CakeVault || vaultKey === VaultKey.CakeFlexibleSideVault ? (
             <VeCakeButton type="get" />
           ) : (
-            <ConnectWalletButton width="100%" />
+            <ConnectWalletButton />
           )}
         </ActionContent>
       </ActionContainer>

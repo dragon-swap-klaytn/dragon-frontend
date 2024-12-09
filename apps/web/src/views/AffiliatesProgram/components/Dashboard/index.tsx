@@ -1,18 +1,18 @@
-import { Flex, Box, Card } from '@pancakeswap/uikit'
-import { useAccount } from 'wagmi'
 import { useTranslation } from '@pancakeswap/localization'
+import { Box, Card, Flex } from '@pancakeswap/uikit'
+import ConnectWalletButton from 'components/ConnectWalletButton'
 import AffiliatesProgramLayout from 'views/AffiliatesProgram/components/AffiliatesProgramLayout'
+import AffiliateLinks from 'views/AffiliatesProgram/components/Dashboard/AffiliateLinks'
+import NonAffiliateModal from 'views/AffiliatesProgram/components/Dashboard/AffiliateModal/NonAffiliateModal'
 import Banner from 'views/AffiliatesProgram/components/Dashboard/Banner'
+import CommissionInfo from 'views/AffiliatesProgram/components/Dashboard/CommissionInfo'
+import LoginButton from 'views/AffiliatesProgram/components/Dashboard/LoginButton'
 import MyReferralLink from 'views/AffiliatesProgram/components/Dashboard/MyReferralLink'
+import Reward from 'views/AffiliatesProgram/components/Dashboard/Reward'
 import useAuthAffiliate from 'views/AffiliatesProgram/hooks/useAuthAffiliate'
 import useAuthAffiliateExist from 'views/AffiliatesProgram/hooks/useAuthAffiliateExist'
 import useUserInfo from 'views/AffiliatesProgram/hooks/useUserInfo'
-import ConnectWalletButton from 'components/ConnectWalletButton'
-import LoginButton from 'views/AffiliatesProgram/components/Dashboard/LoginButton'
-import CommissionInfo from 'views/AffiliatesProgram/components/Dashboard/CommissionInfo'
-import Reward from 'views/AffiliatesProgram/components/Dashboard/Reward'
-import AffiliateLinks from 'views/AffiliatesProgram/components/Dashboard/AffiliateLinks'
-import NonAffiliateModal from 'views/AffiliatesProgram/components/Dashboard/AffiliateModal/NonAffiliateModal'
+import { useAccount } from 'wagmi'
 
 const Dashboard = () => {
   const { t } = useTranslation()
@@ -26,7 +26,7 @@ const Dashboard = () => {
       <NonAffiliateModal />
       <Banner title={t('Dashboard')} subTitle={t('Manage your affiliate link, see how much you’ve earned')} />
       {!account ? (
-        <ConnectWalletButton display="block" m="40px auto" />
+        <ConnectWalletButton />
       ) : (
         <Flex
           padding="0 16px"

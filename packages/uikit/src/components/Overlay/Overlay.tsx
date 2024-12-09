@@ -1,5 +1,5 @@
-import { styled, css, keyframes } from "styled-components";
 import { useEffect } from "react";
+import { css, keyframes, styled } from "styled-components";
 import { Box, BoxProps } from "../Box";
 
 const unmountAnimation = keyframes`
