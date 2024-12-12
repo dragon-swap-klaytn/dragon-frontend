@@ -77,7 +77,8 @@ module.exports = {
         },
         overlay: {
           'background-dim': '#000000b2',
-          'surface-hover-light': '#ffffff1a',
+          // 'surface-hover-light': '#ffffff1a',
+          'surface-hover-light': '#3d3d3f',
           'surface-hover-dark': '#0000001a',
         },
         storke: '#',
