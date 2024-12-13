@@ -27,10 +27,10 @@ interface WindowProvider extends InjectedProviders, EIP1193Provider {
 }
 
 // @ts-ignore
-export class KaikasConnector extends Connector<WindowProvider | undefined, any> {
-  readonly id: string = 'kaikas'
+export class KaiaWalletConnector extends Connector<WindowProvider | undefined, any> {
+  readonly id: string = 'kaiawallet'
 
-  readonly name: string = 'Kaikas Wallet'
+  readonly name: string = 'Kaia Wallet'
 
   readonly ready: boolean
 
@@ -67,7 +67,7 @@ export class KaikasConnector extends Connector<WindowProvider | undefined, any> 
       }
 
       if (typeof window.klaytn !== 'undefined') {
-        // Kaikas user detected. You can now use the provider.
+        // KaiaWallet user detected. You can now use the provider.
         account = await window.klaytn.enable()
         id = window.klaytn.networkVersion
       }

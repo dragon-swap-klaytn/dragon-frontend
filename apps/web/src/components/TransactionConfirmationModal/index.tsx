@@ -16,11 +16,11 @@ import {
 import { ConfirmationPendingContent, TransactionErrorContent } from '@pancakeswap/widgets-internal'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useTokenLogo } from 'hooks/useTokenLogo'
 import { useCallback } from 'react'
 import { styled } from 'styled-components'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
-import { useTokenLogo } from 'hooks/useTokenLogo'
 import AddToWalletButton, { AddToWalletTextOptions } from '../AddToWallet/AddToWalletButton'
 
 const Wrapper = styled.div`
@@ -68,10 +68,6 @@ export function TransactionSubmittedContent({
           )}
           {currencyToAdd && (
             <AddToWalletButton
-              variant="tertiary"
-              mt="12px"
-              width="fit-content"
-              marginTextBetweenLogo="6px"
               textOptions={AddToWalletTextOptions.TEXT_WITH_ASSET}
               tokenAddress={token?.address}
               tokenSymbol={currencyToAdd.symbol}

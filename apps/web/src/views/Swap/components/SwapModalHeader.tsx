@@ -1,14 +1,15 @@
-import { ReactElement, useMemo } from 'react'
-import { TradeType, CurrencyAmount, Currency, Percent } from '@pancakeswap/sdk'
-import { Button, Text, ErrorIcon, ArrowDownIcon, AutoColumn } from '@pancakeswap/uikit'
-import { Field } from 'state/swap/actions'
 import { useTranslation } from '@pancakeswap/localization'
+import { Currency, CurrencyAmount, Percent, TradeType } from '@pancakeswap/sdk'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
-import { warningSeverity, basisPointsToPercent } from 'utils/exchange'
-import { CurrencyLogo } from 'components/Logo'
-import { RowBetween, RowFixed } from 'components/Layout/Row'
 import truncateHash from '@pancakeswap/utils/truncateHash'
-import { TruncatedText, SwapShowAcceptChanges } from './styleds'
+import { ArrowCircleDown } from '@phosphor-icons/react'
+import Button from 'components/Common/Button'
+import Notification from 'components/Common/Notification'
+import TruncatedText from 'components/Common/TruncatedText'
+import { CurrencyLogo } from 'components/Logo'
+import { ReactElement, useMemo } from 'react'
+import { Field } from 'state/swap/actions'
+import { warningSeverity } from 'utils/exchange'
 
 export default function SwapModalHeader({
   inputAmount,
@@ -76,86 +77,49 @@ export default function SwapModalHeader({
   const [recipientSentToText, postSentToText] = recipientInfoText.split(truncatedRecipient)
 
   return (
-    <AutoColumn gap="md">
-      <RowBetween align="flex-end">
-        <RowFixed gap="4px">
-          <TruncatedText fontSize="24px" bold color={inputTextColor}>
-            {formatAmount(inputAmount, 6)}
-          </TruncatedText>
-        </RowFixed>
-        <RowFixed style={{ alignSelf: 'center' }}>
-          <Text fontSize="14px" ml="10px" mr="8px">
-            {inputAmount.currency.symbol}
-          </Text>
-          <CurrencyLogo currency={currencyBalances.INPUT?.currency ?? inputAmount.currency} size="24px" />
-        </RowFixed>
-      </RowBetween>
-      <RowFixed margin="auto">
-        <ArrowDownIcon width="24px" ml="4px" />
-      </RowFixed>
-      <RowBetween align="flex-end">
-        <RowFixed gap="4px">
-          <TruncatedText
-            bold
-            fontSize="24px"
-            color={
-              priceImpactSeverity > 2
-                ? 'failure'
-                : showAcceptChanges && tradeType === TradeType.EXACT_INPUT
-                ? 'primary'
-                : 'text'
-            }
-          >
-            {formatAmount(outputAmount, 6)}
-          </TruncatedText>
-        </RowFixed>
-        <RowFixed style={{ alignSelf: 'center' }}>
-          <Text fontSize="14px" ml="10px" mr="8px">
-            {outputAmount.currency.symbol}
-          </Text>
-          <CurrencyLogo currency={currencyBalances.OUTPUT?.currency ?? outputAmount.currency} size="24px" />
-        </RowFixed>
-      </RowBetween>
+    <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center space-y-3 w-full">
+        <TokenAmountRow amount={inputAmount} currency={currencyBalances.INPUT?.currency ?? inputAmount.currency} />
+        <ArrowCircleDown size={24} className="text-gray-50" />
+        <TokenAmountRow amount={outputAmount} currency={currencyBalances.OUTPUT?.currency ?? outputAmount.currency} />
+      </div>
+
       {showAcceptChanges ? (
-        <SwapShowAcceptChanges justify="flex-start" gap="0px">
-          <RowBetween>
-            <RowFixed>
-              <ErrorIcon mr="8px" />
-              <Text bold> {t('Price Updated')}</Text>
-            </RowFixed>
-            <Button onClick={onAcceptChanges}>{t('Accept')}</Button>
-          </RowBetween>
-        </SwapShowAcceptChanges>
+        <div className="py-4 px-6 w-full rounded-[20px] bg-surface-container-highest mt-4">
+          <p className="text-sm text-center">{t('Update with a new quote?')}</p>
+
+          <Button variant="primary" fullWidth onClick={onAcceptChanges} size="sm" className="mt-4">
+            {t('Accept')}
+          </Button>
+        </div>
       ) : null}
-      <AutoColumn justify="flex-start" gap="sm" style={{ padding: '24px 0 0 0px' }}>
-        <RowFixed style={{ width: '100%' }}>
-          <Text fontSize={12} color="secondary" bold textTransform="uppercase">
-            {t('Slippage Tolerance')}
-          </Text>
-          <Text fontSize={12} bold color="primary" ml="auto" textAlign="end">
-            {typeof allowedSlippage === 'number'
-              ? `${basisPointsToPercent(allowedSlippage).toFixed(2)}%`
-              : allowedSlippage}
-          </Text>
-        </RowFixed>
-        {tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance && (
-          <Text fontSize={12} color="failure" textAlign="left" style={{ width: '100%' }}>
-            {t('Insufficient input token balance. Your transaction may fail.')}
-          </Text>
-        )}
-        <Text fontSize={12} color="textSubtle" textAlign="left" style={{ maxWidth: '320px' }}>
-          {tradeInfoText}
-        </Text>
-      </AutoColumn>
+
+      {tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance && (
+        <Notification variant="warning" className="mt-4 w-full">
+          <p>{t('Insufficient input token balance. Your transaction may fail.')}</p>
+        </Notification>
+      )}
+
       {recipient ? (
-        <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
-          <Text fontSize={12} color="textSubtle">
-            {recipientSentToText}
-            <b title={recipient}>{truncatedRecipient}</b>
-            {postSentToText}
-          </Text>
-        </AutoColumn>
+        <div className="flex flex-col space-y-3 mt-4 bg-surface-container-highest">
+          {recipientSentToText}
+          <b title={recipient}>{truncatedRecipient}</b>
+          {postSentToText}
+        </div>
       ) : null}
-    </AutoColumn>
+    </div>
+  )
+}
+
+function TokenAmountRow({ amount, currency }: { amount: CurrencyAmount<Currency>; currency: Currency }) {
+  return (
+    <div className="flex items-center space-x-2 text-sm justify-between w-full rounded-[20px] p-2 bg-surface-container-highest">
+      <div className="flex items-center space-x-2">
+        <CurrencyLogo currency={currency ?? amount.currency} size="28px" />
+        <span>{amount.currency.symbol}</span>
+      </div>
+
+      <TruncatedText className="font-bold text-lg text-right pr-2">{formatAmount(amount, 6)}</TruncatedText>
+    </div>
   )
 }

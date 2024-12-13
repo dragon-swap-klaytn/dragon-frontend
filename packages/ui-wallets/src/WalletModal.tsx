@@ -41,7 +41,8 @@ type DeviceLink = {
 type LinkOfDevice = string | DeviceLink
 
 export type WalletConfigV2<T = unknown> = {
-  id: string
+  // export type WalletConfigV2 = {
+  id: T
   title: string
   icon: string | React.FC<React.PropsWithChildren<SvgProps>>
   connectorId: T
@@ -219,7 +220,7 @@ function WalletSelect<T>({
 
         return (
           <Button
-            key={wallet.id}
+            key={wallet.title}
             variant="text"
             height="auto"
             as={AtomBox}
@@ -350,15 +351,18 @@ function DesktopModal<T>({
         <WalletSelect
           wallets={wallets}
           onClick={(w) => {
+            console.log('__www', w)
             connectToWallet(w)
             setQrCode(undefined)
             if (w.qrCode) {
               w.qrCode().then(
                 (uri) => {
+                  console.log('__hmm_1.. uri', uri)
                   setQrCode(uri)
                 },
                 () => {
                   // do nothing.
+                  console.log('__hmm_2.. uri')
                 },
               )
             }
@@ -426,9 +430,12 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
   const connectWallet = (wallet: WalletConfigV2<T>) => {
     setSelected(wallet)
     setError('')
+    console.log('__test', wallet)
     if (wallet.installed !== false || wallet.connectorId === 'klip') {
+      console.log('__login_start')
       login(wallet.connectorId)
         .then((v) => {
+          console.log('__login_end', v)
           if (v) {
             localStorage?.setItem(walletLocalStorageKey, wallet.title)
             localStorage?.setItem(addressLocalStorageKey, v.account)
@@ -441,6 +448,7 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
           }
         })
         .catch((err) => {
+          console.log('__err', err)
           if (err instanceof WalletConnectorNotFoundError) {
             setError(t('no provider found'))
           } else if (err instanceof WalletSwitchChainError) {

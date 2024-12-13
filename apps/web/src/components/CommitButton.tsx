@@ -29,7 +29,6 @@ export const CommitButton = (props: ButtonProps) => {
         }
       }}
       className="w-full"
-
       // {...(switchNetworkLoading && { disabled: true })}
       // {...(isWrongNetwork && wrongNetworkProps)}
     >

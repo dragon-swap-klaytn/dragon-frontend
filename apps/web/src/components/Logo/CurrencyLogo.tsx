@@ -1,10 +1,9 @@
-import { ChainId } from '@pancakeswap/chains'
 import { useHttpLocations } from '@pancakeswap/hooks'
 import { Currency } from '@pancakeswap/sdk'
 import { WrappedTokenInfo } from '@pancakeswap/token-lists'
-import { BinanceIcon, TokenLogo, ZERO_ADDRESS } from '@pancakeswap/uikit'
+import { TokenLogo, ZERO_ADDRESS } from '@pancakeswap/uikit'
 import getTokenIconSrcFromSs from '@pancakeswap/utils/getTokenIconSrcFromSs'
-import { ASSET_CDN } from 'config/constants/endpoints'
+import clsx from 'clsx'
 import { useMemo } from 'react'
 import { styled } from 'styled-components'
 import getTokenLogoURL from '../../utils/getTokenLogoURL'
@@ -36,7 +35,7 @@ export default function CurrencyLogo({ currency, size = '24px', style }: LogoPro
   const uriLocations = useHttpLocations(currency instanceof WrappedTokenInfo ? currency.logoURI : undefined)
 
   const srcs: string[] = useMemo(() => {
-    if (currency?.isNative) return []
+    if (currency?.isNative) return [getTokenIconSrcFromSs(ZERO_ADDRESS) as string]
 
     if (currency?.isToken) {
       const tokenLogoFromSs = getTokenIconSrcFromSs(currency?.wrapped?.address)
@@ -56,27 +55,39 @@ export default function CurrencyLogo({ currency, size = '24px', style }: LogoPro
     return []
   }, [currency, uriLocations])
 
-  if (currency?.isNative) {
-    if (currency.chainId === ChainId.BSC) {
-      return <BinanceIcon width={size} style={style} />
-    }
-    if (currency.chainId === ChainId.KLAYTN) {
-      return (
-        <StyledLogo
-          size={size}
-          srcs={[
-            getTokenIconSrcFromSs(ZERO_ADDRESS) ||
-              'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
-          ]}
-          width={size}
-          style={style}
-        />
-      )
-    }
-    return (
-      <StyledLogo size={size} srcs={[`${ASSET_CDN}/web/native/${currency.chainId}.png`]} width={size} style={style} />
-    )
-  }
+  // if (currency?.isNative) {
+  //   if (currency.chainId === ChainId.BSC) {
+  //     return <BinanceIcon width={size} style={style} />
+  //   }
+  //   if (currency.chainId === ChainId.KLAYTN) {
+  //     return (
+  //       <StyledLogo
+  //         size={size}
+  //         srcs={[
+  //           getTokenIconSrcFromSs(ZERO_ADDRESS) ||
+  //             'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
+  //         ]}
+  //         width={size}
+  //         style={style}
+  //       />
+  //     )
+  //   }
+  //   return (
+  //     <StyledLogo size={size} srcs={[`${ASSET_CDN}/web/native/${currency.chainId}.png`]} width={size} style={style} />
+  //   )
+  // }
 
-  return <StyledLogo size={size} srcs={srcs} alt={`${currency?.symbol ?? 'token'} logo`} style={style} />
+  return (
+    <div
+      className={clsx('rounded-full shrink-0 overflow-hidden', size)}
+      style={{
+        width: size,
+        height: size,
+      }}
+    >
+      {/* <img srcSet={srcs.join(', ')} alt={`${currency?.symbol ?? 'token'} logo`} style={style} /> */}
+      <TokenLogo srcs={srcs} alt={`${currency?.symbol ?? 'token'} logo`} style={style} />
+    </div>
+  )
+  // <StyledLogo size={size} srcs={srcs} alt={`${currency?.symbol ?? 'token'} logo`} style={style} />
 }

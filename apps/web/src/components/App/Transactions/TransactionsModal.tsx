@@ -1,25 +1,24 @@
-import { useCallback } from 'react'
-import { Modal, ModalBody, Text, Button, Flex, InjectedModalProps } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
-import isEmpty from 'lodash/isEmpty'
+import { InjectedModalProps, Modal, Text } from '@pancakeswap/uikit'
+import Button from 'components/Common/Button'
 import groupBy from 'lodash/groupBy'
-import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/reducer'
+import isEmpty from 'lodash/isEmpty'
+import { useCallback } from 'react'
 import { useAppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
-import { chains } from 'utils/wagmi'
+import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
+import { TransactionDetails } from 'state/transactions/reducer'
 import { useAccount } from 'wagmi'
-import { AutoRow } from '../../Layout/Row'
-import Transaction from './Transaction'
 import ConnectWalletButton from '../../ConnectWalletButton'
+import Transaction from './Transaction'
 
 function renderTransactions(transactions: TransactionDetails[], chainId: number) {
   return (
-    <Flex flexDirection="column">
+    <div className="flex flex-col space-y-3">
       {transactions.map((tx) => {
         return <Transaction key={tx.hash + tx.addedTime} tx={tx} chainId={chainId} />
       })}
-    </Flex>
+    </div>
   )
 }
 
@@ -37,41 +36,42 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
   }, [dispatch])
 
   return (
-    <Modal title={t('Recent Transactions')} headerBackground="gradientCardHeader" onDismiss={onDismiss}>
+    <Modal title={t('Recent Transactions')} maxWidth="max-w-lg" onDismiss={onDismiss}>
       {account ? (
-        <ModalBody>
+        <>
           {hasTransactions ? (
             <>
-              <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }}>
-                <Text>{t('Recent Transactions')}</Text>
-                <Button variant="tertiary" scale="xs" onClick={clearAllTransactionsCallback}>
+              <div className="flex items-center space-x-2 justify-between">
+                <h4 className="text-sm">{t('Recent Transactions')}</h4>
+
+                <Button variant="primary" size="xs" onClick={clearAllTransactionsCallback}>
                   {t('clear all')}
                 </Button>
-              </AutoRow>
-              {Object.entries(sortedRecentTransactions).map(([chainId, transactions]) => {
-                const chainIdNumber = Number(chainId)
-                const groupedTransactions = groupBy(Object.values(transactions), (trxDetails) =>
-                  Boolean(trxDetails.receipt),
-                )
+              </div>
 
-                const confirmed = groupedTransactions.true ?? []
-                const pending = groupedTransactions.false ?? []
+              <div className="mt-7">
+                {Object.entries(sortedRecentTransactions).map(([chainId, transactions]) => {
+                  const chainIdNumber = Number(chainId)
+                  const groupedTransactions = groupBy(Object.values(transactions), (trxDetails) =>
+                    Boolean(trxDetails.receipt),
+                  )
 
-                return (
-                  <div key={`transactions#${chainIdNumber}`}>
-                    <Text fontSize="12px" color="textSubtle" mb="4px">
-                      {chains.find((c) => c.id === chainIdNumber)?.name ?? 'Unknown network'}
-                    </Text>
-                    {renderTransactions(pending, chainIdNumber)}
-                    {renderTransactions(confirmed, chainIdNumber)}
-                  </div>
-                )
-              })}
+                  const confirmed = groupedTransactions.true ?? []
+                  const pending = groupedTransactions.false ?? []
+
+                  return (
+                    <div key={`transactions#${chainIdNumber}`}>
+                      {renderTransactions(pending, chainIdNumber)}
+                      {renderTransactions(confirmed, chainIdNumber)}
+                    </div>
+                  )
+                })}
+              </div>
             </>
           ) : (
             <Text>{t('No recent transactions')}</Text>
           )}
-        </ModalBody>
+        </>
       ) : (
         <ConnectWalletButton />
       )}

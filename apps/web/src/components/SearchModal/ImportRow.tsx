@@ -1,7 +1,7 @@
-import { CSSProperties } from 'react'
 import { Currency, Token } from '@pancakeswap/sdk'
+import { useIsTokenActive, useIsUserAddedToken } from 'hooks/Tokens'
+import { CSSProperties } from 'react'
 import { useCombinedInactiveList } from 'state/lists/hooks'
-import { useIsUserAddedToken, useIsTokenActive } from 'hooks/Tokens'
 import ImportTokenRow from './ImportTokenRow'
 
 export default function ImportRow({

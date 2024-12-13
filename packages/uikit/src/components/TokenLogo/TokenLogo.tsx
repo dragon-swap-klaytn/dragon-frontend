@@ -19,6 +19,7 @@ const TokenLogo: React.FC<React.PropsWithChildren<TokenLogoProps>> = ({ srcs, us
   if (src) {
     return (
       <img
+        className="w-full h-full"
         {...rest}
         alt={alt}
         src={src}

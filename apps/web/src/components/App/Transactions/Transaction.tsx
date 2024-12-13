@@ -1,27 +1,7 @@
-import { styled } from 'styled-components'
-import { CheckmarkIcon, CloseIcon, ScanLink } from '@pancakeswap/uikit'
-import { getBlockExploreLink } from 'utils'
+import { ArrowSquareOut } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { TransactionDetails } from 'state/transactions/reducer'
-import { ChainLinkSupportChains } from 'state/info/constant'
-
-import CircleLoader from '../../Loader/CircleLoader'
-
-const TransactionState = styled.div<{ pending: boolean; success?: boolean }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  text-decoration: none !important;
-  border-radius: 0.5rem;
-  padding: 0.25rem 0rem;
-  font-weight: 500;
-  font-size: 0.825rem;
-  color: ${({ theme }) => theme.colors.primary};
-`
-
-const IconWrapper = styled.div<{ pending: boolean; success?: boolean }>`
-  color: ${({ pending, success, theme }) =>
-    pending ? theme.colors.primary : success ? theme.colors.success : theme.colors.failure};
-`
+import { getBlockExploreLink } from 'utils'
 
 export default function Transaction({ tx, chainId }: { tx: TransactionDetails; chainId: number }) {
   const summary = tx?.summary
@@ -31,16 +11,27 @@ export default function Transaction({ tx, chainId }: { tx: TransactionDetails; c
   if (!chainId) return null
 
   return (
-    <TransactionState pending={pending} success={success}>
-      <ScanLink
-        useBscCoinFallback={ChainLinkSupportChains.includes(chainId)}
+    <div className="flex items-center space-x-2 justify-between">
+      <a
         href={getBlockExploreLink(tx.hash, 'transaction', chainId)}
+        target="_blank"
+        rel="noreferrer"
+        className="text-sm underline underline-offset-2 hover:opacity-70"
       >
         {summary ?? tx.hash}
-      </ScanLink>
-      <IconWrapper pending={pending} success={success}>
-        {pending ? <CircleLoader /> : success ? <CheckmarkIcon color="success" /> : <CloseIcon color="failure" />}
-      </IconWrapper>
-    </TransactionState>
+
+        <ArrowSquareOut size={16} className="inline-block ml-1" />
+      </a>
+
+      <span
+        className={clsx('text-sm', {
+          'text-gray-400': pending,
+          'text-green-400': success,
+          'text-red-400': !success,
+        })}
+      >
+        {pending ? 'Pending' : success ? 'Success' : 'Failed'}
+      </span>
+    </div>
   )
 }

@@ -15,9 +15,9 @@ import { priceHelperTokens } from '@pancakeswap/farms/constants/common'
 import { farmsV3ConfigChainMap, farmsV3FinishedConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterVeCake'
 import { TvlMap, fetchCommonTokenUSDValue } from '@pancakeswap/farms/src/fetchFarmsV3'
+import { usePreviousValue } from '@pancakeswap/hooks'
 import { deserializeToken } from '@pancakeswap/token-lists'
 import { useQuery } from '@tanstack/react-query'
-import { usePreviousValue } from '@pancakeswap/hooks'
 import { FAST_INTERVAL } from 'config/constants'
 import { gql } from 'graphql-request'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -25,8 +25,8 @@ import { useCakePrice } from 'hooks/useCakePrice'
 import { useBCakeFarmBoosterVeCakeContract, useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useV3PositionsFromTokenIds, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import toLower from 'lodash/toLower'
-import { useMemo, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { useEffect, useMemo } from 'react'
 import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
 import { publicClient } from 'utils/wagmi'
@@ -78,7 +78,9 @@ export const useFarmsV3Public = () => {
       const isFinished = window.location.pathname === '/farms/finished'
 
       // direct copy from api routes, the client side fetch is preventing cache due to migration phase we want fresh data
-      const farms = isFinished ? farmsV3FinishedConfigChainMap[chainId as ChainId] : farmsV3ConfigChainMap[chainId as ChainId]
+      const farms = isFinished
+        ? farmsV3FinishedConfigChainMap[chainId as ChainId]
+        : farmsV3ConfigChainMap[chainId as ChainId]
 
       const commonPrice = await fetchCommonTokenUSDValue(priceHelperTokens[chainId ?? -1])
 
@@ -87,7 +89,7 @@ export const useFarmsV3Public = () => {
           chainId: chainId ?? -1,
           farms,
           commonPrice,
-          isFinished
+          isFinished,
         })
 
         return data
@@ -261,16 +263,18 @@ export const useStakedPositionsByUser = (stakedTokenIds: bigint[], isFinished?: 
         return emptyResult
       }
 
-      const res = await publicClient({ chainId }).multicall({
-        contracts: callDatas
-      }).catch(() => {
-        return [{ status: 'error' }]
-      })
+      const res = await publicClient({ chainId })
+        .multicall({
+          contracts: callDatas,
+        })
+        .catch(() => {
+          return [{ status: 'error' }]
+        })
       const rewards: bigint[] = []
 
       for (const call of res) {
         // @ts-ignore
-        rewards.push(call.status !== 'success' ? 0n : (call?.result ?? 0n))
+        rewards.push(call.status !== 'success' ? 0n : call?.result ?? 0n)
       }
 
       return rewards
@@ -286,7 +290,7 @@ export const useStakedPositionsByUser = (stakedTokenIds: bigint[], isFinished?: 
 
 const usePositionsByUserFarms = (
   farmsV3: FarmV3DataWithPrice[],
-  isFinished?: boolean
+  isFinished?: boolean,
 ): {
   farmsWithPositions: FarmV3DataWithPriceAndUserInfo[]
   userDataLoaded: boolean
@@ -379,7 +383,10 @@ const usePositionsByUserFarms = (
   }
 }
 
-export function useFarmsV3WithPositionsAndBooster(options: UseFarmsOptions = {}, isFinished?: boolean): {
+export function useFarmsV3WithPositionsAndBooster(
+  options: UseFarmsOptions = {},
+  isFinished?: boolean,
+): {
   farmsWithPositions: FarmV3DataWithPriceAndUserInfo[]
   userDataLoaded: boolean
   cakePerSecond: string

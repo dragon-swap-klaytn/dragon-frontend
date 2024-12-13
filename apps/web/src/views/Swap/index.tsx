@@ -2,7 +2,7 @@ import { Currency } from '@pancakeswap/sdk'
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 import { currencyId } from 'utils/currencyId'
 
@@ -11,7 +11,6 @@ import { Field } from 'state/swap/actions'
 // import { useDefaultsFromURLSearch, useSingleTokenSwapInfo, useSwapState } from 'state/swap/hooks'
 import { useDefaultsFromURLSearch, useSwapState } from 'state/swap/hooks'
 // import HotTokenList from './components/HotTokenList'
-import { SwapFeaturesContext } from './SwapFeaturesContext'
 import { V3SwapForm } from './V3Swap'
 import useWarningImport from './hooks/useWarningImport'
 
@@ -30,9 +29,6 @@ export default function Swap() {
   // useEffect(() => {
   //   console.log('isChartSupported', isChartSupported)
   // }, [isChartSupported])
-  useEffect(() => {
-    console.log('SwapFeaturesContext', SwapFeaturesContext)
-  }, [SwapFeaturesContext])
   // const [isSwapHotTokenDisplay, setIsSwapHotTokenDisplay] = useSwapHotTokenDisplay()
   // const { t } = useTranslation()
   // const [firstTime, setFirstTime] = useState(true)

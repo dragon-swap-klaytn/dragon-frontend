@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { usePopper } from "react-popper";
+import { CaretDown } from "@phosphor-icons/react";
+import React, { useState } from "react";
 import { styled } from "styled-components";
-import { Box, Flex } from "../../../../components/Box";
-import { ChevronDownIcon } from "../../../../components/Svg";
-import { UserMenuProps, variants } from "./types";
-import MenuIcon from "./MenuIcon";
+import { Flex } from "../../../../components/Box";
 import { UserMenuItem } from "./styles";
+import { UserMenuProps, variants } from "./types";
 
 export const StyledUserMenu = styled(Flex)`
   align-items: center;
@@ -65,9 +63,9 @@ const Menu = styled.div<{ $isOpen: boolean }>`
 
 const UserMenu: React.FC<UserMenuProps> = ({
   account,
-  text,
-  avatarSrc,
-  avatarClassName,
+  // text,
+  // avatarSrc,
+  // avatarClassName,
   variant = variants.DEFAULT,
   children,
   disabled,
@@ -78,64 +76,68 @@ const UserMenu: React.FC<UserMenuProps> = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [targetRef, setTargetRef] = useState<HTMLDivElement | null>(null);
+  // const [targetRef, setTargetRef] = useState<HTMLDivElement | null>(null);
   const [tooltipRef, setTooltipRef] = useState<HTMLDivElement | null>(null);
 
-  const { styles, attributes, update } = usePopper(targetRef, tooltipRef, {
-    strategy: "fixed",
-    placement,
-    modifiers: [{ name: "offset", options: { offset: [0, 0] } }],
-  });
+  // const { styles, attributes, update } = usePopper(targetRef, tooltipRef, {
+  //   strategy: "fixed",
+  //   placement,
+  //   modifiers: [{ name: "offset", options: { offset: [0, 0] } }],
+  // });
 
   const accountEllipsis = account ? `${account.substring(0, 2)}...${account.substring(account.length - 4)}` : null;
 
   // recalculate the popover position
-  useEffect(() => {
-    if (recalculatePopover && isOpen && update) update();
-  }, [isOpen, update, recalculatePopover]);
+  // useEffect(() => {
+  //   if (recalculatePopover && isOpen && update) update();
+  // }, [isOpen, update, recalculatePopover]);
 
-  useEffect(() => {
-    const showDropdownMenu = () => {
-      setIsOpen(true);
-    };
+  // useEffect(() => {
+  //   const showDropdownMenu = () => {
+  //     setIsOpen(true);
+  //   };
 
-    const hideDropdownMenu = (evt: MouseEvent | TouchEvent) => {
-      const target = evt.target as Node;
-      if (target && !tooltipRef?.contains(target)) {
-        setIsOpen(false);
-        evt.stopPropagation();
-      }
-    };
+  //   const hideDropdownMenu = (evt: MouseEvent | TouchEvent) => {
+  //     const target = evt.target as Node;
+  //     if (target && !tooltipRef?.contains(target)) {
+  //       setIsOpen(false);
+  //       evt.stopPropagation();
+  //     }
+  //   };
 
-    targetRef?.addEventListener("mouseenter", showDropdownMenu);
-    targetRef?.addEventListener("mouseleave", hideDropdownMenu);
+  //   targetRef?.addEventListener("mouseenter", showDropdownMenu);
+  //   targetRef?.addEventListener("mouseleave", hideDropdownMenu);
 
-    return () => {
-      targetRef?.removeEventListener("mouseenter", showDropdownMenu);
-      targetRef?.removeEventListener("mouseleave", hideDropdownMenu);
-    };
-  }, [targetRef, tooltipRef, setIsOpen]);
+  //   return () => {
+  //     targetRef?.removeEventListener("mouseenter", showDropdownMenu);
+  //     targetRef?.removeEventListener("mouseleave", hideDropdownMenu);
+  //   };
+  // }, [targetRef, tooltipRef, setIsOpen]);
+
+  // {icon ?? <MenuIcon className={avatarClassName} avatarSrc={avatarSrc} variant={variant} />}
 
   return (
-    <Flex alignItems="center" height="100%" ref={setTargetRef} {...props}>
-      <StyledUserMenu
-        onTouchStart={() => {
-          setIsOpen((s) => !s);
+    <div className="relative">
+      <button
+        type="button"
+        className="flex items-center space-x-2 hover:opacity-70"
+        onClick={() => {
+          console.log("__clicked");
+          setIsOpen((prev) => !prev);
         }}
       >
-        {icon ?? <MenuIcon className={avatarClassName} avatarSrc={avatarSrc} variant={variant} />}
-        <LabelText title={typeof text === "string" ? text || account : account}>
-          {text || (ellipsis ? accountEllipsis : account)}
-        </LabelText>
-        {!disabled && <ChevronDownIcon color="text" width="24px" />}
-      </StyledUserMenu>
-      {!disabled && (
-        <Menu style={styles.popper} ref={setTooltipRef} {...attributes.popper} $isOpen={isOpen}>
-          <Box onClick={() => setIsOpen(false)}>{children?.({ isOpen })}</Box>
-        </Menu>
-      )}
-    </Flex>
+        {/* {icon ?? <MenuIcon className={avatarClassName} avatarSrc={avatarSrc} variant={variant} />} */}
+        {/* <LabelText title={typeof text === "string" ? text || account : account}> */}
+        {/* <span className="text-sm">{ellipsis ? accountEllipsis : account}</span> */}
+        <span className="text-sm">{ellipsis ? accountEllipsis : account}</span>
+        {!disabled && <CaretDown size={16} />}
+      </button>
+
+      {children?.({ isOpen })}
+    </div>
   );
+
+  // </div>
 };
 
 export default UserMenu;

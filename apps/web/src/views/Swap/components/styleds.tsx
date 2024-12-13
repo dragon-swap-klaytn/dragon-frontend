@@ -1,5 +1,6 @@
-import { ErrorIcon, Flex, Text, AutoColumn } from '@pancakeswap/uikit'
-import { styled, css } from 'styled-components'
+import { AutoColumn, ErrorIcon, Flex, Text } from '@pancakeswap/uikit'
+import { PropsWithChildren } from 'react'
+import { css, styled } from 'styled-components'
 
 export const Wrapper = styled(Flex)`
   position: relative;
@@ -59,9 +60,12 @@ export const StyledBalanceMaxMini = styled.button`
   }
 `
 
-export const TruncatedText = styled(Text).attrs({ ellipsis: true })`
-  width: 220px;
-`
+// export const TruncatedText = styled(Text).attrs({ ellipsis: true })`
+//   width: 220px;
+// `
+export function TruncatedText({ children }: PropsWithChildren) {
+  return <span className="inline-block w-[220px] text-ellipsis">{children}</span>
+}
 
 const SwapCallbackErrorInner = styled.div`
   background-color: ${({ theme }) => `${theme.colors.failure33}`};

@@ -17,7 +17,7 @@ export default function Button({
   className?: string
   disabled?: boolean
   variant: ButtonVariant
-  size?: 'md' | 'sm'
+  size?: 'xs' | 'sm' | 'md'
   fullWidth?: boolean
   state?: ButtonState
 }>) {
@@ -26,7 +26,7 @@ export default function Button({
       type="button"
       onClick={onClick}
       className={clsx(
-        'hover:opacity-70 rounded-[20px] text-sm disabled:bg-surface-disable disabled:text-on-surface-tertiary',
+        'rounded-[20px] text-sm disabled:bg-surface-disable disabled:text-on-surface-tertiary disabled:cursor-not-allowed',
         className,
         state && ['disabled', 'loading'].includes(state)
           ? 'bg-surface-disable text-on-surface-tertiary'
@@ -40,6 +40,8 @@ export default function Button({
           ? 'bg-transparent border-gray-700 border'
           : '',
         {
+          'hover:opacity-70': !disabled,
+          'px-2 h-7': size === 'xs',
           'px-3 h-9': size === 'sm',
           'px-4 h-10': size === 'md',
           'w-full': fullWidth,

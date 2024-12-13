@@ -1,13 +1,14 @@
 import { MagnifyingGlass, XCircle } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import { InputHTMLAttributes } from 'react'
+import React, { InputHTMLAttributes } from 'react'
 
-type SearchBarProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'value' | 'onChange'> &
-  Required<Pick<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>> & {
+type SearchBarProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'value' | 'onChange' | 'onKeyDown'> &
+  Required<Pick<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'onKeyDown'>> & {
     fullWidth?: boolean
   }
 
-export default function SearchBar(props: SearchBarProps) {
+// export default function SearchBar(props: SearchBarProps) {
+const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
   return (
     <div
       className={clsx(
@@ -19,6 +20,7 @@ export default function SearchBar(props: SearchBarProps) {
         <MagnifyingGlass className="pointer-events-none size-4 text-on-surface-primary" aria-hidden="true" />
       </div>
       <input
+        ref={ref}
         className="outline-none flex-grow border-0 bg-transparent px-2 focus:ring-0 text-sm text-on-surface-primary placeholder-on-surface-tertiary"
         placeholder="Search..."
         {...props}
@@ -35,4 +37,6 @@ export default function SearchBar(props: SearchBarProps) {
       </button>
     </div>
   )
-}
+})
+
+export default SearchBar

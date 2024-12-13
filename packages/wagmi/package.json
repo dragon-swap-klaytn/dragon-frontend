@@ -69,10 +69,10 @@
       "import": "./dist/connectors/trustWallet.mjs",
       "require": "./dist/connectors/trustWallet.js"
     },
-    "./connectors/kaikas": {
-      "types": "./dist/connectors/kaikas.d.ts",
-      "import": "./dist/connectors/kaikas.mjs",
-      "require": "./dist/connectors/kaikas.js"
+    "./connectors/kaiaWallet": {
+      "types": "./dist/connectors/kaiaWallet.d.ts",
+      "import": "./dist/connectors/kaiaWallet.mjs",
+      "require": "./dist/connectors/kaiaWallet.js"
     },
     "./connectors/klip": {
       "types": "./dist/connectors/klip.d.ts",

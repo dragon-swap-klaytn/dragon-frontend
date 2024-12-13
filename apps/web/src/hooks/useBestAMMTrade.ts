@@ -9,7 +9,7 @@ import {
   SmartRouterTrade,
 } from '@pancakeswap/smart-router/evm'
 import { AbortControl } from '@pancakeswap/utils/abortControl'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from 'react'
 
 import { QUOTING_API } from 'config/constants/endpoints'
@@ -78,10 +78,6 @@ export function useBestAMMTrade({ type = 'quoter', ...params }: useBestAMMTradeO
 
   const isQuoterAPIEnabled = useMemo(() => Boolean(!isWrapping && type === 'api'), [isWrapping, type])
 
-  console.log('autoRevalidate', autoRevalidate)
-  console.log('isQuoterEnabled', isQuoterEnabled)
-  console.log('type@@', type)
-
   const apiAutoRevalidate = typeof autoRevalidate === 'boolean' ? autoRevalidate : isQuoterAPIEnabled
 
   // switch to api when it's stable
@@ -91,10 +87,6 @@ export function useBestAMMTrade({ type = 'quoter', ...params }: useBestAMMTradeO
   //   autoRevalidate: apiAutoRevalidate,
   // })
 
-  useEffect(() => {
-    console.log('apiAutoRevalidate', apiAutoRevalidate)
-  }, [apiAutoRevalidate])
-
   const bestTradeFromQuoterApi = useBestAMMTradeFromQuoterWorker2({
     ...params,
     enabled: Boolean(enabled && isQuoterAPIEnabled),
@@ -102,10 +94,6 @@ export function useBestAMMTrade({ type = 'quoter', ...params }: useBestAMMTradeO
   })
 
   const quoterAutoRevalidate = typeof autoRevalidate === 'boolean' ? autoRevalidate : isQuoterEnabled
-
-  useEffect(() => {
-    console.log('quoterAutoRevalidate', quoterAutoRevalidate)
-  }, [quoterAutoRevalidate])
 
   const bestTradeFromQuoterWorker = useBestAMMTradeFromQuoterWorker({
     ...params,
@@ -150,6 +138,7 @@ function bestTradeHookFactory({
     const { gasPrice } = useFeeDataWithGasPrice()
     const gasLimit = useMulticallGasLimit(currency?.chainId)
     const currenciesUpdated = usePropsChanged(baseCurrency, currency)
+    const queryClient = useQueryClient()
 
     const keepPreviousDataRef = useRef<boolean>(true)
 
@@ -159,7 +148,7 @@ function bestTradeHookFactory({
 
     const blockNumber = useCurrentBlock()
     const {
-      refresh,
+      refresh: refreshPools,
       pools: candidatePools,
       loading,
       syncing,
@@ -197,6 +186,8 @@ function bestTradeHookFactory({
       fetchStatus,
       isPreviousData,
       error,
+      dataUpdatedAt,
+      refetch,
     } = useQuery({
       queryKey: [
         key,
@@ -286,6 +277,15 @@ function bestTradeHookFactory({
     const isValidating = fetchStatus === 'fetching'
     const isLoading = status === 'loading' || isPreviousData
 
+    const refresh = useCallback(async () => {
+      await refreshPools()
+      await queryClient.invalidateQueries({
+        queryKey: [key],
+        refetchType: 'none',
+      })
+      refetch()
+    }, [refreshPools, queryClient, refetch])
+
     return {
       refresh,
       trade,
@@ -294,6 +294,7 @@ function bestTradeHookFactory({
       error: error as Error | undefined,
       syncing:
         syncing || isValidating || (amount?.quotient?.toString() !== deferQuotient && deferQuotient !== undefined),
+      dataUpdatedAt,
     }
   }
 }

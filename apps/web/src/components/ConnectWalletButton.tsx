@@ -48,7 +48,7 @@ const ConnectWalletButton = ({
     () =>
       chainId
         ? isMobile
-          ? createWallets(chainId, connectAsync).filter(({ id }) => id !== 'injected' && id !== 'Kaikas')
+          ? createWallets(chainId, connectAsync).filter(({ id }) => id !== 'injected' && id !== 'kaiawallet')
           : createWallets(chainId, connectAsync)
         : [],
     [chainId, connectAsync, isMobile],

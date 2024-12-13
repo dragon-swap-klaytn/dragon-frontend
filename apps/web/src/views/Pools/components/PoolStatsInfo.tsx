@@ -7,6 +7,7 @@ import { Token } from '@pancakeswap/sdk'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWallet/AddToWalletButton'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useTokenLogo } from 'hooks/useTokenLogo'
 import { memo, useMemo } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
 import { getTokenInfoPath } from 'state/info/utils'
@@ -15,7 +16,6 @@ import { VaultKey } from 'state/types'
 import { getBlockExploreLink } from 'utils'
 import { getVaultPoolAddress } from 'utils/addressHelpers'
 import { getPoolBlockInfo } from 'views/Pools/helpers'
-import { useTokenLogo } from 'hooks/useTokenLogo'
 import MaxStakeRow from './MaxStakeRow'
 import { AprInfo, DurationAvg, TotalLocked } from './Stat'
 
@@ -157,11 +157,6 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
       {account && tokenAddress && (
         <Flex justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
           <AddToWalletButton
-            variant="text"
-            p="0"
-            height="auto"
-            style={{ fontSize: '14px', fontWeight: '400', lineHeight: 'normal' }}
-            marginTextBetweenLogo="4px"
             textOptions={AddToWalletTextOptions.TEXT}
             tokenAddress={tokenAddress}
             tokenSymbol={earningToken.symbol}

@@ -1,5 +1,5 @@
 import { Currency } from "@pancakeswap/sdk";
-import { Text, Box, Flex, ArrowForwardIcon } from "@pancakeswap/uikit";
+import { ArrowCircleDown } from "@phosphor-icons/react";
 import { CurrencyLogo } from "../components/CurrencyLogo";
 
 interface TokenTransferInfoProps {
@@ -20,20 +20,25 @@ const TokenTransferInfo: React.FC<TokenTransferInfoProps> = ({
   currencyB,
 }) => {
   return (
-    <Flex>
-      <Flex>
-        <Text mr="4px" fontSize="14px">{`${amountA} ${symbolA}`}</Text>
-        <CurrencyLogo size="20px" currency={currencyA} />
-      </Flex>
-      <Box m="0 8px">
-        <ArrowForwardIcon color="textSubtle" />
-      </Box>
-      <Flex>
-        <Text mr="4px" fontSize="14px">{`${amountB} ${symbolB}`}</Text>
-        <CurrencyLogo size="20px" currency={currencyB} />
-      </Flex>
-    </Flex>
+    <div className="flex flex-col items-center space-y-3 w-full max-w-60">
+      <TokenAmountRow amount={amountA} currency={currencyA} symbol={symbolA} />
+      <ArrowCircleDown size={24} className="text-gray-50" />
+      <TokenAmountRow amount={amountB} currency={currencyB} symbol={symbolB} />
+    </div>
   );
 };
+
+function TokenAmountRow({ amount, currency, symbol }: { amount: string; currency?: Currency; symbol?: string }) {
+  return (
+    <div className="flex items-center space-x-2 text-sm justify-between w-full rounded-[20px] pl-2 pr-3 py-2 bg-surface-container-highest">
+      <div className="flex items-center space-x-2">
+        <CurrencyLogo size="20px" currency={currency} />
+        <span>{symbol}</span>
+      </div>
+
+      <span>{amount}</span>
+    </div>
+  );
+}
 
 export default TokenTransferInfo;

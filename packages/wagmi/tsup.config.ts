@@ -7,7 +7,7 @@ export default defineConfig({
     'connectors/binanceWallet': 'connectors/binanceWallet/index.ts',
     'connectors/blocto': 'connectors/blocto/index.ts',
     'connectors/trustWallet': 'connectors/trustWallet/index.ts',
-    'connectors/kaikas': 'connectors/kaikas/index.ts',
+    'connectors/kaiaWallet': 'connectors/kaiaWallet/index.ts',
     'connectors/klip': 'connectors/klip/index.ts',
   },
   treeshake: true,
