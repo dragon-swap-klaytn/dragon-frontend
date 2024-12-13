@@ -7,16 +7,21 @@ type NotificationStyle = 'highlight' | 'default'
 
 export default function Notification({
   children,
+  className,
   variant,
   nStyle = 'default',
+  fullWidth = true,
 }: PropsWithChildren<{
+  className?: string
   variant: NotificationVariant
   nStyle?: NotificationStyle
+  fullWidth?: boolean
 }>) {
   return (
     <div
       className={clsx(
         'p-3 flex items-start space-x-3 rounded-xl',
+        className,
         {
           highlight: {
             positive: 'bg-teal-400',
@@ -31,6 +36,9 @@ export default function Notification({
             info: 'bg-gray-950',
           },
         }[nStyle][variant],
+        {
+          'w-full': fullWidth,
+        },
       )}
     >
       <div
@@ -53,7 +61,7 @@ export default function Notification({
       </div>
 
       <div
-        className={clsx('text-[13px]', {
+        className={clsx('text-[13px] w-full', {
           'text-gray-900': nStyle === 'highlight',
           'text-teal-300': nStyle === 'default' && variant === 'positive',
           'text-yellow-300': nStyle === 'default' && variant === 'caution',

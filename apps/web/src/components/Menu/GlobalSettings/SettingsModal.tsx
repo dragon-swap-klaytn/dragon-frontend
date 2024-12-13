@@ -126,9 +126,9 @@ const SettingsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> = ({ 
     max-height: none;
   }
 ` */}
-      <div className="flex flex-col max-h-[90vh] md:max-h-none mt-4">
+      <div className="flex flex-col max-h-[90vh] md:max-h-none">
         {mode === SettingsMode.SWAP_LIQUIDITY && (
-          <div>
+          <>
             {/* <h3 className="text-white font-bold text-lg">{t('Swaps & Liquidity')}</h3> */}
             {/* <Flex justifyContent="space-between" alignItems="center" mb="24px">
               {chainId === ChainId.BSC && <GasSettings />}
@@ -172,7 +172,7 @@ const SettingsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> = ({ 
             <PancakeToggle checked={audioPlay} onChange={() => setAudioMode((s) => !s)} scale="md" />
           </Flex> */}
             <RoutingSettingsButton />
-          </div>
+          </>
         )}
       </div>
     </Modal>

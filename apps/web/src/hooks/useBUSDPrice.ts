@@ -25,7 +25,6 @@ export function useStablecoinPrice(
   currency?: Currency | null,
   config: UseStablecoinPriceConfig = DEFAULT_CONFIG,
 ): Price<Currency, Currency> | undefined {
-  console.log('__useStablecoinPrice__')
   const { chainId: currentChainId } = useActiveChainId()
   const chainId = currency?.chainId
   const { enabled, hideIfPriceImpactTooHigh } = { ...DEFAULT_CONFIG, ...config }
@@ -114,7 +113,6 @@ export const useStablecoinPriceAmount = (
   amount?: number,
   config?: UseStablecoinPriceConfig,
 ): number | undefined => {
-  console.log('__useStablecoinPriceAmount__')
   const stablePrice = useStablecoinPrice(currency, { enabled: !!currency, ...config })
 
   if (amount) {

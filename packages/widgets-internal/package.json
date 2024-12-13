@@ -20,6 +20,7 @@
     "@pancakeswap/uikit": "workspace:*",
     "@pancakeswap/utils": "workspace:*",
     "@pancakeswap/v3-sdk": "workspace:*",
+    "@phosphor-icons/react": "^2.1.7",
     "bignumber.js": "^9.0.0",
     "clsx": "^1.2.1",
     "d3": "^7.8.2",

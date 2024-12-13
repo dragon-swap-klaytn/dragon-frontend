@@ -1,14 +1,14 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Token } from '@pancakeswap/sdk'
-import { ArrowForwardIcon, Column, QuestionHelper, Text } from '@pancakeswap/uikit'
+import { QuestionHelper, Text } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
+import { ArrowRight } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { LightGreyCard } from 'components/Card'
-import { FiatLogo } from 'components/Logo/CurrencyLogo'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { useRouter } from 'next/router'
-import { CSSProperties, MutableRefObject, useCallback, useEffect, useMemo } from 'react'
+import { MutableRefObject, useCallback, useMemo } from 'react'
 import { FixedSizeList } from 'react-window'
 import { styled } from 'styled-components'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
@@ -18,8 +18,7 @@ import { useIsUserAddedToken } from '../../hooks/Tokens'
 import { useCombinedActiveList } from '../../state/lists/hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
 import { isTokenOnList } from '../../utils'
-import { RowBetween, RowFixed } from '../Layout/Row'
-import CircleLoader from '../Loader/CircleLoader'
+import { RowBetween } from '../Layout/Row'
 import ImportRow from './ImportRow'
 
 function currencyKey(currency: Currency): string {
@@ -63,18 +62,18 @@ function CurrencyRow({
   currency,
   onSelect,
   isSelected,
-  otherSelected,
-  style,
-  onRampFlow,
-  mode,
-}: {
+}: // otherSelected,
+// style,
+// onRampFlow,
+// mode,
+{
   currency: Currency
   onSelect: () => void
   isSelected: boolean
-  otherSelected: boolean
-  style: CSSProperties
-  onRampFlow: boolean
-  mode: string
+  // otherSelected: boolean
+  // style: CSSProperties
+  // onRampFlow: boolean
+  // mode: string
 }) {
   const { address: account } = useAccount()
   const { t } = useTranslation()
@@ -85,31 +84,56 @@ function CurrencyRow({
 
   const balance = useCurrencyBalance(account ?? undefined, currency)
 
+  //   const MenuItem = styled(RowBetween)<{ disabled: boolean; selected: boolean }>`
+  //   padding: 4px 20px;
+  //   height: 56px;
+  //   display: grid;
+  //   grid-template-columns: auto minmax(auto, 1fr) minmax(0, 72px);
+  //   grid-gap: 8px;
+  //   cursor: ${({ disabled }) => !disabled && 'pointer'};
+  //   pointer-events: ${({ disabled }) => disabled && 'none'};
+  //   &:hover {
+  //     background-color: ${({ theme, disabled }) => !disabled && theme.colors.background};
+  //   }
+  //   opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
+  // `
+
   // only show add or remove buttons if not on selected list
   return (
-    <MenuItem
-      style={style}
-      className={`token-item-${key}`}
+    <button
+      // style={style}
+      // className={`token-item-${key}`}
+      type="button"
       onClick={() => (isSelected ? null : onSelect())}
       disabled={isSelected}
-      selected={otherSelected}
+      // selected={otherSelected}
+      className={clsx('flex items-center justify-between w-full p-3 hover:opacity-70 rounded-md', {
+        'bg-surface-container-highest': isSelected,
+      })}
     >
-      {mode === 'onramp-input' ? (
-        <FiatLogo currency={currency} size="24px" />
-      ) : (
+      <div className="flex items-center space-x-2">
         <CurrencyLogo currency={currency} size="24px" />
-      )}
+        <div className="flex flex-col items-start">
+          <span className="font-bold text-sm">{currency?.symbol}</span>
 
-      <Column>
+          <span className="text-xs max-w-40 overflow-hidden text-ellipsis text-gray-400 whitespace-nowrap">
+            {!isOnSelectedList && customAdded && `${t('Added by user')} •`} {currency?.name}
+          </span>
+        </div>
+      </div>
+
+      {/* <Column>
         <Text bold>{currency?.symbol}</Text>
         <Text color="textSubtle" small ellipsis maxWidth="200px">
           {!isOnSelectedList && customAdded && `${t('Added by user')} •`} {currency?.name}
         </Text>
-      </Column>
-      <RowFixed style={{ justifySelf: 'flex-end' }}>
+      </Column> */}
+
+      <span className="text-right">{balance ? <Balance balance={balance} /> : <ArrowRight size={20} />}</span>
+      {/* <RowFixed style={{ justifySelf: 'flex-end' }}>
         {balance ? <Balance balance={balance} /> : account && !onRampFlow ? <CircleLoader /> : <ArrowForwardIcon />}
-      </RowFixed>
-    </MenuItem>
+      </RowFixed> */}
+    </button>
   )
 }
 
@@ -141,30 +165,29 @@ export default function CurrencyList({
   mode: string
 }) {
   const native = useNativeCurrency()
-  const { pathname } = useRouter()
-  const onRampFlow = pathname === '/buy-crypto'
-  useEffect(() => {
-    console.log('currencies', currencies)
-  }, [currencies])
 
   const itemData: (Currency | undefined)[] = useMemo(() => {
-    if (onRampFlow) return mode === 'onramp-output' ? [native, ...currencies] : [...currencies]
     let formatted: (Currency | undefined)[] = showNative
       ? [native, ...currencies, ...inactiveCurrencies]
       : [...currencies, ...inactiveCurrencies]
     if (breakIndex !== undefined) {
       formatted = [...formatted.slice(0, breakIndex), undefined, ...formatted.slice(breakIndex, formatted.length)]
     }
-    return formatted
-  }, [breakIndex, currencies, inactiveCurrencies, showNative, native, onRampFlow, mode])
+    return formatted.sort((a, b) => {
+      if (!a || !b) return 0
+
+      return a.symbol.localeCompare(b.symbol)
+    })
+  }, [breakIndex, currencies, inactiveCurrencies, showNative, native])
 
   const { chainId } = useActiveChainId()
 
   const { t } = useTranslation()
 
   const Row = useCallback(
-    ({ data, index, style }) => {
-      const currency: any = data[index]
+    // ({ data, index, style }) => {
+    ({ index }) => {
+      const currency: any = itemData[index]
       const isFiat = Boolean(Object.keys(fiatCurrencyMap).includes(currency?.symbol))
 
       // the alternative to making a fiat currency token list
@@ -187,9 +210,10 @@ export default function CurrencyList({
 
       const showImport = index > currencies.length
 
-      if (index === breakIndex || !data) {
+      if (index === breakIndex || !itemData) {
         return (
-          <FixedContentRow style={style}>
+          // <FixedContentRow style={style}>
+          <FixedContentRow>
             <LightGreyCard padding="8px 12px" borderRadius="8px">
               <RowBetween>
                 <Text small>{t('Expanded results from inactive Token Lists')}</Text>
@@ -209,7 +233,6 @@ export default function CurrencyList({
         return (
           <ImportRow
             onCurrencySelect={handleSelect}
-            style={style}
             token={token}
             showImportView={showImportView}
             setImportToken={setImportToken}
@@ -217,17 +240,8 @@ export default function CurrencyList({
           />
         )
       }
-      return (
-        <CurrencyRow
-          style={style}
-          currency={currency}
-          isSelected={isSelected}
-          onSelect={handleSelect}
-          otherSelected={otherSelected}
-          onRampFlow={onRampFlow}
-          mode={mode}
-        />
-      )
+
+      return <CurrencyRow currency={currency} isSelected={isSelected} onSelect={handleSelect} />
     },
     [
       selectedCurrency,
@@ -239,24 +253,25 @@ export default function CurrencyList({
       t,
       showImportView,
       setImportToken,
-      onRampFlow,
       mode,
+      itemData,
     ],
   )
 
   const itemKey = useCallback((index: number, data: any) => `${currencyKey(data[index])}-${index}`, [])
 
   return (
-    <FixedSizeList
-      height={height}
-      ref={fixedListRef as any}
-      width="100%"
-      itemData={itemData}
-      itemCount={itemData.length}
-      itemSize={56}
-      itemKey={itemKey}
-    >
-      {Row}
-    </FixedSizeList>
+    // <FixedSizeList
+    //   height={height}
+    //   ref={fixedListRef as any}
+    //   width="100%"
+    //   itemData={itemData}
+    //   itemCount={itemData.length}
+    //   itemSize={36}
+    //   itemKey={itemKey}
+    // >
+    //   {Row}
+    // </FixedSizeList>
+    <div className="flex flex-col overflow-y-auto max-h-[400px]">{itemData.map((_, index) => Row({ index }))}</div>
   )
 }

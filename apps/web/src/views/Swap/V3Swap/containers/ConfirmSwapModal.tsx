@@ -1,41 +1,38 @@
-import { ChainId } from '@pancakeswap/chains'
 import { Currency, CurrencyAmount, Token, TradeType } from '@pancakeswap/sdk'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
 import { useTranslation } from '@pancakeswap/localization'
 import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { WrappedTokenInfo } from '@pancakeswap/token-lists'
-import { Box, BscScanIcon, Flex, InjectedModalProps, Link } from '@pancakeswap/uikit'
+import { InjectedModalProps } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
-import truncateHash from '@pancakeswap/utils/truncateHash'
 import {
   ApproveModalContent,
   SwapPendingModalContent,
   SwapTransactionReceiptModalContent,
 } from '@pancakeswap/widgets-internal'
-import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 
 import { useDebounce } from '@pancakeswap/hooks'
+import truncateHash from '@pancakeswap/utils/truncateHash'
 import { useUserSlippage } from '@pancakeswap/utils/user'
+import { ArrowSquareOut } from '@phosphor-icons/react'
 import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWallet/AddToWalletButton'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState } from 'hooks/useApproveCallback'
+import { useTokenLogo } from 'hooks/useTokenLogo'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
-import { useTokenLogo } from 'hooks/useTokenLogo'
+import { getBlockExploreLink, getBlockExploreName } from 'utils'
+import { TransactionConfirmSwapContent } from 'views/Swap/V3Swap/components'
 import { ConfirmModalState, PendingConfirmModalState } from '../types'
 
 import ConfirmSwapModalContainer from '../../components/ConfirmSwapModalContainer'
 import { SwapTransactionErrorContent } from '../../components/SwapTransactionErrorContent'
-import { TransactionConfirmSwapContent } from '../components'
 import { useWallchainStatus } from '../hooks/useWallchain'
 import { ApproveStepFlow } from './ApproveStepFlow'
 
 interface ConfirmSwapModalProps {
-  isMM?: boolean
-  isRFQReady?: boolean
   trade?: SmartRouterTrade<TradeType>
   originalTrade?: SmartRouterTrade<TradeType>
   currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
@@ -54,13 +51,11 @@ interface ConfirmSwapModalProps {
 }
 
 export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>(function ConfirmSwapModalComp({
-  isMM,
   trade,
   txHash,
   confirmModalState,
   startSwapFlow,
   pendingModalSteps,
-  isRFQReady,
   attemptingTxn,
   originalTrade,
   showApproveFlow,
@@ -89,6 +84,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     onDismiss?.()
   }, [customOnDismiss, onDismiss])
 
+  const [title, setTitle] = useState<string>('')
   const topModal = useMemo(() => {
     const currencyA = currencyBalances.INPUT?.currency ?? trade?.inputAmount?.currency
     const currencyB = currencyBalances.OUTPUT?.currency ?? trade?.outputAmount?.currency
@@ -96,7 +92,9 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     const amountB = formatAmount(trade?.outputAmount, 6) ?? ''
 
     if (confirmModalState === ConfirmModalState.RESETTING_APPROVAL) {
-      return <ApproveModalContent title={t('Reset Approval on USDT')} isMM={isMM} isBonus={isBonus} />
+      const _title = t('Reset Approval on USDT')
+      setTitle(_title)
+      return <ApproveModalContent title={_title} isBonus={isBonus} />
     }
 
     if (
@@ -104,32 +102,31 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
       (confirmModalState === ConfirmModalState.APPROVING_TOKEN ||
         confirmModalState === ConfirmModalState.APPROVE_PENDING)
     ) {
+      const _title = t('Enable spending %symbol%', { symbol: `${trade?.inputAmount?.currency?.symbol}` })
+      setTitle(_title)
+
+      return <ApproveModalContent title={_title} isBonus={isBonus} qrUri={qrUri} />
+    }
+
+    if (swapErrorMessage) {
+      setTitle('Swap Failed')
+
       return (
-        <ApproveModalContent
-          title={t('Enable spending %symbol%', { symbol: `${trade?.inputAmount?.currency?.symbol}` })}
-          isMM={isMM}
-          isBonus={isBonus}
-          qrUri={qrUri}
+        <SwapTransactionErrorContent
+          message={swapErrorMessage}
+          onDismiss={handleDismiss}
+          openSettingModal={openSettingModal}
         />
       )
     }
 
-    if (swapErrorMessage) {
-      return (
-        <Flex width="100%" alignItems="center" height="calc(430px - 73px - 120px)">
-          <SwapTransactionErrorContent
-            message={swapErrorMessage}
-            onDismiss={handleDismiss}
-            openSettingModal={openSettingModal}
-          />
-        </Flex>
-      )
-    }
-
     if (attemptingTxn) {
+      const _title = t('Confirm Swap')
+      setTitle(_title)
+
       return (
         <SwapPendingModalContent
-          title={t('Confirm Swap')}
+          title={_title}
           currencyA={currencyA}
           currencyB={currencyB}
           amountA={amountA}
@@ -140,22 +137,19 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     }
 
     if (confirmModalState === ConfirmModalState.PENDING_CONFIRMATION) {
+      const _title = t('Transaction Submitted')
+      setTitle(_title)
+
       return (
         <SwapPendingModalContent
           showIcon
-          title={t('Transaction Submitted')}
+          title={_title}
           currencyA={currencyA}
           currencyB={currencyB}
           amountA={amountA}
           amountB={amountB}
         >
           <AddToWalletButton
-            mt="39px"
-            height="auto"
-            variant="tertiary"
-            width="fit-content"
-            padding="6.5px 20px"
-            marginTextBetweenLogo="6px"
             textOptions={AddToWalletTextOptions.TEXT_WITH_ASSET}
             tokenAddress={token?.address}
             tokenSymbol={currencyB?.symbol}
@@ -167,21 +161,23 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     }
 
     if (confirmModalState === ConfirmModalState.COMPLETED && txHash) {
+      setTitle(t('Transaction receipt'))
+
       return (
         <SwapTransactionReceiptModalContent>
           {chainId && (
-            <Link external small href={getBlockExploreLink(txHash, 'transaction', chainId)}>
+            <a
+              href={getBlockExploreLink(txHash, 'transaction', chainId)}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center space-y-2 text-sm hover:opacity-70"
+            >
               {t('View on %site%', { site: getBlockExploreName(chainId) })}: {truncateHash(txHash, 8, 0)}
-              {chainId === ChainId.BSC && <BscScanIcon color="primary" ml="4px" />}
-            </Link>
+              <ArrowSquareOut size={16} />
+            </a>
           )}
+
           <AddToWalletButton
-            mt="39px"
-            height="auto"
-            variant="tertiary"
-            width="fit-content"
-            padding="6.5px 20px"
-            marginTextBetweenLogo="6px"
             textOptions={AddToWalletTextOptions.TEXT_WITH_ASSET}
             tokenAddress={token?.address}
             tokenSymbol={currencyB?.symbol}
@@ -192,12 +188,11 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
       )
     }
 
+    setTitle(t('Confirm Swap'))
     return (
       <TransactionConfirmSwapContent
-        isMM={isMM}
         trade={trade}
         recipient={recipient}
-        isRFQReady={isRFQReady}
         originalTrade={originalTrade}
         allowedSlippage={allowedSlippage}
         currencyBalances={currencyBalances}
@@ -206,11 +201,10 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
       />
     )
   }, [
-    isMM,
     isBonus,
+    tokenLogo,
     trade,
     txHash,
-    isRFQReady,
     originalTrade,
     attemptingTxn,
     currencyBalances,
@@ -227,6 +221,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     startSwapFlow,
     onAcceptChanges,
     openSettingModal,
+    setTitle,
   ])
 
   const isShowingLoadingAnimation = useMemo(
@@ -241,16 +236,8 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
   if (!chainId) return null
 
   return (
-    <ConfirmSwapModalContainer
-      minHeight="415px"
-      width={['100%', '100%', '100%', '367px']}
-      hideTitleAndBackground={confirmModalState !== ConfirmModalState.REVIEWING}
-      headerPadding={isShowingLoadingAnimation ? '12px 24px 0px 24px !important' : '12px 24px'}
-      bodyPadding={isShowingLoadingAnimation ? '0 24px 24px 24px' : '24px'}
-      bodyTop={isShowingLoadingAnimation ? '-15px' : '0'}
-      handleDismiss={handleDismiss}
-    >
-      <Box>{topModal}</Box>
+    <ConfirmSwapModalContainer handleDismiss={handleDismiss} title={title}>
+      {topModal}
       {isShowingLoadingAnimation && !swapErrorMessage && (
         <ApproveStepFlow confirmModalState={confirmModalState} pendingModalSteps={pendingModalSteps} />
       )}

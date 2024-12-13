@@ -6,6 +6,7 @@ module.exports = {
     './src/views/**/*.{js,ts,jsx,tsx}',
     './node_modules/@pancakeswap/uikit/src/components/**/*.{js,ts,jsx,tsx}',
     './node_modules/@pancakeswap/uikit/src/widgets/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@pancakeswap/widgets-internal/swap/**/*.{js,ts,jsx,tsx}',
     './node_modules/@pancakeswap/ui-wallets/src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
@@ -77,8 +78,7 @@ module.exports = {
         },
         overlay: {
           'background-dim': '#000000b2',
-          // 'surface-hover-light': '#ffffff1a',
-          'surface-hover-light': '#3d3d3f',
+          'surface-hover-light': '#ffffff1a',
           'surface-hover-dark': '#0000001a',
         },
         storke: '#',
@@ -95,6 +95,7 @@ module.exports = {
       },
     },
     animation: {
+      'spin-fast': 'spin 1s linear infinite',
       spin: 'spin 2s linear infinite',
     },
   },

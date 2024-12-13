@@ -84,47 +84,46 @@ const SlippageTabs = () => {
 
   return (
     // <Flex flexDirection="column">
-    <div>
-      <div className="py-3">
-        <SettingTitle
-          title={t('Slippage Tolerance')}
-          questionHelperText={t(
-            'Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Use with caution.',
-          )}
-        />
+    <>
+      <SettingTitle
+        title={t('Slippage Tolerance')}
+        questionHelperText={t(
+          'Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Use with caution.',
+        )}
+      />
 
-        <div className="flex flex-wrap gap-2 mt-3">
-          <Button
-            variant={userSlippageTolerance === 10 ? 'secondary' : 'blank'}
-            onClick={() => {
-              setSlippageInput('')
-              setUserSlippageTolerance(10)
-            }}
-          >
-            0.1%
-          </Button>
-          <Button
-            variant={userSlippageTolerance === 50 ? 'secondary' : 'blank'}
-            onClick={() => {
-              setSlippageInput('')
-              setUserSlippageTolerance(50)
-            }}
-          >
-            0.5%
-          </Button>
-          <Button
-            variant={userSlippageTolerance === 100 ? 'secondary' : 'blank'}
-            onClick={() => {
-              setSlippageInput('')
-              setUserSlippageTolerance(100)
-            }}
-          >
-            1.0%
-          </Button>
-          {/* <Flex alignItems="center"> */}
-          {/* <input className="border border-gray-700" /> */}
-          <div className="items-center space-x-1 inline-flex">
-            {/* <Box width="76px" mt="4px">
+      <div className="flex flex-wrap gap-2 mt-3">
+        <Button
+          variant={userSlippageTolerance === 10 ? 'secondary' : 'blank'}
+          onClick={() => {
+            setSlippageInput('')
+            setUserSlippageTolerance(10)
+          }}
+        >
+          0.1%
+        </Button>
+        <Button
+          variant={userSlippageTolerance === 50 ? 'secondary' : 'blank'}
+          onClick={() => {
+            setSlippageInput('')
+            setUserSlippageTolerance(50)
+          }}
+        >
+          0.5%
+        </Button>
+        <Button
+          variant={userSlippageTolerance === 100 ? 'secondary' : 'blank'}
+          onClick={() => {
+            setSlippageInput('')
+            setUserSlippageTolerance(100)
+          }}
+        >
+          1.0%
+        </Button>
+        {/* <Flex alignItems="center"> */}
+        {/* <input className="border border-gray-700" /> */}
+        <div className="items-center space-x-1 inline-flex">
+          {/* <Box width="76px" mt="4px">
             <Input
               scale="sm"
               inputMode="decimal"
@@ -144,46 +143,45 @@ const SlippageTabs = () => {
             />
           </Box> */}
 
-            <NumberFormat
-              // error={error ?? false}
-              // disabled={disabled}
-              // loading={inputLoading}
-              className="text-white w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
-              value={slippageInput}
-              onBlur={() => {
-                parseCustomSlippage((userSlippageTolerance / 100).toFixed(2))
-              }}
-              onChange={(e) => {
-                if (e.currentTarget.validity.valid) {
-                  parseCustomSlippage(e.target.value.replace(/,/g, '.'))
-                }
-              }}
-              thousandSeparator
-              allowNegative={false}
-              decimalScale={2}
-              placeholder={(userSlippageTolerance / 100).toFixed(2)}
-              // pattern='[0-9]*[.,]?[0-9]{0,2}'
-              pattern="^[0-9]*[.,]?[0-9]{0,2}$"
-            />
+          <NumberFormat
+            // error={error ?? false}
+            // disabled={disabled}
+            // loading={inputLoading}
+            className="text-white w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
+            value={slippageInput}
+            onBlur={() => {
+              parseCustomSlippage((userSlippageTolerance / 100).toFixed(2))
+            }}
+            onChange={(e) => {
+              if (e.currentTarget.validity.valid) {
+                parseCustomSlippage(e.target.value.replace(/,/g, '.'))
+              }
+            }}
+            thousandSeparator
+            allowNegative={false}
+            decimalScale={2}
+            placeholder={(userSlippageTolerance / 100).toFixed(2)}
+            // pattern='[0-9]*[.,]?[0-9]{0,2}'
+            pattern="^[0-9]*[.,]?[0-9]{0,2}$"
+          />
 
-            <span className="text-sm">%</span>
-          </div>
+          <span className="text-sm">%</span>
         </div>
-        {slippageError && (
-          <p
-            className={clsx(
-              'mt-2 text-sm text-center',
-              slippageError === SlippageError.InvalidInput ? 'text-red-400' : 'text-orange-400',
-            )}
-          >
-            {slippageError === SlippageError.InvalidInput
-              ? t('Enter a valid slippage percentage')
-              : slippageError === SlippageError.RiskyLow
-              ? t('Your transaction may fail')
-              : t('Your transaction may be frontrun')}
-          </p>
-        )}
       </div>
+      {slippageError && (
+        <p
+          className={clsx(
+            'mt-2 text-sm text-center',
+            slippageError === SlippageError.InvalidInput ? 'text-red-400' : 'text-orange-400',
+          )}
+        >
+          {slippageError === SlippageError.InvalidInput
+            ? t('Enter a valid slippage percentage')
+            : slippageError === SlippageError.RiskyLow
+            ? t('Your transaction may fail')
+            : t('Your transaction may be frontrun')}
+        </p>
+      )}
 
       <div className="flex items-center justify-between py-3">
         <SettingTitle
@@ -209,7 +207,7 @@ const SlippageTabs = () => {
           pattern="^[0-9]+$"
         />
       </div>
-    </div>
+    </>
   )
 }
 

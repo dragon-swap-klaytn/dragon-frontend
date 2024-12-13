@@ -1,13 +1,13 @@
-import { Currency } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
+import { Currency } from '@pancakeswap/sdk'
 import { SWAP_BSC_MM, SWAP_ETH_MM } from 'config/constants/lists'
-import { ConnectorNames } from 'config/wallet'
+// import { ConnectorNames } from 'config/wallet'
 import { ExtendEthereum } from 'global'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { selectorByUrlsAtom } from 'state/lists/hooks'
 import { useAccount } from 'wagmi'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import { IS_SUPPORT_NATIVE_TOKEN, MM_STABLE_TOKENS_WHITE_LIST, NATIVE_CURRENCY_ADDRESS } from '../constants'
 import { useIsMMSupportChain } from './useIsMMSupportChain'
 
@@ -43,9 +43,8 @@ export const useIsMMQuotingPair = (
     if (!isMMSupportChain || !chainId || !list || !inputCurrency || !outputCurrency) return false
     if (
       isConnected &&
-      (connector?.id === ConnectorNames.Blocto ||
-        connector?.id === 'safe' ||
-        Boolean((window.ethereum as ExtendEthereum)?.isBlocto))
+      // (connector?.id === ConnectorNames.Blocto ||
+      (connector?.id === 'safe' || Boolean((window.ethereum as ExtendEthereum)?.isBlocto))
     )
       return false
     if (

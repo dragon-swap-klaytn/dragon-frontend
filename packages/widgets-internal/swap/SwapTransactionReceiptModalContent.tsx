@@ -1,21 +1,19 @@
 import { useTranslation } from "@pancakeswap/localization";
+import { CheckCircle } from "@phosphor-icons/react";
 import { PropsWithChildren } from "react";
-import { Text, Box, CheckmarkCircleIcon, AutoColumn } from "@pancakeswap/uikit";
 
 export const SwapTransactionReceiptModalContent: React.FC<PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation();
 
   return (
-    <Box width="100%">
-      <Box margin="auto auto 36px auto" width="fit-content">
-        <CheckmarkCircleIcon color="success" width={80} height={80} />
-      </Box>
-      <AutoColumn gap="12px" justify="center">
-        <Text bold textAlign="center">
-          {t("Transaction receipt")}
-        </Text>
+    <div className="flex flex-col items-center space-y-7">
+      <CheckCircle size={100} className="text-green-400" />
+
+      <div className="flex flex-col space-y-3">
+        <p className="text-center font-bold">{t("Transaction receipt")}</p>
+
         {children}
-      </AutoColumn>
-    </Box>
+      </div>
+    </div>
   );
 };

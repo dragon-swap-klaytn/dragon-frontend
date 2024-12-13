@@ -1,13 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
-  walletLocalStorageKey,
   addressLocalStorageKey,
   WalletConnectorNotFoundError,
+  walletLocalStorageKey,
   WalletSwitchChainError,
 } from '@pancakeswap/ui-wallets'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
 import { CHAIN_QUERY_NAME } from 'config/chains'
-import { ConnectorNames } from 'config/wallet'
+// import { ConnectorNames } from 'config/wallet'
 import { useCallback } from 'react'
 import { useAppDispatch } from 'state'
 import { ConnectorNotFoundError, SwitchChainNotSupportedError, useConnect, useDisconnect, useNetwork } from 'wagmi'
@@ -25,17 +25,22 @@ const useAuth = () => {
   const { t } = useTranslation()
 
   const login = useCallback(
-    async (connectorID: ConnectorNames) => {
+    async (connectorID: string) => {
+      console.log('__connectors', connectors)
+      console.log('__connectorID', connectorID)
       const findConnector = connectors.find((c) => c.id === connectorID)
+      console.log('__findConnector', findConnector)
 
       try {
         const connected = await connectAsync({ connector: findConnector, chainId })
+        console.log('__connected', connected)
         if (!connected.chain.unsupported && connected.chain.id !== chainId) {
           replaceBrowserHistory('chain', CHAIN_QUERY_NAME[connected.chain.id])
           setSessionChainId(connected.chain.id)
         }
         return connected
       } catch (error) {
+        console.log('__error_2', error)
         if (error instanceof ConnectorNotFoundError) {
           throw new WalletConnectorNotFoundError()
         }

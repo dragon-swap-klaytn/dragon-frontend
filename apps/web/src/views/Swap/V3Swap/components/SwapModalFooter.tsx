@@ -1,28 +1,18 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { SmartRouterTrade, SmartRouter } from '@pancakeswap/smart-router/evm'
 import { Currency, CurrencyAmount, Percent, TradeType } from '@pancakeswap/sdk'
-import { BackForwardIcon, Button, QuestionHelper, Text, Link, AutoColumn, Dots, Flex } from '@pancakeswap/uikit'
+import { SmartRouter, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
+import { QuestionHelper } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
-import { AutoRow, RowBetween, RowFixed } from 'components/Layout/Row'
-import { useState, memo, useMemo } from 'react'
-import { Field } from 'state/swap/actions'
-import { styled } from 'styled-components'
 import { CurrencyLogo } from 'components/Logo'
-import { warningSeverity } from 'utils/exchange'
-import { BUYBACK_FEE, LP_HOLDERS_FEE, TOTAL_FEE, TREASURY_FEE } from 'config/constants/info'
-import { formatExecutionPrice as mmFormatExecutionPrice } from 'views/Swap/MMLinkPools/utils/exchange'
+import { memo, PropsWithChildren, ReactElement, ReactNode, useMemo, useState } from 'react'
+import { Field } from 'state/swap/actions'
+import { basisPointsToPercent, warningSeverity } from 'utils/exchange'
 
+import { ArrowsLeftRight } from '@phosphor-icons/react'
+import Button from 'components/Common/Button'
+import Notification from 'components/Common/Notification'
 import FormattedPriceImpact from '../../components/FormattedPriceImpact'
-import { StyledBalanceMaxMini, SwapCallbackError } from '../../components/styleds'
 import { formatExecutionPrice } from '../utils/exchange'
-
-const SwapModalFooterContainer = styled(AutoColumn)`
-  margin-top: 24px;
-  padding: 16px;
-  border-radius: ${({ theme }) => theme.radii.default};
-  border: 1px solid ${({ theme }) => theme.colors.cardBorder};
-  background-color: ${({ theme }) => theme.colors.background};
-`
 
 export const SwapModalFooter = memo(function SwapModalFooter({
   priceImpact: priceImpactWithoutFee,
@@ -36,9 +26,8 @@ export const SwapModalFooter = memo(function SwapModalFooter({
   onConfirm,
   swapErrorMessage,
   disabledConfirm,
-  isMM,
-  isRFQReady,
   currencyBalances,
+  allowedSlippage,
 }: {
   trade?: SmartRouterTrade<TradeType>
   tradeType: TradeType
@@ -50,204 +39,131 @@ export const SwapModalFooter = memo(function SwapModalFooter({
   isEnoughInputBalance?: boolean
   swapErrorMessage?: string | undefined
   disabledConfirm: boolean
-  isMM?: boolean
-  isRFQReady?: boolean
   currencyBalances: {
     INPUT?: CurrencyAmount<Currency>
     OUTPUT?: CurrencyAmount<Currency>
   }
   onConfirm: () => void
+  allowedSlippage: number | ReactElement
 }) {
   const { t } = useTranslation()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const severity = warningSeverity(priceImpactWithoutFee)
 
-  const totalFeePercent = `${(TOTAL_FEE * 100).toFixed(2)}%`
-  const lpHoldersFeePercent = `${(LP_HOLDERS_FEE * 100).toFixed(2)}%`
-  const treasuryFeePercent = `${(TREASURY_FEE * 100).toFixed(4)}%`
-  const buyBackFeePercent = `${(BUYBACK_FEE * 100).toFixed(4)}%`
-
   const executionPriceDisplay = useMemo(() => {
-    if (isMM) {
-      return mmFormatExecutionPrice(trade, showInverted)
-    }
-
     const price = SmartRouter.getExecutionPrice(trade) ?? undefined
     return formatExecutionPrice(price, inputAmount, outputAmount, showInverted)
-  }, [inputAmount, isMM, outputAmount, trade, showInverted])
+  }, [inputAmount, outputAmount, trade, showInverted])
 
   return (
-    <>
-      <SwapModalFooterContainer>
-        <RowBetween align="center" mb="8px">
-          <Text fontSize="14px">{t('Price')}</Text>
-          <Text
-            fontSize="14px"
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              display: 'flex',
-              textAlign: 'right',
-              paddingLeft: '10px',
-            }}
-          >
-            {executionPriceDisplay}
-            <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-              <BackForwardIcon color="primary" width="14px" />
-            </StyledBalanceMaxMini>
-          </Text>
-        </RowBetween>
+    <div className="mt-4">
+      <div className="flex flex-col space-y-3 p-4 bg-surface-container-highest rounded-[20px]">
+        <SwapModalFooterContainer>
+          <SwapModalFooterTitle title={t('Price')} />
 
-        <RowBetween mb="8px">
-          <RowFixed>
-            <Text fontSize="14px">
-              {tradeType === TradeType.EXACT_INPUT ? t('Minimum received') : t('Maximum sold')}
-            </Text>
-            <QuestionHelper
-              text={t(
-                'Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.',
-              )}
-              ml="4px"
-              placement="top"
-            />
-          </RowFixed>
-          <RowFixed>
-            <Text fontSize="14px">
+          <div className="flex items-center space-x-2 text-sm">
+            <span>{executionPriceDisplay}</span>
+
+            <button type="button" onClick={() => setShowInverted(!showInverted)}>
+              <ArrowsLeftRight size={16} />
+            </button>
+          </div>
+        </SwapModalFooterContainer>
+
+        <SwapModalFooterContainer>
+          <SwapModalFooterTitle title={t('Slippage Tolerance')} />
+
+          <div className="text-sm">
+            {typeof allowedSlippage === 'number'
+              ? `${basisPointsToPercent(allowedSlippage).toFixed(2)}%`
+              : allowedSlippage}
+          </div>
+        </SwapModalFooterContainer>
+
+        <SwapModalFooterContainer>
+          <SwapModalFooterTitle
+            title={tradeType === TradeType.EXACT_INPUT ? t('Minimum received') : t('Maximum sold')}
+            questionHelperText={t(
+              'Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.',
+            )}
+          />
+
+          <div className="flex items-center space-x-1 text-sm">
+            <span>
               {tradeType === TradeType.EXACT_INPUT
                 ? formatAmount(slippageAdjustedAmounts[Field.OUTPUT], 4) ?? '-'
                 : formatAmount(slippageAdjustedAmounts[Field.INPUT], 4) ?? '-'}
-            </Text>
-            <Text fontSize="14px" marginLeft="4px">
+            </span>
+
+            <span>
               {tradeType === TradeType.EXACT_INPUT ? outputAmount.currency.symbol : inputAmount.currency.symbol}
-            </Text>
-          </RowFixed>
-        </RowBetween>
-        <RowBetween mb="8px">
-          <RowFixed>
-            <Text fontSize="14px">{t('Price Impact')}</Text>
-            <QuestionHelper
-              ml="4px"
-              placement="top"
-              text={
-                isMM ? (
-                  <>
-                    <Text>
-                      <Text bold display="inline-block">
-                        {t('AMM')}
-                      </Text>
-                      {`: ${t('The difference between the market price and estimated price due to trade size.')}`}
-                    </Text>
-                    <Text mt="10px">
-                      <Text bold display="inline-block">
-                        {t('MM')}
-                      </Text>
-                      {`: ${t('No slippage against quote from market maker')}`}
-                    </Text>
-                  </>
-                ) : (
-                  <>{t('The difference between the market price and your price due to trade size.')}</>
-                )
-              }
-            />
-          </RowFixed>
-          {isMM ? <Text color="textSubtle">--</Text> : <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />}
-        </RowBetween>
-        <RowBetween>
-          <RowFixed>
-            <Text fontSize="14px">{t('Trading Fee')}</Text>
-            <QuestionHelper
-              ml="4px"
-              placement="top"
-              text={
-                isMM ? (
-                  <>
-                    <Text mb="12px">
-                      <Text bold display="inline-block">
-                        {t('AMM')}
-                      </Text>
-                      : {t('For each non-stableswap trade, a %amount% fee is paid', { amount: totalFeePercent })}
-                    </Text>
-                    <Text>- {t('%amount% to LP token holders', { amount: lpHoldersFeePercent })}</Text>
-                    <Text>- {t('%amount% to the Treasury', { amount: treasuryFeePercent })}</Text>
-                    <Text>- {t('%amount% towards CAKE buyback and burn', { amount: buyBackFeePercent })}</Text>
-                    <Text mt="12px">
-                      {t('For each stableswap trade, refer to the fee table')}
-                      <Link
-                        style={{ display: 'inline' }}
-                        ml="4px"
-                        external
-                        href="https://docs.dgswap.io/products/stableswap#stableswap-fees"
-                      >
-                        {t('here.')}
-                      </Link>
-                    </Text>
-                    <Text mt="10px">
-                      <Text bold display="inline-block">
-                        {t('MM')}
-                      </Text>
-                      :{' '}
-                      {t(
-                        'PancakeSwap does not charge any fees for trades. However, the market makers charge an implied fee of 0.05% - 0.25% (non-stablecoin) / 0.01% (stablecoin) factored into the quotes provided by them.',
-                      )}
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Text>
-                      {t(
-                        'Fee ranging from 0.1% to 0.01% depending on the pool fee tier. You can check the fee tier by clicking the magnifier icon under the “Route” section.',
-                      )}
-                    </Text>
-                    <Text mt="12px">
-                      <Link
-                        style={{ display: 'inline' }}
-                        ml="4px"
-                        external
-                        href="https://docs.dgswap.io/products/fees"
-                      >
-                        {t('Fee Breakdown and Tokenomics')}
-                      </Link>
-                    </Text>
-                  </>
-                )
-              }
-            />
-          </RowFixed>
+            </span>
+          </div>
+        </SwapModalFooterContainer>
+
+        <SwapModalFooterContainer>
+          <SwapModalFooterTitle
+            title={t('Price Impact')}
+            questionHelperText={t('The difference between the market price and your price due to trade size.')}
+          />
+
+          <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
+        </SwapModalFooterContainer>
+
+        <SwapModalFooterContainer>
+          <SwapModalFooterTitle
+            title={t('Trading Fee')}
+            questionHelperText={
+              <div className="text-sm">
+                <p>
+                  {t(
+                    'Fee ranging from 0.1% to 0.01% depending on the pool fee tier. You can check the fee tier by clicking the magnifier icon under the “Route” section.',
+                  )}
+                </p>
+
+                <a href="https://docs.dgswap.io/products/fees" className="mt-3" target="_blank" rel="noreferrer">
+                  {t('Fee Breakdown and Tokenomics')}
+                </a>
+              </div>
+            }
+          />
+
           {realizedLPFee ? (
-            <Flex>
-              <Text fontSize="14px" mr="8px">
-                {`${formatAmount(realizedLPFee, 6)} ${inputAmount.currency.symbol}`}
-              </Text>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm">{`${formatAmount(realizedLPFee, 6)} ${inputAmount.currency.symbol}`}</span>
+
               <CurrencyLogo currency={currencyBalances.INPUT?.currency ?? inputAmount.currency} size="24px" />
-            </Flex>
+            </div>
           ) : (
-            <Text fontSize="14px" textAlign="right">
-              -
-            </Text>
+            <span className="text-sm">-</span>
           )}
-        </RowBetween>
-      </SwapModalFooterContainer>
+        </SwapModalFooterContainer>
+      </div>
 
-      <AutoRow>
-        <Button
-          variant={severity > 2 ? 'danger' : 'primary'}
-          onClick={onConfirm}
-          disabled={isMM ? disabledConfirm || !isRFQReady : disabledConfirm}
-          mt="12px"
-          id="confirm-swap-or-send"
-          width="100%"
-        >
-          {isMM && !isRFQReady ? (
-            <Dots>{t('Checking RFQ with MM')}</Dots>
-          ) : severity > 2 || (tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance) ? (
-            t('Swap Anyway')
-          ) : (
-            t('Confirm Swap')
-          )}
-        </Button>
+      <Button className="mt-3" variant="primary" onClick={onConfirm} disabled={disabledConfirm} fullWidth>
+        {severity > 2 || (tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance)
+          ? t('Swap Anyway')
+          : t('Confirm Swap')}
+      </Button>
 
-        {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
-      </AutoRow>
-    </>
+      {swapErrorMessage ? (
+        <Notification className="mt-3" variant="warning">
+          {swapErrorMessage}
+        </Notification>
+      ) : null}
+    </div>
   )
 })
+
+function SwapModalFooterContainer({ children }: PropsWithChildren) {
+  return <div className="flex items-center justify-between">{children}</div>
+}
+
+function SwapModalFooterTitle({ title, questionHelperText }: { title: string; questionHelperText?: ReactNode }) {
+  return (
+    <div className="flex items-center space-x-1">
+      <h4 className="text-sm whitespace-nowrap">{title}</h4>
+      {questionHelperText && <QuestionHelper text={questionHelperText} placement="top" ml="4px" />}
+    </div>
+  )
+}

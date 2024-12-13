@@ -3,18 +3,18 @@ import { useDebounce, useSortedTokensByQuery } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
 import { WrappedTokenInfo, createFilterToken } from '@pancakeswap/token-lists'
-import { AutoColumn, Box, Column, Input, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Column, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useAudioPlay } from '@pancakeswap/utils/user'
+import SearchBar from 'components/Common/SearchBar'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 import { useAllLists, useInactiveListUrls } from 'state/lists/hooks'
 import { safeGetAddress } from 'utils'
 import { isAddress } from 'viem'
 import { whiteListedFiatCurrenciesMap } from 'views/BuyCrypto/constants'
 import { useAllTokens, useTokens } from '../../hooks/Tokens'
-import Row from '../Layout/Row'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
 import useTokenComparator from './sorting'
@@ -111,9 +111,6 @@ function CurrencySearch({
   // if they input an address, use it
   // const searchToken = useToken(debouncedQuery)
   const searchTokens = useTokens(debouncedQuery)
-  useEffect(() => {
-    console.log('searchTokens', searchTokens)
-  }, [searchTokens])
   // useEffect(() => {
   //   console.log('searchToken', searchToken)
   // }, [searchToken])
@@ -212,10 +209,6 @@ function CurrencySearch({
 
   // if no results on main list, show option to expand into inactive
   const filteredInactiveTokens = useSearchInactiveTokenLists(debouncedQuery)
-  useEffect(() => {
-    console.log('filteredInactiveTokens', filteredInactiveTokens)
-  }, [filteredInactiveTokens])
-
   const hasFilteredInactiveTokens = Boolean(filteredInactiveTokens?.length)
   useEffect(() => {
     console.log('hasFilteredInactiveTokens', hasFilteredInactiveTokens)
@@ -257,24 +250,22 @@ function CurrencySearch({
 
     // return Boolean(filteredSortedTokens?.length) || hasFilteredInactiveTokens || mode === 'onramp-output' ? (
     return filteredTokensWithSs?.length ? (
-      <Box mx="-24px" my="24px">
-        <CurrencyList
-          height={isMobile ? (showCommonBases ? height || 250 : height ? height + 80 : 350) : 390}
-          showNative={showNative}
-          currencies={filteredTokensWithSs}
-          inactiveCurrencies={mode === 'onramp-input' ? [] : filteredInactiveTokens}
-          breakIndex={
-            Boolean(filteredInactiveTokens?.length) && filteredTokensWithSs ? filteredTokensWithSs.length : undefined
-          }
-          onCurrencySelect={handleCurrencySelect}
-          otherCurrency={otherSelectedCurrency}
-          selectedCurrency={selectedCurrency}
-          fixedListRef={fixedList}
-          showImportView={showImportView}
-          setImportToken={setImportToken}
-          mode={mode as string}
-        />
-      </Box>
+      <CurrencyList
+        height={isMobile ? (showCommonBases ? height || 250 : height ? height + 80 : 350) : 390}
+        showNative={showNative}
+        currencies={filteredTokensWithSs}
+        inactiveCurrencies={mode === 'onramp-input' ? [] : filteredInactiveTokens}
+        breakIndex={
+          Boolean(filteredInactiveTokens?.length) && filteredTokensWithSs ? filteredTokensWithSs.length : undefined
+        }
+        onCurrencySelect={handleCurrencySelect}
+        otherCurrency={otherSelectedCurrency}
+        selectedCurrency={selectedCurrency}
+        fixedListRef={fixedList}
+        showImportView={showImportView}
+        setImportToken={setImportToken}
+        mode={mode as string}
+      />
     ) : (
       <Column style={{ padding: '20px', height: '100%' }}>
         <Text color="textSubtle" textAlign="center" mb="20px">
@@ -302,34 +293,31 @@ function CurrencySearch({
     mode,
   ])
 
+  const searchBarRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (!searchBarRef.current) return
+    if (!showSearchInput) return
+
+    searchBarRef.current.focus()
+  }, [showSearchInput])
+
   return (
-    <>
-      <AutoColumn gap="16px">
-        {showSearchInput && (
-          <Row>
-            <Input
-              id="token-search-input"
-              placeholder={t(onRampFlow ? 'Search name' : 'Search name or paste address')}
-              scale="lg"
-              autoComplete="off"
-              value={searchQuery}
-              ref={inputRef as RefObject<HTMLInputElement>}
-              onChange={handleInput}
-              onKeyDown={handleEnter}
-            />
-          </Row>
-        )}
-        {showCommonBases && (
-          <CommonBases
-            chainId={chainId}
-            onSelect={handleCurrencySelect}
-            selectedCurrency={selectedCurrency}
-            commonBasesType={commonBasesType}
-          />
-        )}
-      </AutoColumn>
+    <div className="flex flex-col space-y-4">
+      {showSearchInput && (
+        <SearchBar ref={searchBarRef} value={searchQuery} onChange={handleInput} onKeyDown={handleEnter} fullWidth />
+      )}
+
+      {showCommonBases && (
+        <CommonBases
+          chainId={chainId}
+          onSelect={handleCurrencySelect}
+          selectedCurrency={selectedCurrency}
+          commonBasesType={commonBasesType}
+        />
+      )}
+
       {getCurrencyListRows()}
-    </>
+    </div>
   )
 }
 

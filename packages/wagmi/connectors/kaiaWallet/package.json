@@ -1,0 +1,5 @@
+{
+  "main": "../../dist/connectors/kaiaWallet.js",
+  "module": "../../dist/connectors/kaiaWallet.mjs",
+  "types": "../../dist/connectors/kaiaWallet.d.ts"
+}

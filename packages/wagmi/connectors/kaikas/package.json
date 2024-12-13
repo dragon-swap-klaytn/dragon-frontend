@@ -1,5 +1,0 @@
-{
-  "main": "../../dist/connectors/kaikas.js",
-  "module": "../../dist/connectors/kaikas.mjs",
-  "types": "../../dist/connectors/kaikas.d.ts"
-}

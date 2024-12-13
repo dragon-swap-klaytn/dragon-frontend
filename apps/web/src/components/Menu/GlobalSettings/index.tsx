@@ -5,16 +5,16 @@ import { CaretRight, Gear, Question } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ToggleSwitch from 'components/Common/ToggleSwitch'
 import { SettingModeType, SettingsMode } from 'components/Menu/GlobalSettings/types'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import SettingsModal from './SettingsModal'
 
 type Props = {
-  color?: string
-  mr?: string
   mode?: SettingModeType
+  globalSettingsOpen?: boolean
+  setGlobalSettingsOpen?: Dispatch<SetStateAction<boolean>>
 }
 
-const GlobalSettings = ({ mode }: Props) => {
+const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Props) => {
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={mode} />)
   const [open, setOpen] = useState(false)
   const [showLanguage, setShowLanguage] = useState(false)
@@ -28,7 +28,13 @@ const GlobalSettings = ({ mode }: Props) => {
       <button
         type="button"
         className="hover:bg-overlay-surface-hover-light p-2 rounded-full"
-        onClick={mode === SettingsMode.GLOBAL ? () => setOpen((prev) => !prev) : onPresentSettingsModal}
+        onClick={
+          mode === SettingsMode.GLOBAL
+            ? setGlobalSettingsOpen
+              ? () => setGlobalSettingsOpen((prev) => !prev)
+              : () => setOpen((prev) => !prev)
+            : onPresentSettingsModal
+        }
         // onClick={() => setOpen((prev) => !prev)}
       >
         <Gear height={24} width={24} className="text-on-surface-tertiary" weight="fill" />
@@ -38,8 +44,8 @@ const GlobalSettings = ({ mode }: Props) => {
         className={clsx(
           'absolute top-[50px] right-0 bg-surface-container-high p-6 rounded-2xl transition-opacity z-50',
           {
-            'opacity-100': open,
-            'opacity-0 pointer-events-none': !open,
+            'opacity-100': setGlobalSettingsOpen ? globalSettingsOpen : open,
+            'opacity-0 pointer-events-none': setGlobalSettingsOpen ? !globalSettingsOpen : !open,
           },
         )}
       >
@@ -47,7 +53,7 @@ const GlobalSettings = ({ mode }: Props) => {
 
         <div className="mt-[30px] flex flex-col items-start space-y-6 text-white">
           <div className="flex items-center">
-            <h4 className="text-sm whitespace-nowrap">Subgraph Health Indicator</h4>
+            <h4 className="text-sm whitespace-nowrap">{t('Subgraph Health Indicator')}</h4>
             <Question height={16} width={16} className="text-on-surface-tertiary ml-1" weight="fill" />
 
             <ToggleSwitch
@@ -60,7 +66,7 @@ const GlobalSettings = ({ mode }: Props) => {
           </div>
 
           <div className="flex items-start justify-between w-full">
-            <h4 className="text-sm whitespace-nowrap">Language</h4>
+            <h4 className="text-sm whitespace-nowrap">{t('Language')}</h4>
 
             <div className="flex flex-col items-end">
               <div className="flex items-center space-x-1">

@@ -3,7 +3,7 @@ import { Currency, CurrencyAmount, Pair, Percent, Token } from '@pancakeswap/sdk
 import { Skeleton, useModal } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo, DoubleCurrencyLogo } from '@pancakeswap/widgets-internal'
-import { memo, PropsWithChildren, useCallback, useEffect, useMemo } from 'react'
+import { memo, PropsWithChildren, useCallback, useMemo } from 'react'
 import { safeGetAddress } from 'utils'
 
 import { formatNumber } from '@pancakeswap/utils/formatBalance'
@@ -97,10 +97,6 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
 }: CurrencyInputPanelProps) {
   const { address: account } = useAccount()
 
-  useEffect(() => {
-    console.log('label', label)
-  }, [label])
-
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const { t } = useTranslation()
 
@@ -158,11 +154,6 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
 
   const tokenLogo = useTokenLogo(token)
   const isToInput = useMemo(() => ['To', 'To (estimated)'].includes(label || ''), [label])
-
-  useEffect(() => {
-    console.log('currency')
-    console.log(currency)
-  }, [currency])
 
   // const InputRow = styled.div<{ selected: boolean }>`
   //   display: flex;
@@ -320,12 +311,11 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
             value={value}
             onBlur={onInputBlur}
             onChange={(e) => {
-              console.log('__e?', e.target.value)
               onUserInput(e.target.value.replace(/,/g, ''))
             }}
             thousandSeparator
             allowNegative={false}
-            decimalScale={2}
+            decimalScale={currency?.decimals}
             placeholder="0.00"
           />
           {/* <NumericalInput

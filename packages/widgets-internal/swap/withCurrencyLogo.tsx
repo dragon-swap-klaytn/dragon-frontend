@@ -76,7 +76,6 @@ export function withCurrencyLogo<T extends BaseCurrency>(
             console.log("on_click_1");
             onCurrencySelect?.(token);
           } else if (!isAdded) {
-            console.log("on_click_2");
             if (setImportToken) {
               setImportToken(token);
             }

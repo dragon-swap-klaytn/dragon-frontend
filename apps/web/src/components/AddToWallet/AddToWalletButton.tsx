@@ -1,7 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
   BinanceChainIcon,
-  Button,
   ButtonProps,
   CoinbaseWalletIcon,
   MetamaskIcon,
@@ -9,7 +8,8 @@ import {
   TokenPocketIcon,
   TrustWalletIcon,
 } from '@pancakeswap/uikit'
-import KaikasIcon from 'components/Svg/KaikasIcon'
+import Button from 'components/Common/Button'
+import KaikasIcon from 'components/Svg/KaiaWalletIcon'
 import { useAccount } from 'wagmi'
 import { canRegisterToken } from '../../utils/wallet'
 import { BAD_SRCS } from '../Logo/constants'
@@ -26,7 +26,6 @@ export interface AddToWalletButtonProps {
   tokenDecimals?: number
   tokenLogo?: string
   textOptions?: AddToWalletTextOptions
-  marginTextBetweenLogo?: string
 }
 
 const Icons = {
@@ -48,11 +47,11 @@ const getWalletText = (textOptions: AddToWalletTextOptions, tokenSymbol: string 
   )
 }
 
-const getWalletIcon = (marginTextBetweenLogo: string, name?: string) => {
+const getWalletIcon = (name?: string) => {
   const iconProps = {
     width: '16px',
-    ...(marginTextBetweenLogo && { ml: marginTextBetweenLogo }),
   }
+
   if (name && Icons[name]) {
     const Icon = Icons[name]
     return <Icon {...iconProps} />
@@ -82,8 +81,6 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
   tokenDecimals,
   tokenLogo,
   textOptions = AddToWalletTextOptions.NO_TEXT,
-  marginTextBetweenLogo = '0px',
-  ...props
 }) => {
   const { t } = useTranslation()
   const { connector, isConnected } = useAccount()
@@ -95,7 +92,8 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
 
   return (
     <Button
-      {...props}
+      variant="primary"
+      className="flex items-center space-x-2 justify-center text-sm"
       onClick={() => {
         const image = tokenLogo ? (BAD_SRCS[tokenLogo] ? undefined : tokenLogo) : undefined
         if (!tokenAddress || !tokenSymbol) return
@@ -108,8 +106,8 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
         })
       }}
     >
-      {getWalletText(textOptions, tokenSymbol, t)}
-      {getWalletIcon(marginTextBetweenLogo, connector?.name)}
+      <span>{getWalletText(textOptions, tokenSymbol, t)}</span>
+      {getWalletIcon(connector?.name)}
     </Button>
   )
 }

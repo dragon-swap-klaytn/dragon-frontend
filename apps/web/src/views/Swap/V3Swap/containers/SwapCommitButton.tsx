@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { TradeType } from '@pancakeswap/sdk'
 import { SMART_ROUTER_ADDRESSES, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { Box, Button, Dots, ModalV2, useModal } from '@pancakeswap/uikit'
+import { Button, Dots, ModalV2, useModal } from '@pancakeswap/uikit'
 import { confirmPriceImpactWithoutFee } from '@pancakeswap/widgets-internal'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
@@ -319,6 +319,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   }, [approvalState, approvalSubmitted])
 
   const [show, setShow] = useState(false)
+  const isValid = !swapInputError && !tradeLoading
 
   if (swapIsUnsupported) {
     return (
@@ -348,35 +349,19 @@ export const SwapCommitButton = memo(function SwapCommitButton({
 
   if (noRoute && userHasSpecifiedInputOutput && !tradeLoading) {
     return (
-      // <AutoColumn gap="12px">
-      <div className="flex flex-col gap-3">
-        {/* <GreyCard style={{ textAlign: 'center', padding: '0.75rem' }}>
-          <Text color="textSubtle">{t('Insufficient liquidity for this trade.')}</Text>
-        </GreyCard> */}
+      <div className="flex flex-col space-y-4">
+        <Notification variant="warning">{t('Insufficient liquidity for this trade.')}</Notification>
 
         <div className="p-4 rounded-[20px] bg-surface-disable">
           <p className="text-sm text-center text-gray-400">{t('Insufficient liquidity for this trade.')}</p>
         </div>
 
         {isRoutingSettingChange && (
-          <Notification
-            // title={t('Insufficient liquidity')}
-            variant="warning"
-            nStyle="default"
-          >
+          <Notification variant="warning" nStyle="default">
             <div className="flex flex-col">
               <p>{t('Unable to establish trading route due to customized routing.')}</p>
 
               <div className="flex items-center space-x-2 mt-4">
-                {/* <RoutingSettingsButton
-                  // buttonProps={{
-                  //   scale: 'xs',
-                  //   p: 0,
-                  // }}
-                  showRedDot={false}
-                >
-                  {t('Check your settings')}
-                </RoutingSettingsButton> */}
                 <button
                   type="button"
                   onClick={() => setShow(true)}
@@ -385,12 +370,8 @@ export const SwapCommitButton = memo(function SwapCommitButton({
                   {t('Check your settings')}
                 </button>
 
-                {/* <MessageText>{t('or')}</MessageText> */}
                 <span className="text-sm">or</span>
 
-                {/* <Button variant="text" scale="xs" p="0" onClick={resetRoutingSetting}>
-                  {t('Reset to default')}
-                </Button> */}
                 <button
                   type="button"
                   onClick={resetRoutingSetting}
@@ -406,41 +387,22 @@ export const SwapCommitButton = memo(function SwapCommitButton({
             </div>
           </Notification>
         )}
-
-        {/* {isRoutingSettingChange && (
-          <Message variant="warning" icon={<></>}>
-            <AutoColumn gap="8px">
-              <MessageText>{t('Unable to establish trading route due to customized routing.')}</MessageText>
-              <AutoRow gap="4px">
-                <RoutingSettingsButton
-                  buttonProps={{
-                    scale: 'xs',
-                    p: 0,
-                  }}
-                  showRedDot={false}
-                >
-                  {t('Check your settings')}
-                </RoutingSettingsButton>
-                <MessageText>{t('or')}</MessageText>
-                <Button variant="text" scale="xs" p="0" onClick={resetRoutingSetting}>
-                  {t('Reset to default')}
-                </Button>
-              </AutoRow>
-            </AutoColumn>
-          </Message>
-        )} */}
       </div>
     )
   }
 
-  const isValid = !swapInputError && !tradeLoading
-
   return (
-    <Box mt="0.25rem">
+    <div className="flex flex-col items-center space-y-4">
+      {!tradeLoading && !swapInputError && priceImpactSeverity > 2 && (
+        <Notification variant={priceImpactSeverity > 3 ? 'warning' : 'caution'}>
+          {priceImpactSeverity > 3
+            ? t('Swap is allowed only in Expert Mode due to High Price Impact')
+            : t('Price Impact Too High')}
+        </Notification>
+      )}
+
       <CommitButton
-        id="swap-button"
         width="100%"
-        variant={isValid && priceImpactSeverity > 2 && !swapCallbackError ? 'danger' : 'primary'}
         disabled={
           !isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError || statusWallchain === 'pending'
         }
@@ -454,6 +416,6 @@ export const SwapCommitButton = memo(function SwapCommitButton({
             ? t('Swap Anyway')
             : t('Swap'))}
       </CommitButton>
-    </Box>
+    </div>
   )
 })

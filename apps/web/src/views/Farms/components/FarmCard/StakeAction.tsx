@@ -2,10 +2,10 @@ import { ChainId, DEFAULT_CHAIN_ID, DEFAULT_TESTNET_ID } from '@pancakeswap/chai
 import { FarmWithStakedValue } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { NATIVE, WNATIVE } from '@pancakeswap/sdk'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { AddIcon, Button, Flex, IconButton, MinusIcon, useModal, useToast } from '@pancakeswap/uikit'
 import { formatLpBalance } from '@pancakeswap/utils/formatBalance'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
-import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import BigNumber from 'bignumber.js'
 import WalletModal, { WalletView } from 'components/Menu/UserMenu/WalletModal'
 import { ToastDescriptionWithTx } from 'components/Toast'
@@ -22,7 +22,6 @@ import { pickFarmTransactionTx } from 'state/global/actions'
 import { FarmTransactionStatus, NonBscFarmStepType } from 'state/transactions/actions'
 import { useNonBscFarmPendingTransaction, useTransactionAdder } from 'state/transactions/hooks'
 import { styled } from 'styled-components'
-import { useIsBloctoETH } from 'views/Farms'
 import { SendTransactionResult } from 'wagmi/actions'
 import { useFirstTimeCrossFarming } from '../../hooks/useFirstTimeCrossFarming'
 import { YieldBoosterStateContext } from '../YieldBooster/components/ProxyFarmContainer'
@@ -85,13 +84,13 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   const [bCakeMultiplier, setBCakeMultiplier] = useState<number | null>(() => null)
   const pendingFarm = useNonBscFarmPendingTransaction(lpAddress)
   const { isFirstTime, refresh: refreshFirstTime } = useFirstTimeCrossFarming(vaultPid)
-  const isBloctoETH = useIsBloctoETH()
+  // const isBloctoETH = useIsBloctoETH()
 
   const crossChainWarningText = useMemo(() => {
     return isFirstTime
       ? t('A small amount of %nativeToken% is required for the first-time setup of cross-chain %cake% farming.', {
           nativeToken: native.symbol,
-          cake: CAKE_SYMBOL_VIEW
+          cake: CAKE_SYMBOL_VIEW,
         })
       : t('For safety, cross-chain transactions will take around 30 minutes to confirm.')
   }, [isFirstTime, native, t])
@@ -285,7 +284,8 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
         <IconButton mr="6px" variant="tertiary" disabled={pendingFarm.length > 0} onClick={onPresentWithdraw}>
           <MinusIcon color="primary" width="14px" />
         </IconButton>
-        <IconButton variant="tertiary" onClick={onPresentDeposit} disabled={isStakeReady || isBloctoETH}>
+        {/* <IconButton variant="tertiary" onClick={onPresentDeposit} disabled={isStakeReady || isBloctoETH}> */}
+        <IconButton variant="tertiary" onClick={onPresentDeposit} disabled={isStakeReady}>
           <AddIcon color="primary" width="14px" />
         </IconButton>
       </IconButtonWrapper>

@@ -1,11 +1,12 @@
 import { ChainId } from '@pancakeswap/chains'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useSidNameForAddress } from 'hooks/useSid'
 import { useUnsNameForAddress } from 'hooks/useUns'
 import { useMemo } from 'react'
-import { useEnsAvatar, useEnsName, Address } from 'wagmi'
-import { useActiveChainId } from 'hooks/useActiveChainId'
+import { AddressType } from 'types'
+import { Address, useEnsAvatar, useEnsName } from 'wagmi'
 
-export const useDomainNameForAddress = (address?: `0x${string}` | string, fetchData = true) => {
+export const useDomainNameForAddress = (address?: AddressType | null, fetchData = true) => {
   const { chainId } = useActiveChainId()
   const { sidName, isLoading: isSidLoading } = useSidNameForAddress(address as Address, fetchData)
   const { unsName, isLoading: isUnsLoading } = useUnsNameForAddress(

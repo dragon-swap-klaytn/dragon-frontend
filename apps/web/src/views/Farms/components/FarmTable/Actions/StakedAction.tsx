@@ -26,7 +26,6 @@ import { FarmTransactionStatus, NonBscFarmStepType } from 'state/transactions/ac
 import { useNonBscFarmPendingTransaction, useTransactionAdder } from 'state/transactions/hooks'
 import getLiquidityUrlPathParts from 'utils/getLiquidityUrlPathParts'
 import { Hash } from 'viem'
-import { useIsBloctoETH } from 'views/Farms'
 import BCakeCalculator from 'views/Farms/components/YieldBooster/components/BCakeCalculator'
 import { useAccount } from 'wagmi'
 import useApproveFarm from '../../../hooks/useApproveFarm'
@@ -146,7 +145,7 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
   const { t } = useTranslation()
   const { toastSuccess } = useToast()
   const addTransaction = useTransactionAdder()
-  const isBloctoETH = useIsBloctoETH()
+  // const isBloctoETH = useIsBloctoETH()
   const { fetchWithCatchTxError, fetchTxResponse, loading: pendingTx } = useCatchTxError()
   const { account, chainId } = useAccountActiveChain()
 
@@ -378,7 +377,8 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
   }
 
   if (!isApproved && stakedBalance?.eq(0)) {
-    return <FarmWidget.FarmTable.EnableStakeAction pendingTx={pendingTx || isBloctoETH} handleApprove={handleApprove} />
+    // return <FarmWidget.FarmTable.EnableStakeAction pendingTx={pendingTx || isBloctoETH} handleApprove={handleApprove} />
+    return <FarmWidget.FarmTable.EnableStakeAction pendingTx={pendingTx} handleApprove={handleApprove} />
   }
 
   if (!userDataReady) {
@@ -390,7 +390,8 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
       <FarmWidget.FarmTable.StakedActionComponent
         lpSymbol={lpSymbol}
         disabledMinusButton={pendingFarm.length > 0}
-        disabledPlusButton={isStakeReady || isBloctoETH}
+        // disabledPlusButton={isStakeReady || isBloctoETH}
+        disabledPlusButton={isStakeReady}
         onPresentWithdraw={onPresentWithdraw}
         onPresentDeposit={onPresentDeposit}
       >

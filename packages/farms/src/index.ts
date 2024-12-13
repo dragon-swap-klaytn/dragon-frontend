@@ -81,11 +81,11 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
     farms,
     chainId,
     commonPrice,
-    isFinished
+    isFinished,
   }: {
     farms: ComputedFarmConfigV3[]
     chainId: FarmV3SupportedChainId
-    commonPrice: CommonPrice,
+    commonPrice: CommonPrice
     isFinished?: boolean
   }) => {
     const masterChefAddress = isFinished ? masterChefV3FinishedAddresses[chainId] : masterChefV3Addresses[chainId]
@@ -100,6 +100,8 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
         masterChefAddress,
         chainId,
       })
+
+      console.log('__poolLength', poolLength)
 
       const cakePerSecond = new BigNumber(latestPeriodCakePerSecond.toString()).div(1e18).div(1e12).toString()
 
@@ -159,4 +161,10 @@ export type { FarmWithPrices } from './v2/farmPrices'
 export * from './v2/farmsPriceHelpers'
 export * from './v2/filterFarmsByQuery'
 
-export { fetchCommonTokenUSDValue, fetchTokenUSDValues, masterChefAddresses, masterChefV3Addresses, masterChefV3FinishedAddresses }
+export {
+  fetchCommonTokenUSDValue,
+  fetchTokenUSDValues,
+  masterChefAddresses,
+  masterChefV3Addresses,
+  masterChefV3FinishedAddresses,
+}

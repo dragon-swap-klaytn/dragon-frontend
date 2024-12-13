@@ -66,7 +66,7 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
   }, [maxAmountInput, onUserInput])
 
   const handleCurrencySelect = useCallback(
-    (newCurrency: Currency, field: Field, currentInputCurrencyId: string, currentOutputCurrencyId: string) => {
+    (newCurrency: Currency, field: Field, currentInputCurrencyId?: string, currentOutputCurrencyId?: string) => {
       onCurrencySelection(field, newCurrency)
 
       warningSwapHandler(newCurrency)
@@ -104,11 +104,10 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
   const outputLoading = typedValue ? isTypingInput && tradeLoading : false
 
   const { recipient } = useSwapState()
-  const { onSwitchTokens, onChangeRecipient } = useSwapActionHandlers()
+  const { onChangeRecipient } = useSwapActionHandlers()
   const allowRecipient = useAllowRecipient()
 
   return (
-    // <FormContainer>
     <div className="flex flex-col space-y-3 mt-4">
       <CurrencyInputPanel
         id="swap-currency-input"
@@ -129,8 +128,9 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
         otherCurrency={outputCurrency}
         commonBasesType={CommonBasesType.SWAP_LIMITORDER}
       />
-      {/* <RiskCheck currency={inputCurrency} /> */}
+
       <FlipButton />
+
       <CurrencyInputPanel
         id="swap-currency-output"
         showUSDPrice
@@ -148,15 +148,11 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
       />
 
       {allowRecipient && recipient === null ? (
-        // <Button variant="text" id="add-recipient-button" onClick={() => onChangeRecipient('')}>
-        //   {t('+ Add a send (optional)')}
-        // </Button>
         <button type="button" className="text-on-surface-primary text-sm" onClick={() => onChangeRecipient('')}>
           {t('+ Add a send (optional)')}
         </button>
       ) : null}
 
-      {/* <RiskCheck currency={outputCurrency} /> */}
       <Recipient />
       {pricingAndSlippage}
       {swapCommitButton}

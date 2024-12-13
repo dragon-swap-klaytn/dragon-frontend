@@ -1,29 +1,29 @@
-import { useMemo } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
-import { styled } from 'styled-components'
-import { Flex, Text, Box, LinkExternal, useTooltip } from '@pancakeswap/uikit'
+import { Text, useTooltip } from '@pancakeswap/uikit'
+import { ArrowSquareOut } from '@phosphor-icons/react'
+import clsx from 'clsx'
+import { PropsWithChildren, useMemo } from 'react'
 import { ConfirmModalState, PendingConfirmModalState } from '../types'
 
-const StyledLinkExternal = styled(LinkExternal)`
-  &:hover {
-    text-decoration: initial;
-  }
-`
+function StepsContainer({ children }: PropsWithChildren) {
+  return (
+    <div className="flex items-center w-[100px] h-2 rounded-[4px] mx-auto overflow-hidden bg-surface-container-highest">
+      {children}
+    </div>
+  )
+}
 
-const StepsContainer = styled(Flex)`
-  width: 100px;
-  height: 8px;
-  border-radius: 4px;
-  margin: 16px auto auto auto;
-  overflow: hidden;
-  background: ${({ theme }) => theme.colors.input};
-`
-
-const Step = styled('div')<{ active: boolean; width: string }>`
-  height: 100%;
-  width: ${({ width }) => width};
-  background: ${({ theme, active }) => (active ? theme.colors.secondary : theme.colors.input)};
-`
+function Step({ active, width }: { active: boolean; width: string }) {
+  return (
+    <div
+      style={{ width }}
+      className={clsx('h-full', {
+        'bg-surface-orange': active,
+        'bg-surface-disable': !active,
+      })}
+    />
+  )
+}
 
 interface ApproveStepFlowProps {
   confirmModalState: ConfirmModalState
@@ -48,10 +48,9 @@ export const ApproveStepFlow: React.FC<React.PropsWithChildren<ApproveStepFlowPr
   const hideStepIndicators = useMemo(() => pendingModalSteps.length === 1, [pendingModalSteps])
 
   return (
-    <Box mt="32px">
-      <Text fontSize="12px" textAlign="center" color="textSubtle">
-        {t('Proceed in your wallet')}
-      </Text>
+    <div className="mt-7 flex flex-col items-center space-y-3">
+      <p className="text-xs text-center text-gray-200">{t('Proceed in your wallet')}</p>
+
       {!hideStepIndicators && (
         <>
           <StepsContainer>
@@ -63,30 +62,35 @@ export const ApproveStepFlow: React.FC<React.PropsWithChildren<ApproveStepFlowPr
             <Step active={confirmModalState === ConfirmModalState.PENDING_CONFIRMATION} width={stepWidth} />
           </StepsContainer>
           {confirmModalState === ConfirmModalState.RESETTING_APPROVAL && (
-            <StyledLinkExternal
-              external
-              margin="16px auto auto auto"
+            <a
               href="https://docs.dgswap.io/products/faq#why-do-i-need-to-reset-approval-on-usdt-before-enabling-approving"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex items-center space-x-1 text-sm text-gray-200 hover:opacity-70"
             >
-              <Text color="primary">{t('Why resetting approval')}</Text>
-            </StyledLinkExternal>
+              <span>{t('Why resetting approval')}</span>
+              <ArrowSquareOut size={16} />
+            </a>
           )}
           {confirmModalState === ConfirmModalState.APPROVING_TOKEN && (
-            <StyledLinkExternal
-              external
-              margin="16px auto auto auto"
+            <a
               href="https://docs.dgswap.io/products/how-to-trade"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex items-center space-x-1 text-sm text-gray-200 hover:opacity-70"
             >
-              <Text color="primary">{t('Why')}</Text>
-              <Text m="0 2px" color="primary" style={{ borderBottom: '1px dashed' }} ref={targetRef}>
+              <span>{t('Why')}</span>
+              <span ref={targetRef} className="font-bold">
                 {t('approving')}
-              </Text>
+              </span>
               {tooltipVisible && tooltip}
-              <Text color="primary">{t('this?')}</Text>
-            </StyledLinkExternal>
+              <span>{t('this?')}</span>
+
+              <ArrowSquareOut size={16} />
+            </a>
           )}
         </>
       )}
-    </Box>
+    </div>
   )
 }
