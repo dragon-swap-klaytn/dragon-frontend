@@ -981,28 +981,18 @@ const { web2app, userAgent } = exports
 const {
   SERVER_URL,
   A2A_URL_SCHEME,
-  KAKAO_INTENT_SCHEME,
   KLIP_APP_INTENT_SCHEME,
-  IOS_KAKAO_APP_STORE_LINK,
-  AOS_KAKAO_APP_STORE_LINK,
   IOS_KLIP_APP_STORE_LINK,
   AOS_KLIP_APP_STORE_LINK,
-  KAKAOTALK_PACKAGE_NAME,
   KLIP_APP_PACKAGE_NAME,
-  KAKAO_APP_NAME,
   KLIP_APP_NAME,
 } = {
   SERVER_URL: 'https://a2a-api.klipwallet.com/v2/a2a',
   A2A_URL_SCHEME: 'klipwallet/open?url=https://klipwallet.com/?target=/a2a',
-  KAKAO_INTENT_SCHEME: 'kakaotalk',
   KLIP_APP_INTENT_SCHEME: 'klip',
-  IOS_KAKAO_APP_STORE_LINK: 'itms-apps://itunes.apple.com/app/id362057947',
-  AOS_KAKAO_APP_STORE_LINK: 'market://details?id=com.kakao.talk',
   IOS_KLIP_APP_STORE_LINK: 'itms-apps://itunes.apple.com/app/id1627665524',
   AOS_KLIP_APP_STORE_LINK: 'market://details?id=com.klipwallet.app',
-  KAKAOTALK_PACKAGE_NAME: 'com.kakao.talk',
   KLIP_APP_PACKAGE_NAME: 'com.klipwallet.app',
-  KAKAO_APP_NAME: '카카오톡',
   KLIP_APP_NAME: '클립',
 }
 
@@ -1147,25 +1137,12 @@ const prepare = {
 const request = (requestKey, onUnsupportedEnvironment, isKlipAppCall = false) => {
   const ua = userAgent()
 
-  // Android에서는 alphatalk 스킴 사용에 제약이 있어 kakaotalk 스킴 사용
-  // kakaotalk://klipwallet/open?url=https://klipwallet.com/?target=/a2a?request_key={request_key}
-  // intent://klipwallet/open?url=https://klipwallet.com/?target=/a2a?request_key={request_key}#Intent;scheme=kakaotalk;package=com.kakao.talk;end
-  let urlScheme = `${ua.os.android ? 'kakaotalk' : KAKAO_INTENT_SCHEME}://${A2A_URL_SCHEME}?request_key=${requestKey}`
-  let appStoreURL = ua.os.android ? AOS_KAKAO_APP_STORE_LINK : IOS_KAKAO_APP_STORE_LINK
-  let appName = KAKAO_APP_NAME
-  let intentURI = `intent://${A2A_URL_SCHEME}?request_key=${requestKey}#Intent;scheme=${
-    ua.os.android ? 'kakaotalk' : KAKAO_INTENT_SCHEME
-  };package=${KAKAOTALK_PACKAGE_NAME};end;`
-
-  // Klip App 실행 요청 시
   // klip://klipwallet/open?url=https://klipwallet.com/?target=/a2a?request_key={request_key}
   // intent://klipwallet/open?url=https://klipwallet.com/?target=/a2a?request_key={request_key}#Intent;scheme=klip;package=com.klipwallet.app;end;
-  if (isKlipAppCall) {
-    urlScheme = `${KLIP_APP_INTENT_SCHEME}://${A2A_URL_SCHEME}?request_key=${requestKey}`
-    appStoreURL = ua.os.android ? AOS_KLIP_APP_STORE_LINK : IOS_KLIP_APP_STORE_LINK
-    appName = KLIP_APP_NAME
-    intentURI = `intent://${A2A_URL_SCHEME}?request_key=${requestKey}#Intent;scheme=${KLIP_APP_INTENT_SCHEME};package=${KLIP_APP_PACKAGE_NAME};end;`
-  }
+  const urlScheme = `${KLIP_APP_INTENT_SCHEME}://${A2A_URL_SCHEME}?request_key=${requestKey}`
+  const appStoreURL = ua.os.android ? AOS_KLIP_APP_STORE_LINK : IOS_KLIP_APP_STORE_LINK
+  const appName = KLIP_APP_NAME
+  const intentURI = `intent://${A2A_URL_SCHEME}?request_key=${requestKey}#Intent;scheme=${KLIP_APP_INTENT_SCHEME};package=${KLIP_APP_PACKAGE_NAME};end;`
 
   const useUrlScheme = ua.browser.chrome && +ua.browser.version.major >= 25 ? false : true
 
@@ -1178,23 +1155,7 @@ const request = (requestKey, onUnsupportedEnvironment, isKlipAppCall = false) =>
     onUnsupportedEnvironment: () => {
       unsupportedEnvironmentAlert(onUnsupportedEnvironment)
     },
-    onAppMissing: isKlipAppCall
-      ? () =>
-          web2app({
-            urlScheme: `${
-              ua.os.android ? 'kakaotalk' : KAKAO_INTENT_SCHEME
-            }://${A2A_URL_SCHEME}?request_key=${requestKey}`,
-            useUrlScheme,
-            intentURI: `intent://${A2A_URL_SCHEME}?request_key=${requestKey}#Intent;scheme=${
-              ua.os.android ? 'kakaotalk' : KAKAO_INTENT_SCHEME
-            };package=${KAKAOTALK_PACKAGE_NAME};end;`,
-            storeURL: appStoreURL,
-            appName: KAKAO_APP_NAME,
-            onUnsupportedEnvironment: () => {
-              unsupportedEnvironmentAlert(onUnsupportedEnvironment)
-            },
-          })
-      : null,
+    onAppMissing: null,
   })
 }
 
