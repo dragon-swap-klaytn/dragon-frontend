@@ -1139,7 +1139,8 @@ const request = (requestKey, onUnsupportedEnvironment, isKlipAppCall = false) =>
 
   // klip://klipwallet/open?url=https://klipwallet.com/?target=/a2a?request_key={request_key}
   // intent://klipwallet/open?url=https://klipwallet.com/?target=/a2a?request_key={request_key}#Intent;scheme=klip;package=com.klipwallet.app;end;
-  const urlScheme = `${KLIP_APP_INTENT_SCHEME}://${A2A_URL_SCHEME}?request_key=${requestKey}`
+  // const urlScheme = `${KLIP_APP_INTENT_SCHEME}://${A2A_URL_SCHEME}?request_key=${requestKey}`
+  const urlScheme = `https://klipwallet.com/?target=/a2a?request_key=${requestKey}`
   const appStoreURL = ua.os.android ? AOS_KLIP_APP_STORE_LINK : IOS_KLIP_APP_STORE_LINK
   const appName = KLIP_APP_NAME
   const intentURI = `intent://${A2A_URL_SCHEME}?request_key=${requestKey}#Intent;scheme=${KLIP_APP_INTENT_SCHEME};package=${KLIP_APP_PACKAGE_NAME};end;`
