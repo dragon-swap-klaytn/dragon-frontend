@@ -1,24 +1,23 @@
+import { FarmWithStakedValue } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { AutoRenewIcon, Button, useToast } from '@pancakeswap/uikit'
-import { useAccount } from 'wagmi'
+import { getFullDisplayBalance } from '@pancakeswap/utils/formatBalance'
 import { ToastDescriptionWithTx } from 'components/Toast'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import useCatchTxError from 'hooks/useCatchTxError'
+import { useERC20 } from 'hooks/useContract'
+import { usePublicNodeWaitForTransaction } from 'hooks/usePublicNodeWaitForTransaction'
 import React, { useContext } from 'react'
 import { useAppDispatch } from 'state'
 import { fetchFarmUserDataAsync } from 'state/farms'
 import { useFarmFromPid, useFarmUser } from 'state/farms/hooks'
-import { getFullDisplayBalance } from '@pancakeswap/utils/formatBalance'
-import useUnstakeFarms from 'views/Farms/hooks/useUnstakeFarms'
-import { useERC20 } from 'hooks/useContract'
-import useProxyStakedActions from 'views/Farms/components/YieldBooster/hooks/useProxyStakedActions'
-import { YieldBoosterStateContext } from 'views/Farms/components/YieldBooster/components/ProxyFarmContainer'
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useNonBscFarmPendingTransaction, useTransactionAdder } from 'state/transactions/hooks'
-import { FarmTransactionStatus, NonBscFarmStepType } from 'state/transactions/actions'
-import { FarmWithStakedValue } from '@pancakeswap/farms'
-import { ChainId } from '@pancakeswap/chains'
 import { pickFarmTransactionTx } from 'state/global/actions'
-import { usePublicNodeWaitForTransaction } from 'hooks/usePublicNodeWaitForTransaction'
+import { FarmTransactionStatus, NonBscFarmStepType } from 'state/transactions/actions'
+import { useNonBscFarmPendingTransaction, useTransactionAdder } from 'state/transactions/hooks'
+import { YieldBoosterStateContext } from 'views/Farms/components/YieldBooster/components/ProxyFarmContainer'
+import useProxyStakedActions from 'views/Farms/components/YieldBooster/hooks/useProxyStakedActions'
+import useUnstakeFarms from 'views/Farms/hooks/useUnstakeFarms'
+import { useAccount } from 'wagmi'
 
 export interface UnstakeButtonProps {
   pid: number
@@ -83,14 +82,14 @@ const UnstakeButton: React.FC<React.PropsWithChildren<UnstakeButtonProps>> = ({ 
                   tx: receipt.hash,
                   status: FarmTransactionStatus.PENDING,
                 },
+                // {
+                //   step: 2,
+                //   chainId: ChainId.BSC,
+                //   tx: '',
+                //   status: FarmTransactionStatus.PENDING,
+                // },
                 {
                   step: 2,
-                  chainId: ChainId.BSC,
-                  tx: '',
-                  status: FarmTransactionStatus.PENDING,
-                },
-                {
-                  step: 3,
                   chainId,
                   tx: '',
                   status: FarmTransactionStatus.PENDING,

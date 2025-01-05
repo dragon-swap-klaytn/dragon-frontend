@@ -342,14 +342,14 @@ export const useTokenTransactionsQuery = (address: string): Transaction[] | unde
 }
 
 export const useGetChainName = () => {
-  const { pathname, query } = useRouter()
+  // const { pathname, query } = useRouter()
 
   const getChain = useCallback(() => {
-    if (pathname.includes('eth') || query.chain === 'eth') return 'ETH'
-    if (pathname.includes('bsc') || query.chain === 'bsc') return 'BSC'
+    // if (pathname.includes('eth') || query.chain === 'eth') return 'ETH'
+    // if (pathname.includes('bsc') || query.chain === 'bsc') return 'BSC'
 
     return 'KLAYTN'
-  }, [pathname, query])
+  }, [])
   const [name, setName] = useState<MultiChainName | null>(() => getChain())
   const result = useMemo(() => name, [name])
 
@@ -364,8 +364,6 @@ export const useChainNameByQuery = (): MultiChainName => {
   const { query } = useRouter()
   const chainName = useMemo(() => {
     switch (query?.chain) {
-      case 'eth':
-        return 'ETH'
       case 'klaytn':
         return 'KLAYTN'
       case 'klaytnTestnet':

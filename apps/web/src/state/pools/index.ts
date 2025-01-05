@@ -22,7 +22,7 @@ import {
   getPoolsConfig,
   isLegacyPool,
 } from '@pancakeswap/pools'
-import { bscTokens } from '@pancakeswap/tokens'
+import { klaytnTokens } from '@pancakeswap/tokens'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { getBalanceNumber } from '@pancakeswap/utils/formatBalance'
 import { getCurrencyUsdPrice } from '@pancakeswap/utils/getCurrencyPrice'
@@ -115,18 +115,18 @@ export const fetchCakePoolPublicDataAsync = () => async (dispatch) => {
 export const fetchCakePoolUserDataAsync =
   ({ account, chainId }: { account: string; chainId: ChainId }) =>
   async (dispatch) => {
-    const client = publicClient({ chainId: ChainId.BSC })
+    const client = publicClient({ chainId: ChainId.KLAYTN })
     const [allowance, stakingTokenBalance] = await client.multicall({
       contracts: [
         {
           abi: erc20ABI,
-          address: bscTokens.cake.address,
+          address: klaytnTokens.cake.address,
           functionName: 'allowance',
           args: [account as Address, getCakeVaultAddress(chainId)],
         },
         {
           abi: erc20ABI,
-          address: bscTokens.cake.address,
+          address: klaytnTokens.cake.address,
           functionName: 'balanceOf',
           args: [account as Address],
         },

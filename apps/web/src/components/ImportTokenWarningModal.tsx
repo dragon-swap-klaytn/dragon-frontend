@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Token } from '@pancakeswap/sdk'
-import { Box, InjectedModalProps, Modal } from '@pancakeswap/uikit'
+import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
 import ImportToken from 'components/SearchModal/ImportToken'
 import { useUnsupportedTokens } from 'hooks/Tokens'
 import { useMemo } from 'react'
@@ -41,9 +41,7 @@ const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({
         onCancel()
       }}
     >
-      <Box maxWidth="380px">
-        <ImportToken tokens={tokens} handleCurrencySelect={onDismiss} />
-      </Box>
+      <ImportToken tokens={tokens} handleCurrencySelect={onDismiss} />
     </Modal>
   )
 }

@@ -2,14 +2,14 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Box, Card, Flex, Text } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useEffect, useMemo, useRef } from 'react'
 import { useChainNameByQuery, useMultiChainPath } from 'state/info/hooks'
 import { styled } from 'styled-components'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import { CurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import Percent from 'views/Info/components/Percent'
-import { v3InfoPath, TOKEN_HIDE } from '../../constants'
+import { TOKEN_HIDE, v3InfoPath } from '../../constants'
 import { useTopTokensData } from '../../hooks'
 import { TokenData } from '../../types'
 
@@ -48,7 +48,7 @@ const DataCard = ({ tokenData }: { tokenData: TokenData }) => {
         <Flex>
           <Box width="32px" height="32px">
             {/* wrapped in a box because of alignment issues between img and svg */}
-            <CurrencyLogo address={tokenData.address} size="32px" chainName={chainName} />
+            <CurrencyLogo address={tokenData.address} size={32} chainName={chainName} />
           </Box>
           <Box ml="16px">
             <Text>{tokenData.symbol}</Text>

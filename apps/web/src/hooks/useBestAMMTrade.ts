@@ -1,4 +1,3 @@
-import { ChainId } from '@pancakeswap/chains'
 import { useDebounce, usePropsChanged } from '@pancakeswap/hooks'
 import { Currency, CurrencyAmount, Native, TradeType } from '@pancakeswap/sdk'
 import {
@@ -442,12 +441,6 @@ function createQuoteProvider2({ gasLimit, signal }: CreateQuoteProviderParams) {
     gasLimit,
     multicallConfigs: {
       ...BATCH_MULTICALL_CONFIGS,
-      [ChainId.BSC]: {
-        ...BATCH_MULTICALL_CONFIGS[ChainId.BSC],
-        defaultConfig: {
-          gasLimitPerCall: 1_000_000,
-        },
-      },
     },
   })
 }

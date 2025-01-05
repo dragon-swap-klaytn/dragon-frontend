@@ -1,17 +1,14 @@
 import { TradeType } from '@pancakeswap/sdk'
 import { SmartRouter, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { AutoColumn, QuestionHelper } from '@pancakeswap/uikit'
-import useLastTruthy from 'hooks/useLast'
+import { QuestionHelper } from '@pancakeswap/uikit'
 import { memo, ReactNode, useMemo, useState } from 'react'
 
-import { AdvancedSwapDetails, TradeSummary } from 'views/Swap/components/AdvancedSwapDetails'
-import { AdvancedDetailsFooter } from 'views/Swap/components/AdvancedSwapDetailsDropdown'
+import { TradeSummary } from 'views/Swap/components/AdvancedSwapDetails'
 
 import { Transition } from '@headlessui/react'
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import Loading from 'components/Common/Loading'
-import { MMTradeInfo } from 'views/Swap/MMLinkPools/hooks'
 import { RoutesBreakdown } from 'views/Swap/V3Swap/components'
 import { useIsWrapping, useSlippageAdjustedAmounts } from '../hooks'
 import { computeTradePriceBreakdown } from '../utils/exchange'
@@ -19,30 +16,6 @@ import { computeTradePriceBreakdown } from '../utils/exchange'
 interface Props {
   loaded: boolean
   trade?: SmartRouterTrade<TradeType> | null
-}
-
-export function MMTradeDetail({ loaded, mmTrade }: { loaded: boolean; mmTrade?: MMTradeInfo }) {
-  const lastTrade = useLastTruthy(mmTrade?.trade)
-
-  return (
-    <AdvancedDetailsFooter show={loaded}>
-      <AutoColumn gap="0px">
-        {lastTrade && (
-          <AdvancedSwapDetails
-            pairs={[]}
-            path={lastTrade?.routes[0].path}
-            slippageAdjustedAmounts={mmTrade?.slippageAdjustedAmounts}
-            realizedLPFee={mmTrade?.realizedLPFee}
-            inputAmount={mmTrade?.inputAmount}
-            outputAmount={mmTrade?.outputAmount}
-            tradeType={mmTrade?.tradeType}
-            priceImpactWithoutFee={mmTrade?.priceImpactWithoutFee}
-            isMM
-          />
-        )}
-      </AutoColumn>
-    </AdvancedDetailsFooter>
-  )
 }
 
 export const TradeDetails = memo(function TradeDetails({ loaded, trade }: Props) {
@@ -62,26 +35,14 @@ export const TradeDetails = memo(function TradeDetails({ loaded, trade }: Props)
 
   const { inputAmount, outputAmount, tradeType, routes } = trade
 
-  // margin-top: ${({ show }) => (show ? '16px' : 0)};
-  // padding-top: 16px;
-  // padding-bottom: 16px;
-  // width: 100%;
-  // max-width: 400px;
-  // border-radius: 20px;
-  // background-color: ${({ theme }) => theme.colors.invertedContrast};
-
-  // transform: ${({ show }) => (show ? 'translateY(0%)' : 'translateY(-100%)')};
-  // transition: transform 300ms ease-in-out;
-
   return (
-    // <AdvancedDetailsFooter show={loaded}>
     <div className="mt-4 flex flex-col items-center">
       <button
         type="button"
         onClick={() => setShow((prev) => !prev)}
         className="flex items-center space-x-1 hover:opacity-70 text-center"
       >
-        <span className="text-[13px]">Detail</span>
+        <span className="text-[13px] text-on-surface-secondary">Detail</span>
 
         {loaded ? (
           <CaretDown
@@ -118,23 +79,6 @@ export const TradeDetails = memo(function TradeDetails({ loaded, trade }: Props)
           <RoutesBreakdown routes={routes} />
         </div>
       </Transition>
-
-      {/* <div
-      className={clsx({
-        hidden: !loaded,
-      })}
-    >
-      <TradeSummary
-        slippageAdjustedAmounts={slippageAdjustedAmounts}
-        inputAmount={inputAmount}
-        outputAmount={outputAmount}
-        tradeType={tradeType}
-        priceImpactWithoutFee={priceImpactWithoutFee}
-        realizedLPFee={lpFeeAmount}
-        hasStablePair={hasStablePool}
-      />
-      <RoutesBreakdown routes={routes} />
-    </div> */}
     </div>
   )
 })

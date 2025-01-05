@@ -1,29 +1,28 @@
 import { useTranslation } from "@pancakeswap/localization";
 
-import BigNumber from "bignumber.js";
-import { useCallback, useEffect, useState } from "react";
-import { styled, useTheme } from "styled-components";
-import { getInterestBreakdown } from "@pancakeswap/utils/compoundApyHelpers";
-import { formatNumber, getDecimalAmount, getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
-import removeTrailingZeros from "@pancakeswap/utils/removeTrailingZeros";
-import getThemeValue from "@pancakeswap/uikit/util/getThemeValue";
 import {
-  Box,
   AutoRenewIcon,
   BalanceInput,
+  Box,
   Button,
   CalculateIcon,
   Flex,
   IconButton,
   Image,
   Link,
+  Modal,
+  RoiCalculatorModal,
   Skeleton,
   Slider,
   Text,
-  RoiCalculatorModal,
   TextProps,
-  Modal,
 } from "@pancakeswap/uikit";
+import { getInterestBreakdown } from "@pancakeswap/utils/compoundApyHelpers";
+import { formatNumber, getDecimalAmount, getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
+import removeTrailingZeros from "@pancakeswap/utils/removeTrailingZeros";
+import BigNumber from "bignumber.js";
+import { useCallback, useEffect, useState } from "react";
+import { styled, useTheme } from "styled-components";
 
 import PercentageButton from "./PercentageButton";
 
@@ -197,12 +196,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
   }
 
   return (
-    <Modal
-      minWidth="346px"
-      title={isRemovingStake ? t("Unstake") : t("Stake in Pool")}
-      onDismiss={onDismiss}
-      headerBackground={getThemeValue(theme, "colors.gradientCardHeader")}
-    >
+    <Modal minWidth="346px" title={isRemovingStake ? t("Unstake") : t("Stake in Pool")} onDismiss={onDismiss}>
       <Box overflow="hide auto">
         {stakingLimit.gt(0) && !isRemovingStake && (
           <Text color="secondary" bold mb="24px" style={{ textAlign: "center" }} fontSize="16px">

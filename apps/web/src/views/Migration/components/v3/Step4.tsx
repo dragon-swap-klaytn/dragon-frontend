@@ -1,22 +1,11 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Token } from '@pancakeswap/sdk'
-import {
-  AtomBox,
-  AutoRow,
-  Button,
-  Dots,
-  Flex,
-  Modal,
-  ModalV2,
-  PreTitle,
-  Tag,
-  Text,
-  useModalV2,
-} from '@pancakeswap/uikit'
+import { AtomBox, AutoRow, Button, Dots, Flex, Modal, ModalV2, PreTitle, Text, useModalV2 } from '@pancakeswap/uikit'
 import { AppBody, AppHeader } from 'components/App'
 import { LightGreyCard } from 'components/Card'
 import { CommitButton } from 'components/CommitButton'
+import Chip from 'components/Common/Chip'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { DoubleCurrencyLogo } from 'components/Logo'
 import { RangeTag } from 'components/RangeTag'
@@ -54,7 +43,7 @@ export function Step4() {
   const native = useNativeCurrency()
 
   return (
-    <AppBody style={{ maxWidth: '700px' }} m="auto">
+    <AppBody maxWidth="max-w-3xl">
       <AppHeader title={t('Your Liquidity')} subtitle={t('List of your liquidity positions')} />
       <AtomBox bg="gradientCardHeader" style={{ minHeight: '400px' }} pt="16px" px="16px">
         {!account ? (
@@ -89,14 +78,10 @@ export function Step4() {
                     )
                   }
                   tags={
-                    <>
-                      {p.isStaked && (
-                        <Tag outline variant="warning" mr="8px">
-                          {t('Farming')}
-                        </Tag>
-                      )}
+                    <div className="flex items-center space-x-2">
+                      {p.isStaked && <Chip color="orange">{t('Farming')}</Chip>}
                       <RangeTag removed={removed} outOfRange={outOfRange} />
-                    </>
+                    </div>
                   }
                   subtitle={subtitle}
                   onSwitch={() => setInverted((prev) => !prev)}

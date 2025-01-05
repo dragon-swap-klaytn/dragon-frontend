@@ -10,8 +10,8 @@ const Handle = styled.path<{ color: string }>`
   pointer-events: none;
 
   stroke-width: 3;
-  stroke: ${({ color }) => color};
-  fill: ${({ color }) => color};
+  stroke: #fb923c;
+  fill: #fb923c;
 `;
 
 const HandleAccent = styled.path`
@@ -19,8 +19,8 @@ const HandleAccent = styled.path`
   pointer-events: none;
 
   stroke-width: 1.5;
-  stroke: ${({ theme }) => theme.colors.background};
-  opacity: ${({ theme }) => theme.colors.background};
+  stroke: #fff;
+  opacity: 0.5;
 `;
 
 const LabelGroup = styled.g<{ visible: boolean }>`
@@ -29,13 +29,13 @@ const LabelGroup = styled.g<{ visible: boolean }>`
 `;
 
 const TooltipBackground = styled.rect`
-  fill: ${({ theme }) => theme.colors.secondary};
+  fill: #fb923c;
 `;
 
 const Tooltip = styled.text`
   text-anchor: middle;
   font-size: 13px;
-  fill: ${({ theme }) => theme.colors.background};
+  fill: #fff;
 `;
 
 // flips the handles draggers when close to the container edges

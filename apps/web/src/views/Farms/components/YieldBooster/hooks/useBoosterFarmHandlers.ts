@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
 import { BOOSTED_FARM_GAS_LIMIT } from 'config'
-import { useBCakeFarmBoosterContract } from 'hooks/useContract'
-import useCatchTxError from 'hooks/useCatchTxError'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
+import useCatchTxError from 'hooks/useCatchTxError'
+import { useBCakeFarmBoosterContract } from 'hooks/useContract'
 
 const useBoosterFarmHandlers = (farmPid: number, onDone) => {
   const farmBoosterContract = useBCakeFarmBoosterContract()

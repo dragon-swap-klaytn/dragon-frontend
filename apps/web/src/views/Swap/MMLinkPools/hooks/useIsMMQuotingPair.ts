@@ -1,6 +1,5 @@
-import { ChainId } from '@pancakeswap/chains'
 import { Currency } from '@pancakeswap/sdk'
-import { SWAP_BSC_MM, SWAP_ETH_MM } from 'config/constants/lists'
+
 // import { ConnectorNames } from 'config/wallet'
 import { ExtendEthereum } from 'global'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -8,13 +7,10 @@ import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { selectorByUrlsAtom } from 'state/lists/hooks'
 import { useAccount } from 'wagmi'
-import { IS_SUPPORT_NATIVE_TOKEN, MM_STABLE_TOKENS_WHITE_LIST, NATIVE_CURRENCY_ADDRESS } from '../constants'
+import { IS_SUPPORT_NATIVE_TOKEN, NATIVE_CURRENCY_ADDRESS } from '../constants'
 import { useIsMMSupportChain } from './useIsMMSupportChain'
 
-const QUOTING_WHITE_LIST = {
-  1: SWAP_ETH_MM,
-  56: SWAP_BSC_MM,
-}
+const QUOTING_WHITE_LIST = {}
 
 export const useTokenList = (url?: string): Record<string, string> => {
   const listsByUrl = useAtomValue(selectorByUrlsAtom)
@@ -47,15 +43,15 @@ export const useIsMMQuotingPair = (
       (connector?.id === 'safe' || Boolean((window.ethereum as ExtendEthereum)?.isBlocto))
     )
       return false
-    if (
-      chainId === ChainId.BSC &&
-      inputCurrency.isToken &&
-      outputCurrency.isToken &&
-      MM_STABLE_TOKENS_WHITE_LIST[chainId][inputCurrency.address] &&
-      MM_STABLE_TOKENS_WHITE_LIST[chainId][outputCurrency.address]
-    )
-      // use StableSwap for BSC
-      return false
+    // if (
+    //   chainId === ChainId.BSC &&
+    //   inputCurrency.isToken &&
+    //   outputCurrency.isToken &&
+    //   MM_STABLE_TOKENS_WHITE_LIST[chainId][inputCurrency.address] &&
+    //   MM_STABLE_TOKENS_WHITE_LIST[chainId][outputCurrency.address]
+    // )
+    //   // use StableSwap for BSC
+    //   return false
     if (
       list[
         (inputCurrency.isToken

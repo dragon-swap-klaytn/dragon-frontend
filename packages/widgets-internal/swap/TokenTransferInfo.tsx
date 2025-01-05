@@ -20,7 +20,7 @@ const TokenTransferInfo: React.FC<TokenTransferInfoProps> = ({
   currencyB,
 }) => {
   return (
-    <div className="flex flex-col items-center space-y-3 w-full max-w-60">
+    <div className="flex flex-col items-center space-y-3 w-full max-w-60 text-on-surface-primary">
       <TokenAmountRow amount={amountA} currency={currencyA} symbol={symbolA} />
       <ArrowCircleDown size={24} className="text-gray-50" />
       <TokenAmountRow amount={amountB} currency={currencyB} symbol={symbolB} />
@@ -32,7 +32,7 @@ function TokenAmountRow({ amount, currency, symbol }: { amount: string; currency
   return (
     <div className="flex items-center space-x-2 text-sm justify-between w-full rounded-[20px] pl-2 pr-3 py-2 bg-surface-container-highest">
       <div className="flex items-center space-x-2">
-        <CurrencyLogo size="20px" currency={currency} />
+        <CurrencyLogo size={20} currency={currency} />
         <span>{symbol}</span>
       </div>
 

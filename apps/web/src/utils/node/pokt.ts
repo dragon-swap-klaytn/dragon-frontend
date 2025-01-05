@@ -1,8 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 
 const pocketPrefix = {
-  [ChainId.BSC]: 'bsc-mainnet',
-  [ChainId.ETHEREUM]: 'eth-mainnet',
   [ChainId.KLAYTN]: 'klaytn-mainnet',
 } as const
 

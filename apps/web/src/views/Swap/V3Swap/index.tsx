@@ -11,7 +11,7 @@ export function V3SwapForm() {
   const price = useMemo(() => trade && SmartRouter.getExecutionPrice(trade), [trade])
 
   return (
-    <>
+    <div className="max-w-sm mx-auto bg-surface-container rounded-2xl p-5">
       <FormHeader onRefresh={refresh} refreshDisabled={!trade} syncing={syncing} />
 
       <FormMain
@@ -23,6 +23,6 @@ export function V3SwapForm() {
       />
 
       <TradeDetails loaded={tradeLoaded} trade={trade} />
-    </>
+    </div>
   )
 }

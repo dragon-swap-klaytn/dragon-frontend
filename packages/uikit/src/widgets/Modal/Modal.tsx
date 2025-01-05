@@ -1,13 +1,12 @@
 import { CaretLeft, X } from "@phosphor-icons/react";
 import clsx from "clsx";
 import React, { PropsWithChildren, useContext } from "react";
-import Heading from "../../components/Heading/Heading";
 import { ModalV2Context } from "./ModalV2";
 import { ModalProps, ModalWrapperProps } from "./types";
 
 export const MODAL_SWIPE_TO_CLOSE_VELOCITY = 300;
 
-export const ModalWrapper = ({ children, maxWidth }: PropsWithChildren<ModalWrapperProps>) => {
+export const ModalWrapper = ({ children, maxWidth = "max-w-md" }: PropsWithChildren<ModalWrapperProps>) => {
   return (
     <div
       className={clsx(
@@ -31,8 +30,9 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
 }) => {
   const context = useContext(ModalV2Context);
   const onDismiss = context?.onDismiss || onDismiss_;
+
   return (
-    <ModalWrapper onDismiss={onDismiss} hideCloseButton={hideCloseButton} maxWidth={maxWidth}>
+    <ModalWrapper onDismiss={onDismiss} maxWidth={maxWidth}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1">
           {onBack && (
@@ -40,7 +40,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
               <CaretLeft height={20} width={20} className="text-on-surface-tertiary" />
             </button>
           )}
-          <Heading>{title}</Heading>
+          <h2 className="text-lg font-bold text-on-surface-primary">{title}</h2>
         </div>
         <div className="flex items-center space-x-3">
           {headerRightSlot}

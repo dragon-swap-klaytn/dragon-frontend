@@ -5,25 +5,14 @@ import { isActiveV3Farm } from '@pancakeswap/farms'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@pancakeswap/sdk'
 import {
   AtomBox,
-  AutoColumn,
-  AutoRow,
-  Box,
-  Button,
-  Card,
-  CardBody,
+  ButtonV2,
+  Container,
+  CurrencyLogoWithAmount,
+  CurrencyLogoWithSymbol,
   ExpandableLabel,
   Flex,
-  Heading,
-  Message,
   NotFound,
-  PreTitle,
-  RowBetween,
-  ScanLink,
   Spinner,
-  SyncAltIcon,
-  Tag,
-  Text,
-  Toggle,
   useMatchBreakpoints,
   useModal,
 } from '@pancakeswap/uikit'
@@ -31,7 +20,7 @@ import {
 import { ConfirmationModalContent, NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
 import { MasterChefV3, NonfungiblePositionManager, Pool, Position, isPoolTickInRange } from '@pancakeswap/v3-sdk'
-import { AppHeader } from 'components/App'
+import { AppBody, AppHeader } from 'components/App'
 import { useToken } from 'hooks/Tokens'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
@@ -41,7 +30,6 @@ import { usePool } from 'hooks/v3/usePools'
 import { NextSeo } from 'next-seo'
 // import { usePositionTokenURI } from 'hooks/v3/usePositionTokenURI'
 import { Trans, useTranslation } from '@pancakeswap/localization'
-import { LightGreyCard } from 'components/Card'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
 import { CurrencyLogo, DoubleCurrencyLogo } from 'components/Logo'
 import { RangePriceSection } from 'components/RangePriceSection'
@@ -60,13 +48,10 @@ import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
-import { ReactNode, memo, useCallback, useMemo, useState } from 'react'
-import { ChainLinkSupportChains } from 'state/info/constant'
+import { PropsWithChildren, ReactNode, memo, useCallback, useMemo, useState } from 'react'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
-import { styled } from 'styled-components'
 import { calculateGasMargin, getBlockExploreLink } from 'utils'
-import currencyId from 'utils/currencyId'
 import { formatCurrencyAmount, formatPrice } from 'utils/formatCurrencyAmount'
 import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
@@ -83,17 +68,17 @@ import { MerklTag } from 'components/Merkl/MerklTag'
 import { useMerklInfo } from 'hooks/useMerkl'
 */
 import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
+import { ArrowsClockwise } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
+import clsx from 'clsx'
+import Chip from 'components/Common/Chip'
+import ExternalLink from 'components/Common/ExternalLink'
+import Notification from 'components/Common/Notification'
+import ToggleSwitch from 'components/Common/ToggleSwitch'
 import Link from 'next/link'
+import currencyId from 'utils/currencyId'
 import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-
-export const BodyWrapper = styled(Card)`
-  border-radius: 24px;
-  max-width: 858px;
-  width: 100%;
-  z-index: 1;
-`
 
 const useInverter = ({
   priceLower,
@@ -140,42 +125,42 @@ function PositionPriceSection({
 
   return (
     <>
-      <AutoRow justifyContent="space-between" mb="16px" mt="24px">
-        <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-          {t('Price Range')}
-        </Text>
+      <div className="flex items-center space-x-2 w-full justify-between mt-4">
+        <SectionTitle>{t('Price Range')}</SectionTitle>
+
         {currencyBase && currencyQuote && (
           <RateToggle currencyA={currencyBase} handleRateToggle={() => setManuallyInverted(!manuallyInverted)} />
         )}
-      </AutoRow>
-      <AutoRow mb="8px">
-        <Flex alignItems="center" justifyContent="space-between" width="100%" flexWrap={['wrap', 'wrap', 'nowrap']}>
+      </div>
+
+      <div className="flex flex-col items-center w-full space-y-4 mt-2">
+        <div className="flex items-center space-x-2 w-full">
           <RangePriceSection
-            mr={['0', '0', '16px']}
-            mb={['8px', '8px', '0']}
             title={t('Min Price')}
             price={formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
             currency0={currencyQuote}
             currency1={currencyBase}
           />
-          {isMobile ? null : <SyncAltIcon width="24px" mx="16px" />}
+
+          {isMobile ? null : <ArrowsClockwise size={24} className="text-on-surface-tertiary shrink-0" />}
+
           <RangePriceSection
-            ml={['0', '0', '16px']}
             title={t('Max Price')}
             price={formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
             currency0={currencyQuote}
             currency1={currencyBase}
           />
-        </Flex>
-      </AutoRow>
-      {pool && currencyQuote && currencyBase ? (
-        <RangePriceSection
-          title={t('Current Price')}
-          currency0={currencyQuote}
-          currency1={currencyBase}
-          price={formatPrice(inverted ? pool.token1Price : pool.token0Price, 6, locale)}
-        />
-      ) : null}
+        </div>
+
+        {pool && currencyQuote && currencyBase ? (
+          <RangePriceSection
+            title={t('Current Price')}
+            currency0={currencyQuote}
+            currency1={currencyBase}
+            price={formatPrice(inverted ? pool.token1Price : pool.token0Price, 6, locale)}
+          />
+        ) : null}
+      </div>
     </>
   )
 }
@@ -446,29 +431,22 @@ export default function PoolPage() {
 
   const modalHeader = () => (
     <>
-      <LightGreyCard mb="16px">
-        <AutoRow justifyContent="space-between" mb="8px">
-          <Flex>
-            <CurrencyLogo currency={feeValueUpper?.currency} size="24px" />
-            <Text color="textSubtle" ml="4px">
-              {feeValueUpper?.currency?.symbol}
-            </Text>
-          </Flex>
-          <Text>{feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}</Text>
-        </AutoRow>
-        <AutoRow justifyContent="space-between">
-          <Flex>
-            <CurrencyLogo currency={feeValueLower?.currency} size="24px" />
-            <Text color="textSubtle" ml="4px">
-              {feeValueLower?.currency?.symbol}
-            </Text>
-          </Flex>
-          <Text>{feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}</Text>
-        </AutoRow>
-      </LightGreyCard>
-      <Text mb="16px" px="16px">
+      <Container>
+        <CurrencyLogoWithAmount
+          currencyA={feeValueUpper?.currency}
+          symbol={feeValueUpper?.currency?.symbol}
+          amount={feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}
+        />
+
+        <CurrencyLogoWithAmount
+          currencyA={feeValueLower?.currency}
+          symbol={feeValueLower?.currency?.symbol}
+          amount={feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}
+        />
+      </Container>
+      <p className="my-4 text-sm text-on-surface-primary">
         {t('Collecting fees will withdraw currently available fees for you')}
-      </Text>
+      </p>
     </>
   )
 
@@ -483,9 +461,9 @@ export default function PoolPage() {
         <ConfirmationModalContent
           topContent={modalHeader}
           bottomContent={() => (
-            <Button width="100%" onClick={collect}>
+            <ButtonV2 variant="primary" fullWidth onClick={collect}>
               {t('Collect')}
-            </Button>
+            </ButtonV2>
           )}
         />
       )}
@@ -504,6 +482,36 @@ export default function PoolPage() {
 
   // const { hasMerkl } = useMerklInfo(poolAddress)
 
+  const buttons = useMemo(
+    () =>
+      currency0 && currency1 ? (
+        <div
+          className={clsx({
+            'flex items-center space-x-2': !isMobile,
+            'w-full flex flex-col items-center space-y-2': isMobile,
+          })}
+        >
+          <NextLinkFromReactRouter
+            to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
+            className={isMobile ? 'w-full' : ''}
+          >
+            <ButtonV2 disabled={!isOwnNFT} fullWidth={isMobile} variant="primary" onClick={() => {}} scale="sm">
+              {t('Add')}
+            </ButtonV2>
+          </NextLinkFromReactRouter>
+
+          {!removed && (
+            <NextLinkFromReactRouter to={`/remove/${tokenId}`} className={isMobile ? 'w-full' : ''}>
+              <ButtonV2 disabled={!isOwnNFT} fullWidth={isMobile} variant="subtle" onClick={() => {}} scale="sm">
+                {t('Remove')}
+              </ButtonV2>
+            </NextLinkFromReactRouter>
+          )}
+        </div>
+      ) : null,
+    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId, isMobile],
+  )
+
   if (!isLoading && poolState === PoolState.NOT_EXISTS) {
     return (
       <NotFound LinkComp={Link}>
@@ -514,354 +522,196 @@ export default function PoolPage() {
 
   const farmingTips =
     inRange && ownsNFT && hasActiveFarm && !isStakedInMCv3 ? (
-      <Message variant="primary" mb="2em">
-        <Box>
-          <Text display="inline" bold mr="0.25em">{`${currencyQuote?.symbol}-${currencyBase?.symbol}`}</Text>
-          <Text display="inline">
-            {t(
-              'has an active DragonSwap farm. Stake your position in the farm to start earning with the indicated APR with %cake% farming.',
-              {
-                cake: CAKE_SYMBOL_VIEW,
-              },
-            )}
-          </Text>
-          <NextLinkFromReactRouter to="/farms">
-            <Text display="inline" bold ml="0.25em" style={{ textDecoration: 'underline' }}>
-              {t('Go to Farms')} {' >>'}
-            </Text>
-          </NextLinkFromReactRouter>
-        </Box>
-      </Message>
+      <Notification
+        variant="info"
+        className={clsx('mb-4', {
+          'mt-2': isMobile,
+        })}
+      >
+        <p>
+          <b>{`${currencyQuote?.symbol}-${currencyBase?.symbol}`}</b>&nbsp;
+          {t(
+            'has an active DragonSwap farm. Stake your position in the farm to start earning with the indicated APR with %cake% farming.',
+            {
+              cake: CAKE_SYMBOL_VIEW,
+            },
+          )}
+        </p>
+        <NextLinkFromReactRouter to="/farms" className="underline underline-offset-2 hover:opacity-70">
+          {t('Go to Farms')} {' >>'}
+        </NextLinkFromReactRouter>
+      </Notification>
     ) : null
 
   return (
     <Page>
       {!isLoading && <NextSeo title={`${currencyQuote?.symbol}-${currencyBase?.symbol} V3 LP #${tokenIdFromUrl}`} />}
-      <BodyWrapper>
+      <AppBody maxWidth="max-w-2xl">
         {isLoading ? (
           <Flex width="100%" justifyContent="center" alignItems="center" minHeight="200px" mb="32px">
             <Spinner />
           </Flex>
         ) : (
-          <>
+          <div className="bg-surface-container">
             <AppHeader
               title={
-                <Box mb={['8px', '8px', 0]} width="100%" style={{ flex: 1 }} minWidth={['auto', 'auto', 'max-content']}>
-                  <Flex alignItems="center">
-                    <DoubleCurrencyLogo size={24} currency0={currencyQuote} currency1={currencyBase} />
-                    <Heading as="h2" ml="8px">
-                      {currencyQuote?.symbol}-{currencyBase?.symbol}
-                    </Heading>
-                    {!isMobile && (
-                      <>
-                        {isStakedInMCv3 && (
-                          <Tag ml="8px" outline variant="warning">
-                            {t('Farming')}
-                          </Tag>
-                        )}
-                        <RangeTag ml="8px" removed={removed} outOfRange={!inRange} />
-                      </>
-                    )}
-                    {/* <MerklTag poolAddress={poolAddress} /> */}
-                  </Flex>
-                  <RowBetween gap="16px" flexWrap="nowrap">
-                    <Text fontSize="14px" color="textSubtle" style={{ wordBreak: 'break-word' }}>
-                      V3 LP #{tokenIdFromUrl} / {new Percent(feeAmount || 0, 1_000_000).toSignificant()}%{' '}
-                      {t('fee tier')}
-                    </Text>
-                    {isMobile && (
-                      <Flex>
-                        {isStakedInMCv3 ? (
-                          <Tag mr="8px" outline variant="warning">
-                            {t('Farming')}
-                          </Tag>
-                        ) : null}
-                        <RangeTag removed={removed} outOfRange={!inRange} />
-                      </Flex>
-                    )}
-                  </RowBetween>
-                </Box>
+                <div className="flex flex-col items-start space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center space-x-2">
+                      <DoubleCurrencyLogo size={24} currency0={currencyQuote} currency1={currencyBase} />
+                      <h2 className="text-lg font-bold text-on-surface-primary">
+                        {currencyQuote?.symbol}-{currencyBase?.symbol}
+                      </h2>
+                    </div>
+
+                    {Boolean(isStakedInMCv3) && <Chip color="orange">{t('Farming')}</Chip>}
+                    <RangeTag removed={removed} outOfRange={!inRange} />
+                  </div>
+
+                  <span className="text-sm text-on-surface-secondary">
+                    V3 LP #{tokenIdFromUrl} / {new Percent(feeAmount || 0, 1_000_000).toSignificant()}% {t('fee tier')}
+                  </span>
+                </div>
               }
               backTo="/liquidity"
               noConfig
-              buttons={
-                !isMobile &&
-                currency0 &&
-                currency1 && (
-                  <>
-                    <div
-                      style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        window.location.href = `/increase/${currencyId(currency0)}/${currencyId(
-                          currency1,
-                        )}/${feeAmount}/${tokenId}`
-                      }}
-                    >
-                      <Button disabled={!isOwnNFT} width="100%">
-                        {t('Add')}
-                      </Button>
-                    </div>
-                    {!removed && (
-                      <div
-                        style={{ cursor: 'pointer' }}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          window.location.href = `/remove/${tokenId}`
-                        }}
-                      >
-                        <Button disabled={!isOwnNFT} ml="4px" variant="secondary" width="100%">
-                          {t('Remove')}
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                )
-              }
+              buttons={!isMobile && Boolean(currency0) && Boolean(currency1) && buttons}
             />
-            <CardBody>
-              {isMobile && (
-                <>
-                  <div
-                    style={{ cursor: 'pointer' }}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      window.location.href = `/increase/${currencyId(currency0)}/${currencyId(
-                        currency1,
-                      )}/${feeAmount}/${tokenId}`
-                    }}
-                  >
-                    <Button disabled={!isOwnNFT} width="100%" mb="8px">
-                      {t('Add')}
-                    </Button>
-                  </div>
-                  {!removed && (
-                    <div
-                      style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        window.location.href = `/remove/${tokenId}`
-                      }}
-                    >
-                      <Button disabled={!isOwnNFT} variant="secondary" width="100%" mb="8px">
-                        {t('Remove')}
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
+
+            <div className="p-4">
+              {isMobile && buttons}
               {farmingTips}
-              <AutoRow>
-                <Flex
-                  alignItems="center"
-                  justifyContent="space-between"
-                  width="100%"
-                  mb="8px"
-                  style={{ gap: '16px' }}
-                  flexWrap={['wrap', 'wrap', 'nowrap']}
-                >
-                  <Box width="100%" mb={['8px', '8px', 0]} position="relative">
-                    <Flex position="absolute" right={0}>
-                      <AprCalculator
-                        allowApply={false}
-                        showQuestion
-                        baseCurrency={currencyBase}
-                        quoteCurrency={currencyQuote}
-                        feeAmount={feeAmount}
-                        positionDetails={positionDetails}
-                        defaultDepositUsd={fiatValueOfLiquidity?.toFixed(2)}
-                        tokenAmount0={inRange ? position?.amount0 : undefined}
-                        tokenAmount1={inRange ? position?.amount1 : undefined}
-                      />
-                    </Flex>
-                    <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-                      {t('Liquidity')}
-                    </Text>
 
-                    <Text fontSize="24px" fontWeight={600} mb="8px">
-                      $
-                      {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100))
-                        ? fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })
-                        : '-'}
-                    </Text>
-                    <LightGreyCard
-                      mr="4px"
-                      style={{
-                        padding: '16px 8px',
-                      }}
-                    >
-                      <AutoRow justifyContent="space-between" mb="8px">
-                        <Flex>
-                          <CurrencyLogo currency={currencyQuote} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {unwrappedToken(positionValueUpper?.currency)?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small mr="4px">
-                            <FormattedCurrencyAmount currencyAmount={positionValueUpper} />
-                          </Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" mr="4px">
-                            {positionValueUpper && priceValueUpper
-                              ? `~$${priceValueUpper
-                                  .quote(positionValueUpper?.wrapped)
-                                  .toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                      <AutoRow justifyContent="space-between">
-                        <Flex>
-                          <CurrencyLogo currency={currencyBase} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {unwrappedToken(positionValueLower?.currency)?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small mr="4px">
-                            <FormattedCurrencyAmount currencyAmount={positionValueLower} />
-                          </Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" mr="4px">
-                            {positionValueLower && priceValueLower
-                              ? `~$${priceValueLower
-                                  .quote(positionValueLower?.wrapped)
-                                  .toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                    </LightGreyCard>
-                  </Box>
-                  <Box width="100%">
-                    <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-                      {t('Unclaimed Fees')}
-                    </Text>
-                    <AutoRow justifyContent="space-between" mb="8px">
-                      <Text fontSize="24px" fontWeight={600}>
-                        $
-                        {fiatValueOfFees?.greaterThan(new Fraction(1, 100))
-                          ? fiatValueOfFees.toFixed(2, { groupSeparator: ',' })
-                          : '-'}
-                      </Text>
+              <div className="grid md:grid-cols-2 gap-4 w-full">
+                <div className="w-full">
+                  <div className="w-full flex items-center space-x-2 justify-between">
+                    <SectionTitle>{t('Liquidity')}</SectionTitle>
 
-                      <Button
-                        scale="sm"
-                        disabled={
-                          !isOwnNFT ||
-                          collecting ||
-                          isCollectPending ||
-                          !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
-                        }
-                        onClick={onClaimFee}
-                      >
-                        {!!collectMigrationHash && !isCollectPending
-                          ? t('Collected')
-                          : isCollectPending || collecting
-                          ? t('Collecting...')
-                          : t('Collect')}
-                      </Button>
-                    </AutoRow>
-                    <LightGreyCard
-                      mr="4px"
-                      style={{
-                        padding: '16px 8px',
-                      }}
-                    >
-                      <AutoRow justifyContent="space-between" mb="8px">
-                        <Flex>
-                          <CurrencyLogo currency={feeValueUpper?.currency} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {feeValueUpper?.currency?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small>{feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}</Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" ml="4px">
-                            {feeValueUpper && priceValueUpper
-                              ? `~$${priceValueUpper.quote(feeValueUpper?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                      <AutoRow justifyContent="space-between">
-                        <Flex>
-                          <CurrencyLogo currency={feeValueLower?.currency} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {feeValueLower?.currency?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small>{feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}</Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" ml="4px">
-                            {feeValueLower && priceValueLower
-                              ? `~$${priceValueLower.quote(feeValueLower?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                    </LightGreyCard>
-                  </Box>
-                </Flex>
-              </AutoRow>
-              {showCollectAsWNative && (
-                <Flex mb="8px">
-                  <Flex ml="auto" alignItems="center">
-                    <Text mr="8px">
-                      {t('Collect as')} {nativeWrappedSymbol}
-                    </Text>
-                    <Toggle
-                      id="receive-as-wnative"
-                      scale="sm"
-                      checked={receiveWNATIVE}
-                      onChange={() => setReceiveWNATIVE((prevState) => !prevState)}
+                    <AprCalculator
+                      allowApply={false}
+                      showQuestion
+                      baseCurrency={currencyBase}
+                      quoteCurrency={currencyQuote}
+                      feeAmount={feeAmount}
+                      positionDetails={positionDetails}
+                      defaultDepositUsd={fiatValueOfLiquidity?.toFixed(2)}
+                      tokenAmount0={inRange ? position?.amount0 : undefined}
+                      tokenAmount1={inRange ? position?.amount1 : undefined}
                     />
-                  </Flex>
-                </Flex>
-              )}
-              <Flex flexWrap={['wrap', 'wrap', 'wrap', 'nowrap']}>
-                <Box width="100%">
-                  <PositionPriceSection
-                    manuallyInverted={manuallyInverted}
-                    setManuallyInverted={setManuallyInverted}
-                    currencyQuote={currencyQuote}
-                    currencyBase={currencyBase}
-                    isMobile={isMobile}
-                    priceLower={priceLower}
-                    inverted={inverted}
-                    pool={pool}
-                    priceUpper={priceUpper}
-                    tickAtLimit={tickAtLimit}
-                  />
-                </Box>
+                  </div>
 
-                {/*
-                <MerklSection
-                  disabled={!isOwnNFT}
-                  outRange={!inRange}
-                  isStakedInMCv3={Boolean(isStakedInMCv3)}
-                  notEnoughLiquidity={Boolean(
-                    fiatValueOfLiquidity
-                      ? fiatValueOfLiquidity.lessThan(
-                          // NOTE: if Liquidity is lessage 20$, can't participate in Merkl
-                          new Fraction(
-                            BigInt(20) * fiatValueOfLiquidity.decimalScale * fiatValueOfLiquidity.denominator,
-                            fiatValueOfLiquidity?.denominator,
-                          ),
-                        )
-                      : false,
-                  )}
-                  poolAddress={poolAddress}
-                />
-                */}
-              </Flex>
+                  <p className="font-bold mb-2 text-on-surface-primary text-2xl">
+                    $
+                    {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100))
+                      ? fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })
+                      : '-'}
+                  </p>
+
+                  <CurrencyWithBalance
+                    a={{
+                      currency: currencyQuote,
+                      symbol: unwrappedToken(positionValueUpper?.currency)?.symbol,
+                      amount: positionValueUpper,
+                      balance:
+                        positionValueUpper && priceValueUpper
+                          ? `~$${priceValueUpper
+                              .quote(positionValueUpper?.wrapped)
+                              .toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                    b={{
+                      currency: currencyBase,
+                      symbol: unwrappedToken(positionValueLower?.currency)?.symbol,
+                      amount: positionValueLower,
+                      balance:
+                        positionValueLower && priceValueLower
+                          ? `~$${priceValueLower
+                              .quote(positionValueLower?.wrapped)
+                              .toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                  />
+                </div>
+
+                <div className="w-full">
+                  <SectionTitle>{t('Unclaimed Fees')}</SectionTitle>
+
+                  <div className="flex items-center space-x-2 w-full justify-between mb-2">
+                    <p className="font-bold text-on-surface-primary text-2xl">
+                      $
+                      {fiatValueOfFees?.greaterThan(new Fraction(1, 100))
+                        ? fiatValueOfFees.toFixed(2, { groupSeparator: ',' })
+                        : '-'}
+                    </p>
+
+                    <ButtonV2
+                      scale="sm"
+                      disabled={
+                        !isOwnNFT ||
+                        collecting ||
+                        isCollectPending ||
+                        !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
+                      }
+                      onClick={onClaimFee}
+                      variant="primary"
+                    >
+                      {!!collectMigrationHash && !isCollectPending
+                        ? t('Collected')
+                        : isCollectPending || collecting
+                        ? t('Collecting...')
+                        : t('Collect')}
+                    </ButtonV2>
+                  </div>
+
+                  <CurrencyWithBalance
+                    a={{
+                      currency: feeValueUpper?.currency,
+                      symbol: feeValueUpper?.currency?.symbol,
+                      amount: feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-',
+                      balance:
+                        feeValueUpper && priceValueUpper
+                          ? `~$${priceValueUpper.quote(feeValueUpper?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                    b={{
+                      currency: feeValueLower?.currency,
+                      symbol: feeValueLower?.currency?.symbol,
+                      amount: feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-',
+                      balance:
+                        feeValueLower && priceValueLower
+                          ? `~$${priceValueLower.quote(feeValueLower?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {showCollectAsWNative && (
+                <div className="w-full flex items-center space-x-2 justify-end mt-1">
+                  <span className="text-sm text-on-surface-primary">
+                    {t('Collect as')} {nativeWrappedSymbol}
+                  </span>
+
+                  <ToggleSwitch
+                    activated={receiveWNATIVE}
+                    setActivated={() => setReceiveWNATIVE((prevState) => !prevState)}
+                  />
+                </div>
+              )}
+
+              <PositionPriceSection
+                manuallyInverted={manuallyInverted}
+                setManuallyInverted={setManuallyInverted}
+                currencyQuote={currencyQuote}
+                currencyBase={currencyBase}
+                isMobile={isMobile}
+                priceLower={priceLower}
+                inverted={inverted}
+                pool={pool}
+                priceUpper={priceUpper}
+                tickAtLimit={tickAtLimit}
+              />
+
               {positionDetails && currency0 && currency1 && (
                 <PositionHistory
                   tokenId={positionDetails.tokenId.toString()}
@@ -869,10 +719,10 @@ export default function PoolPage() {
                   currency1={currency1}
                 />
               )}
-            </CardBody>
-          </>
+            </div>
+          </div>
         )}
-      </BodyWrapper>
+      </AppBody>
     </Page>
   )
 }
@@ -912,6 +762,7 @@ function PositionHistory_({
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const { chainId } = useActiveChainId()
+  const { isMobile } = useMatchBreakpoints()
   const client = v3Clients[chainId as ChainId]
   const { data, isLoading } = useQuery(
     ['positionHistory', chainId, tokenId],
@@ -979,17 +830,30 @@ function PositionHistory_({
       >
         {isExpanded ? t('Hide') : t('History')}
       </ExpandableLabel>
+
       {isExpanded && (
-        <AtomBox display="grid" gap="16px">
-          <AtomBox display="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }} alignItems="center">
-            <PreTitle>{t('Timestamp')}</PreTitle>
-            <PreTitle>{t('Action')}</PreTitle>
-            <PreTitle>{t('Token Transferred')}</PreTitle>
-          </AtomBox>
+        <div className="flex flex-col mt-6 space-y-4">
+          <div
+            className={clsx('grid text-center border-b pb-4 border-gray-400', {
+              'grid-cols-4 gap-2': isMobile,
+              'grid-cols-3': !isMobile,
+            })}
+          >
+            <SectionTitle className="col-span-1">{t('Timestamp')}</SectionTitle>
+            <SectionTitle className="col-span-1">{t('Action')}</SectionTitle>
+            <SectionTitle
+              className={clsx({
+                'col-span-2': isMobile,
+                'col-span-1': !isMobile,
+              })}
+            >
+              {t('Token Transferred')}
+            </SectionTitle>
+          </div>
 
           {data.map((d) => {
             return (
-              <AutoColumn key={d.id} gap="16px">
+              <div key={d.id} className="flex flex-col w-full space-y-3">
                 {d.transaction.mints.map((positionTx) => (
                   <PositionHistoryRow
                     chainId={chainId}
@@ -1027,8 +891,8 @@ function PositionHistory_({
                   .map((positionTx) => (
                     <PositionHistoryRow
                       chainId={chainId}
-                      positionTx={positionTx}
-                      key={positionTx.id}
+                      positionTx={positionTx as PositionTX}
+                      key={positionTx?.id}
                       type="collect"
                       currency0={currency0}
                       currency1={currency1}
@@ -1044,10 +908,10 @@ function PositionHistory_({
                     currency1={currency1}
                   />
                 ))}
-              </AutoColumn>
+              </div>
             )
           })}
-        </AtomBox>
+        </div>
       )}
     </AtomBox>
   )
@@ -1106,98 +970,78 @@ function PositionHistoryRow({
 
   if (isMobile) {
     return (
-      <Box>
-        <AutoRow>
-          <ScanLink
-            useBscCoinFallback={chainId ? ChainLinkSupportChains.includes(chainId) : false}
-            href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
-          >
-            <Flex flexDirection="column" alignItems="center">
-              <Text ellipsis>{mobileDate}</Text>
-              <Text fontSize="12px">{mobileTime}</Text>
-            </Flex>
-          </ScanLink>
-        </AutoRow>
-        <Text>{positionHistoryTypeText[type]}</Text>
-        <AutoColumn gap="4px">
+      <div className="grid grid-cols-4 gap-2 text-center items-center border-b border-dashed border-gray-600 pb-3">
+        <ExternalLink
+          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+          className="text-on-surface-primary col-span-1"
+        >
+          {mobileDate} {mobileTime}
+        </ExternalLink>
+        <span className="text-sm text-on-surface-primary col-span-1">{positionHistoryTypeText[type]}</span>
+        <div className="flex flex-col items-end space-y-1 col-span-2">
           {+positionTx.amount0 > 0 && (
-            <AutoRow flexWrap="nowrap" gap="12px" justifyContent="space-between">
-              <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-                <AtomBox minWidth="24px">
-                  <CurrencyLogo currency={currency0} />
-                </AtomBox>
-                <Text display={['none', 'none', 'block']}>{currency0.symbol}</Text>
-              </AutoRow>
-              <Text bold ellipsis title={positionTx.amount0}>
-                {isPlus ? '+' : '-'} {position0AmountString}
-              </Text>
-            </AutoRow>
+            <div className="flex items-center space-x-1.5 text-sm text-on-surface-primary">
+              <span>
+                {isPlus ? '+' : '-'}{' '}
+                {position0AmountString
+                  ? Number(position0AmountString).toLocaleString(undefined, {
+                      maximumFractionDigits: 3,
+                      maximumSignificantDigits: 3,
+                    })
+                  : '-'}
+              </span>
+              <CurrencyLogo currency={currency0} />
+            </div>
           )}
           {+positionTx.amount1 > 0 && (
-            <AutoRow flexWrap="nowrap" gap="12px" justifyContent="space-between">
-              <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-                <AtomBox minWidth="24px">
-                  <CurrencyLogo currency={currency1} />
-                </AtomBox>
-                <Text display={['none', 'none', 'block']}>{currency1.symbol}</Text>
-              </AutoRow>
-              <Text bold ellipsis title={positionTx.amount1}>
-                {isPlus ? '+' : '-'} {position1AmountString}
-              </Text>
-            </AutoRow>
+            <div className="flex items-center space-x-1.5 text-sm text-on-surface-primary">
+              <span>
+                {isPlus ? '+' : '-'}{' '}
+                {position1AmountString
+                  ? Number(position1AmountString).toLocaleString(undefined, {
+                      maximumFractionDigits: 3,
+                      maximumSignificantDigits: 3,
+                    })
+                  : '-'}
+              </span>
+              <CurrencyLogo currency={currency1} />
+            </div>
           )}
-        </AutoColumn>
-      </Box>
+        </div>
+      </div>
     )
   }
 
   return (
-    <AtomBox
-      display="grid"
-      style={{ gridTemplateColumns: '1fr 1fr 1fr' }}
-      gap="16px"
-      alignItems="center"
-      borderTop="1"
-      p="16px"
-    >
-      <AutoRow justifyContent="center">
-        <ScanLink
-          useBscCoinFallback={chainId ? ChainLinkSupportChains.includes(chainId) : false}
-          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
-        >
-          <Text ellipsis>{desktopDate}</Text>
-        </ScanLink>
-      </AutoRow>
-      <Text>{positionHistoryTypeText[type]}</Text>
-      <AutoColumn gap="4px">
+    <div className="grid grid-cols-3 text-center items-center border-b border-dashed border-gray-600 pb-3">
+      <ExternalLink
+        href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+        className="text-on-surface-primary"
+      >
+        {desktopDate}
+      </ExternalLink>
+      <span className="text-sm text-on-surface-primary">{positionHistoryTypeText[type]}</span>
+      <div className="flex flex-col items-end space-y-1">
         {+positionTx.amount0 > 0 && (
-          <AutoRow flexWrap="nowrap" justifyContent="flex-end" gap="12px">
-            <Text bold ellipsis title={positionTx.amount0}>
+          <div className="flex items-center space-x-2.5 text-sm text-on-surface-primary">
+            <span>
               {isPlus ? '+' : '-'} {position0AmountString}
-            </Text>
-            <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-              <AtomBox minWidth="24px">
-                <CurrencyLogo currency={currency0} />
-              </AtomBox>
-              <Text display={['none', 'none', 'block']}>{currency0.symbol}</Text>
-            </AutoRow>
-          </AutoRow>
+            </span>
+
+            <CurrencyLogoWithSymbol currencyA={currency0} symbol={currency0.symbol} />
+          </div>
         )}
         {+positionTx.amount1 > 0 && (
-          <AutoRow flexWrap="nowrap" justifyContent="flex-end" gap="12px">
-            <Text bold ellipsis title={positionTx.amount1}>
+          <div className="flex items-center space-x-2.5 text-sm text-on-surface-primary">
+            <span>
               {isPlus ? '+' : '-'} {position1AmountString}
-            </Text>
-            <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-              <AtomBox minWidth="24px">
-                <CurrencyLogo currency={currency1} />
-              </AtomBox>
-              <Text display={['none', 'none', 'block']}>{currency1.symbol}</Text>
-            </AutoRow>
-          </AutoRow>
+            </span>
+
+            <CurrencyLogoWithSymbol currencyA={currency1} symbol={currency1.symbol} />
+          </div>
         )}
-      </AutoColumn>
-    </AtomBox>
+      </div>
+    </div>
   )
 }
 
@@ -1225,4 +1069,34 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {},
   }
+}
+
+export function SectionTitle({ children, className }: PropsWithChildren<{ className?: string }>) {
+  return <h3 className={clsx('text-xs text-surface-orange', className)}>{children}</h3>
+}
+
+type CurrencyWithBalanceProps = {
+  currency: Currency | undefined
+  symbol?: string
+  amount?: CurrencyAmount<Token> | string
+  balance: string
+}
+
+function CurrencyWithBalance({ a, b }: { a: CurrencyWithBalanceProps; b: CurrencyWithBalanceProps }) {
+  return (
+    <Container>
+      <CurrencyLogoWithAmount
+        currencyA={a.currency}
+        symbol={a.symbol}
+        amount={typeof a.amount === 'string' ? a.amount : <FormattedCurrencyAmount currencyAmount={a.amount} />}
+        value={a.balance}
+      />
+      <CurrencyLogoWithAmount
+        currencyA={b.currency}
+        symbol={b.symbol}
+        amount={typeof b.amount === 'string' ? b.amount : <FormattedCurrencyAmount currencyAmount={b.amount} />}
+        value={b.balance}
+      />
+    </Container>
+  )
 }

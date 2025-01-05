@@ -1,9 +1,9 @@
-import { Link, Text, BscScanIcon } from '@pancakeswap/uikit'
-import { ChainId } from '@pancakeswap/chains'
-import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { useTranslation } from '@pancakeswap/localization'
+import { Text } from '@pancakeswap/uikit'
 import truncateHash from '@pancakeswap/utils/truncateHash'
+import ExternalLink from 'components/Common/ExternalLink'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { getBlockExploreLink, getBlockExploreName } from 'utils'
 
 interface DescriptionWithTxProps {
   description?: string
@@ -23,10 +23,12 @@ const DescriptionWithTx: React.FC<React.PropsWithChildren<DescriptionWithTxProps
     <>
       {typeof children === 'string' ? <Text as="p">{children}</Text> : children}
       {txHash && (
-        <Link external href={getBlockExploreLink(txHash, 'transaction', txChainId || chainId)}>
+        <ExternalLink
+          href={getBlockExploreLink(txHash, 'transaction', txChainId || chainId)}
+          className="mt-1 text-on-surface-primary"
+        >
           {t('View on %site%', { site: getBlockExploreName(txChainId || chainId) })}: {truncateHash(txHash, 8, 0)}
-          {(txChainId || chainId) === ChainId.BSC && <BscScanIcon color="primary" ml="4px" />}
-        </Link>
+        </ExternalLink>
       )}
     </>
   )

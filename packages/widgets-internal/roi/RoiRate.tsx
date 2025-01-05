@@ -1,15 +1,7 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { memo } from "react";
 
-import { Flex, Text } from "@pancakeswap/uikit";
-import {
-  MILLION,
-  RoiCardInner,
-  RoiCardWrapper,
-  RoiDisplayContainer,
-  RoiDollarAmount,
-  TRILLION,
-} from "@pancakeswap/uikit/components/RoiCalculatorModal/RoiCard";
+import { MILLION } from "@pancakeswap/uikit/components/RoiCalculatorModal/RoiCard";
 
 interface Props {
   usdAmount?: number;
@@ -20,45 +12,27 @@ export const RoiRate = memo(function RoiRate({ usdAmount = 0, roiPercent }: Prop
   const { t } = useTranslation();
 
   return (
-    <RoiCardWrapper>
-      <RoiCardInner>
-        <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-          {t("ROI at current rates")}
-        </Text>
-        <Flex justifyContent="space-between" mt="4px" height="36px">
-          <>
-            <RoiDisplayContainer alignItems="flex-end">
-              {/* Dollar sign is separate cause its not supposed to scroll with a number if number is huge */}
-              <Text fontSize="24px" bold>
-                $
-              </Text>
-              <RoiDollarAmount fontSize="24px" bold fadeOut={usdAmount > TRILLION} ellipsis>
-                {usdAmount.toLocaleString("en", {
-                  minimumFractionDigits: usdAmount > MILLION ? 0 : 2,
-                  maximumFractionDigits: usdAmount > MILLION ? 0 : 2,
-                })}
-              </RoiDollarAmount>
-              <Text
-                fontSize="16px"
-                color="textSubtle"
-                ml="6px"
-                mb="4px"
-                display="inline-block"
-                maxWidth="100%"
-                style={{ lineBreak: "anywhere" }}
-                ellipsis
-              >
-                (
-                {roiPercent?.toLocaleString("en", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) ?? "-"}
-                %)
-              </Text>
-            </RoiDisplayContainer>
-          </>
-        </Flex>
-      </RoiCardInner>
-    </RoiCardWrapper>
+    <div className="p-4 bg-surface-container-highest rounded-2xl w-full">
+      <h4 className="text-xs text-surface-orange">{t("ROI at current rates")}</h4>
+
+      <div className="mt-4 flex flex-col items-start space-y-1 sm:flex-row sm:space-y-0 sm:items-center font-bold sm:space-x-1 text-lg overflow-x-auto">
+        <span className="text-on-surface-primary">
+          $&nbsp;
+          {usdAmount.toLocaleString("en", {
+            minimumFractionDigits: usdAmount > MILLION ? 0 : 2,
+            maximumFractionDigits: usdAmount > MILLION ? 0 : 2,
+          })}
+        </span>
+
+        <span className="text-teal-400">
+          &nbsp;(
+          {roiPercent?.toLocaleString("en", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) ?? "-"}
+          %)
+        </span>
+      </div>
+    </div>
   );
 });

@@ -22,7 +22,7 @@ export const safeGetAddress = memoize((value: any): Address | undefined => {
 })
 
 export function getBlockExploreLink(
-  data: string | number,
+  data: string | number | Address,
   type: 'transaction' | 'token' | 'address' | 'block' | 'countdown',
   chainIdOverride?: number,
 ): string {

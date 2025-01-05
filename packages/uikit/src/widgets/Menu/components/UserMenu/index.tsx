@@ -122,13 +122,13 @@ const UserMenu: React.FC<UserMenuProps> = ({
         type="button"
         className="flex items-center space-x-2 hover:opacity-70"
         onClick={() => {
-          console.log("__clicked");
           setIsOpen((prev) => !prev);
         }}
       >
-        {/* {icon ?? <MenuIcon className={avatarClassName} avatarSrc={avatarSrc} variant={variant} />} */}
-        {/* <LabelText title={typeof text === "string" ? text || account : account}> */}
-        {/* <span className="text-sm">{ellipsis ? accountEllipsis : account}</span> */}
+        <LabelText title={typeof text === "string" ? text || account : account}>
+          {text || (ellipsis ? accountEllipsis : account)}
+        </LabelText>
+        <span className="text-sm">{ellipsis ? accountEllipsis : account}</span>
         <span className="text-sm">{ellipsis ? accountEllipsis : account}</span>
         {!disabled && <CaretDown size={16} />}
       </button>

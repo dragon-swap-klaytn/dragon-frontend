@@ -7,7 +7,7 @@ import { safeGetAddress } from 'utils'
 import { Address } from 'viem'
 import getTokenLogoURL from '../../../../utils/getTokenLogoURL'
 
-const StyledLogo = styled(TokenLogo)<{ size: string }>`
+const StyledLogo = styled(TokenLogo)<{ size: number }>`
   width: ${({ size }) => size};
   height: ${({ size }) => size};
   border-radius: ${({ size }) => size};
@@ -20,21 +20,19 @@ export const CurrencyLogo: React.FC<
   React.PropsWithChildren<{
     address?: string
     token?: Token
-    size?: string
+    size?: number
     chainName?: MultiChainName
   }>
-> = ({ address, size = '24px', chainName = 'BSC', ...rest }) => {
+> = ({ address, size = 24, chainName = 'KLAYTN', ...rest }) => {
   const src = useMemo(() => {
     return getTokenLogoURL(new Token(multiChainId[chainName], address as Address, 18, ''))
   }, [address, chainName])
 
-  const imagePath = chainName === 'BSC' ? '' : `${chainName?.toLowerCase()}/`
+  const imagePath = chainName?.toLowerCase()
   const checkedsummedAddress = safeGetAddress(address)
-  const srcFromSelf = checkedsummedAddress
-    ? `/images/tokens/${imagePath}${checkedsummedAddress}.png`
-    : ''
+  const srcFromSelf = checkedsummedAddress ? `/images/tokens/${imagePath}${checkedsummedAddress}.png` : ''
 
-  return <StyledLogo size={size} srcs={[srcFromSelf, src]} alt="token logo" useFilledIcon {...rest} />
+  return <StyledLogo size={size} srcs={[srcFromSelf, src]} alt="token logo" />
 }
 
 const DoubleCurrencyWrapper = styled.div`
@@ -56,12 +54,12 @@ export const DoubleCurrencyLogo: React.FC<React.PropsWithChildren<DoubleCurrency
   address0,
   address1,
   size = 16,
-  chainName = 'BSC',
+  chainName = 'KLAYTN',
 }) => {
   return (
     <DoubleCurrencyWrapper>
-      {address0 && <CurrencyLogo address={address0} size={`${size.toString()}px`} chainName={chainName} />}
-      {address1 && <CurrencyLogo address={address1} size={`${size.toString()}px`} chainName={chainName} />}
+      {address0 && <CurrencyLogo address={address0} size={size} chainName={chainName} />}
+      {address1 && <CurrencyLogo address={address1} size={size} chainName={chainName} />}
     </DoubleCurrencyWrapper>
   )
 }

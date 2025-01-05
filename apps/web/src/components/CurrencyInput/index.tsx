@@ -1,7 +1,7 @@
-import { useMemo, useCallback, ReactNode, MouseEvent } from 'react'
 import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
+import { BalanceInput, Button, Flex, Text } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
-import { BalanceInput, Text, Flex, Button } from '@pancakeswap/uikit'
+import { MouseEvent, ReactNode, useCallback, useMemo } from 'react'
 
 interface Props {
   value: string | number
@@ -10,19 +10,9 @@ interface Props {
   balance?: CurrencyAmount<Currency>
   balanceText?: ReactNode
   maxText?: ReactNode
-  useTrustWalletUrl?: boolean
 }
 
-export function CurrencyInput({
-  currency,
-  balance,
-  value,
-  onChange,
-  balanceText,
-  maxText = 'Max',
-  useTrustWalletUrl,
-  ...rest
-}: Props) {
+export function CurrencyInput({ currency, balance, value, onChange, balanceText, maxText = 'Max', ...rest }: Props) {
   const isMax = useMemo(() => balance && value && balance.toExact() === value, [balance, value])
   const onMaxClick = useCallback(
     (e: MouseEvent) => {
@@ -35,7 +25,7 @@ export function CurrencyInput({
 
   const currencyDisplay = currency ? (
     <Flex justifyContent="flex-end">
-      <CurrencyLogo currency={currency} useTrustWalletUrl={useTrustWalletUrl} />
+      <CurrencyLogo currency={currency} />
       <Text bold ml="4px">
         {currency.symbol}
       </Text>

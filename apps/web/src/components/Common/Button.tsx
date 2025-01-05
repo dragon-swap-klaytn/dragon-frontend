@@ -2,14 +2,14 @@ import clsx from 'clsx'
 import { MouseEventHandler, PropsWithChildren } from 'react'
 
 type ButtonVariant = 'primary' | 'secondary' | 'subtle' | 'blank'
-type ButtonState = 'disabled' | 'loading'
+type ButtonState = 'loading' | 'default'
 export default function Button({
   children,
   onClick,
   className,
   disabled,
   variant,
-  size = 'md',
+  scale = 'md',
   fullWidth,
   state,
 }: PropsWithChildren<{
@@ -17,7 +17,7 @@ export default function Button({
   className?: string
   disabled?: boolean
   variant: ButtonVariant
-  size?: 'xs' | 'sm' | 'md'
+  scale?: 'xs' | 'sm' | 'md'
   fullWidth?: boolean
   state?: ButtonState
 }>) {
@@ -26,9 +26,9 @@ export default function Button({
       type="button"
       onClick={onClick}
       className={clsx(
-        'rounded-[20px] text-sm disabled:bg-surface-disable disabled:text-on-surface-tertiary disabled:cursor-not-allowed',
+        'rounded-[20px] disabled:bg-surface-disable disabled:text-on-surface-tertiary disabled:cursor-not-allowed',
         className,
-        state && ['disabled', 'loading'].includes(state)
+        state && ['loading'].includes(state)
           ? 'bg-surface-disable text-on-surface-tertiary'
           : variant === 'primary'
           ? 'bg-surface-orange text-on-surface-orange'
@@ -37,13 +37,13 @@ export default function Button({
           : variant === 'subtle'
           ? 'bg-surface-container-highest text-on-surface-primary'
           : variant === 'blank'
-          ? 'bg-transparent border-gray-700 border'
+          ? 'bg-transparent border-gray-700 border text-on-surface-primary'
           : '',
         {
           'hover:opacity-70': !disabled,
-          'px-2 h-7': size === 'xs',
-          'px-3 h-9': size === 'sm',
-          'px-4 h-10': size === 'md',
+          'px-2 py-1 text-xs': scale === 'xs',
+          'px-3 py-2 text-sm': scale === 'sm',
+          'px-4 py-3 text-sm': scale === 'md',
           'w-full': fullWidth,
         },
       )}

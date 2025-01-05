@@ -1,19 +1,14 @@
+import { ChainId } from '@pancakeswap/chains'
 import { ModalV2 } from '@pancakeswap/uikit'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
-import { CHAIN_IDS } from 'utils/wagmi'
-import { ChainId } from '@pancakeswap/chains'
-import { useMemo } from 'react'
-import { useNetwork } from 'wagmi'
 import { atom, useAtom } from 'jotai'
-import { SUPPORT_ONLY_BSC } from 'config/constants/supportChains'
 import dynamic from 'next/dynamic'
+import { useMemo } from 'react'
+import { CHAIN_IDS } from 'utils/wagmi'
+import { useNetwork } from 'wagmi'
 
 export const hideWrongNetworkModalAtom = atom(false)
 
-const PageNetworkSupportModal = dynamic(
-  () => import('./PageNetworkSupportModal').then((mod) => mod.PageNetworkSupportModal),
-  { ssr: false },
-)
 const WrongNetworkModal = dynamic(() => import('./WrongNetworkModal').then((mod) => mod.WrongNetworkModal), {
   ssr: false,
 })
@@ -22,28 +17,20 @@ const UnsupportedNetworkModal = dynamic(
   { ssr: false },
 )
 
-export const NetworkModal = ({ pageSupportedChains = SUPPORT_ONLY_BSC }: { pageSupportedChains?: number[] }) => {
+export const NetworkModal = ({
+  pageSupportedChains = [ChainId.KLAYTN, ChainId.KLAYTN_TESTNET],
+}: {
+  pageSupportedChains?: ChainId[]
+}) => {
   const { chainId, chain, isWrongNetwork } = useActiveWeb3React()
   const { chains } = useNetwork()
   const [dismissWrongNetwork, setDismissWrongNetwork] = useAtom(hideWrongNetworkModalAtom)
-
-  const isBNBOnlyPage = useMemo(() => {
-    return pageSupportedChains?.length === 1 && pageSupportedChains[0] === ChainId.BSC
-  }, [pageSupportedChains])
 
   const isPageNotSupported = useMemo(
     () => Boolean(pageSupportedChains.length) && !pageSupportedChains.includes(chainId),
     [chainId, pageSupportedChains],
   )
   if (pageSupportedChains?.length === 0) return null // open to all chains
-
-  if (isPageNotSupported && isBNBOnlyPage) {
-    return (
-      <ModalV2 isOpen closeOnOverlayClick={false}>
-        <PageNetworkSupportModal />
-      </ModalV2>
-    )
-  }
 
   if (isWrongNetwork && !dismissWrongNetwork && !isPageNotSupported) {
     const currentChain = chains.find((c) => c.id === chainId)

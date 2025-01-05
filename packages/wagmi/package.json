@@ -78,6 +78,11 @@
       "types": "./dist/connectors/klip.d.ts",
       "import": "./dist/connectors/klip.mjs",
       "require": "./dist/connectors/klip.js"
+    },
+    "./connectors/okxWallet": {
+      "types": "./dist/connectors/okxWallet.d.ts",
+      "import": "./dist/connectors/okxWallet.mjs",
+      "require": "./dist/connectors/okxWallet.js"
     }
   },
   "peerDependenciesMeta": {

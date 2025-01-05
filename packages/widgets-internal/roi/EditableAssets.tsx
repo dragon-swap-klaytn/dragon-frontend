@@ -1,8 +1,8 @@
-import { useRef, memo, useCallback, ReactNode } from "react";
 import { useTranslation } from "@pancakeswap/localization";
+import { memo, ReactNode, useCallback, useRef } from "react";
 
-import { Button, Flex } from "@pancakeswap/uikit";
-import { CardSection, SectionTitle, AssetCard, AssetCardProps } from "./AssetCard";
+import { ButtonV2 } from "@pancakeswap/uikit";
+import { AssetCard, AssetCardProps, SectionTitle } from "./AssetCard";
 
 interface Props extends AssetCardProps {
   title?: ReactNode;
@@ -18,22 +18,22 @@ export const EditableAssets = memo(function EditableAssets({ title, onReset, ...
   }, []);
 
   return (
-    <CardSection
-      header={
-        <>
-          <SectionTitle>{title}</SectionTitle>
-          <Flex>
-            <Button variant="secondary" scale="xs" mr="0.5em" onClick={onEdit} style={{ textTransform: "uppercase" }}>
-              {t("Edit")}
-            </Button>
-            <Button variant="secondary" scale="xs" onClick={onReset} style={{ textTransform: "uppercase" }}>
-              {t("Reset")}
-            </Button>
-          </Flex>
-        </>
-      }
-    >
+    <div className="rounded-2xl bg-surface-container-highest w-full">
+      <div className="w-full flex items-center space-x-2 justify-between mb-2.5">
+        <SectionTitle>{title}</SectionTitle>
+
+        <div className="flex items-center space-x-2">
+          <ButtonV2 variant="blank" scale="xs" onClick={onEdit}>
+            {t("Edit")}
+          </ButtonV2>
+
+          <ButtonV2 variant="blank" scale="xs" onClick={() => onReset?.()}>
+            {t("Reset")}
+          </ButtonV2>
+        </div>
+      </div>
+
       <AssetCard {...rest} firstPriceInputRef={firstPriceInputRef} />
-    </CardSection>
+    </div>
   );
 });

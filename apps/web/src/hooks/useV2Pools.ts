@@ -1,11 +1,12 @@
 import { Currency } from '@pancakeswap/sdk'
 import { SmartRouter, V2Pool } from '@pancakeswap/smart-router/evm'
-import { useMemo, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useMemo, useRef } from 'react'
 
+import { POOLS_FAST_REVALIDATE } from 'config/pools'
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { infoClientWithChain, v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
-import { POOLS_FAST_REVALIDATE } from 'config/pools'
 
 export interface V2PoolsHookParams {
   // Used for caching
@@ -27,6 +28,8 @@ export function useV2CandidatePools(
   currencyB?: Currency,
   options?: V2PoolsHookParams,
 ): V2PoolsResult {
+  const { isWrongNetwork } = useActiveChainId()
+
   const refreshInterval = useMemo(() => {
     const chainId = currencyA?.chainId
     if (!chainId) {
@@ -36,14 +39,14 @@ export function useV2CandidatePools(
   }, [currencyA])
 
   const key = useMemo(() => {
-    if (!currencyA || !currencyB || currencyA.wrapped.equals(currencyB.wrapped)) {
+    if (!currencyA || !currencyB || currencyA.wrapped.equals(currencyB.wrapped) || !!isWrongNetwork) {
       return ''
     }
     const symbols = currencyA.wrapped.sortsBefore(currencyB.wrapped)
       ? [currencyA.symbol, currencyB.symbol]
       : [currencyB.symbol, currencyA.symbol]
     return [...symbols, currencyA.chainId].join('_')
-  }, [currencyA, currencyB])
+  }, [currencyA, currencyB, isWrongNetwork])
 
   const fetchingBlock = useRef<string | undefined>(undefined)
   const queryEnabled = Boolean(options?.enabled && key)

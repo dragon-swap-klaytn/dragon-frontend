@@ -1,14 +1,14 @@
-import React, { useCallback } from 'react'
 import { Currency, CurrencyAmount, Pair, Percent, Token } from '@pancakeswap/sdk'
-import { AddIcon, Button, InjectedModalProps, Text, AutoColumn } from '@pancakeswap/uikit'
+import { AddIcon, AutoColumn, Button, InjectedModalProps, Text } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
+import React, { useCallback } from 'react'
 
 import { useTranslation } from '@pancakeswap/localization'
-import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { RowBetween, RowFixed } from 'components/Layout/Row'
-import { Field } from 'state/burn/actions'
 import { CurrencyLogo, DoubleCurrencyLogo } from 'components/Logo'
+import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { ApprovalState } from 'hooks/useApproveCallback'
+import { Field } from 'state/burn/actions'
 
 interface ConfirmRemoveLiquidityModalProps {
   title: string
@@ -64,7 +64,7 @@ const ConfirmRemoveLiquidityModal: React.FC<
           <RowBetween align="flex-end">
             <Text fontSize="24px">{parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}</Text>
             <RowFixed gap="4px">
-              <CurrencyLogo currency={currencyA} size="24px" />
+              <CurrencyLogo currency={currencyA} size={24} />
               <Text fontSize="24px" ml="10px">
                 {currencyA?.symbol}
               </Text>
@@ -80,7 +80,7 @@ const ConfirmRemoveLiquidityModal: React.FC<
           <RowBetween align="flex-end">
             <Text fontSize="24px">{parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}</Text>
             <RowFixed gap="4px">
-              <CurrencyLogo currency={currencyB} size="24px" />
+              <CurrencyLogo currency={currencyB} size={24} />
               <Text fontSize="24px" ml="10px">
                 {currencyB?.symbol}
               </Text>
@@ -104,10 +104,10 @@ const ConfirmRemoveLiquidityModal: React.FC<
           <Text>
             {t('%assetA%/%assetB% Burned', { assetA: currencyA?.symbol ?? '', assetB: currencyB?.symbol ?? '' })}
           </Text>
-          <RowFixed>
-            <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin />
+          <div className="flex items-center space-x-1.5">
+            <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} />
             <Text>{parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}</Text>
-          </RowFixed>
+          </div>
         </RowBetween>
         {pair && (
           <>

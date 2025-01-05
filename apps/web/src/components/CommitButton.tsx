@@ -4,13 +4,6 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useSwitchNetworkLoading } from 'hooks/useSwitchNetworkLoading'
 import { useSetAtom } from 'jotai'
 import { hideWrongNetworkModalAtom } from './NetworkModal'
-import Trans from './Trans'
-
-const wrongNetworkProps: ButtonProps = {
-  variant: 'danger',
-  disabled: false,
-  children: <Trans>Wrong Network</Trans>,
-}
 
 export const CommitButton = (props: ButtonProps) => {
   const { isWrongNetwork } = useActiveChainId()
@@ -19,7 +12,6 @@ export const CommitButton = (props: ButtonProps) => {
 
   return (
     <Button
-      // {...props}
       variant="primary"
       onClick={(e) => {
         if (isWrongNetwork) {
@@ -28,9 +20,8 @@ export const CommitButton = (props: ButtonProps) => {
           props.onClick?.(e)
         }
       }}
-      className="w-full"
-      // {...(switchNetworkLoading && { disabled: true })}
-      // {...(isWrongNetwork && wrongNetworkProps)}
+      disabled={props.disabled || switchNetworkLoading}
+      fullWidth
     >
       {props.children}
     </Button>

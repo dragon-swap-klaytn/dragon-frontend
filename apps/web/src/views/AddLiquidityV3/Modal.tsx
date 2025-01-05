@@ -1,17 +1,17 @@
-import { useCallback } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
-import { usePublicNodeWaitForTransaction } from 'hooks/usePublicNodeWaitForTransaction'
-import { AutoRow, Box, Modal, ModalV2, UseModalV2Props } from '@pancakeswap/uikit'
+import { Modal, ModalV2, UseModalV2Props } from '@pancakeswap/uikit'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import GlobalSettings from 'components/Menu/GlobalSettings'
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
 import { useCurrency } from 'hooks/Tokens'
+import { usePublicNodeWaitForTransaction } from 'hooks/usePublicNodeWaitForTransaction'
 import { useRouter } from 'next/router'
+import { useCallback } from 'react'
 import currencyId from 'utils/currencyId'
 import AddLiquidityV2FormProvider from 'views/AddLiquidity/AddLiquidityV2FormProvider'
-import { AprCalculator } from './components/AprCalculator'
 import { UniversalAddLiquidity } from '.'
+import { AprCalculator } from './components/AprCalculator'
 import LiquidityFormProvider from './formViews/V3FormView/form/LiquidityFormProvider'
 import { SELECTOR_TYPE } from './types'
 
@@ -83,10 +83,9 @@ export function AddLiquidityV3Modal({
       <AddLiquidityV2FormProvider>
         <LiquidityFormProvider onAddLiquidityCallback={onAddLiquidityCallback}>
           <Modal
-            bodyPadding="8px"
             title={t('Add Liquidity')}
             headerRightSlot={
-              <AutoRow width="auto" gap="8px">
+              <div className="flex items-center space-x-3">
                 <AprCalculator
                   baseCurrency={baseCurrency}
                   quoteCurrency={quoteCurrency}
@@ -94,17 +93,16 @@ export function AddLiquidityV3Modal({
                   showTitle={false}
                 />
                 <GlobalSettings mode={SettingsMode.SWAP_LIQUIDITY} />
-              </AutoRow>
+              </div>
             }
+            maxWidth="max-w-4xl"
           >
-            <Box maxWidth="856px">
-              <UniversalAddLiquidity
-                currencyIdA={currencyIdA}
-                currencyIdB={currencyIdB}
-                preferredSelectType={preferredSelectType}
-                preferredFeeAmount={feeAmount}
-              />
-            </Box>
+            <UniversalAddLiquidity
+              currencyIdA={currencyIdA}
+              currencyIdB={currencyIdB}
+              preferredSelectType={preferredSelectType}
+              preferredFeeAmount={feeAmount}
+            />
           </Modal>
         </LiquidityFormProvider>
       </AddLiquidityV2FormProvider>

@@ -117,10 +117,6 @@ const WrongNetworkSelect = ({ switchNetwork, chainId }) => {
 }
 
 const SHORT_SYMBOL = {
-  [ChainId.ETHEREUM]: 'ETH',
-  [ChainId.BSC]: 'BNB',
-  [ChainId.BSC_TESTNET]: 'tBNB',
-  [ChainId.GOERLI]: 'GOR',
   [ChainId.KLAYTN]: 'Kaia',
   [ChainId.KLAYTN_TESTNET]: 'tKlaytn',
 } as const satisfies Record<ChainId, string>

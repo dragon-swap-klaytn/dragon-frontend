@@ -2,15 +2,9 @@ import { useTranslation } from '@pancakeswap/localization'
 import { DeserializedLockedCakeVault, ONE_WEEK_DEFAULT, VaultKey } from '@pancakeswap/pools'
 import {
   AtomBox,
-  Balance,
-  Box,
   Button,
-  Card,
   Flex,
   Heading,
-  LinkExternal,
-  Message,
-  MessageText,
   ModalBody,
   ModalCloseButton,
   ModalContainer,
@@ -18,7 +12,6 @@ import {
   ModalTitle,
   Row,
   Text,
-  WarningIcon,
   useMatchBreakpoints,
   useToast,
 } from '@pancakeswap/uikit'
@@ -34,9 +27,6 @@ import { useCallback, useMemo } from 'react'
 import { useVaultPoolByKey } from 'state/pools/hooks'
 import styled from 'styled-components'
 import { getRevenueSharingCakePoolAddress, getRevenueSharingVeCakeAddress } from 'utils/addressHelpers'
-import { stringify } from 'viem'
-import BenefitsTooltipsText from 'views/Pools/components/RevenueSharing/BenefitsModal/BenefitsTooltipsText'
-import { timeFormat } from 'views/TradingReward/utils/timeFormat'
 import {
   useCakePoolEmission,
   useRevShareEmission,
@@ -62,7 +52,7 @@ const APRDebugView = () => {
   if (!(window?.location?.hostname === 'localhost' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview')) return null
   return (
     <Flex mt="8px" flexDirection="row" alignItems="center">
-      <BenefitsTooltipsText
+      {/* <BenefitsTooltipsText
         title="APR DebugView"
         tooltipComponent={
           <pre>
@@ -81,7 +71,7 @@ const APRDebugView = () => {
             )}
           </pre>
         }
-      />
+      /> */}
     </Flex>
   )
 }
@@ -191,7 +181,7 @@ export const CakeRewardsCard = ({ onDismiss }) => {
             {t('From CAKE pool rewards and revenue sharing!')}
           </Text>
           <MyVeCakeCard />
-          <Card mt="16px" style={{ overflow: 'unset' }} mb={isDesktop ? '0' : '24px'}>
+          {/* <Card mt="16px" style={{ overflow: 'unset' }} mb={isDesktop ? '0' : '24px'}>
             <Box padding={16}>
               <Box>
                 <Flex flexDirection="row" alignItems="center">
@@ -414,7 +404,7 @@ export const CakeRewardsCard = ({ onDismiss }) => {
                 {t('Learn More')}
               </LinkExternal>
             </Box>
-          </Card>
+          </Card> */}
         </ModalBody>
       </AtomBox>
     </ModalContainer>

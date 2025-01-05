@@ -7,7 +7,6 @@ import TokenTransferInfo from "./TokenTransferInfo";
 const QRCodeSVG = lazy(() => import("qrcode.react").then((module) => ({ default: module.QRCodeSVG })));
 
 interface SwapPendingModalContentProps {
-  title: string;
   showIcon?: boolean;
   currencyA?: Currency;
   currencyB?: Currency;
@@ -18,7 +17,6 @@ interface SwapPendingModalContentProps {
 }
 
 export const SwapPendingModalContent: React.FC<SwapPendingModalContentProps> = ({
-  title,
   showIcon,
   currencyA,
   currencyB,
@@ -30,7 +28,7 @@ export const SwapPendingModalContent: React.FC<SwapPendingModalContentProps> = (
   return (
     <div className="flex flex-col items-center space-y-7">
       {showIcon ? (
-        <ArrowCircleUp size={80} />
+        <ArrowCircleUp size={80} className="text-on-surface-primary" />
       ) : (
         <>
           {qrUri ? (
@@ -42,8 +40,6 @@ export const SwapPendingModalContent: React.FC<SwapPendingModalContentProps> = (
           )}
         </>
       )}
-
-      <h3 className="text-lg font-bold">{title}</h3>
 
       <TokenTransferInfo
         symbolA={currencyA?.symbol}

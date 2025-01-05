@@ -6,8 +6,6 @@ import { safeGetAddress } from 'utils'
 import { isAddress } from 'viem'
 
 const mapping = {
-  [ChainId.BSC]: 'smartchain',
-  [ChainId.ETHEREUM]: 'ethereum',
   [ChainId.KLAYTN]: 'klaytn',
 }
 

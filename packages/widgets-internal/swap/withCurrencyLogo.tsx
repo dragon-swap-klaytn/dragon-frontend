@@ -1,38 +1,11 @@
-import { useTranslation } from "@pancakeswap/localization";
 import { BaseCurrency } from "@pancakeswap/swap-sdk-core";
-import { AutoColumn, AutoRow, Button, Flex, RowFixed, Text, useMatchBreakpoints } from "@pancakeswap/uikit";
+import { Plus } from "@phosphor-icons/react";
+import clsx from "clsx";
 import { CSSProperties, ReactElement } from "react";
-import { styled } from "styled-components";
-import { ListLogo } from "./ListLogo";
-
-const TokenSection = styled.div<{ dim?: boolean }>`
-  padding: 4px 20px;
-  height: 56px;
-  display: grid;
-  grid-template-columns: auto minmax(auto, 1fr) auto;
-  grid-gap: 10px;
-  align-items: center;
-  cursor: pointer;
-
-  opacity: ${({ dim }) => (dim ? "0.4" : "1")};
-
-  ${({ theme }) => theme.mediaQueries.md} {
-    grid-gap: 16px;
-  }
-`;
-
-const NameOverflow = styled(Flex)`
-  white-space: nowrap;
-  overflow: hidden;
-  align-items: center;
-  text-overflow: ellipsis;
-  max-width: 210px;
-  gap: 8px;
-`;
 
 interface CurrencyLogoPropsType<T> {
   currency?: T;
-  size?: string;
+  size?: number;
   style?: React.CSSProperties;
 }
 
@@ -41,39 +14,30 @@ export function withCurrencyLogo<T extends BaseCurrency>(
 ) {
   return ({
     token,
-    style,
-    dim,
+    className,
     onCurrencySelect,
-    list,
     isActive,
-    children,
     isAdded,
     setImportToken,
     showImportView,
+    size,
   }: {
     token: T;
+    className?: string;
     style?: CSSProperties;
-    dim?: boolean;
     onCurrencySelect?: (currency: T) => void;
-    list: any;
     isActive: boolean;
-    children?: ReactElement;
     isAdded: boolean;
     setImportToken: (token: T) => void;
     showImportView: () => void;
+    size?: number;
   }) => {
-    const { t } = useTranslation();
-    const { isMobile } = useMatchBreakpoints();
-
     return (
-      <TokenSection
-        style={style}
-        variant="text"
-        as={isActive && onCurrencySelect ? Button : "a"}
+      <button
+        type="button"
+        className={clsx("flex items-center space-x-2 py-3 hover:opacity-70 justify-between", className)}
         onClick={() => {
-          console.log("__________________on_click");
           if (isActive) {
-            console.log("on_click_1");
             onCurrencySelect?.(token);
           } else if (!isAdded) {
             if (setImportToken) {
@@ -83,27 +47,19 @@ export function withCurrencyLogo<T extends BaseCurrency>(
           }
         }}
       >
-        <CurrencyLogo currency={token} size={isMobile ? "20px" : "24px"} style={{ opacity: dim ? "0.6" : "1" }} />
-        <AutoColumn gap="4px" style={{ opacity: dim ? "0.6" : "1" }}>
-          <AutoRow>
-            <NameOverflow title={token.name}>
-              {token.symbol}
-              <Text ellipsis color="textDisabled" fontSize="12px">
-                {token.name}
-              </Text>
-            </NameOverflow>
-          </AutoRow>
-          {list && list.logoURI && (
-            <RowFixed>
-              <Text fontSize={isMobile ? "10px" : "14px"} mr="4px" color="textSubtle">
-                {t("via")} {list.name}
-              </Text>
-              <ListLogo logoURI={list.logoURI} size="12px" />
-            </RowFixed>
-          )}
-        </AutoColumn>
-        {children && children}
-      </TokenSection>
+        <div className="flex items-center space-x-2">
+          <CurrencyLogo currency={token} size={size} />
+
+          <div className="text-ellipsis overflow-hidden flex items-center space-x-2">
+            <span className="text-sm text-on-surface-primary">{token.symbol}</span>
+            <span className="text-gray-400 text-xs">{token.name}</span>
+          </div>
+        </div>
+
+        {!isAdded && <Plus size={16} className="text-gray-200" />}
+
+        {/* {children && children} */}
+      </button>
     );
   };
 }

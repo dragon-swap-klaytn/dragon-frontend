@@ -1,50 +1,49 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
-import { AutoColumn, Box, Button, CardBody, useModal } from '@pancakeswap/uikit'
+import { Button, useModal } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
 
-import { useDerivedPositionInfo } from 'hooks/v3/useDerivedPositionInfo'
-import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
-import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
+import { useIsExpertMode, useUserSlippage } from '@pancakeswap/utils/user'
 import { FeeAmount, MasterChefV3, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
-import { useCallback, useMemo, useState } from 'react'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useUserSlippage, useIsExpertMode } from '@pancakeswap/utils/user'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { useDerivedPositionInfo } from 'hooks/v3/useDerivedPositionInfo'
+import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
+import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
+import { useCallback, useMemo, useState } from 'react'
 import { Field } from 'state/mint/actions'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
 
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { calculateGasMargin } from 'utils'
-import { useRouter } from 'next/router'
+import { useTranslation } from '@pancakeswap/localization'
+import { AppHeader } from 'components/App'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
-import { useTranslation } from '@pancakeswap/localization'
-import { useSendTransaction } from 'wagmi'
+import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
+import { useRouter } from 'next/router'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { calculateGasMargin } from 'utils'
 import Page from 'views/Page'
-import { AppHeader } from 'components/App'
+import { useSendTransaction } from 'wagmi'
 
-import { BodyWrapper } from 'components/App/AppBody'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { formatRawAmount, formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { basisPointsToPercent } from 'utils/exchange'
-import { hexToBigInt } from 'viem'
+import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmount'
 import { isUserRejected } from 'utils/sentry'
 import { getViemClients } from 'utils/viem'
+import { hexToBigInt } from 'viem'
 
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import { useV3MintActionHandlers } from './formViews/V3FormView/form/hooks/useV3MintActionHandlers'
-import { PositionPreview } from './formViews/V3FormView/components/PositionPreview'
-import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
 import { V3SubmitButton } from './components/V3SubmitButton'
+import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
+import { PositionPreview } from './formViews/V3FormView/components/PositionPreview'
+import { useV3MintActionHandlers } from './formViews/V3FormView/form/hooks/useV3MintActionHandlers'
 import { useV3FormState } from './formViews/V3FormView/form/reducer'
 
 interface AddLiquidityV3PropsType {
-  currencyA: Currency
-  currencyB: Currency
+  currencyA?: Currency | null
+  currencyB?: Currency | null
 }
 
 export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB }: AddLiquidityV3PropsType) {
@@ -365,7 +364,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
 
   return (
     <Page>
-      <BodyWrapper>
+      <div className="max-w-md mx-auto bg-surface-container rounded-2xl">
         <AppHeader
           backTo={`/liquidity/${tokenId}`}
           title={t('Add %assetA%-%assetB% Liquidity', {
@@ -373,67 +372,61 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
             assetB: currencies[Field.CURRENCY_B]?.symbol ?? '',
           })}
           noConfig
-        />{' '}
-        <CardBody>
-          <Box mb="16px">
-            {existingPosition && (
-              <PositionPreview
-                position={existingPosition}
-                title={t('Selected Range')}
-                inRange={!outOfRange}
-                ticksAtLimit={ticksAtLimit}
+        />
+
+        <div className="p-4">
+          {existingPosition && (
+            <PositionPreview
+              position={existingPosition}
+              title={t('Selected Range')}
+              inRange={!outOfRange}
+              ticksAtLimit={ticksAtLimit}
+            />
+          )}
+          <div className="mt-4 flex flex-col items-center w-full space-y-3">
+            <LockedDeposit locked={depositADisabled}>
+              <CurrencyInputPanel
+                disableCurrencySelect
+                showUSDPrice
+                maxAmount={maxAmounts[Field.CURRENCY_A]}
+                onMax={() => onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')}
+                onPercentInput={(percent) =>
+                  onFieldAInput(maxAmounts?.[Field.CURRENCY_A]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
+                }
+                value={formattedAmounts[Field.CURRENCY_A] ?? '0'}
+                onUserInput={onFieldAInput}
+                showQuickInputButton
+                showMaxButton
+                currency={currencies[Field.CURRENCY_A]}
+                id="add-liquidity-input-tokena"
+                showCommonBases
+                commonBasesType={CommonBasesType.LIQUIDITY}
               />
-            )}
-            <Box mt="16px">
-              <LockedDeposit locked={depositADisabled} mb="8px">
-                <CurrencyInputPanel
-                  disableCurrencySelect
-                  showUSDPrice
-                  maxAmount={maxAmounts[Field.CURRENCY_A]}
-                  onMax={() => onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')}
-                  onPercentInput={(percent) =>
-                    onFieldAInput(maxAmounts?.[Field.CURRENCY_A]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
-                  }
-                  value={formattedAmounts[Field.CURRENCY_A] ?? '0'}
-                  onUserInput={onFieldAInput}
-                  showQuickInputButton
-                  showMaxButton
-                  currency={currencies[Field.CURRENCY_A]}
-                  id="add-liquidity-input-tokena"
-                  showCommonBases
-                  commonBasesType={CommonBasesType.LIQUIDITY}
-                />
-              </LockedDeposit>
-              <LockedDeposit locked={depositBDisabled} mt="8px">
-                <CurrencyInputPanel
-                  disableCurrencySelect
-                  showUSDPrice
-                  maxAmount={maxAmounts[Field.CURRENCY_B]}
-                  onMax={() => onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')}
-                  onPercentInput={(percent) =>
-                    onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
-                  }
-                  value={formattedAmounts[Field.CURRENCY_B] ?? '0'}
-                  onUserInput={onFieldBInput}
-                  showQuickInputButton
-                  showMaxButton
-                  currency={currencies[Field.CURRENCY_B]}
-                  id="add-liquidity-input-tokenb"
-                  showCommonBases
-                  commonBasesType={CommonBasesType.LIQUIDITY}
-                />
-              </LockedDeposit>
-            </Box>
-          </Box>
-          <AutoColumn
-            style={{
-              flexGrow: 1,
-            }}
-          >
-            {buttons}
-          </AutoColumn>
-        </CardBody>
-      </BodyWrapper>
+            </LockedDeposit>
+            <LockedDeposit locked={depositBDisabled}>
+              <CurrencyInputPanel
+                disableCurrencySelect
+                showUSDPrice
+                maxAmount={maxAmounts[Field.CURRENCY_B]}
+                onMax={() => onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')}
+                onPercentInput={(percent) =>
+                  onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
+                }
+                value={formattedAmounts[Field.CURRENCY_B] ?? '0'}
+                onUserInput={onFieldBInput}
+                showQuickInputButton
+                showMaxButton
+                currency={currencies[Field.CURRENCY_B]}
+                id="add-liquidity-input-tokenb"
+                showCommonBases
+                commonBasesType={CommonBasesType.LIQUIDITY}
+              />
+            </LockedDeposit>
+          </div>
+        </div>
+
+        <div className="pb-4 px-4">{buttons}</div>
+      </div>
     </Page>
   )
 }

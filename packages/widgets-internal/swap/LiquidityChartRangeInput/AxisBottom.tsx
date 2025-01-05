@@ -1,4 +1,4 @@
-import { Axis as d3Axis, axisBottom, NumberValue, ScaleLinear, select } from "d3";
+import { axisBottom, Axis as d3Axis, NumberValue, ScaleLinear, select } from "d3";
 import { useMemo } from "react";
 import { styled } from "styled-components";
 
@@ -8,7 +8,7 @@ const StyledGroup = styled.g`
   }
 
   text {
-    color: ${({ theme }) => theme.colors.textSubtle};
+    color: #d4d4d8;
     transform: translateY(5px);
   }
 `;

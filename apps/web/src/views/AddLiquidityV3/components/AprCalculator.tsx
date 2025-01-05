@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Price, Token, ZERO } from '@pancakeswap/sdk'
-import { CalculateIcon, Flex, IconButton, QuestionHelper, RocketIcon, Text, TooltipText } from '@pancakeswap/uikit'
+import { QuestionHelper, Text, TooltipText } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { formatPrice } from '@pancakeswap/utils/formatFractions'
 import { FeeCalculator, Pool, encodeSqrtRatioX96, isPoolTickInRange, parseProtocolFees } from '@pancakeswap/v3-sdk'
@@ -13,7 +13,6 @@ import {
 import { useCakePrice } from 'hooks/useCakePrice'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo, useState } from 'react'
-import { styled } from 'styled-components'
 
 import { PositionDetails, getPositionFarmApr, getPositionFarmAprFactor } from '@pancakeswap/farms'
 import { Bound } from 'config/constants/types'
@@ -27,15 +26,17 @@ import { batch } from 'react-redux'
 import { Field } from 'state/mint/actions'
 import currencyId from 'utils/currencyId'
 
+import { Calculator } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { BoostStatus, useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { useV3MintActionHandlers } from '../formViews/V3FormView/form/hooks/useV3MintActionHandlers'
 import { useV3FormState } from '../formViews/V3FormView/form/reducer'
 
 interface Props {
-  baseCurrency?: Currency
-  quoteCurrency?: Currency
-  feeAmount: number
+  baseCurrency?: Currency | null
+  quoteCurrency?: Currency | null
+  feeAmount?: number
   showTitle?: boolean
   showQuestion?: boolean
   allowApply?: boolean
@@ -43,11 +44,8 @@ interface Props {
   defaultDepositUsd?: string
   tokenAmount0?: CurrencyAmount<Token>
   tokenAmount1?: CurrencyAmount<Token>
+  className?: string
 }
-
-const AprButtonContainer = styled(Flex)`
-  cursor: pointer;
-`
 
 const deriveUSDPrice = (baseUSDPrice?: Price<Currency, Currency>, pairPrice?: Price<Currency, Currency>) => {
   if (baseUSDPrice && pairPrice && pairPrice.greaterThan(ZERO)) {
@@ -68,6 +66,7 @@ export function AprCalculator({
   defaultDepositUsd,
   tokenAmount0,
   tokenAmount1,
+  className,
 }: Props) {
   const { t } = useTranslation()
   const [isOpen, setOpen] = useState(false)
@@ -302,39 +301,37 @@ export function AprCalculator({
   })
   const farmAprTips = hasFarmApr ? (
     <>
-      <Text bold>{t('This position must be staking in farm to apply the combined APR with farming rewards.')}</Text>
+      <p className="font-bold text-sm text-on-surface-primary">
+        {t('This position must be staking in farm to apply the combined APR with farming rewards.')}
+      </p>
       <br />
     </>
   ) : null
   const AprText = hasFarmApr ? TooltipText : Text
 
   return (
-    <>
-      <Flex flexDirection="column">
+    <div className={className}>
+      <div className="flex items-center space-x-1">
         {showTitle && (
-          <Text color="textSubtle" fontSize="12px">
-            {hasFarmApr ? t('APR (with farming)') : t('APR')}
-          </Text>
+          <span className="text-xs text-on-surface-primary">{hasFarmApr ? t('APR (with farming)') : t('APR')}</span>
         )}
-        <AprButtonContainer alignItems="center">
+        <div className="flex items-center space-x-1">
           <AprText onClick={() => setOpen(true)}>
-            <Flex style={{ gap: 3 }}>
-              {isBoosted && (
-                <>
-                  <RocketIcon color="success" />
-                  <Text fontSize="14px" color="success">
-                    {boostedAprDisplay}%
-                  </Text>
-                </>
-              )}
-              <Text fontSize="14px" style={{ textDecoration: isBoosted ? 'line-through' : 'none' }}>
+            <div className="flex items-center space-x-1 text-gray-50">
+              {isBoosted && <span className="text-sm">🚀 {boostedAprDisplay}%</span>}
+
+              <span
+                className={clsx('text-sm', {
+                  'line-through': isBoosted,
+                })}
+              >
                 {aprDisplay}%
-              </Text>
-            </Flex>
+              </span>
+            </div>
           </AprText>
-          <IconButton variant="text" scale="sm" onClick={() => setOpen(true)}>
-            <CalculateIcon color="textSubtle" ml="0.25em" width="24px" />
-          </IconButton>
+          <button type="button" onClick={() => setOpen(true)} className="hover:opacity-70">
+            <Calculator size={24} className="text-gray-50" />
+          </button>
           {showQuestion ? (
             <QuestionHelper
               text={
@@ -350,12 +347,11 @@ export function AprCalculator({
                   )}
                 </>
               }
-              size="20px"
               placement="top"
             />
           ) : null}
-        </AprButtonContainer>
-      </Flex>
+        </div>
+      </div>
       <RoiCalculatorModalV2
         allowApply={allowApply}
         isOpen={isOpen}
@@ -383,6 +379,6 @@ export function AprCalculator({
         cakeAprFactor={positionFarmAprFactor.times(isBoosted ? boostMultiplier : 1)}
         cakePrice={cakePrice.toFixed(3)}
       />
-    </>
+    </div>
   )
 }

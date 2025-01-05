@@ -329,7 +329,6 @@ export default function AddStableLiquidity({
       noLiquidity={noLiquidity}
       poolTokenPercentage={poolTokenPercentage}
       liquidityMinted={liquidityMinted}
-      isStable
     />,
     true,
     true,

@@ -6,11 +6,11 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 // @ts-ignore
 // eslint-disable-next-line import/extensions
-import { useMatchBreakpoints } from '@pancakeswap/uikit'
+import { useMatchBreakpoints, useModal } from '@pancakeswap/uikit'
 import Button from 'components/Common/Button'
 // import { useActiveHandle } from 'hooks/useEagerConnect.bmp.ts'
 import clsx from 'clsx'
-import { PropsWithChildren, useMemo, useState } from 'react'
+import { PropsWithChildren, useCallback, useMemo, useState } from 'react'
 import { logGTMWalletConnectEvent } from 'utils/customGTMEventTracking'
 import { useConnect } from 'wagmi'
 import Trans from './Trans'
@@ -34,16 +34,6 @@ const ConnectWalletButton = ({
 
   const docLink = useMemo(() => getDocLink(code), [code])
 
-  const handleClick = () => {
-    // console.log('__handleClick__', typeof __NEZHA_BRIDGE__, window.ethereum)
-    // if (typeof __NEZHA_BRIDGE__ !== 'undefined' && !window.ethereum) {
-    //   handleActive()
-    // } else {
-    //   setOpen(true)
-    // }
-    setOpen(true)
-  }
-
   const wallets = useMemo(
     () =>
       chainId
@@ -54,26 +44,47 @@ const ConnectWalletButton = ({
     [chainId, connectAsync, isMobile],
   )
 
+  const [onPresentConnectWalletModal] = useModal(
+    <WalletModalV2
+      docText={t('Learn How to Connect')}
+      docLink={docLink}
+      isOpen={open}
+      wallets={wallets}
+      login={login}
+      onDismiss={() => setOpen(false)}
+      onWalletConnectCallBack={logGTMWalletConnectEvent}
+    />,
+  )
+
+  const handleClick = useCallback(() => {
+    setOpen(true)
+    onPresentConnectWalletModal()
+  }, [onPresentConnectWalletModal])
+
   return (
     <>
       <Button variant="primary" onClick={handleClick} className={clsx(width, className)} disabled={disabled}>
         {children || <Trans>Connect Wallet</Trans>}
       </Button>
+
+      {/* {open && (
+        <WalletModalV2
+          docText={t('Learn How to Connect')}
+          docLink={docLink}
+          isOpen={open}
+          wallets={wallets}
+          login={login}
+          onDismiss={() => setOpen(false)}
+          onWalletConnectCallBack={logGTMWalletConnectEvent}
+        />
+      )} */}
+
       <style jsx global>{`
         w3m-modal {
           position: relative;
           z-index: 99;
         }
       `}</style>
-      <WalletModalV2
-        docText={t('Learn How to Connect')}
-        docLink={docLink}
-        isOpen={open}
-        wallets={wallets}
-        login={login}
-        onDismiss={() => setOpen(false)}
-        onWalletConnectCallBack={logGTMWalletConnectEvent}
-      />
     </>
   )
 }

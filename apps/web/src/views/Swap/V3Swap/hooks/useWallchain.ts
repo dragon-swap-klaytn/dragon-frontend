@@ -1,9 +1,7 @@
-import { ChainId } from '@pancakeswap/chains'
 import { Currency, Token, TradeType } from '@pancakeswap/sdk'
 import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { FeeOptions } from '@pancakeswap/v3-sdk'
-import { captureException } from '@sentry/nextjs'
 import { useQuery } from '@tanstack/react-query'
 import type WallchainSDK from '@wallchain/sdk'
 import type { TMEVFoundResponse } from '@wallchain/sdk'
@@ -17,7 +15,7 @@ import { basisPointsToPercent } from 'utils/exchange'
 import { useWalletClient } from 'wagmi'
 
 import Bottleneck from 'bottleneck'
-import { WALLCHAIN_ENABLED, WallchainKeys, WallchainTokens } from 'config/wallchain'
+import { WallchainKeys } from 'config/wallchain'
 import { Address, Hex } from 'viem'
 import { useSwapCallArguments } from './useSwapCallArguments'
 
@@ -102,7 +100,8 @@ function useWallchainSDK() {
       })
     },
     {
-      enabled: Boolean(chainId === ChainId.BSC && walletClient && WALLCHAIN_ENABLED),
+      // enabled: Boolean(chainId === ChainId.BSC && walletClient && WALLCHAIN_ENABLED),
+      enabled: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       refetchOnMount: false,
@@ -138,44 +137,44 @@ export function useWallchainApi(
   const swapCalls = useSwapCallArguments(trade, allowedSlippage, account, deadline, feeOptions)
 
   useEffect(() => {
-    if (!sdk || !walletClient || !trade || !account) {
-      setStatus('not-found')
-      return
-    }
-    if (trade.routes.length === 0 || trade.inputAmount.currency.chainId !== ChainId.BSC) return
-    if (lastUpdate > Date.now() - 2000) return
-    const includesToken = trade.routes.some((route) => {
-      const goodSrc =
-        route.inputAmount.currency.isToken && WallchainTokens.some((token) => route.inputAmount.currency.equals(token))
-      const goodDst =
-        route.outputAmount.currency.isToken &&
-        WallchainTokens.some((token) => route.outputAmount.currency.equals(token))
-      return goodSrc || goodDst
-    })
-    if (includesToken) {
-      if (status !== 'found') {
-        // we need status only for the first time, to ensure that first response is loaded, but then we expect to reuse response for 2 seconds (line 135)
-        setStatus('pending')
-      }
-      wrappedLoadData(account, sdk, swapCalls)
-        .then(([reqStatus, address, searcherRequest, searcherSignature]) => {
-          setStatus(reqStatus as WallchainStatus)
-          setApprovalAddress(address)
-          setMasterInput([searcherRequest as TMEVFoundResponse['searcherRequest'], searcherSignature as string])
-          setLastUpdate(Date.now())
-        })
-        .catch((e) => {
-          setStatus('not-found')
-          setApprovalAddress(undefined)
-          setMasterInput(undefined)
-          captureException(e)
-          setLastUpdate(Date.now())
-        })
-    } else {
-      setStatus('not-found')
-      setApprovalAddress(undefined)
-      setMasterInput(undefined)
-    }
+    // if (!sdk || !walletClient || !trade || !account) {
+    //   setStatus('not-found')
+    //   return
+    // }
+    // if (trade.routes.length === 0 || trade.inputAmount.currency.chainId !== ChainId.BSC) return
+    // if (lastUpdate > Date.now() - 2000) return
+    // const includesToken = trade.routes.some((route) => {
+    //   const goodSrc =
+    //     route.inputAmount.currency.isToken && WallchainTokens.some((token) => route.inputAmount.currency.equals(token))
+    //   const goodDst =
+    //     route.outputAmount.currency.isToken &&
+    //     WallchainTokens.some((token) => route.outputAmount.currency.equals(token))
+    //   return goodSrc || goodDst
+    // })
+    // if (includesToken) {
+    //   if (status !== 'found') {
+    //     // we need status only for the first time, to ensure that first response is loaded, but then we expect to reuse response for 2 seconds (line 135)
+    //     setStatus('pending')
+    //   }
+    //   wrappedLoadData(account, sdk, swapCalls)
+    //     .then(([reqStatus, address, searcherRequest, searcherSignature]) => {
+    //       setStatus(reqStatus as WallchainStatus)
+    //       setApprovalAddress(address)
+    //       setMasterInput([searcherRequest as TMEVFoundResponse['searcherRequest'], searcherSignature as string])
+    //       setLastUpdate(Date.now())
+    //     })
+    //     .catch((e) => {
+    //       setStatus('not-found')
+    //       setApprovalAddress(undefined)
+    //       setMasterInput(undefined)
+    //       captureException(e)
+    //       setLastUpdate(Date.now())
+    //     })
+    // } else {
+    //   setStatus('not-found')
+    //   setApprovalAddress(undefined)
+    //   setMasterInput(undefined)
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletClient, account, swapCalls, sdk, trade, setStatus])
 

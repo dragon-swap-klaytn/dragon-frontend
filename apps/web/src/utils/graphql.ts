@@ -1,11 +1,5 @@
 import { ChainId, STABLESWAP_SUBGRAPHS } from '@pancakeswap/chains'
-import {
-  BIT_QUERY,
-  INFO_CLIENT,
-  INFO_CLIENT_ETH,
-  V3_BSC_INFO_CLIENT,
-  V3_SUBGRAPH_URLS,
-} from 'config/constants/endpoints'
+import { BIT_QUERY, INFO_CLIENT, INFO_CLIENT_ETH, V3_SUBGRAPH_URLS } from 'config/constants/endpoints'
 import { GraphQLClient } from 'graphql-request'
 import { INFO_CLIENT_WITH_CHAIN } from '../config/constants/endpoints'
 
@@ -34,30 +28,22 @@ export const infoClientWithChain = (chainId?: number) => {
 
 // DEV_NOTE [체인설정]_10-1 : graphql client 설정
 export const v3Clients = {
-  [ChainId.ETHEREUM]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.ETHEREUM]),
-  [ChainId.GOERLI]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.GOERLI]),
-  [ChainId.BSC]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.BSC]),
-  [ChainId.BSC_TESTNET]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.BSC_TESTNET]),
   [ChainId.KLAYTN]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.KLAYTN]),
   [ChainId.KLAYTN_TESTNET]: new GraphQLClient(V3_SUBGRAPH_URLS[ChainId.KLAYTN_TESTNET]),
 }
 
-export const v3InfoClients = { ...v3Clients, [ChainId.BSC]: new GraphQLClient(V3_BSC_INFO_CLIENT) }
+export const v3InfoClients = { ...v3Clients }
 
 export const infoClientETH = new GraphQLClient(INFO_CLIENT_ETH)
 
 export const v2Clients = {
-  [ChainId.ETHEREUM]: infoClientETH,
-  [ChainId.BSC]: infoClient,
   ...(INFO_CLIENT_WITH_CHAIN[ChainId.KLAYTN]
     ? { [ChainId.KLAYTN]: new GraphQLClient(INFO_CLIENT_WITH_CHAIN[ChainId.KLAYTN]) }
     : {}),
   [ChainId.KLAYTN_TESTNET]: new GraphQLClient(INFO_CLIENT_WITH_CHAIN[ChainId.KLAYTN_TESTNET]),
 }
 
-export const infoStableSwapClients = {
-  [ChainId.BSC]: new GraphQLClient(STABLESWAP_SUBGRAPHS[ChainId.BSC]),
-}
+export const infoStableSwapClients = {}
 
 export const infoServerClient = new GraphQLClient(INFO_CLIENT, {
   timeout: 5000,
@@ -66,7 +52,7 @@ export const infoServerClient = new GraphQLClient(INFO_CLIENT, {
   },
 })
 
-export const stableSwapClient = new GraphQLClient(STABLESWAP_SUBGRAPHS[ChainId.BSC])
+export const stableSwapClient = new GraphQLClient(STABLESWAP_SUBGRAPHS[ChainId.KLAYTN])
 
 export const bitQueryServerClient = new GraphQLClient(BIT_QUERY, {
   headers: {

@@ -1,4 +1,5 @@
 import { useTranslation } from "@pancakeswap/localization";
+import { ButtonV2 } from "@pancakeswap/uikit";
 import { XCircle } from "@phosphor-icons/react";
 import { ReactElement } from "react";
 
@@ -13,19 +14,15 @@ export function TransactionErrorContent({
   return (
     <div className="w-full">
       <div className="flex flex-col items-center space-y-7">
-        <XCircle size={100} className="text-red-400" />
+        <XCircle size={100} className="text-red-400" weight="light" />
 
-        <p className="text-center break-keep">{message}</p>
+        <p className="text-center break-keep text-on-surface-primary">{message}</p>
 
         {onDismiss ? (
           // TODO: need to replace with Button component in web
-          <button
-            type="button"
-            onClick={onDismiss}
-            className="rounded-[20px] text-sm bg-surface-orange text-on-surface-orange px-4 h-10 hover:opacity-70 w-full"
-          >
+          <ButtonV2 onClick={onDismiss} variant="subtle" fullWidth>
             {t("Dismiss")}
-          </button>
+          </ButtonV2>
         ) : null}
       </div>
     </div>

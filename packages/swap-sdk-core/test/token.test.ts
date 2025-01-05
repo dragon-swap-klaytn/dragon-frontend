@@ -1,10 +1,10 @@
+import { describe, it } from 'node:test'
+import { expect } from 'vitest'
 import { Token } from '../src'
 
 enum ChainId {
-  ETHEREUM = 1,
-  GOERLI = 5,
-  BSC = 56,
-  BSC_TESTNET = 97,
+  KLAYTN = 8217,
+  KLAYTN_TESTNET = 1001,
 }
 
 describe('Token', () => {
@@ -13,37 +13,37 @@ describe('Token', () => {
 
   describe('#equals', () => {
     it('fails if address differs', () => {
-      expect(new Token(ChainId.BSC, ADDRESS_ONE, 18, 'A').equals(new Token(ChainId.BSC, ADDRESS_TWO, 18, 'B'))).toBe(
-        false
-      )
+      expect(
+        new Token(ChainId.KLAYTN, ADDRESS_ONE, 18, 'A').equals(new Token(ChainId.KLAYTN, ADDRESS_TWO, 18, 'B'))
+      ).toBe(false)
     })
 
     it('false if chain id differs', () => {
       expect(
-        new Token(ChainId.BSC_TESTNET, ADDRESS_ONE, 18, 'A').equals(new Token(ChainId.BSC, ADDRESS_ONE, 18, 'B'))
+        new Token(ChainId.KLAYTN_TESTNET, ADDRESS_ONE, 18, 'A').equals(new Token(ChainId.KLAYTN, ADDRESS_ONE, 18, 'B'))
       ).toBe(false)
     })
 
     it('true if only decimals differs', () => {
-      expect(new Token(ChainId.BSC, ADDRESS_ONE, 9, 'A').equals(new Token(ChainId.BSC, ADDRESS_ONE, 18, 'B'))).toBe(
-        true
-      )
+      expect(
+        new Token(ChainId.KLAYTN, ADDRESS_ONE, 9, 'A').equals(new Token(ChainId.KLAYTN, ADDRESS_ONE, 18, 'B'))
+      ).toBe(true)
     })
 
     it('true if address is the same', () => {
-      expect(new Token(ChainId.BSC, ADDRESS_ONE, 1, 'A').equals(new Token(ChainId.BSC, ADDRESS_ONE, 18, 'B'))).toBe(
-        true
-      )
+      expect(
+        new Token(ChainId.KLAYTN, ADDRESS_ONE, 1, 'A').equals(new Token(ChainId.KLAYTN, ADDRESS_ONE, 18, 'B'))
+      ).toBe(true)
     })
 
     it('true on reference equality', () => {
-      const token = new Token(ChainId.BSC, ADDRESS_ONE, 18, 'A')
+      const token = new Token(ChainId.KLAYTN, ADDRESS_ONE, 18, 'A')
       expect(token.equals(token)).toBe(true)
     })
 
     it('true even if name/symbol/decimals/projectLink differ', () => {
-      const tokenA = new Token(ChainId.BSC, ADDRESS_ONE, 9, 'abc', 'def', 'https://www.binance.org/')
-      const tokenB = new Token(ChainId.BSC, ADDRESS_ONE, 18, 'ghi', 'jkl', 'https://coinmarketcap.com/')
+      const tokenA = new Token(ChainId.KLAYTN, ADDRESS_ONE, 9, 'abc', 'def', 'https://www.binance.org/')
+      const tokenB = new Token(ChainId.KLAYTN, ADDRESS_ONE, 18, 'ghi', 'jkl', 'https://coinmarketcap.com/')
       expect(tokenA.equals(tokenB)).toBe(true)
     })
   })

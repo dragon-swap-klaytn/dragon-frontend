@@ -1,5 +1,7 @@
-import { ArrowSquareOut } from '@phosphor-icons/react'
+import { CheckCircle, Warning } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import ExternalLink from 'components/Common/ExternalLink'
+import Loading from 'components/Common/Loading'
 import { TransactionDetails } from 'state/transactions/reducer'
 import { getBlockExploreLink } from 'utils'
 
@@ -11,26 +13,23 @@ export default function Transaction({ tx, chainId }: { tx: TransactionDetails; c
   if (!chainId) return null
 
   return (
-    <div className="flex items-center space-x-2 justify-between">
-      <a
-        href={getBlockExploreLink(tx.hash, 'transaction', chainId)}
-        target="_blank"
-        rel="noreferrer"
-        className="text-sm underline underline-offset-2 hover:opacity-70"
-      >
-        {summary ?? tx.hash}
-
-        <ArrowSquareOut size={16} className="inline-block ml-1" />
-      </a>
+    <div className="flex items-center space-x-2 justify-between text-on-surface-primary">
+      <ExternalLink href={getBlockExploreLink(tx.hash, 'transaction', chainId)}>{summary ?? tx.hash}</ExternalLink>
 
       <span
         className={clsx('text-sm', {
           'text-gray-400': pending,
-          'text-green-400': success,
+          'text-teal-400': success,
           'text-red-400': !success,
         })}
       >
-        {pending ? 'Pending' : success ? 'Success' : 'Failed'}
+        {pending ? (
+          <Loading size={20} />
+        ) : success ? (
+          <CheckCircle size={20} weight="fill" />
+        ) : (
+          <Warning size={20} weight="fill" />
+        )}
       </span>
     </div>
   )

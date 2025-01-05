@@ -1,14 +1,5 @@
 import { ScaleLinear } from "d3";
 import { useMemo } from "react";
-import { styled } from "styled-components";
-
-const StyledLine = styled.line`
-  opacity: 0.5;
-  stroke-width: 2;
-  stroke: ${({ theme }) => theme.colors.primary};
-  fill: none;
-  stroke-dasharray: 4;
-`;
 
 export const Line = ({
   value,
@@ -20,6 +11,8 @@ export const Line = ({
   innerHeight: number;
 }) =>
   useMemo(
-    () => <StyledLine x1={xScale(value)} y1="0" x2={xScale(value)} y2={innerHeight} />,
+    () => (
+      <line opacity={0.3} stroke="#fff" fill="none" x1={xScale(value)} y1="0" x2={xScale(value)} y2={innerHeight} />
+    ),
     [value, xScale, innerHeight]
   );

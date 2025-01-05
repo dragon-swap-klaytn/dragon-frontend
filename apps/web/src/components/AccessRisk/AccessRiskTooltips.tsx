@@ -1,4 +1,3 @@
-import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Flex, Link, Text } from '@pancakeswap/uikit'
 import { TOKEN_RISK } from 'components/AccessRisk'
@@ -50,14 +49,6 @@ const AccessRiskTooltips: React.FC<AccessRiskTooltipsProps> = ({
         <Link style={{ display: 'inline' }} ml="4px" external href="https://www.hashdit.io">
           HashDit
         </Link>
-        {chainId === ChainId.BSC && (
-          <Flex mt="4px">
-            <Text>{t('Get more details from')}</Text>
-            <Link ml="4px" external href={`https://dappbay.bnbchain.org/risk-scanner/${tokenAddress}`}>
-              {t('RedAlarm')}
-            </Link>
-          </Flex>
-        )}
       </>
     )
   }

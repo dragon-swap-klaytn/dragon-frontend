@@ -1,19 +1,19 @@
 import { useTranslation } from '@pancakeswap/localization'
-import dayjs from 'dayjs'
 import {
   AutoColumn,
   Box,
   Breadcrumbs,
+  Button,
   Card,
   Flex,
   Heading,
+  ScanLink,
   Spinner,
   Text,
   useMatchBreakpoints,
-  Button,
-  ScanLink,
 } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
+import dayjs from 'dayjs'
 
 import Page from 'components/Layout/Page'
 import { TabToggle, TabToggleGroup } from 'components/TabToggle'
@@ -29,9 +29,9 @@ import { formatAmount } from 'utils/formatInfoNumbers'
 
 import { CurrencyLogo, DoubleCurrencyLogo } from 'views/Info/components/CurrencyLogo'
 import BarChart from '../components/BarChart/alt'
-import LineChart from '../components/LineChart/alt'
 import { GreyBadge } from '../components/Card'
 import DensityChart from '../components/DensityChart'
+import LineChart from '../components/LineChart/alt'
 import { LocalLoader } from '../components/Loader'
 import Percent from '../components/Percent'
 import { RowBetween, RowFixed } from '../components/Row'
@@ -192,7 +192,7 @@ const PoolPage: React.FC<{ address: string }> = ({ address }) => {
                   to={`/${v3InfoPath}${chainPath}/tokens/${poolData.token0.address}${infoTypeParam}`}
                 >
                   <TokenButton>
-                    <CurrencyLogo address={poolData.token0.address} size="24px" chainName={chainName} />
+                    <CurrencyLogo address={poolData.token0.address} size={24} chainName={chainName} />
                     <Text fontSize="16px" ml="4px" style={{ whiteSpace: 'nowrap' }} width="fit-content">
                       {`1 ${poolData.token0.symbol} =  ${formatAmount(poolData.token1Price, {
                         notation: 'standard',
@@ -206,7 +206,7 @@ const PoolPage: React.FC<{ address: string }> = ({ address }) => {
                   to={`/${v3InfoPath}${chainPath}/tokens/${poolData.token1.address}${infoTypeParam}`}
                 >
                   <TokenButton ml={[null, null, '10px']}>
-                    <CurrencyLogo address={poolData.token1.address} size="24px" chainName={chainName} />
+                    <CurrencyLogo address={poolData.token1.address} size={24} chainName={chainName} />
                     <Text fontSize="16px" ml="4px" style={{ whiteSpace: 'nowrap' }} width="fit-content">
                       {`1 ${poolData.token1.symbol} =  ${formatAmount(poolData.token0Price, {
                         notation: 'standard',
@@ -245,7 +245,7 @@ const PoolPage: React.FC<{ address: string }> = ({ address }) => {
                     <Text>{t('Total Tokens Locked')}</Text>
                     <RowBetween>
                       <RowFixed>
-                        <CurrencyLogo address={poolData.token0.address} size="20px" chainName={chainName} />
+                        <CurrencyLogo address={poolData.token0.address} size={20} chainName={chainName} />
                         <Text fontSize="14px" ml="8px">
                           {poolData.token0.symbol}
                         </Text>
@@ -258,7 +258,7 @@ const PoolPage: React.FC<{ address: string }> = ({ address }) => {
                     </RowBetween>
                     <RowBetween>
                       <RowFixed>
-                        <CurrencyLogo address={poolData.token1.address} size="20px" chainName={chainName} />
+                        <CurrencyLogo address={poolData.token1.address} size={20} chainName={chainName} />
                         <Text fontSize="14px" ml="8px">
                           {poolData.token1.symbol}
                         </Text>

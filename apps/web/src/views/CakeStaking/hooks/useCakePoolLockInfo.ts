@@ -1,4 +1,3 @@
-import { ChainId } from '@pancakeswap/chains'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
@@ -54,7 +53,8 @@ export const useCakePoolLockInfo = () => {
       }
     },
     {
-      enabled: Boolean(account) && (chainId === ChainId.BSC || chainId === ChainId.BSC_TESTNET),
+      // enabled: Boolean(account) && (chainId === ChainId.BSC || chainId === ChainId.BSC_TESTNET),
+      enabled: false,
     },
   )
   return info || ({} as CakePoolInfo)

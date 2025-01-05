@@ -1,16 +1,18 @@
-import invariant from 'tiny-invariant'
-import { TradeType, Rounding, Token, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
 import { ChainId } from '@pancakeswap/chains'
-import { Pair, Route, Trade } from '../src/entities'
+import { CurrencyAmount, Rounding, Token, TradeType } from '@pancakeswap/swap-sdk-core'
+import { describe, it } from 'node:test'
+import invariant from 'tiny-invariant'
+import { expect } from 'vitest'
 import { WNATIVE as _WETH } from '../src/constants'
+import { Pair, Route, Trade } from '../src/entities'
 
 const ADDRESSES = [
   '0x0000000000000000000000000000000000000001',
   '0x0000000000000000000000000000000000000002',
   '0x0000000000000000000000000000000000000003',
 ]
-const CHAIN_ID = ChainId.BSC_TESTNET
-const WETH = _WETH[ChainId.BSC_TESTNET]
+const CHAIN_ID = ChainId.KLAYTN_TESTNET
+const WETH = _WETH[ChainId.KLAYTN_TESTNET]
 const DECIMAL_PERMUTATIONS: [number, number, number][] = [
   [0, 0, 0],
   [0, 9, 18],

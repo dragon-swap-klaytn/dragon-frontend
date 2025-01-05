@@ -1,8 +1,8 @@
-import { styled } from 'styled-components'
-import { Box, Text, Flex, Link, useTooltip, LightBulbIcon } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
-import { TransactionDetails } from 'state/transactions/reducer'
+import { Box, Flex, LightBulbIcon, Link, Text, useTooltip } from '@pancakeswap/uikit'
 import { FarmTransactionStatus, NonBscFarmStepType } from 'state/transactions/actions'
+import { TransactionDetails } from 'state/transactions/reducer'
+import { styled } from 'styled-components'
 
 const ListStyle = styled.div`
   position: relative;

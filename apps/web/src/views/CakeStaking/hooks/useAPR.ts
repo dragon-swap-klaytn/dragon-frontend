@@ -43,7 +43,7 @@ export const useCakePoolEmission = () => {
   const { chainId } = useActiveChainId()
   const client = useMemo(() => {
     return publicClient({
-      chainId: chainId && [ChainId.BSC, ChainId.BSC_TESTNET].includes(chainId) ? chainId : ChainId.BSC,
+      chainId: chainId && [ChainId.KLAYTN, ChainId.KLAYTN_TESTNET].includes(chainId) ? chainId : ChainId.KLAYTN,
     })
   }, [chainId])
 
@@ -113,7 +113,7 @@ export const useRevShareEmission = () => {
   const currentTimestamp = useCurrentBlockTimestamp()
   const { data: totalDistributed } = useContractRead({
     abi: revenueSharingPoolProxyABI,
-    address: getRevenueSharingVeCakeAddress(chainId) ?? getRevenueSharingVeCakeAddress(ChainId.BSC),
+    address: getRevenueSharingVeCakeAddress(chainId) ?? getRevenueSharingVeCakeAddress(ChainId.KLAYTN),
     functionName: 'totalDistributed',
     chainId,
   })

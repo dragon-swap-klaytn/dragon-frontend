@@ -32,7 +32,7 @@ const ApprovalConfirmationModal: React.FC<
   if (!chainId) return null
 
   return (
-    <Modal title={title} headerBackground="gradientCardHeader" {...props} onDismiss={handleDismiss}>
+    <Modal title={title} {...props} onDismiss={handleDismiss}>
       {attemptingTxn ? (
         <ConfirmationPendingContent qrUri={qrUri} pendingText={pendingText || 'wating approve...'} />
       ) : (

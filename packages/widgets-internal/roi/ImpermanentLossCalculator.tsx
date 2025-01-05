@@ -1,32 +1,15 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { useCallback, useEffect, useState, useMemo, memo } from "react";
 import { Currency, CurrencyAmount, ONE_HUNDRED_PERCENT, ZERO_PERCENT } from "@pancakeswap/sdk";
-import { FeeCalculator, encodeSqrtRatioX96 } from "@pancakeswap/v3-sdk";
-import { styled } from "styled-components";
 import { CAKE } from "@pancakeswap/tokens";
-import { Box, Row, AutoColumn, Toggle, RowBetween, Message } from "@pancakeswap/uikit";
+import { Notification, ToggleSwitch } from "@pancakeswap/uikit";
+import { FeeCalculator, encodeSqrtRatioX96 } from "@pancakeswap/v3-sdk";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { DoubleCurrencyLogo } from "../components/CurrencyLogo";
 
-import { Section } from "./Section";
-import {
-  AssetCard,
-  Asset,
-  CardSection,
-  SectionTitle,
-  InterestDisplay,
-  AssetRow,
-  CurrencyLogoDisplay,
-  CardTag,
-} from "./AssetCard";
-import { floatToPercent, toToken0Price } from "./utils";
-import { TwoColumns } from "./TwoColumns";
+import { Asset, AssetCard, AssetRow, CardTag, CurrencyLogoDisplay, InterestDisplay, SectionTitle } from "./AssetCard";
 import { EditableAssets } from "./EditableAssets";
-
-const Container = styled(Box)`
-  background: ${({ theme }) => theme.colors.background};
-  padding: 12px;
-  border-radius: 20px;
-`;
+import { Section } from "./Section";
+import { floatToPercent, toToken0Price } from "./utils";
 
 interface Props {
   amountA?: CurrencyAmount<Currency>;
@@ -282,78 +265,74 @@ export const ImpermanentLossCalculator = memo(function ImpermanentLossCalculator
   }
 
   const outofRangeWarning = isExitPriceOutOfRange ? (
-    <Message variant="warning">
+    <Notification variant="caution" className="mt-4">
       {t(
         "Exit price is out of the position price range. The number of estimated rewards will not account for the loss from the position being out-of-range."
       )}
-    </Message>
+    </Notification>
   ) : null;
 
   const calculator = on ? (
     <>
-      <TwoColumns>
-        <AutoColumn alignSelf="stretch">
-          <EditableAssets title={t("Entry price")} assets={entry} onChange={updateEntry} onReset={resetEntry} />
-        </AutoColumn>
-        <AutoColumn>
-          <EditableAssets title={t("Exit price")} assets={exit} onChange={updateExit} onReset={resetExit} />
-        </AutoColumn>
-      </TwoColumns>
-      <CardSection header={<SectionTitle>{t("Projected results")}</SectionTitle>}>
-        <TwoColumns>
-          <AutoColumn>
-            <AssetCard
-              isActive={!lpBetter}
-              mb={24}
-              showPrice={false}
-              assets={hodlAssets}
-              header={
-                <RowBetween>
-                  <InterestDisplay amount={hodlValue} interest={hodlRate} />
-                  <CardTag isActive={!lpBetter}>{t("HOLD Tokens")}</CardTag>
-                </RowBetween>
-              }
-            />
-          </AutoColumn>
-          <AutoColumn>
-            <AssetCard
-              isActive={lpBetter}
-              showPrice={false}
-              assets={exit}
-              header={
-                <RowBetween>
-                  <InterestDisplay amount={exitValue} interest={exitRate} />
-                  <CardTag isActive={lpBetter}>{t("Provide Liquidity")}</CardTag>
-                </RowBetween>
-              }
-              extraRows={
-                <AssetRow
-                  name={
-                    <CurrencyLogoDisplay
-                      logo={<DoubleCurrencyLogo currency0={exit?.[0]?.currency} currency1={exit?.[1]?.currency} />}
-                      name={t("LP Rewards")}
-                    />
-                  }
-                  showPrice={false}
-                  value={lpReward}
-                />
-              }
-            />
-          </AutoColumn>
-        </TwoColumns>
-      </CardSection>
+      <div className="grid md:grid-cols-2 gap-4 w-full">
+        <EditableAssets title={t("Entry price")} assets={entry} onChange={updateEntry} onReset={resetEntry} />
+        <EditableAssets title={t("Exit price")} assets={exit} onChange={updateExit} onReset={resetExit} />
+      </div>
+
+      <div className="mt-6">
+        <SectionTitle>{t("Projected results")}</SectionTitle>
+
+        <div className="grid md:grid-cols-2 gap-4 w-full mt-1">
+          <AssetCard
+            isActive={!lpBetter}
+            mb={24}
+            showPrice={false}
+            assets={hodlAssets}
+            header={
+              <div className="flex items-center space-x-2 w-full justify-between mb-2.5">
+                <InterestDisplay amount={hodlValue} interest={hodlRate} />
+                <CardTag isActive={!lpBetter}>{t("HOLD Tokens")}</CardTag>
+              </div>
+            }
+          />
+          <AssetCard
+            isActive={lpBetter}
+            showPrice={false}
+            assets={exit}
+            header={
+              <div className="flex items-center space-x-2 w-full justify-between mb-2.5">
+                <InterestDisplay amount={exitValue} interest={exitRate} />
+                <CardTag isActive={lpBetter}>{t("Provide Liquidity")}</CardTag>
+              </div>
+            }
+            extraRows={
+              <AssetRow
+                name={
+                  <CurrencyLogoDisplay
+                    logo={<DoubleCurrencyLogo currency0={exit?.[0]?.currency} currency1={exit?.[1]?.currency} />}
+                    name={t("LP Rewards")}
+                  />
+                }
+                showPrice={false}
+                value={lpReward}
+              />
+            }
+          />
+        </div>
+      </div>
       {outofRangeWarning}
     </>
   ) : null;
 
   return (
-    <Container>
-      <Section title={t("Calculate impermanent loss")} mb="0">
-        <Row mb={on ? "24px" : "0px"}>
-          <Toggle checked={on} onChange={toggle} scale="md" />
-        </Row>
-        {calculator}
-      </Section>
-    </Container>
+    <Section
+      title={t("Calculate impermanent loss")}
+      className="p-4 rounded-2xl flex flex-col bg-surface-container-highest"
+      mb="mb-0"
+    >
+      <ToggleSwitch activated={on} setActivated={toggle} className="mb-4" />
+
+      {calculator}
+    </Section>
   );
 });

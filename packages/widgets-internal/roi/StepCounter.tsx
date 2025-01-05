@@ -1,10 +1,8 @@
 import { useTranslation } from "@pancakeswap/localization";
+import { NumberFormat } from "@pancakeswap/uikit";
 import { FeeAmount } from "@pancakeswap/v3-sdk";
-import { ReactNode, useCallback, useEffect, useState, memo } from "react";
-import { AddCircleIcon, AutoColumn, AutoRow, IconButton, RemoveIcon } from "@pancakeswap/uikit";
-
-import { NumericalInput } from "../swap/NumericalInput";
-import { LightGreyCard } from "./Card";
+import { Minus, Plus } from "@phosphor-icons/react";
+import { memo, ReactNode, useCallback, useEffect, useState } from "react";
 
 interface StepCounterProps {
   value: string;
@@ -86,48 +84,53 @@ export const StepCounter = memo(
     }, [localValue, useLocalValue, value]);
 
     return (
-      <LightGreyCard padding="0">
-        <AutoColumn py="16px" textAlign="center" gap="8px" width="100%" onFocus={handleOnFocus} onBlur={handleOnBlur}>
-          {title}
-          <AutoRow>
-            {!locked && (
-              <IconButton
-                onClick={handleDecrement}
-                disabled={decrementDisabled}
-                scale="xs"
-                variant="text"
-                style={{ width: 20, padding: 16 }}
-              >
-                <RemoveIcon color="primary" width={20} height={20} />
-              </IconButton>
-            )}
+      <div
+        className="bg-surface-container-highest px-4 py-3 rounded-xl w-full flex items-center justify-between space-x-3"
+        onFocus={handleOnFocus}
+        onBlur={handleOnBlur}
+      >
+        <div className="flex flex-col items-start space-y-2">
+          <span className="text-xs text-on-surface-tertiary">{title}</span>
 
-            <NumericalInput
-              value={localValue}
-              fontSize="20px"
-              align="center"
-              disabled={locked}
-              onUserInput={(val) => {
-                setLocalValue(val);
-              }}
-            />
+          <NumberFormat
+            disabled={locked}
+            className="text-on-surface-primary w-full focus:outline-none font-bold bg-transparent"
+            value={localValue}
+            onChange={(e) => {
+              setLocalValue(e.target.value.replace(/,/g, ""));
+            }}
+            thousandSeparator
+            allowNegative={false}
+          />
 
-            {!locked && (
-              <IconButton
-                px="16px"
-                onClick={handleIncrement}
-                disabled={incrementDisabled}
-                scale="xs"
-                variant="text"
-                style={{ width: 20, padding: 16 }}
-              >
-                <AddCircleIcon color="primary" width={20} height={20} />
-              </IconButton>
-            )}
-          </AutoRow>
-          {tokenA && tokenB && t("%assetA% per %assetB%", { assetA: tokenB, assetB: tokenA })}
-        </AutoColumn>
-      </LightGreyCard>
+          <span className="text-xs text-on-surface-tertiary">
+            {tokenA && tokenB && t("%assetA% per %assetB%", { assetA: tokenB, assetB: tokenA })}
+          </span>
+        </div>
+        <div className="flex flex-col items-center space-y-3">
+          {!locked && (
+            <button
+              type="button"
+              className="p-1.5 rounded-full bg-surface-container "
+              onClick={handleIncrement}
+              disabled={incrementDisabled}
+            >
+              <Plus className="text-on-surface-primary" size={16} />
+            </button>
+          )}
+
+          {!locked && (
+            <button
+              type="button"
+              className="p-1.5 rounded-full bg-surface-container "
+              onClick={handleDecrement}
+              disabled={decrementDisabled}
+            >
+              <Minus className="text-on-surface-primary" size={16} />
+            </button>
+          )}
+        </div>
+      </div>
     );
   }
 );

@@ -1,18 +1,16 @@
-import { useMemo, useState } from 'react'
 import { PositionDetails } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { Token } from '@pancakeswap/swap-sdk-core'
 import {
-  Box,
   AutoRow,
-  QuestionHelper,
+  Balance,
+  Box,
+  Button,
+  ChevronRightIcon,
+  Link,
   RowBetween,
   SyncAltIcon,
-  Button,
-  Link,
-  ChevronRightIcon,
   Text,
-  Balance,
 } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { RangeTag } from 'components/RangeTag'
@@ -20,9 +18,10 @@ import { Bound } from 'config/constants/types'
 import { useDerivedPositionInfo } from 'hooks/v3/useDerivedPositionInfo'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
+import { useMemo, useState } from 'react'
 import { styled } from 'styled-components'
-import { V3Farm } from 'views/Farms/FarmsV3'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+import { V3Farm } from 'views/Farms/FarmsV3'
 import { FarmV3ApyButton } from './FarmV3ApyButton'
 
 const StyledLink = styled(Link)`
@@ -226,18 +225,7 @@ const FarmV3StakeAndUnStake: React.FunctionComponent<React.PropsWithChildren<Far
 
   return (
     <>
-      {outOfRange && (
-        <RangeTag outOfRange ml={0} style={{ alignItems: 'center' }}>
-          {t('Inactive')}
-          <QuestionHelper
-            ml="4px"
-            text={t('Inactive positions will NOT earn rewards from farm.')}
-            size="20px"
-            color="white"
-            placement="bottom"
-          />
-        </RangeTag>
-      )}
+      {outOfRange && <RangeTag outOfRange questionHelper={t('Inactive positions will NOT earn rewards from farm.')} />}
       <FarmV3LPTitle title={title} liquidityUrl={liquidityUrl} outOfRange={outOfRange} />
       <FarmV3LPPosition token={token} quoteToken={quoteToken} position={position} />
       <RowBetween gap="16px" flexWrap="wrap">

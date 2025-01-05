@@ -25,8 +25,6 @@ export const ExpertModal: React.FC<React.PropsWithChildren<ExpertModalProps>> = 
       title={t('Expert Mode')}
       onBack={() => setShowConfirmExpertModal(false)}
       onDismiss={() => setShowConfirmExpertModal(false)}
-      headerBackground="gradientCardHeader"
-      width={['100%', '100%', '100%', '436px']}
     >
       <div className="flex flex-col space-y-4 mt-4">
         <Notification variant="caution">
@@ -37,20 +35,16 @@ export const ExpertModal: React.FC<React.PropsWithChildren<ExpertModalProps>> = 
           </p>
         </Notification>
 
-        <p className="text-sm">{t('Only use this mode if you know what you’re doing.')}</p>
+        <p className="text-sm text-on-surface-primary">{t('Only use this mode if you know what you’re doing.')}</p>
 
         <div className="flex items-center space-x-2">
           <Checkbox
             id="export-modal-checkbox"
             checked={isRememberChecked}
             onChange={() => setIsRememberChecked(!isRememberChecked)}
+            label={t('Don’t show this again')}
+            labelClassName="text-sm text-on-surface-secondary"
           />
-          <label
-            htmlFor="export-modal-checkbox"
-            className="text-sm text-on-surface-secondary cursor-pointer hover:opacity-70"
-          >
-            {t('Don’t show this again')}
-          </label>
         </div>
 
         <Button

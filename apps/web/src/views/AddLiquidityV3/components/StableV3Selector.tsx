@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
-import { AutoColumn, Message, MessageText, Text } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { AutoColumn, Message, MessageText, Text } from '@pancakeswap/uikit'
+import { useEffect, useMemo, useState } from 'react'
 
+import { Currency } from '@pancakeswap/sdk'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
+import { EvenWidthAutoRow } from 'components/Layout/EvenWidthAutoRow'
+import { SelectButton } from 'components/SelectButton'
+import { PoolState } from 'hooks/v3/types'
 import { useFeeTierDistribution } from 'hooks/v3/useFeeTierDistribution'
 import { usePools } from 'hooks/v3/usePools'
-import { PoolState } from 'hooks/v3/types'
-import { SelectButton } from 'components/SelectButton'
-import { EvenWidthAutoRow } from 'components/Layout/EvenWidthAutoRow'
-import { Currency } from '@pancakeswap/sdk'
 
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { FeeOption } from '../formViews/V3FormView/components/FeeOption'
@@ -131,7 +131,14 @@ export function StableV3Selector({
           </EvenWidthAutoRow>
           {selectorType === SELECTOR_TYPE.V3 && (
             <SelectContainer>
-              {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUMLOW, FeeAmount.MEDIUM, FeeAmount.HIGH, FeeAmount.HIGHEST].map((_feeAmount) => {
+              {[
+                FeeAmount.LOWEST,
+                FeeAmount.LOW,
+                FeeAmount.MEDIUMLOW,
+                FeeAmount.MEDIUM,
+                FeeAmount.HIGH,
+                FeeAmount.HIGHEST,
+              ].map((_feeAmount) => {
                 const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount]
                 if (supportedChains.includes(chainId)) {
                   return (

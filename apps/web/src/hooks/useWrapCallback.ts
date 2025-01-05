@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, WNATIVE, WNATIVE2 } from '@pancakeswap/sdk'
-import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import type { Handler, HandlerWithArgs } from '@pancakeswap/uikit/widgets/Modal/types'
+import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useMemo } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -27,7 +27,7 @@ export default function useWrapCallback(
   inputCurrency: Currency | undefined | null,
   outputCurrency: Currency | undefined | null,
   typedValue: string | undefined,
-  qrHandlers?: { open: Handler, close: HandlerWithArgs },
+  qrHandlers?: { open: Handler; close: HandlerWithArgs },
 ): { wrapType: WrapType; execute?: undefined | (() => Promise<void>); inputError?: string } {
   const { t } = useTranslation()
   const { account, chainId } = useAccountActiveChain()

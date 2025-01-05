@@ -1,7 +1,7 @@
-import BigNumber from 'bignumber.js'
-import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { ChainId } from '@pancakeswap/chains'
 import { CAKE } from '@pancakeswap/tokens'
+import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
+import BigNumber from 'bignumber.js'
 import { Address } from 'viem'
 
 import { cakeVaultV2ABI } from '../abis/ICakeVaultV2'
@@ -51,7 +51,7 @@ export const fetchPublicVaultData = async ({
         },
         {
           abi: balanceOfAbi,
-          address: CAKE[ChainId.BSC].address,
+          address: CAKE[ChainId.KLAYTN].address,
           functionName: 'balanceOf',
           args: [cakeVaultAddress],
         },
@@ -106,7 +106,7 @@ export const fetchPublicFlexibleSideVaultData = async ({
         },
         {
           abi: balanceOfAbi,
-          address: CAKE[ChainId.BSC].address,
+          address: CAKE[ChainId.KLAYTN].address,
           functionName: 'balanceOf',
           args: [cakeVaultAddress],
         },

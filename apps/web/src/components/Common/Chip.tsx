@@ -1,30 +1,27 @@
-import { X } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import { PropsWithChildren } from 'react'
 
 type ChipProps = {
   className?: string
-  label: string
-  selected: boolean
-  setSelected: (v: boolean) => void
+  color?: 'blue' | 'green' | 'orange' | 'default' | 'red'
 }
 
-export default function Chip({ className, label, selected, setSelected }: ChipProps) {
+export default function Chip({ children, className, color = 'default' }: PropsWithChildren<ChipProps>) {
   return (
-    <button
-      type="button"
+    <div
       className={clsx(
+        'inline-flex items-center justify-center rounded-[100px] space-x-2 px-2 py-1 text-xs',
         className,
-        'inline-flex items-center justify-center rounded-full space-x-2 py-2 text-white hover:opacity-70',
-        selected ? 'bg-overlay-surface-hover-light px-3' : 'bg-surface-container-highest px-6',
+        {
+          'bg-surface-container-highest text-on-surface-secondary': color === 'default',
+          'bg-[#3B82F61A] text-blue-500': color === 'blue',
+          'bg-[#10B9811A] text-emerald-500': color === 'green',
+          'bg-[#F973161A] text-on-surface-orange-on-overlay': color === 'orange',
+          'bg-[#b91c1c1A] text-red-500': color === 'red',
+        },
       )}
-      onClick={() => setSelected(!selected)}
     >
-      <span className="text-sm">{label}</span>
-      <X
-        className={clsx('size-4', {
-          hidden: !selected,
-        })}
-      />
-    </button>
+      {children}
+    </div>
   )
 }

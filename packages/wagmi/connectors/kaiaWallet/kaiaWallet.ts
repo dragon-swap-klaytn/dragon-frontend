@@ -236,8 +236,11 @@ export class KaiaWalletConnector extends Connector<WindowProvider | undefined, a
           id: chainId,
           name: `Chain ${id}`,
           network: `${id}`,
-          nativeCurrency: { name: 'Klay', decimals: 18, symbol: 'Klay' },
-          rpcUrls: { default: { http: [''] }, public: { http: [''] } },
+          nativeCurrency: { name: 'Kaia', decimals: 18, symbol: 'KAIA' },
+          rpcUrls: {
+            default: { http: ['https://public-en.node.kaia.io'] },
+            public: { http: ['https://public-en.node.kaia.io'] },
+          },
         }
       )
     } catch (error) {

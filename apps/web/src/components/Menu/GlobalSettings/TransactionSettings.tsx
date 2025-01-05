@@ -83,7 +83,6 @@ const SlippageTabs = () => {
   }
 
   return (
-    // <Flex flexDirection="column">
     <>
       <SettingTitle
         title={t('Slippage Tolerance')}
@@ -120,34 +119,9 @@ const SlippageTabs = () => {
         >
           1.0%
         </Button>
-        {/* <Flex alignItems="center"> */}
-        {/* <input className="border border-gray-700" /> */}
         <div className="items-center space-x-1 inline-flex">
-          {/* <Box width="76px" mt="4px">
-            <Input
-              scale="sm"
-              inputMode="decimal"
-              pattern="^[0-9]*[.,]?[0-9]{0,2}$"
-              placeholder={(userSlippageTolerance / 100).toFixed(2)}
-              value={slippageInput}
-              onBlur={() => {
-                parseCustomSlippage((userSlippageTolerance / 100).toFixed(2))
-              }}
-              onChange={(event) => {
-                if (event.currentTarget.validity.valid) {
-                  parseCustomSlippage(event.target.value.replace(/,/g, '.'))
-                }
-              }}
-              isWarning={!slippageInputIsValid}
-              isSuccess={![10, 50, 100].includes(userSlippageTolerance)}
-            />
-          </Box> */}
-
           <NumberFormat
-            // error={error ?? false}
-            // disabled={disabled}
-            // loading={inputLoading}
-            className="text-white w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
+            className="text-on-surface-primary w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
             value={slippageInput}
             onBlur={() => {
               parseCustomSlippage((userSlippageTolerance / 100).toFixed(2))
@@ -161,11 +135,10 @@ const SlippageTabs = () => {
             allowNegative={false}
             decimalScale={2}
             placeholder={(userSlippageTolerance / 100).toFixed(2)}
-            // pattern='[0-9]*[.,]?[0-9]{0,2}'
             pattern="^[0-9]*[.,]?[0-9]{0,2}$"
           />
 
-          <span className="text-sm">%</span>
+          <span className="text-sm text-on-surface-primary">%</span>
         </div>
       </div>
       {slippageError && (
@@ -190,7 +163,7 @@ const SlippageTabs = () => {
         />
 
         <NumberFormat
-          className="text-white w-16 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
+          className="text-on-surface-primary w-16 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
           value={slippageInput}
           onBlur={() => {
             parseCustomDeadline((ttl / 60).toString())

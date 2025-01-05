@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { ChainId } from '@pancakeswap/chains'
 import { ERC20Token } from '@pancakeswap/sdk'
-import { Currency, NativeCurrency } from '@pancakeswap/swap-sdk-core'
+import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
 import { ZERO_ADDRESS } from '@pancakeswap/uikit'
@@ -9,7 +9,6 @@ import { GELATO_NATIVE } from 'config/constants'
 import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  combinedCurrenciesMapFromActiveUrlsAtom,
   combinedTokenMapFromActiveUrlsAtom,
   combinedTokenMapFromOfficialsUrlsAtom,
   useUnsupportedTokenList,
@@ -29,15 +28,6 @@ const mapWithoutUrls = (tokenMap?: TokenAddressMap<ChainId>, chainId?: number) =
     if (checksummedAddress && !newMap[checksummedAddress]) {
       newMap[checksummedAddress] = tokenMap[chainId][address].token
     }
-
-    return newMap
-  }, {})
-}
-
-const mapWithoutUrlsBySymbol = (tokenMap?: TokenAddressMap<ChainId>, chainId?: number) => {
-  if (!tokenMap || !chainId) return {}
-  return Object.keys(tokenMap[chainId] || {}).reduce<{ [symbol: string]: ERC20Token }>((newMap, symbol) => {
-    newMap[symbol] = tokenMap[chainId][symbol].token
 
     return newMap
   }, {})
@@ -71,26 +61,6 @@ export function useAllTokens(): { [address: string]: ERC20Token } {
     [userAddedTokens, tokenMap, chainId],
   )
 
-  //   {
-  //     "chainId": 8217,
-  //     "decimals": 8,
-  //     "symbol": "oWBTC",
-  //     "name": "Orbit Bridge Klaytn Wrapped BTC",
-  //     "isNative": false,
-  //     "isToken": true,
-  //     "address": "0x16D0e1fBD024c600Ca0380A4C5D57Ee7a2eCBf9c"
-  // }
-  // {
-  //   "address": "0x2b5d75db09af26e53d051155f5eae811db7aef67",
-  //   "symbol": "KP",
-  //   "name": "KlayPay Token",
-  //   "decimals": "18"
-  // }
-
-  // return {
-  //   ...tokens,
-  //   ...(tokensFromSs || {}),
-  // }
   return tokens
 }
 
@@ -138,14 +108,6 @@ export function useTokensFromSs(): { [address: string]: ERC20Token } | null {
   }, [])
 
   return tokensFromSs
-}
-
-export function useAllOnRampTokens(): { [address: string]: Currency } {
-  const { chainId } = useActiveChainId()
-  const tokenMap = useAtomValue(combinedCurrenciesMapFromActiveUrlsAtom)
-  return useMemo(() => {
-    return mapWithoutUrlsBySymbol(tokenMap, chainId)
-  }, [tokenMap, chainId])
 }
 
 /**
@@ -199,7 +161,7 @@ export function useIsTokenActive(token: ERC20Token | undefined | null): boolean 
 
   const tokenAddress = safeGetAddress(token.address)
 
-  return tokenAddress && !!activeTokens[tokenAddress]
+  return Boolean(tokenAddress && !!activeTokens[tokenAddress])
 }
 
 // Check if currency is included in custom list from user storage
@@ -231,22 +193,6 @@ export function useToken(tokenAddress?: string): ERC20Token | undefined | null {
     enabled: Boolean(!!address && !token),
     // consider longer stale time
   })
-
-  //   {
-  //     "chainId": 8217,
-  //     "decimals": 8,
-  //     "symbol": "oWBTC",
-  //     "name": "Orbit Bridge Klaytn Wrapped BTC",
-  //     "isNative": false,
-  //     "isToken": true,
-  //     "address": "0x16D0e1fBD024c600Ca0380A4C5D57Ee7a2eCBf9c"
-  // }
-  // {
-  //   "address": "0x2b5d75db09af26e53d051155f5eae811db7aef67",
-  //   "symbol": "KP",
-  //   "name": "KlayPay Token",
-  //   "decimals": "18"
-  // }
 
   const tokensFromSs = useTokensFromSs()
 
@@ -297,22 +243,6 @@ export function useTokens(key?: string): ERC20Token[] | undefined | null {
     // consider longer stale time
   })
 
-  //   {
-  //     "chainId": 8217,
-  //     "decimals": 8,
-  //     "symbol": "oWBTC",
-  //     "name": "Orbit Bridge Klaytn Wrapped BTC",
-  //     "isNative": false,
-  //     "isToken": true,
-  //     "address": "0x16D0e1fBD024c600Ca0380A4C5D57Ee7a2eCBf9c"
-  // }
-  // {
-  //   "address": "0x2b5d75db09af26e53d051155f5eae811db7aef67",
-  //   "symbol": "KP",
-  //   "name": "KlayPay Token",
-  //   "decimals": "18"
-  // }
-
   const tokensFromSs = useTokensFromSs()
 
   return useMemo(() => {
@@ -321,10 +251,16 @@ export function useTokens(key?: string): ERC20Token[] | undefined | null {
     if (!chainId) return undefined
 
     if (key) {
+      const filteredByAddress = Object.values(tokensFromSs).filter((t) =>
+        t.address.toLowerCase().includes(key.toLowerCase()),
+      )
+      if (filteredByAddress.length > 0) {
+        return filteredByAddress.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
+      }
+
       const filteredBySymbol = Object.values(tokensFromSs).filter((t) =>
         t.symbol.toLowerCase().includes(key.toLowerCase()),
       )
-
       if (filteredBySymbol.length > 0) {
         return filteredBySymbol.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
       }
@@ -332,7 +268,6 @@ export function useTokens(key?: string): ERC20Token[] | undefined | null {
       const filteredByName = Object.values(tokensFromSs).filter((t) =>
         t.name?.toLowerCase().includes(key.toLowerCase()),
       )
-
       if (filteredByName.length > 0) {
         return filteredByName.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
       }
@@ -363,31 +298,10 @@ export function useTokens(key?: string): ERC20Token[] | undefined | null {
   }, [token, chainId, address, isLoading, data, unsupportedTokens, tokensFromSs, key])
 }
 
-export function useOnRampToken(tokenAddress?: string): Currency | undefined {
-  const { chainId } = useActiveChainId()
-  const tokens = useAllOnRampTokens()
-  const address = safeGetAddress(tokenAddress)
-  const token = tokens[tokenAddress]
-
-  return useMemo(() => {
-    if (token) return token
-    if (!chainId || !address) return undefined
-    return undefined
-  }, [token, chainId, address])
-}
-
 export function useCurrency(currencyId: string | undefined): Currency | ERC20Token | null | undefined {
   const native = useNativeCurrency()
   const isNative =
     currencyId?.toUpperCase() === native.symbol?.toUpperCase() || currencyId?.toLowerCase() === GELATO_NATIVE
   const token = useToken(isNative ? undefined : currencyId)
-  return isNative ? native : token
-}
-
-export function useOnRampCurrency(currencyId: string | undefined): NativeCurrency | Currency | null | undefined {
-  const native = useNativeCurrency()
-  const isNative =
-    currencyId?.toUpperCase() === native.symbol?.toUpperCase() || currencyId?.toLowerCase() === GELATO_NATIVE
-  const token = useOnRampToken(currencyId)
   return isNative ? native : token
 }

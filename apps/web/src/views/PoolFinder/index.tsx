@@ -65,7 +65,6 @@ export default function PoolFinder() {
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
-      console.log('__currency', currency)
       if (activeField === Fields.TOKEN0) {
         setCurrency0(currency)
       } else {

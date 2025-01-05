@@ -72,7 +72,7 @@ export function createFarmFetcher(provider: ({ chainId }: { chainId: FarmV2Suppo
     fetchFarms,
     isChainSupported: (chainId: number) => supportedChainIdV2.includes(chainId),
     supportedChainId: supportedChainIdV2,
-    isTestnet: (chainId: number) => ![ChainId.BSC, ChainId.ETHEREUM, ChainId.KLAYTN].includes(chainId),
+    isTestnet: (chainId: number) => ![ChainId.KLAYTN].includes(chainId),
   }
 }
 
@@ -147,7 +147,7 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
     getCakeAprAndTVL,
     isChainSupported: (chainId: number): chainId is FarmV3SupportedChainId => supportedChainIdV3.includes(chainId),
     supportedChainId: supportedChainIdV3,
-    isTestnet: (chainId: number) => ![ChainId.BSC, ChainId.ETHEREUM].includes(chainId),
+    isTestnet: (chainId: number) => ![ChainId.KLAYTN].includes(chainId),
   }
 }
 

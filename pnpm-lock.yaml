@@ -510,6 +510,9 @@ importers:
       type-fest:
         specifier: ^4.29.0
         version: 4.30.0
+      use-deep-compare-effect:
+        specifier: ^1.8.1
+        version: 1.8.1(react@18.2.0)
       uuid:
         specifier: ^8.0.0
         version: 8.3.2
@@ -1276,6 +1279,9 @@ importers:
       '@vanilla-extract/css':
         specifier: ^1.13.0
         version: 1.14.0
+      clsx:
+        specifier: ^1.2.1
+        version: 1.2.1
       jotai:
         specifier: ^2.2.2
         version: 2.5.1(@types/react@18.2.37)(react@18.2.0)
@@ -1294,6 +1300,9 @@ importers:
 
   packages/uikit:
     dependencies:
+      '@headlessui/react':
+        specifier: ^2.2.0
+        version: 2.2.0(react-dom@18.2.0)(react@18.2.0)
       '@pancakeswap/hooks':
         specifier: workspace:*
         version: link:../hooks
@@ -1360,6 +1369,9 @@ importers:
       next:
         specifier: 13.5.6
         version: 13.5.6(@babel/core@7.23.3)(react-dom@18.2.0)(react@18.2.0)
+      react-number-format:
+        specifier: ^5.4.2
+        version: 5.4.2(react-dom@18.2.0)(react@18.2.0)
       react-popper:
         specifier: ^2.3.0
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.2.0)(react@18.2.0)
@@ -1388,6 +1400,9 @@ importers:
       '@pancakeswap/chains':
         specifier: workspace:*
         version: link:../chains
+      '@pancakeswap/swap-sdk-core':
+        specifier: workspace:*
+        version: link:../swap-sdk-core
       '@pancakeswap/utils':
         specifier: workspace:*
         version: link:../utils
@@ -12478,20 +12493,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /chokidar@3.6.0:
-    resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
-    engines: {node: '>= 8.10.0'}
-    dependencies:
-      anymatch: 3.1.3
-      braces: 3.0.2
-      glob-parent: 5.1.2
-      is-binary-path: 2.1.0
-      is-glob: 4.0.3
-      normalize-path: 3.0.0
-      readdirp: 3.6.0
-    optionalDependencies:
-      fsevents: 2.3.3
-
   /chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
     dev: true
@@ -23327,6 +23328,17 @@ packages:
       react: 18.2.0
       tslib: 2.6.2
     dev: true
+
+  /use-deep-compare-effect@1.8.1(react@18.2.0):
+    resolution: {integrity: sha512-kbeNVZ9Zkc0RFGpfMN3MNfaKNvcLNyxOAAd9O4CBZ+kCBXXscn9s/4I+8ytUER4RDpEYs5+O6Rs4PqiZ+rHr5Q==}
+    engines: {node: '>=10', npm: '>=6'}
+    peerDependencies:
+      react: '>=16.13'
+    dependencies:
+      '@babel/runtime': 7.23.2
+      dequal: 2.0.3
+      react: 18.2.0
+    dev: false
 
   /use-resize-observer@9.1.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-R25VqO9Wb3asSD4eqtcxk8sJalvIOYBqS8MNZlpDSQ4l4xMQxC/J7Id9HoTqPq8FwULIn0PVW+OAqF2dyYbjow==}

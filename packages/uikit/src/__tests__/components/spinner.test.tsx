@@ -1,5 +1,5 @@
+import { Spinner } from "../../components/Common/Spinner";
 import { renderWithProvider } from "../../testHelpers";
-import { Spinner } from "../../components/Spinner";
 
 it("renders correctly", () => {
   const { asFragment } = renderWithProvider(<Spinner />);

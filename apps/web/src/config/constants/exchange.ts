@@ -1,15 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
-import { Percent, Token, WNATIVE } from '@pancakeswap/sdk'
-import {
-  BUSD,
-  USDC,
-  USDT,
-  WBTC_ETH,
-  bscTestnetTokens,
-  bscTokens,
-  klaytnTestnetTokens,
-  klaytnTokens,
-} from '@pancakeswap/tokens'
+import { Percent, Token } from '@pancakeswap/sdk'
+import { klaytnTestnetTokens, klaytnTokens } from '@pancakeswap/tokens'
 import { ChainTokenList } from './types'
 
 export {
@@ -21,10 +12,6 @@ export {
 
 // DEV_NOTE [체인설정]_8 : block time
 export const CHAIN_REFRESH_TIME = {
-  [ChainId.ETHEREUM]: 12_000,
-  [ChainId.GOERLI]: 12_000,
-  [ChainId.BSC]: 6_000,
-  [ChainId.BSC_TESTNET]: 6_000,
   [ChainId.KLAYTN]: 1_000,
   [ChainId.KLAYTN_TESTNET]: 1_000,
 } as const satisfies Record<ChainId, number>
@@ -33,35 +20,17 @@ export const CHAIN_REFRESH_TIME = {
 
 // used for display in the default list when adding liquidity
 export const SUGGESTED_BASES: ChainTokenList = {
-  [ChainId.ETHEREUM]: [USDC[ChainId.ETHEREUM], USDT[ChainId.ETHEREUM], WNATIVE[ChainId.ETHEREUM], WBTC_ETH],
-  [ChainId.GOERLI]: [USDC[ChainId.GOERLI], WNATIVE[ChainId.GOERLI], BUSD[ChainId.GOERLI]],
-  [ChainId.BSC]: [bscTokens.usdt, bscTokens.cake, bscTokens.btcb],
-  [ChainId.BSC_TESTNET]: [bscTestnetTokens.wbnb, bscTestnetTokens.cake, bscTestnetTokens.busd],
   [ChainId.KLAYTN]: [klaytnTokens.usdt, klaytnTokens.weth],
   [ChainId.KLAYTN_TESTNET]: [klaytnTestnetTokens.usdt, klaytnTestnetTokens.weth],
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
 export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
-  [ChainId.ETHEREUM]: [USDC[ChainId.ETHEREUM], WNATIVE[ChainId.ETHEREUM], USDT[ChainId.ETHEREUM], WBTC_ETH],
-  [ChainId.GOERLI]: [USDC[ChainId.GOERLI], WNATIVE[ChainId.GOERLI], BUSD[ChainId.GOERLI]],
-  [ChainId.BSC]: [bscTokens.wbnb, bscTokens.dai, bscTokens.busd, bscTokens.usdt, bscTokens.cake],
-  [ChainId.BSC_TESTNET]: [bscTestnetTokens.wbnb, bscTestnetTokens.cake, bscTestnetTokens.busd],
   [ChainId.KLAYTN]: [klaytnTokens.usdt, klaytnTokens.weth],
   [ChainId.KLAYTN_TESTNET]: [klaytnTestnetTokens.usdt, klaytnTestnetTokens.weth],
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
-  [ChainId.ETHEREUM]: [
-    [WNATIVE[ChainId.ETHEREUM], USDC[ChainId.ETHEREUM]],
-    [WBTC_ETH, WNATIVE[ChainId.ETHEREUM]],
-    [WNATIVE[ChainId.ETHEREUM], USDT[ChainId.ETHEREUM]],
-  ],
-  [ChainId.BSC]: [
-    [bscTokens.cake, bscTokens.wbnb],
-    [bscTokens.busd, bscTokens.usdt],
-    [bscTokens.dai, bscTokens.usdt],
-  ],
   [ChainId.KLAYTN]: [[klaytnTokens.weth, klaytnTokens.usdt]],
   [ChainId.KLAYTN_TESTNET]: [[klaytnTestnetTokens.weth, klaytnTestnetTokens.usdt]],
 }

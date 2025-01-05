@@ -1,38 +1,17 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
-import {
-  ArrowUpIcon,
-  AutoColumn,
-  BscScanIcon,
-  Button,
-  ColumnCenter,
-  InjectedModalProps,
-  Link,
-  Modal,
-  ModalProps,
-  Text,
-} from '@pancakeswap/uikit'
+import { ButtonV2, InjectedModalProps, Modal, ModalProps } from '@pancakeswap/uikit'
 import { ConfirmationPendingContent, TransactionErrorContent } from '@pancakeswap/widgets-internal'
+import { ArrowCircleUp } from '@phosphor-icons/react'
+import ExternalLink from 'components/Common/ExternalLink'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useTokenLogo } from 'hooks/useTokenLogo'
 import { useCallback } from 'react'
-import { styled } from 'styled-components'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 import AddToWalletButton, { AddToWalletTextOptions } from '../AddToWallet/AddToWalletButton'
-
-const Wrapper = styled.div`
-  width: 100%;
-`
-const Section = styled(AutoColumn)`
-  padding: 24px;
-`
-
-const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 24px 0;
-`
 
 export function TransactionSubmittedContent({
   onDismiss,
@@ -51,36 +30,36 @@ export function TransactionSubmittedContent({
   const tokenLogo = useTokenLogo(token)
 
   return (
-    <Wrapper>
-      <Section>
-        <ConfirmedIcon>
-          <ArrowUpIcon strokeWidth={0.5} width="90px" color="primary" />
-        </ConfirmedIcon>
-        <AutoColumn gap="12px" justify="center">
-          <Text fontSize="20px">{t('Transaction Submitted')}</Text>
-          {chainId && hash && (
-            <Link external small href={getBlockExploreLink(hash, 'transaction', chainId)}>
-              {t('View on %site%', {
-                site: getBlockExploreName(chainId),
-              })}
-              {chainId === ChainId.BSC && <BscScanIcon color="primary" ml="4px" />}
-            </Link>
-          )}
-          {currencyToAdd && (
-            <AddToWalletButton
-              textOptions={AddToWalletTextOptions.TEXT_WITH_ASSET}
-              tokenAddress={token?.address}
-              tokenSymbol={currencyToAdd.symbol}
-              tokenDecimals={token?.decimals}
-              tokenLogo={tokenLogo}
-            />
-          )}
-          <Button onClick={onDismiss} mt="20px">
-            {t('Close')}
-          </Button>
-        </AutoColumn>
-      </Section>
-    </Wrapper>
+    <div className="w-full flex flex-col items-center">
+      <ArrowCircleUp size={80} className="text-on-surface-primary" />
+
+      <div className="flex flex-col items-center space-y-3 mt-6">
+        <p className="text-on-surface-primary">{t('Transaction Submitted')}</p>
+        {chainId && hash && (
+          <ExternalLink href={getBlockExploreLink(hash, 'transaction', chainId)} className="text-on-surface-secondary">
+            {t('View on %site%', {
+              site: getBlockExploreName(chainId),
+            })}
+          </ExternalLink>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-col items-center space-y-2">
+        {currencyToAdd && (
+          <AddToWalletButton
+            textOptions={AddToWalletTextOptions.TEXT_WITH_ASSET}
+            tokenAddress={token?.address}
+            tokenSymbol={currencyToAdd.symbol}
+            tokenDecimals={token?.decimals}
+            tokenLogo={tokenLogo}
+          />
+        )}
+
+        <ButtonV2 onClick={onDismiss} className="mt-6" variant="subtle">
+          {t('Close')}
+        </ButtonV2>
+      </div>
+    </div>
   )
 }
 
@@ -124,7 +103,7 @@ const TransactionConfirmationModal: React.FC<
   if (!chainId) return null
 
   return (
-    <Modal title={title} headerBackground="gradientCardHeader" {...props} onDismiss={handleDismiss}>
+    <Modal title={title} {...props} onDismiss={handleDismiss}>
       {attemptingTxn ? (
         <ConfirmationPendingContent qrUri={qrUri} pendingText={pendingText} />
       ) : hash ? (

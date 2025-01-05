@@ -5,12 +5,7 @@ import orderBy from 'lodash/orderBy'
 import { PriceChartEntry } from 'state/info/types'
 import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
 import { multiQuery } from 'views/Info/utils/infoQueryHelpers'
-import {
-  MultiChainName,
-  multiChainQueryMainToken,
-  checkIsStableSwap,
-  getMultiChainQueryEndPointWithStableSwap,
-} from '../../constant'
+import { getMultiChainQueryEndPointWithStableSwap, MultiChainName, multiChainQueryMainToken } from '../../constant'
 
 const getPriceSubqueries = (chainName: MultiChainName, tokenAddress: string, blocks: any) =>
   blocks.map(
@@ -55,11 +50,11 @@ const fetchTokenPriceData = async (
   try {
     const blocks = await getBlocksFromTimestamps(timestamps, 'asc', 500, chainName)
     const blocksLength = blocks?.length ?? 0
-    if (blocksLength > 0 && chainName === 'BSC' && !checkIsStableSwap()) {
-      const data = blocks[blocksLength - 1]
-      blocks[blocksLength - 1] = { timestamp: data.timestamp, number: data.number - 32 }
-      // nodeReal will sync the the 32 block before latest
-    }
+    // if (blocksLength > 0 && chainName === 'BSC' && !checkIsStableSwap()) {
+    //   const data = blocks[blocksLength - 1]
+    //   blocks[blocksLength - 1] = { timestamp: data.timestamp, number: data.number - 32 }
+    //   // nodeReal will sync the the 32 block before latest
+    // }
     if (!blocks || blocksLength === 0) {
       console.error('Error fetching blocks for timestamps', timestamps)
       return {

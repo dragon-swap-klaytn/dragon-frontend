@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { TradeType } from '@pancakeswap/sdk'
 import { SMART_ROUTER_ADDRESSES, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { Button, Dots, ModalV2, useModal } from '@pancakeswap/uikit'
+import { Dots, ModalV2, useModal } from '@pancakeswap/uikit'
 import { confirmPriceImpactWithoutFee } from '@pancakeswap/widgets-internal'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
@@ -29,13 +29,13 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import { warningSeverity } from 'utils/exchange'
 
 import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
+import Button from 'components/Common/Button'
 import Notification from 'components/Common/Notification'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useConfirmModalState } from 'views/Swap/V3Swap/hooks/useConfirmModalState'
 import { useAccount } from 'wagmi'
 import { useParsedAmounts, useSlippageAdjustedAmounts, useSwapCallback, useSwapInputError } from '../hooks'
 import { TransactionRejectedError } from '../hooks/useSendSwapTransaction'
-import { useWallchainApi } from '../hooks/useWallchain'
 import { computeTradePriceBreakdown } from '../utils/exchange'
 import { ConfirmSwapModal } from './ConfirmSwapModal'
 
@@ -94,12 +94,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   const slippageAdjustedAmounts = useSlippageAdjustedAmounts(trade)
 
   const deadline = useTransactionDeadline()
-  const [statusWallchain, approvalAddressForWallchain, wallchainMasterInput] = useWallchainApi(trade, deadline)
-  const [wallchainSecondaryStatus, setWallchainSecondaryStatus] = useState<'found' | 'not-found'>('not-found')
+
   const routerAddress =
-    statusWallchain === 'found' || wallchainSecondaryStatus === 'found'
-      ? approvalAddressForWallchain
-      : SMART_ROUTER_ADDRESSES[trade?.inputAmount?.currency?.chainId as keyof typeof SMART_ROUTER_ADDRESSES]
+    SMART_ROUTER_ADDRESSES[trade?.inputAmount?.currency?.chainId as keyof typeof SMART_ROUTER_ADDRESSES]
   const amountToApprove = slippageAdjustedAmounts[Field.INPUT]
   const relevantTokenBalances = useCurrencyBalances(account ?? undefined, [
     inputCurrency ?? undefined,
@@ -143,7 +140,6 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     trade,
     deadline,
     onWallchainDrop,
-    wallchainMasterInput,
   })
 
   const [{ tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
@@ -182,7 +178,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     if (!swapCallback) {
       if (revertReason === 'insufficient allowance') {
         setApprovalSubmitted(false)
-        setWallchainSecondaryStatus('found')
+
         return undefined
       }
       return undefined
@@ -190,12 +186,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     setSwapState({ attemptingTxn: true, tradeToConfirm, swapErrorMessage: undefined, txHash: undefined })
     return swapCallback()
       .then((res) => {
-        setWallchainSecondaryStatus('not-found')
         setSwapState({ attemptingTxn: false, tradeToConfirm, swapErrorMessage: undefined, txHash: res.hash })
       })
       .catch((error) => {
-        setWallchainSecondaryStatus('not-found')
-
         if (error instanceof TransactionRejectedError) {
           setSwapState((s) => ({
             ...s,
@@ -323,7 +316,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
 
   if (swapIsUnsupported) {
     return (
-      <Button width="100%" disabled>
+      <Button variant="subtle" fullWidth disabled onClick={() => {}}>
         {t('Unsupported Asset')}
       </Button>
     )
@@ -403,9 +396,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
 
       <CommitButton
         width="100%"
-        disabled={
-          !isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError || statusWallchain === 'pending'
-        }
+        disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError || tradeLoading}
         onClick={onSwapHandler}
       >
         {swapInputError ||

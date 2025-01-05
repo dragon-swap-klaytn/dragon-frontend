@@ -182,12 +182,17 @@ const Search = () => {
   }
 
   useEffect(() => {
+    const body = document.querySelector('body')
     if (showMenu) {
       document.addEventListener('click', handleOutsideClick)
-      document.querySelector('body').style.overflow = 'hidden'
+      if (body) {
+        body.style.overflow = 'hidden'
+      }
     } else {
       document.removeEventListener('click', handleOutsideClick)
-      document.querySelector('body').style.overflow = 'visible'
+      if (body) {
+        body.style.overflow = 'visible'
+      }
     }
     return () => {
       document.removeEventListener('click', handleOutsideClick)

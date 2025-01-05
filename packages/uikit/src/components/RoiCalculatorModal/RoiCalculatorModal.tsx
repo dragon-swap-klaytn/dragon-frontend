@@ -21,18 +21,17 @@ import useRoiCalculatorReducer, {
   EditingCurrency,
 } from "./useRoiCalculatorReducer";
 
-const StyledModal = styled(Modal)`
-  & > :nth-child(2) {
-    padding: 0;
-  }
+// const StyledModal = styled(Modal)`
+//   & > :nth-child(2) {
+//     padding: 0;
+//   }
 
-  ${({ theme }) => theme.mediaQueries.md} {
-    width: 380px;
-  }
-`;
+//   ${({ theme }) => theme.mediaQueries.md} {
+//     width: 380px;
+//   }
+// `;
 
 export const ScrollableContainer = styled.div`
-  padding: 24px;
   max-height: 500px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -179,12 +178,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
   }, [account, stakingTokenBalance, stakingTokenPrice]);
 
   return (
-    <StyledModal
-      title={t("ROI Calculator")}
-      onDismiss={onBack || onDismiss}
-      onBack={onBack}
-      headerBackground="gradientCardHeader"
-    >
+    <Modal title={t("ROI Calculator")} onDismiss={onBack || onDismiss} onBack={onBack}>
       <ScrollableContainer>
         {strategy ? (
           strategy(state, dispatch)
@@ -323,7 +317,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
         totalMultipliers={totalMultipliers}
         dualTokenRewardApr={dualTokenRewardApr}
       />
-    </StyledModal>
+    </Modal>
   );
 };
 

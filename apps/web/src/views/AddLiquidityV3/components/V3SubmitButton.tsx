@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
-import { AutoColumn, Button } from '@pancakeswap/uikit'
+import { ButtonV2 } from '@pancakeswap/uikit'
+import clsx from 'clsx'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { ApprovalState } from 'hooks/useApproveCallback'
@@ -39,6 +40,7 @@ interface V3SubmitButtonProps {
   buttonText: string
   depositADisabled: boolean
   depositBDisabled: boolean
+  className?: string
 }
 
 export function V3SubmitButton({
@@ -65,6 +67,7 @@ export function V3SubmitButton({
   buttonText,
   depositADisabled,
   depositBDisabled,
+  className,
 }: V3SubmitButtonProps) {
   const { t } = useTranslation()
 
@@ -81,17 +84,17 @@ export function V3SubmitButton({
   let buttons: ReactNode = null
   if (addIsUnsupported || addIsWarning) {
     buttons = (
-      <Button disabled mb="4px">
+      <ButtonV2 disabled variant="primary" onClick={() => {}} fullWidth className={className}>
         {t('Unsupported Asset')}
-      </Button>
+      </ButtonV2>
     )
   } else if (!account) {
-    buttons = <ConnectWalletButton />
+    buttons = <ConnectWalletButton className={className} />
   } else if (isWrongNetwork) {
-    buttons = <CommitButton />
+    buttons = <CommitButton className={className} />
   } else {
     buttons = (
-      <AutoColumn gap="md">
+      <div className={clsx('flex flex-col space-y-3 w-full', className)}>
         <ApproveLiquidityTokens
           approvalA={approvalA}
           approvalB={approvalB}
@@ -120,7 +123,7 @@ export function V3SubmitButton({
         >
           {errorMessage || buttonText}
         </CommitButton>
-      </AutoColumn>
+      </div>
     )
   }
 

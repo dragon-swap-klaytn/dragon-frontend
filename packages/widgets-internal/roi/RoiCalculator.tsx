@@ -7,12 +7,12 @@ import { FeeAmount, FeeCalculator, TickMath, sqrtRatioX96ToPrice } from "@pancak
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo, useState } from "react";
 
-import { Button, DynamicSection, Flex, useMatchBreakpoints } from "@pancakeswap/uikit";
+import { ButtonV2, DynamicSection, Flex, useMatchBreakpoints } from "@pancakeswap/uikit";
 
 import { ScrollableContainer } from "@pancakeswap/uikit/components/RoiCalculatorModal/RoiCalculatorModal";
+import { ArrowDown } from "@phosphor-icons/react";
 import { LiquidityChartRangeInput } from "../swap/LiquidityChartRangeInput";
 import { useDensityChartData } from "../swap/LiquidityChartRangeInput/hooks";
-import { AnimatedArrow } from "./AnimationArrow";
 import { CompoundFrequency } from "./CompoundFrequency";
 import { DepositAmountInput } from "./DepositAmount";
 import { Details } from "./Details";
@@ -43,8 +43,8 @@ export type RoiCalculatorProps = {
   sqrtRatioX96?: bigint;
   liquidity?: bigint;
   independentAmount?: CurrencyAmount<Currency>;
-  currencyA?: Currency;
-  currencyB?: Currency;
+  currencyA?: Currency | null;
+  currencyB?: Currency | null;
   balanceA?: CurrencyAmount<Currency>;
   balanceB?: CurrencyAmount<Currency>;
   feeAmount?: FeeAmount;
@@ -339,6 +339,7 @@ export function RoiCalculator({
       <Section title={t("Staked for")}>
         <StakeSpan spanIndex={spanIndex} onSpanChange={setSpanIndex} />
       </Section>
+
       <Section title={t("Compounding every")}>
         <CompoundFrequency
           compoundIndex={compoundIndex}
@@ -403,14 +404,13 @@ export function RoiCalculator({
           feeAmount={feeAmount}
           ticksAtLimit={priceRange?.ticksAtLimit || {}}
         />
-        <Button
-          onClick={priceRange?.toggleFullRange}
-          variant={priceRange?.fullRange ? "primary" : "secondary"}
-          mb="16px"
+        <ButtonV2
+          onClick={() => priceRange?.toggleFullRange()}
+          variant={priceRange?.fullRange ? "primary" : "blank"}
           scale="sm"
         >
           {t("Full Range")}
-        </Button>
+        </ButtonV2>
       </DynamicSection>
     </Section>
   );
@@ -439,28 +439,32 @@ export function RoiCalculator({
     <>
       <ScrollableContainer>
         {content}
-        <ImpermanentLossCalculator
-          lpReward={lpReward}
-          amountA={invertBase ? amountB : amountA}
-          amountB={invertBase ? amountA : amountB}
-          currencyAUsdPrice={invertBase ? currencyBUsdPrice : currencyAUsdPrice}
-          currencyBUsdPrice={invertBase ? currencyAUsdPrice : currencyBUsdPrice}
-          tickLower={priceRange?.tickLower}
-          tickUpper={priceRange?.tickUpper}
-          sqrtRatioX96={sqrtRatioX96}
-          isFarm={farmingRewardsEnabled}
-          cakeReward={originalCakeReward}
-          cakePrice={farmingRewardsEnabled ? props.cakePrice : undefined}
-          setEditCakePrice={setEditCakePrice}
-        />
-        <AnimatedArrow state={{}} />
-        <RoiRate usdAmount={totalReward} roiPercent={totalRate} />
-        {allowApply && (
-          <Button width="100%" mt="0.75em" onClick={handleApply}>
-            {t("Apply Settings")}
-          </Button>
-        )}
+
+        <div className="flex flex-col items-center space-y-3">
+          <ImpermanentLossCalculator
+            lpReward={lpReward}
+            amountA={invertBase ? amountB : amountA}
+            amountB={invertBase ? amountA : amountB}
+            currencyAUsdPrice={invertBase ? currencyBUsdPrice : currencyAUsdPrice}
+            currencyBUsdPrice={invertBase ? currencyAUsdPrice : currencyBUsdPrice}
+            tickLower={priceRange?.tickLower}
+            tickUpper={priceRange?.tickUpper}
+            sqrtRatioX96={sqrtRatioX96}
+            isFarm={farmingRewardsEnabled}
+            cakeReward={originalCakeReward}
+            cakePrice={farmingRewardsEnabled ? props.cakePrice : undefined}
+            setEditCakePrice={setEditCakePrice}
+          />
+          <ArrowDown size={24} className="text-on-surface-primary" />
+          <RoiRate usdAmount={totalReward} roiPercent={totalRate} />
+          {allowApply && (
+            <ButtonV2 variant="primary" fullWidth onClick={handleApply}>
+              {t("Apply Settings")}
+            </ButtonV2>
+          )}
+        </div>
       </ScrollableContainer>
+
       <Details
         totalYield={totalReward}
         lpReward={lpReward}

@@ -1,6 +1,7 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { Button, Grid, Message, MessageText, Modal, Text } from '@pancakeswap/uikit'
+import { Modal } from '@pancakeswap/uikit'
+import Button from 'components/Common/Button'
 import { useMenuItems } from 'components/Menu/hooks/useMenuItems'
 import { getActiveMenuItem, getActiveSubMenuItem } from 'components/Menu/utils'
 import { useLocalNetworkChain } from 'hooks/useActiveChainId'
@@ -36,27 +37,20 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
   )
 
   return (
-    <Modal title={t('Check your network')} hideCloseButton headerBackground="gradientCardHeader">
-      <Grid style={{ gap: '16px' }} maxWidth="336px">
-        <Text>
+    <Modal title={t('Check your network')} hideCloseButton>
+      <div className="w-full">
+        <p className="break-keep text-center">
           {t('Currently %feature% only supported in', { feature: typeof title === 'string' ? title : 'this page' })}{' '}
-          {supportedMainnetChains?.map((c) => c.name).join(', ')}
-        </Text>
-        <div style={{ textAlign: 'center' }}>
-          {/* <Image
-            layout="fixed"
-            width={194}
-            height={175}
-            src="/images/check-your-network.png"
-            alt="check your network"
-          /> */}
-        </div>
-        <Message variant="warning">
-          <MessageText>{t('Please switch your network to continue.')}</MessageText>
-        </Message>
+          {/* {supportedMainnetChains?.map((c) => c.name).join(', ')} */}
+          Kaia Network
+        </p>
+        <p className="mt-2 text-center break-keep">{t('Please switch your network to continue.')}</p>
+
         {canSwitch ? (
           <Button
-            isLoading={isLoading}
+            className="mt-6"
+            variant="primary"
+            state={isLoading ? 'loading' : 'default'}
             onClick={() => {
               if (supportedMainnetChains.map((c) => c.id).includes(chainId)) {
                 switchNetworkAsync(chainId)
@@ -64,17 +58,21 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
                 switchNetworkAsync(DEFAULT_CHAIN_ID)
               }
             }}
+            fullWidth
           >
             {isLoading ? <Dots>{t('Switch network in wallet')}</Dots> : t('Switch network in wallet')}
           </Button>
         ) : (
-          <Message variant="danger">
-            <MessageText>{t('Unable to switch network. Please try it on your wallet')}</MessageText>
-          </Message>
+          <Button className="mt-6" variant="primary" disabled onClick={() => {}} fullWidth>
+            {t('Unable to switch network. Please try it on your wallet')}
+          </Button>
         )}
+
         {isConnected && (
           <Button
-            variant="secondary"
+            variant="subtle"
+            fullWidth
+            className="mt-3"
             onClick={() =>
               logout().then(() => {
                 switchNetworkLocal(DEFAULT_CHAIN_ID)
@@ -84,7 +82,7 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
             {t('Disconnect Wallet')}
           </Button>
         )}
-      </Grid>
+      </div>
     </Modal>
   )
 }

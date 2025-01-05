@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
   addressLocalStorageKey,
+  useSelectedWallet,
   WalletConnectorNotFoundError,
   walletLocalStorageKey,
   WalletSwitchChainError,
@@ -26,21 +27,16 @@ const useAuth = () => {
 
   const login = useCallback(
     async (connectorID: string) => {
-      console.log('__connectors', connectors)
-      console.log('__connectorID', connectorID)
       const findConnector = connectors.find((c) => c.id === connectorID)
-      console.log('__findConnector', findConnector)
 
       try {
         const connected = await connectAsync({ connector: findConnector, chainId })
-        console.log('__connected', connected)
         if (!connected.chain.unsupported && connected.chain.id !== chainId) {
           replaceBrowserHistory('chain', CHAIN_QUERY_NAME[connected.chain.id])
           setSessionChainId(connected.chain.id)
         }
         return connected
       } catch (error) {
-        console.log('__error_2', error)
         if (error instanceof ConnectorNotFoundError) {
           throw new WalletConnectorNotFoundError()
         }
@@ -57,9 +53,12 @@ const useAuth = () => {
     [connectors, connectAsync, chainId, setSessionChainId, t],
   )
 
+  const [, setSelected] = useSelectedWallet()
+
   const logout = useCallback(async () => {
     try {
       await disconnectAsync()
+      setSelected(null)
     } catch (error) {
       console.error(error)
     } finally {
@@ -69,7 +68,7 @@ const useAuth = () => {
 
       clearUserStates(dispatch, { chainId: chain?.id })
     }
-  }, [disconnectAsync, dispatch, chain?.id])
+  }, [disconnectAsync, dispatch, chain?.id, setSelected])
 
   return { login, logout }
 }

@@ -7,7 +7,6 @@ import {
   IPendingCakeByTokenId,
   PositionDetails,
   SerializedFarmsV3Response,
-  bCakeSupportedChainId,
   createFarmFetcherV3,
   supportedChainIdV3,
 } from '@pancakeswap/farms'
@@ -420,7 +419,8 @@ const useV3BoostedFarm = (pids?: number[]) => {
         pids: pids ?? [],
       }),
     {
-      enabled: Boolean(chainId && pids && pids.length > 0 && bCakeSupportedChainId.includes(chainId)),
+      // enabled: Boolean(chainId && pids && pids.length > 0 && bCakeSupportedChainId.includes(chainId)),
+      enabled: false,
       retry: 3,
       retryDelay: 3000,
     },

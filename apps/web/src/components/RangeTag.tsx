@@ -1,41 +1,39 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { QuestionHelper, Tag, TagProps, Flex } from '@pancakeswap/uikit'
+import { QuestionHelper, TagProps } from '@pancakeswap/uikit'
+import Chip from 'components/Common/Chip'
 import { ReactNode } from 'react'
 
 export function RangeTag({
   removed,
   outOfRange,
   children,
-  ...props
-}: { removed?: boolean; outOfRange: boolean; children?: ReactNode } & TagProps) {
+  questionHelper,
+}: { removed?: boolean; outOfRange: boolean; children?: ReactNode; questionHelper?: string } & TagProps) {
   const { t } = useTranslation()
 
   return removed ? (
-    <Tag variant="textSubtle" {...props}>
-      {children || t('Closed')}
-    </Tag>
+    <Chip>{children || t('Closed')}</Chip>
   ) : outOfRange ? (
-    <Tag variant="failure" {...props}>
+    <Chip color="red">
       {children || (
-        <Flex alignItems="center">
-          {t('Inactive')}{' '}
+        <div className="flex items-center space-x-1">
+          <span>{t('Inactive')}</span>
+
           <QuestionHelper
-            position="relative"
-            top="1px"
-            ml="4px"
-            text={t(
-              'The position is inactive and not earning trading fees due to the current price being out of the set price range.',
-            )}
-            size="20px"
-            color="white"
+            text={
+              questionHelper ||
+              t(
+                'The position is inactive and not earning trading fees due to the current price being out of the set price range.',
+              )
+            }
             placement="bottom"
+            background="bg-gray-600"
+            color="text-on-surface-primary"
           />
-        </Flex>
+        </div>
       )}
-    </Tag>
+    </Chip>
   ) : (
-    <Tag variant="success" {...props}>
-      {children || t('Active')}
-    </Tag>
+    <Chip color="green">{children || t('Active')}</Chip>
   )
 }

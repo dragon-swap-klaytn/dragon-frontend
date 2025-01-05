@@ -1,6 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 
-import { ChainMap, BatchMulticallConfigs } from '../types'
+import { BatchMulticallConfigs, ChainMap } from '../types'
 
 const DEFAULT: BatchMulticallConfigs = {
   defaultConfig: {
@@ -16,10 +16,6 @@ const DEFAULT: BatchMulticallConfigs = {
 
 // DEV_NOTE [체인설정]_13 : multicall batch config
 export const BATCH_MULTICALL_CONFIGS: ChainMap<BatchMulticallConfigs> = {
-  [ChainId.BSC_TESTNET]: DEFAULT,
-  [ChainId.BSC]: DEFAULT,
-  [ChainId.ETHEREUM]: DEFAULT,
-  [ChainId.GOERLI]: DEFAULT,
   [ChainId.KLAYTN]: DEFAULT,
   [ChainId.KLAYTN_TESTNET]: DEFAULT,
 }

@@ -3,8 +3,9 @@ import clsx from 'clsx'
 import React, { InputHTMLAttributes } from 'react'
 
 type SearchBarProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'value' | 'onChange' | 'onKeyDown'> &
-  Required<Pick<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'onKeyDown'>> & {
+  Required<Pick<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>> & {
     fullWidth?: boolean
+    onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   }
 
 // export default function SearchBar(props: SearchBarProps) {

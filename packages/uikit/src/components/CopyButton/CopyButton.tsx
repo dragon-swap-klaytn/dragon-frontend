@@ -1,23 +1,20 @@
-import { ElementType, useCallback, useEffect, useState } from "react";
-import { copyText } from "./copyText";
-import { CopyIcon, SvgProps } from "../Svg";
+import { Copy } from "@phosphor-icons/react";
+import { useCallback, useEffect, useState } from "react";
 import { useTooltip } from "../../hooks";
-import { IconButton } from "../Button";
+import { SvgProps } from "../Svg";
+import { copyText } from "./copyText";
 
 interface CopyButtonProps extends SvgProps {
   text: string;
   tooltipMessage: string;
-  buttonColor?: string;
-  icon?: ElementType;
+  className?: string;
 }
 
 export const CopyButton: React.FC<React.PropsWithChildren<CopyButtonProps>> = ({
   text,
   tooltipMessage,
-  width,
-  buttonColor = "primary",
-  icon: Icon = CopyIcon,
-  ...props
+  width = "20px",
+  className = "",
 }) => {
   const [isTooltipDisplayed, setIsTooltipDisplayed] = useState(false);
 
@@ -48,11 +45,10 @@ export const CopyButton: React.FC<React.PropsWithChildren<CopyButtonProps>> = ({
 
   return (
     <>
-      <div ref={targetRef}>
-        <IconButton onClick={handleOnClick} scale="sm" variant="text" style={{ width: "auto", position: "relative" }}>
-          <Icon color={buttonColor} width={width} {...props} />
-        </IconButton>
-      </div>
+      <button ref={targetRef} type="button" onClick={handleOnClick} className="hover:opacity-70">
+        <Copy size={width} className={className} />
+      </button>
+
       {isTooltipDisplayed && tooltip}
     </>
   );

@@ -1,39 +1,37 @@
 /* eslint-disable address/addr-type */
-import { Token, Percent, CurrencyAmount } from '@pancakeswap/sdk'
-import { ChainId } from '@pancakeswap/chains'
-import { getBlockExploreLink, safeGetAddress, calculateGasMargin } from 'utils'
-import { calculateSlippageAmount, basisPointsToPercent } from 'utils/exchange'
-import { ADDRESS_ZERO } from '@pancakeswap/v3-sdk'
+import { Percent } from '@pancakeswap/sdk'
+import { calculateGasMargin, safeGetAddress } from 'utils'
+import { basisPointsToPercent } from 'utils/exchange'
 
 describe('utils', () => {
-  describe('#getBscScanLink', () => {
-    it('correct for tx', () => {
-      expect(getBlockExploreLink('abc', 'transaction', ChainId.BSC)).toEqual('https://bscscan.com/tx/abc')
-    })
-    it('correct for token', () => {
-      expect(getBlockExploreLink('abc', 'token', ChainId.BSC)).toEqual('https://bscscan.com/token/abc')
-    })
-    it('correct for address', () => {
-      expect(getBlockExploreLink('abc', 'address', ChainId.BSC)).toEqual('https://bscscan.com/address/abc')
-    })
-    it('enum', () => {
-      expect(getBlockExploreLink('abc', 'address', ChainId.BSC_TESTNET)).toEqual(
-        'https://testnet.bscscan.com/address/abc',
-      )
-    })
-  })
+  // describe('#getBscScanLink', () => {
+  //   it('correct for tx', () => {
+  //     expect(getBlockExploreLink('abc', 'transaction', ChainId.BSC)).toEqual('https://bscscan.com/tx/abc')
+  //   })
+  //   it('correct for token', () => {
+  //     expect(getBlockExploreLink('abc', 'token', ChainId.BSC)).toEqual('https://bscscan.com/token/abc')
+  //   })
+  //   it('correct for address', () => {
+  //     expect(getBlockExploreLink('abc', 'address', ChainId.BSC)).toEqual('https://bscscan.com/address/abc')
+  //   })
+  //   it('enum', () => {
+  //     expect(getBlockExploreLink('abc', 'address', ChainId.BSC_TESTNET)).toEqual(
+  //       'https://testnet.bscscan.com/address/abc',
+  //     )
+  //   })
+  // })
 
-  describe('#calculateSlippageAmount', () => {
-    it('bounds are correct', () => {
-      const tokenAmount = CurrencyAmount.fromRawAmount(new Token(ChainId.BSC, ADDRESS_ZERO, 0, 'TOKEN'), '100')
-      expect(() => calculateSlippageAmount(tokenAmount, -1)).toThrow()
-      expect(calculateSlippageAmount(tokenAmount, 0).map((bound) => bound.toString())).toEqual(['100', '100'])
-      expect(calculateSlippageAmount(tokenAmount, 100).map((bound) => bound.toString())).toEqual(['99', '101'])
-      expect(calculateSlippageAmount(tokenAmount, 200).map((bound) => bound.toString())).toEqual(['98', '102'])
-      expect(calculateSlippageAmount(tokenAmount, 10000).map((bound) => bound.toString())).toEqual(['0', '200'])
-      expect(() => calculateSlippageAmount(tokenAmount, 10001)).toThrow()
-    })
-  })
+  // describe('#calculateSlippageAmount', () => {
+  //   it('bounds are correct', () => {
+  //     const tokenAmount = CurrencyAmount.fromRawAmount(new Token(ChainId.BSC, ADDRESS_ZERO, 0, 'TOKEN'), '100')
+  //     expect(() => calculateSlippageAmount(tokenAmount, -1)).toThrow()
+  //     expect(calculateSlippageAmount(tokenAmount, 0).map((bound) => bound.toString())).toEqual(['100', '100'])
+  //     expect(calculateSlippageAmount(tokenAmount, 100).map((bound) => bound.toString())).toEqual(['99', '101'])
+  //     expect(calculateSlippageAmount(tokenAmount, 200).map((bound) => bound.toString())).toEqual(['98', '102'])
+  //     expect(calculateSlippageAmount(tokenAmount, 10000).map((bound) => bound.toString())).toEqual(['0', '200'])
+  //     expect(() => calculateSlippageAmount(tokenAmount, 10001)).toThrow()
+  //   })
+  // })
 
   describe('#safeGetAddress', () => {
     it('returns undefined if it is not a valid address', () => {

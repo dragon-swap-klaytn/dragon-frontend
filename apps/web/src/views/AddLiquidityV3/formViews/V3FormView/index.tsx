@@ -1,81 +1,61 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
+import { AutoColumn, useModal } from '@pancakeswap/uikit'
 import {
-  AutoColumn,
-  Button,
-  RowBetween,
-  Text,
-  AutoRow,
-  Box,
-  useModal,
-  Message,
-  MessageText,
-  PreTitle,
-  DynamicSection,
-  Flex,
-} from '@pancakeswap/uikit'
-import {
+  ConfirmationModalContent,
   LiquidityChartRangeInput,
   ZOOM_LEVELS,
   ZoomLevels,
-  ConfirmationModalContent,
-  NumericalInput,
 } from '@pancakeswap/widgets-internal'
 
-import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
 import { tryParsePrice } from 'hooks/v3/utils'
+import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
 
-import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
+import { useIsExpertMode, useUserSlippage } from '@pancakeswap/utils/user'
 import { FeeAmount, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { useUserSlippage, useIsExpertMode } from '@pancakeswap/utils/user'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { basisPointsToPercent } from 'utils/exchange'
-import { Field } from 'state/mint/actions'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { Field } from 'state/mint/actions'
+import { basisPointsToPercent } from 'utils/exchange'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
 
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { useRouter } from 'next/router'
-import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { useTranslation } from '@pancakeswap/localization'
-import { useSendTransaction, useWalletClient } from 'wagmi'
-import { styled } from 'styled-components'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
-import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
-import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmount'
-import { QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
-import { isUserRejected } from 'utils/sentry'
-import { hexToBigInt } from 'viem'
-import { getViemClients } from 'utils/viem'
+import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
+import useActiveWeb3React from 'hooks/useActiveWeb3React'
+import { useV3NFTPositionManagerContract } from 'hooks/useContract'
+import { useRouter } from 'next/router'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { styled } from 'styled-components'
 import { calculateGasMargin } from 'utils'
+import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmount'
+import { isUserRejected } from 'utils/sentry'
+import { getViemClients } from 'utils/viem'
+import { hexToBigInt } from 'viem'
+import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
+import { QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
+import { useSendTransaction, useWalletClient } from 'wagmi'
 
-import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
+import Button from 'components/Common/Button'
+import Notification from 'components/Common/Notification'
+import NumberFormat from 'components/Common/NumberFormat'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import RangeSelector from './components/RangeSelector'
-import { PositionPreview } from './components/PositionPreview'
-import RateToggle from './components/RateToggle'
+import { DynamicSection, SectionTitle } from 'views/AddLiquidityV3'
+import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
 import LockedDeposit from './components/LockedDeposit'
+import { PositionPreview } from './components/PositionPreview'
+import RangeSelector from './components/RangeSelector'
+import RateToggle from './components/RateToggle'
+import { useInitialRange } from './form/hooks/useInitialRange'
 import { useRangeHopCallbacks } from './form/hooks/useRangeHopCallbacks'
 import { useV3MintActionHandlers } from './form/hooks/useV3MintActionHandlers'
 import { useV3FormAddLiquidityCallback, useV3FormState } from './form/reducer'
-import { useInitialRange } from './form/hooks/useInitialRange'
-
-const StyledInput = styled(NumericalInput)`
-  background-color: ${({ theme }) => theme.colors.input};
-  box-shadow: ${({ theme, error }) => theme.shadows[error ? 'warning' : 'inset']};
-  border-radius: 16px;
-  padding: 8px 16px;
-  font-size: 16px;
-  width: 100%;
-  margin-bottom: 16px;
-`
 
 export const HideMedium = styled.div`
   ${({ theme }) => theme.mediaQueries.md} {
@@ -408,7 +388,7 @@ export default function V3FormView({
             ) : null
           }
           bottomContent={() => (
-            <Button width="100%" mt="16px" onClick={onAdd}>
+            <Button variant="primary" fullWidth className="mt-4" onClick={onAdd}>
               {t('Add')}
             </Button>
           )}
@@ -431,6 +411,7 @@ export default function V3FormView({
 
   const buttons = (
     <V3SubmitButton
+      className="mt-3"
       addIsUnsupported={addIsUnsupported}
       addIsWarning={addIsWarning}
       account={account ?? undefined}
@@ -504,16 +485,12 @@ export default function V3FormView({
   return (
     <>
       <DynamicSection
-        style={{
-          gridAutoRows: 'max-content',
-          gridAutoColumns: '100%',
-        }}
         disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue) || (!priceLower && !priceUpper)}
       >
-        <PreTitle mb="8px">{t('Deposit Amount')}</PreTitle>
+        <SectionTitle>{t('Deposit Amount')}</SectionTitle>
 
-        <LockedDeposit locked={depositADisabled} mb="8px">
-          <Box mb="8px">
+        <div className="flex flex-col space-y-2 mt-2">
+          <LockedDeposit locked={depositADisabled}>
             <CurrencyInputPanel
               showUSDPrice
               maxAmount={maxAmounts[Field.CURRENCY_A]}
@@ -531,60 +508,74 @@ export default function V3FormView({
               showCommonBases
               commonBasesType={CommonBasesType.LIQUIDITY}
             />
-          </Box>
-        </LockedDeposit>
+          </LockedDeposit>
 
-        <LockedDeposit locked={depositBDisabled} mb="8px">
-          <CurrencyInputPanel
-            showUSDPrice
-            maxAmount={maxAmounts[Field.CURRENCY_B]}
-            onMax={() => onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')}
-            onPercentInput={(percent) =>
-              onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
-            }
-            disableCurrencySelect
-            value={formattedAmounts[Field.CURRENCY_B] ?? '0'}
-            onUserInput={onFieldBInput}
-            showQuickInputButton
-            showMaxButton
-            currency={currencies[Field.CURRENCY_B]}
-            id="add-liquidity-input-tokenb"
-            showCommonBases
-            commonBasesType={CommonBasesType.LIQUIDITY}
-          />
-        </LockedDeposit>
+          <LockedDeposit locked={depositBDisabled}>
+            <CurrencyInputPanel
+              showUSDPrice
+              maxAmount={maxAmounts[Field.CURRENCY_B]}
+              onMax={() => onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')}
+              onPercentInput={(percent) =>
+                onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
+              }
+              disableCurrencySelect
+              value={formattedAmounts[Field.CURRENCY_B] ?? '0'}
+              onUserInput={onFieldBInput}
+              showQuickInputButton
+              showMaxButton
+              currency={currencies[Field.CURRENCY_B]}
+              id="add-liquidity-input-tokenb"
+              showCommonBases
+              commonBasesType={CommonBasesType.LIQUIDITY}
+            />
+          </LockedDeposit>
+        </div>
       </DynamicSection>
       <HideMedium>{buttons}</HideMedium>
 
       <RightContainer>
-        <AutoColumn gap="16px">
+        <div className="flex flex-col items-center w-full">
           {noLiquidity && (
-            <Box>
-              <PreTitle mb="8px">{t('Set Starting Price')}</PreTitle>
-              <Message variant="warning" mb="8px">
-                <MessageText>
+            <>
+              <SectionTitle>{t('Set Price Range')}</SectionTitle>
+
+              <Notification variant="caution" fullWidth className="text-sm mt-2">
+                <p className="mb-2">
                   {t(
                     'This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction.',
                   )}
-                  <br />
-                  <br />
+                </p>
 
-                  <b>{t('Fee-on transfer tokens and rebasing tokens are NOT compatible with V3.')}</b>
-                </MessageText>
-              </Message>
-              <StyledInput className="start-price-input" value={startPriceTypedValue} onUserInput={onStartPriceInput} />
-              <AutoRow justifyContent="space-between" mb="24px">
-                <Text>{t('Current %symbol% Price', { symbol: baseCurrency?.symbol })}:</Text>
-                <Text>
+                <b>{t('Fee-on transfer tokens and rebasing tokens are NOT compatible with V3.')}</b>
+              </Notification>
+
+              <NumberFormat
+                disabled={!noLiquidity}
+                className="text-on-surface-primary bg-surface-container-highest w-full text-right focus:outline-none py-2 px-3 rounded-2xl mt-2"
+                value={startPriceTypedValue}
+                onChange={(e) => {
+                  onStartPriceInput(e.target.value.replace(/,/g, ''))
+                }}
+                thousandSeparator
+                allowNegative={false}
+                placeholder="0.00"
+              />
+
+              <div className="flex items-center space-x-2 w-full justify-between text-xs text-on-surface-primary mt-2 px-2">
+                <span>{t('Current %symbol% Price', { symbol: baseCurrency?.symbol })}:</span>
+
+                <span>
                   {price ? (invertPrice ? price?.invert()?.toSignificant(5) : price?.toSignificant(5)) : '-'}
                   <span style={{ marginLeft: '4px' }}>{quoteCurrency?.symbol}</span>
-                </Text>
-              </AutoRow>
-            </Box>
+                </span>
+              </div>
+            </>
           )}
+
           <DynamicSection disabled={!feeAmount || invalidPool}>
-            <RowBetween mb="8px">
-              <PreTitle>{t('Set Price Range')}</PreTitle>
+            <div className="flex items-center space-x-2 justify-between w-full mb-2">
+              <SectionTitle>{t('Set Price Range')}</SectionTitle>
+
               <RateToggle
                 currencyA={baseCurrency}
                 handleRateToggle={() => {
@@ -609,28 +600,18 @@ export default function V3FormView({
                   )
                 }}
               />
-            </RowBetween>
+            </div>
 
             {!noLiquidity && (
               <>
                 {price && baseCurrency && quoteCurrency && !noLiquidity && (
-                  <AutoRow
-                    gap="4px"
-                    marginBottom={['24px', '0px']}
-                    justifyContent="center"
-                    style={{ marginTop: '0.5rem' }}
-                  >
-                    <Text fontWeight={500} textAlign="center" fontSize={12} color="text1">
-                      {t('Current Price')}:
-                    </Text>
-                    <Text fontWeight={500} textAlign="center" fontSize={12} color="text1">
-                      {invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
-                    </Text>
-                    <Text color="text2" fontSize={12}>
-                      {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                    </Text>
-                  </AutoRow>
+                  <span className="mb-2 text-on-surface-secondary text-xs">
+                    {`${t('Current Price')}: ${
+                      invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)
+                    } ${quoteCurrency?.symbol} per ${baseCurrency.symbol}`}
+                  </span>
                 )}
+
                 <LiquidityChartRangeInput
                   zoomLevel={activeQuickAction ? QUICK_ACTION_CONFIGS?.[feeAmount]?.[activeQuickAction] : undefined}
                   key={baseCurrency?.wrapped?.address}
@@ -653,7 +634,10 @@ export default function V3FormView({
             )}
           </DynamicSection>
 
-          <DynamicSection disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)} gap="16px">
+          <DynamicSection
+            disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)}
+            className="flex flex-col gap-3"
+          >
             <RangeSelector
               priceLower={priceLower}
               priceUpper={priceUpper}
@@ -669,34 +653,35 @@ export default function V3FormView({
               ticksAtLimit={ticksAtLimit}
             />
             {showCapitalEfficiencyWarning ? (
-              <Message variant="warning">
-                <Box>
-                  <Text fontSize="16px">{t('Efficiency Comparison')}</Text>
-                  <Text color="textSubtle">
-                    {t('Full range positions may earn less fees than concentrated positions.')}
-                  </Text>
-                  <Button
-                    mt="16px"
-                    onClick={() => {
-                      setShowCapitalEfficiencyWarning(false)
-                      getSetFullRange()
-                    }}
-                    scale="md"
-                    variant="danger"
-                  >
-                    {t('I understand')}
-                  </Button>
-                </Box>
-              </Message>
+              <Notification variant="caution">
+                <p>{t('Efficiency Comparison')}</p>
+
+                <p className="text-sm mt-1">
+                  {t('Full range positions may earn less fees than concentrated positions.')}
+                </p>
+
+                <Button
+                  className="mt-4"
+                  onClick={() => {
+                    setShowCapitalEfficiencyWarning(false)
+                    getSetFullRange()
+                  }}
+                  scale="md"
+                  variant="primary"
+                  fullWidth
+                >
+                  {t('I understand')}
+                </Button>
+              </Notification>
             ) : (
-              <Flex justifyContent="space-between" width="100%" style={{ gap: '8px' }}>
+              <div className="flex items-center space-x-2">
                 {QUICK_ACTION_CONFIGS[feeAmount] &&
                   Object.entries<ZoomLevels>(QUICK_ACTION_CONFIGS[feeAmount])
                     ?.sort(([a], [b]) => +a - +b)
                     .map(([quickAction, zoomLevel]) => {
                       return (
                         <Button
-                          width="100%"
+                          fullWidth
                           key={`quickActions${quickAction}`}
                           onClick={() => {
                             if (+quickAction === activeQuickAction) {
@@ -708,7 +693,7 @@ export default function V3FormView({
                             setActiveQuickAction(+quickAction)
                             isQuickButtonUsed.current = true
                           }}
-                          variant={+quickAction === activeQuickAction ? 'primary' : 'secondary'}
+                          variant={+quickAction === activeQuickAction ? 'primary' : 'blank'}
                           scale="sm"
                         >
                           {quickAction}%
@@ -716,7 +701,7 @@ export default function V3FormView({
                       )
                     })}
                 <Button
-                  width="200%"
+                  fullWidth
                   onClick={() => {
                     if (activeQuickAction === 100) {
                       handleRefresh()
@@ -726,35 +711,34 @@ export default function V3FormView({
                     setActiveQuickAction(100)
                     isQuickButtonUsed.current = true
                   }}
-                  variant={activeQuickAction === 100 ? 'primary' : 'secondary'}
+                  variant={activeQuickAction === 100 ? 'primary' : 'blank'}
                   scale="sm"
+                  className="whitespace-nowrap"
                 >
                   {t('Full Range')}
                 </Button>
-              </Flex>
+              </div>
             )}
 
             {outOfRange ? (
-              <Message variant="warning">
-                <RowBetween>
-                  <Text ml="12px" fontSize="12px">
-                    {t(
-                      'Your position will not earn fees or be used in trades until the market price moves into your range.',
-                    )}
-                  </Text>
-                </RowBetween>
-              </Message>
+              <Notification variant="caution" fullWidth className="text-sm">
+                <p>
+                  {t(
+                    'Your position will not earn fees or be used in trades until the market price moves into your range.',
+                  )}
+                </p>
+              </Notification>
             ) : null}
+
             {invalidRange ? (
-              <Message variant="warning">
-                <MessageText>
-                  {t('Invalid range selected. The min price must be lower than the max price.')}
-                </MessageText>
-              </Message>
+              <Notification variant="caution" fullWidth className="text-sm">
+                <p>{t('Invalid range selected. The min price must be lower than the max price.')}</p>
+              </Notification>
             ) : null}
           </DynamicSection>
-          <MediumOnly>{buttons}</MediumOnly>
-        </AutoColumn>
+
+          {buttons}
+        </div>
       </RightContainer>
     </>
   )

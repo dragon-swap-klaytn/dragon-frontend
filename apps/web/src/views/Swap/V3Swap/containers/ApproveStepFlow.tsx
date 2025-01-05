@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Text, useTooltip } from '@pancakeswap/uikit'
-import { ArrowSquareOut } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import ExternalLink from 'components/Common/ExternalLink'
 import { PropsWithChildren, useMemo } from 'react'
 import { ConfirmModalState, PendingConfirmModalState } from '../types'
 
@@ -62,32 +62,21 @@ export const ApproveStepFlow: React.FC<React.PropsWithChildren<ApproveStepFlowPr
             <Step active={confirmModalState === ConfirmModalState.PENDING_CONFIRMATION} width={stepWidth} />
           </StepsContainer>
           {confirmModalState === ConfirmModalState.RESETTING_APPROVAL && (
-            <a
-              href="https://docs.dgswap.io/products/faq#why-do-i-need-to-reset-approval-on-usdt-before-enabling-approving"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex items-center space-x-1 text-sm text-gray-200 hover:opacity-70"
-            >
+            <ExternalLink href="https://docs.dgswap.io/products/faq#why-do-i-need-to-reset-approval-on-usdt-before-enabling-approving">
               <span>{t('Why resetting approval')}</span>
-              <ArrowSquareOut size={16} />
-            </a>
+            </ExternalLink>
           )}
           {confirmModalState === ConfirmModalState.APPROVING_TOKEN && (
-            <a
-              href="https://docs.dgswap.io/products/how-to-trade"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex items-center space-x-1 text-sm text-gray-200 hover:opacity-70"
-            >
-              <span>{t('Why')}</span>
+            <ExternalLink href="https://docs.dgswap.io/products/how-to-trade" className="text-on-surface-primary">
+              <span>{t('Why')}</span>&nbsp;
               <span ref={targetRef} className="font-bold">
+                &nbsp;
                 {t('approving')}
               </span>
-              {tooltipVisible && tooltip}
+              &nbsp;
               <span>{t('this?')}</span>
-
-              <ArrowSquareOut size={16} />
-            </a>
+              {tooltipVisible && tooltip}
+            </ExternalLink>
           )}
         </>
       )}

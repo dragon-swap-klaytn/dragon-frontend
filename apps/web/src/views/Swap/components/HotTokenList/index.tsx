@@ -1,6 +1,6 @@
+import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
-import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { ButtonMenu, ButtonMenuItem, Checkbox, Flex, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useRouter } from 'next/router'
@@ -56,7 +56,7 @@ const MenuWrapper = styled.div`
   }
 `
 
-const LIQUIDITY_FILTER = { [ChainId.BSC]: 100000, [ChainId.ETHEREUM]: 50000, [ChainId.KLAYTN]: 10000 }
+const LIQUIDITY_FILTER = { [ChainId.KLAYTN]: 10000 }
 const HotTokenList: React.FC<{ handleOutputSelect: (newCurrencyOutput: Currency) => void }> = ({
   handleOutputSelect,
 }) => {

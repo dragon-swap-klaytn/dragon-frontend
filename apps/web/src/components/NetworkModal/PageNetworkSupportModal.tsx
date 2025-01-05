@@ -41,7 +41,7 @@ export function PageNetworkSupportModal() {
   }, [menuItems, pathname])
 
   return (
-    <Modal title={title || t('Check your network')} hideCloseButton headerBackground="gradientCardHeader">
+    <Modal title={title || t('Check your network')} hideCloseButton>
       <Grid style={{ gap: '16px' }} maxWidth="360px">
         <Text bold>{t('It’s a BNB Smart Chain only feature')}</Text>
 
@@ -59,7 +59,9 @@ export function PageNetworkSupportModal() {
           <Button
             variant={foundChain && lastValidPath ? 'secondary' : 'primary'}
             isLoading={isLoading}
-            onClick={() => (isWrongNetwork ? switchNetworkLocal(DEFAULT_CHAIN_ID) : switchNetworkAsync(DEFAULT_CHAIN_ID))}
+            onClick={() =>
+              isWrongNetwork ? switchNetworkLocal(DEFAULT_CHAIN_ID) : switchNetworkAsync(DEFAULT_CHAIN_ID)
+            }
           >
             {t('Switch to %chain%', { chain: 'BNB Chain' })}
           </Button>

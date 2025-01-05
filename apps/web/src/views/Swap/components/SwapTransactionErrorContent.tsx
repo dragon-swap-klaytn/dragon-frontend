@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { TransactionErrorContent } from '@pancakeswap/widgets-internal'
-import { ArrowSquareOut } from '@phosphor-icons/react'
+import ExternalLink from 'components/Common/ExternalLink'
 import { useCallback } from 'react'
 
 const PancakeRouterSlippageErrorMsg =
@@ -35,16 +35,9 @@ export const SwapTransactionErrorContent = ({ onDismiss, message, openSettingMod
             </button>
           </p>
 
-          <a
-            href="https://docs.dgswap.io/products/how-to-trade"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:opacity-70 text-sm underline underline-offset-2"
-          >
+          <ExternalLink href="https://docs.dgswap.io/products/how-to-trade">
             <span>{t('What are the potential issues with the token?')}</span>
-
-            <ArrowSquareOut size={20} className="inline-block ml-1" />
-          </a>
+          </ExternalLink>
         </>
       }
     />

@@ -1,23 +1,14 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { AutoColumn, ColumnCenter, Spinner, Text } from "@pancakeswap/uikit";
+import { Spinner } from "@pancakeswap/uikit";
 import { Suspense, lazy } from "react";
-import { styled } from "styled-components";
 
 const QRCodeSVG = lazy(() => import("qrcode.react").then((module) => ({ default: module.QRCodeSVG })));
-
-const Wrapper = styled.div`
-  width: 100%;
-`;
-
-const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 24px 0;
-`;
 
 export function ConfirmationPendingContent({ qrUri, pendingText }: { qrUri?: string; pendingText?: string }) {
   const { t } = useTranslation();
   return (
-    <Wrapper>
-      <ConfirmedIcon>
+    <div className="w-full">
+      <div className="flex justify-center">
         {qrUri ? (
           <Suspense fallback={<Spinner />}>
             <QRCodeSVG value={qrUri} size={144} level="H" includeMargin />
@@ -25,22 +16,18 @@ export function ConfirmationPendingContent({ qrUri, pendingText }: { qrUri?: str
         ) : (
           <Spinner />
         )}
-      </ConfirmedIcon>
-      <AutoColumn gap="12px" justify="center">
+      </div>
+
+      <div className="flex flex-col items-center text-on-surface-primary mt-7">
         {pendingText ? (
           <>
-            <Text fontSize="20px">{t("Waiting For Confirmation")}</Text>
-            <AutoColumn gap="12px" justify="center">
-              <Text bold small textAlign="center">
-                {pendingText}
-              </Text>
-            </AutoColumn>
+            <p>{t("Waiting For Confirmation")}</p>
+            <p className="text-sm mt-7">{pendingText}</p>
           </>
         ) : null}
-        <Text small color="textSubtle" textAlign="center">
-          {t("Confirm this transaction in your wallet")}
-        </Text>
-      </AutoColumn>
-    </Wrapper>
+
+        <p className="text-sm text-center mt-2">{t("Confirm this transaction in your wallet")}</p>
+      </div>
+    </div>
   );
 }

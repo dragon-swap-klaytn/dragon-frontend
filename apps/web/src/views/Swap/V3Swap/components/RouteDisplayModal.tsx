@@ -16,10 +16,9 @@ interface Props extends UseModalV2Props {
 export const RouteDisplayModal = memo(function RouteDisplayModal({ isOpen, onDismiss, routes }: Props) {
   const { t } = useTranslation()
   return (
-    <ModalV2 closeOnOverlayClick isOpen={isOpen} onDismiss={onDismiss} minHeight="0">
+    <ModalV2 closeOnOverlayClick isOpen={isOpen} onDismiss={onDismiss}>
       <Modal
         title={
-          // <Flex justifyContent="center">
           <div className="flex items-center space-x-1">
             <span>{t('Route')}</span>
 
@@ -30,17 +29,12 @@ export const RouteDisplayModal = memo(function RouteDisplayModal({ isOpen, onDis
             />
           </div>
         }
-        style={{ minHeight: '0' }}
-        bodyPadding="24px"
       >
-        {/* <AutoColumn gap="48px"> */}
-        <div className="mt-10">
-          {routes.map((route, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <RouteDisplay key={i} route={route} />
-          ))}
-          {/* <RoutingSettingsButton /> */}
-        </div>
+        {routes.map((route, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <RouteDisplay key={`route:${i}`} route={route} />
+        ))}
+        {/* <RoutingSettingsButton /> */}
       </Modal>
     </ModalV2>
   )
@@ -100,176 +94,43 @@ export const RouteDisplay = memo(function RouteDisplay({ route }: RouteDisplayPr
       : null
 
   return (
-    // <AutoColumn gap="24px">
-    <div className="flex flex-col">
-      {/* <RouterBox justifyContent="space-between" alignItems="center"> */}
-
-      {/* position: relative;
-  flex-direction: row;
-
-  &:before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    border-top: 3px dotted ${({ theme }) => theme.colors.backgroundDisabled};
-    transform: translateY(-50%);
-    z-index: 1;
-  }
-
-  ${({ theme }) => theme.mediaQueries.md} {
-    min-width: 400px;
-  } */}
-
-      {/* <div className='flex relative before:content-[''] before:position-absolute before:top-1/2 before:left-0 before:w-full before:h-3px before:border-t-3px before:dotted before:border-backgroundDisabled before:transform-translate-y-[-50%] before:z-1'> */}
-      <div className="relative flex flex-row before:absolute before:top-[16px] md:before:top-5 before:left-0 before:w-[96%] before:mx-2 before:h-[3px] before:border-t-2 before:border-dotted before:border-backgroundDisabled before:transform before:-translate-y-1/2 before:z-[1] md:min-w-[400px] justify-between">
-        {/* export const CurrencyLogoWrapper = styled(AtomBox)`
-  position: relative;
-  padding: 2px;
-  background: linear-gradient(180deg, #53dee9 0%, #7645d9 76.22%);
-  border-radius: 50%;
-  z-index: 2;
-` */}
-
-        {/* <CurrencyLogoWrapper
-          size={{
-            xs: '32px',
-            md: '48px',
-          }}
-          ref={targetRef}
-        > */}
-        <div className="flex flex-col items-center space-y-1">
-          <div
-            // size={{
-            //   xs: '32px',
-            //   md: '48px',
-            // }}
-            ref={targetRef}
-            className="relative p-[2px] bg-gradient-to-b from-[#53dee9] to-[#7645d9] rounded-full z-10 w-8 h-8 md:w-10 md:h-10"
-          >
-            <CurrencyLogo size="100%" currency={inputCurrency} />
-            {/* <RouterTypeText fontWeight="bold">{route.percent}%</RouterTypeText> */}
-          </div>
-
-          <span className="text-sm">{route.percent}%</span>
+    <div className="relative flex flex-row before:absolute before:top-[16px] md:before:top-5 before:left-0 before:w-[96%] before:mx-2 before:h-[3px] before:border-t-2 before:border-dotted before:border-backgroundDisabled before:transform before:-translate-y-1/2 before:z-[1] md:min-w-[400px] justify-between">
+      <div className="flex flex-col items-center space-y-1">
+        <div ref={targetRef} className="z-10">
+          <CurrencyLogo size={40} currency={inputCurrency} />
         </div>
-        {tooltipVisible && tooltip}
-        {pairNodes}
-        {/* <CurrencyLogoWrapper
-          size={{
-            xs: '32px',
-            md: '48px',
-          }}
-          ref={outputTargetRef}
-        > */}
-        <div
-          // size={{
-          //   xs: '32px',
-          //   md: '48px',
-          // }}
-          ref={outputTargetRef}
-          className="relative p-[2px] bg-gradient-to-b from-[#53dee9] to-[#7645d9] rounded-full z-10 w-8 h-8 md:w-10 md:h-10"
-        >
-          <CurrencyLogo size="100%" currency={outputCurrency} />
-        </div>
-        {outputTooltipVisible && outputTooltip}
+
+        <span className="text-sm text-on-surface-primary">{route.percent}%</span>
       </div>
+      {tooltipVisible && tooltip}
+      {pairNodes}
+      <div ref={outputTargetRef} className="z-10">
+        <CurrencyLogo size={40} currency={outputCurrency} />
+      </div>
+      {outputTooltipVisible && outputTooltip}
     </div>
   )
 })
 
-function PairNode({
-  pair,
-  text,
-  // className,
-  tooltipText,
-}: {
-  pair: Pair
-  text: string
-  // className: string
-  tooltipText: string
-}) {
+function PairNode({ pair, text, tooltipText }: { pair: Pair; text: string; tooltipText: string }) {
   const [input, output] = pair
 
   const tooltip = useTooltip(tooltipText)
 
-  //   export const RouterPoolBox = styled(Box)`
-  //   position: relative;
-  //   border-radius: 50px;
-  //   display: flex;
-  //   flex-direction: row;
-  //   padding: 2px 4px;
-  //   background-color: ${({ theme }) => theme.colors.backgroundDisabled};
-  //   z-index: 2;
-  //   svg,
-  //   img {
-  //     &:first-child {
-  //       margin-bottom: 2px;
-  //       ${({ theme }) => theme.mediaQueries.md} {
-  //         margin-bottom: 0px;
-  //         margin-right: 2px;
-  //       }
-  //     }
-  //   }
-  //   &.isStableSwap,
-  //   &.highlight {
-  //     background-color: ${({ theme }) => theme.colors.secondary};
-  //   }
-  //   ${({ theme }) => theme.mediaQueries.md} {
-  //     padding: 4px 8px;
-  //   }
-  // `
-
   return (
-    // <RouterPoolBox className={className} ref={tooltip.targetRef}>
     <div className="flex flex-col items-center space-y-1">
       <div
         className="flex items-center space-x-1 z-50 px-1 py-1 rounded-[20px] bg-surface-container-highest"
         ref={tooltip.targetRef}
       >
         {tooltip.tooltipVisible && tooltip.tooltip}
-        {/* <AtomBox
-        size={{
-          xs: '24px',
-          md: '32px',
-        }}
-      > */}
-        <div className="w-6 h-6 md:w-8 md:h-8">
-          <CurrencyLogo size="100%" currency={input} />
-        </div>
-        {/* <AtomBox
-        size={{
-          xs: '24px',
-          md: '32px',
-        }}
-      > */}
-        <div className="w-6 h-6 md:w-8 md:h-8">
-          <CurrencyLogo size="100%" currency={output} />
+        <div className="flex items-center space-x-1">
+          <CurrencyLogo size={32} currency={input} />
+          <CurrencyLogo size={32} currency={output} />
         </div>
       </div>
-      {/* <RouterTypeText>{text}</RouterTypeText> */}
 
-      <span className="text-sm">{text}</span>
+      <span className="text-sm text-on-surface-primary">{text}</span>
     </div>
   )
 }
-
-// export const RouterTypeText = styled.div<{ fontWeight?: string }>`
-//   font-size: 14px;
-//   line-height: 16px;
-//   color: ${({ theme }) => theme.colors.text};
-//   position: absolute;
-//   transform: translateY(-50%);
-//   white-space: nowrap;
-//   left: 50%;
-//   transform: translateX(-50%);
-//   top: calc(100% + 3px);
-//   font-weight: ${(props) => props.fontWeight || 'normal'};
-
-//   ${({ theme }) => theme.mediaQueries.md} {
-//     font-size: 16px;
-//     line-height: 20px;
-//   }
-// `

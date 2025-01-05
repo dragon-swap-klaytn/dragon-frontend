@@ -15,8 +15,8 @@ import { SendTransactionResult } from 'wagmi/actions'
 import useSendSwapTransaction from './useSendSwapTransaction'
 import { useSwapCallArguments } from './useSwapCallArguments'
 
-import { useWallchainSwapCallArguments } from './useWallchain'
 import type { TWallchainMasterInput } from './useWallchain'
+import { useWallchainSwapCallArguments } from './useWallchain'
 
 export enum SwapCallbackState {
   INVALID,

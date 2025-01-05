@@ -5,12 +5,11 @@ import { Suspense, lazy } from "react";
 const QRCodeSVG = lazy(() => import("qrcode.react").then((module) => ({ default: module.QRCodeSVG })));
 
 interface ApproveModalContentProps {
-  title: string;
   isBonus: boolean;
   qrUri?: string;
 }
 
-export const ApproveModalContent: React.FC<ApproveModalContentProps> = ({ title, isBonus, qrUri }) => {
+export const ApproveModalContent: React.FC<ApproveModalContentProps> = ({ isBonus, qrUri }) => {
   const { t } = useTranslation();
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     <span>{t("Dragonswap AMM includes V3, V2 and stable swap.")}</span>,
@@ -27,10 +26,8 @@ export const ApproveModalContent: React.FC<ApproveModalContentProps> = ({ title,
         <Spinner />
       )}
 
-      <h3 className="text-lg font-bold">{title}</h3>
-
-      <div className="flex items-center space-x-1 text-sm">
-        <span className="text-sm">{t("Swapping thru:")}</span>
+      <div className="flex items-center space-x-1 text-sm text-on-surface-primary">
+        <span className="text-sm text-on-surface-primary">{t("Swapping thru:")}</span>
 
         {isBonus ? (
           <b>{t("Bonus Route")}</b>

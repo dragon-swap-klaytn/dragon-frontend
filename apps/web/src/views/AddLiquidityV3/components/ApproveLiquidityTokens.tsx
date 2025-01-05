@@ -1,18 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { ApprovalState } from 'hooks/useApproveCallback'
-import { Field } from 'state/mint/actions'
-import { styled } from 'styled-components'
-import { ethereumTokens } from '@pancakeswap/tokens'
-import { Link, RowBetween, Message, MessageText, Button, Dots } from '@pancakeswap/uikit'
 import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
-import { SendTransactionResult } from 'wagmi/actions'
+import { Dots } from '@pancakeswap/uikit'
+import Button from 'components/Common/Button'
+import ExternalLink from 'components/Common/ExternalLink'
+import Notification from 'components/Common/Notification'
+import { ApprovalState } from 'hooks/useApproveCallback'
 import { useMemo } from 'react'
-
-const InlineLink = styled(Link)`
-  display: inline-flex;
-  text-decoration: underline;
-  color: #d67e0a;
-`
+import { Field } from 'state/mint/actions'
+import { SendTransactionResult } from 'wagmi/actions'
 
 interface ApproveLiquidityTokensProps {
   currencies: {
@@ -49,46 +44,51 @@ export default function ApproveLiquidityTokens({
   const { t } = useTranslation()
 
   const revokeANeeded = useMemo(() => {
-    return (
-      showFieldAApproval &&
-      currentAllowanceA?.greaterThan(0) &&
-      currencies[Field.CURRENCY_A]?.chainId === ethereumTokens.usdt.chainId &&
-      currencies[Field.CURRENCY_A]?.wrapped.address.toLowerCase() === ethereumTokens.usdt.address.toLowerCase()
-    )
-  }, [showFieldAApproval, currentAllowanceA, currencies])
+    // return (
+    //   showFieldAApproval &&
+    //   currentAllowanceA?.greaterThan(0) &&
+    //   currencies[Field.CURRENCY_A]?.chainId === ethereumTokens.usdt.chainId &&
+    //   currencies[Field.CURRENCY_A]?.wrapped.address.toLowerCase() === ethereumTokens.usdt.address.toLowerCase()
+    // )
+    return false
+  }, [])
   const revokeBNeeded = useMemo(() => {
-    return (
-      showFieldBApproval &&
-      currentAllowanceB?.greaterThan(0) &&
-      currencies[Field.CURRENCY_B]?.chainId === ethereumTokens.usdt.chainId &&
-      currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase() === ethereumTokens.usdt.address.toLowerCase()
-    )
-  }, [showFieldBApproval, currentAllowanceB, currencies])
+    // return (
+    //   showFieldBApproval &&
+    //   currentAllowanceB?.greaterThan(0) &&
+    //   currencies[Field.CURRENCY_B]?.chainId === ethereumTokens.usdt.chainId &&
+    //   currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase() === ethereumTokens.usdt.address.toLowerCase()
+    // )
+    return false
+  }, [])
+
   const anyRevokeNeeded = revokeANeeded || revokeBNeeded
 
   return shouldShowApprovalGroup ? (
-    <RowBetween style={{ gap: '8px' }}>
+    <div className="flex flex-col space-y-3 w-full">
       {anyRevokeNeeded && (
-        <Message variant="warning">
-          <MessageText>
-            <span>
-              {t('USDT on Ethereum requires resetting approval when spending allowances are too low.')}
-              <InlineLink
-                external
-                fontSize={14}
-                href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-do-i-need-to-reset-approval-on-usdt-before-enabling-approving"
-              >
-                {' '}
-                {t('Learn More')}
-                {' >>'}
-              </InlineLink>
-            </span>
-          </MessageText>
-        </Message>
+        <Notification variant="caution">
+          <p className="text-sm mb-2">
+            {t('USDT on Ethereum requires resetting approval when spending allowances are too low.')}
+          </p>
+
+          <ExternalLink
+            href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-do-i-need-to-reset-approval-on-usdt-before-enabling-approving"
+            className="text-sm"
+          >
+            {t('Learn More')}
+          </ExternalLink>
+        </Notification>
       )}
       {showFieldAApproval &&
         (revokeANeeded ? (
-          <Button onClick={revokeACallback} disabled={approvalA === ApprovalState.PENDING} width="100%">
+          <Button
+            onClick={revokeACallback}
+            disabled={approvalA === ApprovalState.PENDING}
+            fullWidth
+            variant="primary"
+            state={approvalA === ApprovalState.PENDING ? 'loading' : 'default'}
+          >
             {approvalA === ApprovalState.PENDING ? (
               <Dots>{t('Reset Approval on USDT', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
             ) : (
@@ -96,7 +96,13 @@ export default function ApproveLiquidityTokens({
             )}
           </Button>
         ) : (
-          <Button onClick={approveACallback} disabled={approvalA === ApprovalState.PENDING} width="100%">
+          <Button
+            onClick={approveACallback}
+            disabled={approvalA === ApprovalState.PENDING}
+            fullWidth
+            variant="primary"
+            state={approvalA === ApprovalState.PENDING ? 'loading' : 'default'}
+          >
             {approvalA === ApprovalState.PENDING ? (
               <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
             ) : (
@@ -106,7 +112,13 @@ export default function ApproveLiquidityTokens({
         ))}
       {showFieldBApproval &&
         (revokeBNeeded ? (
-          <Button onClick={revokeBCallback} disabled={approvalB === ApprovalState.PENDING} width="100%">
+          <Button
+            onClick={revokeBCallback}
+            disabled={approvalB === ApprovalState.PENDING}
+            fullWidth
+            variant="primary"
+            state={approvalA === ApprovalState.PENDING ? 'loading' : 'default'}
+          >
             {approvalB === ApprovalState.PENDING ? (
               <Dots>{t('Reset Approval on USDT', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
             ) : (
@@ -114,7 +126,13 @@ export default function ApproveLiquidityTokens({
             )}
           </Button>
         ) : (
-          <Button onClick={approveBCallback} disabled={approvalB === ApprovalState.PENDING} width="100%">
+          <Button
+            onClick={approveBCallback}
+            disabled={approvalB === ApprovalState.PENDING}
+            fullWidth
+            variant="primary"
+            state={approvalA === ApprovalState.PENDING ? 'loading' : 'default'}
+          >
             {approvalB === ApprovalState.PENDING ? (
               <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
             ) : (
@@ -122,6 +140,6 @@ export default function ApproveLiquidityTokens({
             )}
           </Button>
         ))}
-    </RowBetween>
+    </div>
   ) : null
 }

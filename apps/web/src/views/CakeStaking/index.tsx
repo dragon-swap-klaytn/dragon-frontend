@@ -11,13 +11,11 @@ import { BenefitCard } from './components/BenefitCard'
 import { CakeRewardsCard } from './components/CakeRewardsCard'
 import { LockCake } from './components/LockCake'
 import { PageHead } from './components/PageHead'
-import { useGaugesVotingCount } from './hooks/useGaugesVotingCount'
 import { useSnapshotProposalsCount } from './hooks/useSnapshotProposalsCount'
 import { useTotalIFOSold } from './hooks/useTotalIFOSold'
 
 const CakeStaking = () => {
   const { t } = useTranslation()
-  const gaugesVotingCount = useGaugesVotingCount()
   const snapshotProposalsCount = useSnapshotProposalsCount()
   const totalCakeDistributed = useCakeDistributed()
   const [cakeRewardModalVisible, setCakeRewardModalVisible] = useState(false)
@@ -60,7 +58,7 @@ const CakeStaking = () => {
               setCakeRewardModalVisible(true)
             }}
           />
-          <BenefitCard
+          {/* <BenefitCard
             headSlot={
               <QuestionHelper
                 size="20px"
@@ -74,7 +72,7 @@ const CakeStaking = () => {
             type="gaugesVoting"
             dataText={`${gaugesVotingCount ?? 0}`}
             onClick={() => {}}
-          />
+          /> */}
         </Grid>
       </StyledPageHeader>
       <Page title={t('CAKE Staking')}>

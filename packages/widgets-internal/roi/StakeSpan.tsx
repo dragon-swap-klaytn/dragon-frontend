@@ -1,8 +1,7 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { useMemo, memo } from "react";
+import { memo, useMemo } from "react";
 
-import { ButtonMenuItem } from "@pancakeswap/uikit";
-import { FullWidthButtonMenu } from "./FullWidthButtonMenu";
+import clsx from "clsx";
 
 export const SPANS = ["1d", "7d", "30d", "1y", "5y"];
 
@@ -45,12 +44,20 @@ export const StakeSpan = memo(function StakeSpan({
   );
 
   return (
-    <FullWidthButtonMenu activeIndex={spanIndex} onItemClick={onSpanChange} scale="sm">
-      {SPAN.map((span) => (
-        <ButtonMenuItem key={span.key} variant="tertiary">
+    <div className="w-full grid grid-cols-5 bg-surface-container-highest rounded-2xl overflow-hidden">
+      {SPAN.map((span, i) => (
+        <button
+          key={span.key}
+          type="button"
+          className={clsx("py-1", {
+            "text-on-surface-orange bg-surface-orange": spanIndex === i,
+            "text-on-surface-primary bg-transparent": spanIndex !== i,
+          })}
+          onClick={() => onSpanChange(i)}
+        >
           {span.text}
-        </ButtonMenuItem>
+        </button>
       ))}
-    </FullWidthButtonMenu>
+    </div>
   );
 });

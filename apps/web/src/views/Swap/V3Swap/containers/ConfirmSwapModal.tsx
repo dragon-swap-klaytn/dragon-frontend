@@ -15,8 +15,8 @@ import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { useDebounce } from '@pancakeswap/hooks'
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import { useUserSlippage } from '@pancakeswap/utils/user'
-import { ArrowSquareOut } from '@phosphor-icons/react'
 import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWallet/AddToWalletButton'
+import ExternalLink from 'components/Common/ExternalLink'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState } from 'hooks/useApproveCallback'
@@ -92,9 +92,8 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     const amountB = formatAmount(trade?.outputAmount, 6) ?? ''
 
     if (confirmModalState === ConfirmModalState.RESETTING_APPROVAL) {
-      const _title = t('Reset Approval on USDT')
-      setTitle(_title)
-      return <ApproveModalContent title={_title} isBonus={isBonus} />
+      setTitle(t('Reset Approval on USDT'))
+      return <ApproveModalContent isBonus={isBonus} />
     }
 
     if (
@@ -102,10 +101,9 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
       (confirmModalState === ConfirmModalState.APPROVING_TOKEN ||
         confirmModalState === ConfirmModalState.APPROVE_PENDING)
     ) {
-      const _title = t('Enable spending %symbol%', { symbol: `${trade?.inputAmount?.currency?.symbol}` })
-      setTitle(_title)
+      setTitle(t('Enable spending %symbol%', { symbol: `${trade?.inputAmount?.currency?.symbol}` }))
 
-      return <ApproveModalContent title={_title} isBonus={isBonus} qrUri={qrUri} />
+      return <ApproveModalContent isBonus={isBonus} qrUri={qrUri} />
     }
 
     if (swapErrorMessage) {
@@ -121,12 +119,10 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     }
 
     if (attemptingTxn) {
-      const _title = t('Confirm Swap')
-      setTitle(_title)
+      setTitle(t('Confirm Swap'))
 
       return (
         <SwapPendingModalContent
-          title={_title}
           currencyA={currencyA}
           currencyB={currencyB}
           amountA={amountA}
@@ -137,13 +133,11 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     }
 
     if (confirmModalState === ConfirmModalState.PENDING_CONFIRMATION) {
-      const _title = t('Transaction Submitted')
-      setTitle(_title)
+      setTitle(t('Transaction Submitted'))
 
       return (
         <SwapPendingModalContent
           showIcon
-          title={_title}
           currencyA={currencyA}
           currencyB={currencyB}
           amountA={amountA}
@@ -165,25 +159,24 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
 
       return (
         <SwapTransactionReceiptModalContent>
-          {chainId && (
-            <a
-              href={getBlockExploreLink(txHash, 'transaction', chainId)}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center space-y-2 text-sm hover:opacity-70"
-            >
-              {t('View on %site%', { site: getBlockExploreName(chainId) })}: {truncateHash(txHash, 8, 0)}
-              <ArrowSquareOut size={16} />
-            </a>
-          )}
+          <div className="flex flex-col space-y-3">
+            {chainId && (
+              <ExternalLink
+                href={getBlockExploreLink(txHash, 'transaction', chainId)}
+                className="text-on-surface-primary"
+              >
+                {t('View on %site%', { site: getBlockExploreName(chainId) })}: {truncateHash(txHash, 8, 0)}
+              </ExternalLink>
+            )}
 
-          <AddToWalletButton
-            textOptions={AddToWalletTextOptions.TEXT_WITH_ASSET}
-            tokenAddress={token?.address}
-            tokenSymbol={currencyB?.symbol}
-            tokenDecimals={token?.decimals}
-            tokenLogo={tokenLogo}
-          />
+            <AddToWalletButton
+              textOptions={AddToWalletTextOptions.TEXT_WITH_ASSET}
+              tokenAddress={token?.address}
+              tokenSymbol={currencyB?.symbol}
+              tokenDecimals={token?.decimals}
+              tokenLogo={tokenLogo}
+            />
+          </div>
         </SwapTransactionReceiptModalContent>
       )
     }

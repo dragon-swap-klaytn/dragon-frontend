@@ -1,9 +1,9 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { Currency, CurrencyAmount } from "@pancakeswap/sdk";
 import { memo, useCallback } from "react";
-import { styled } from "styled-components";
 
-import { BalanceInput, Text, Flex, Button, Box, QuestionHelper, RowBetween, Card, CardBody } from "@pancakeswap/uikit";
+import { Box, NumberFormat, QuestionHelper } from "@pancakeswap/uikit";
+import clsx from "clsx";
 import { CurrencyLogo } from "../components/CurrencyLogo";
 
 type Props = UsdAmountInputProps & TokenAmountsDisplayProps;
@@ -19,23 +19,12 @@ export const DepositAmountInput = memo(function DepositAmountInput({
   maxLabel,
 }: Props) {
   return (
-    <>
-      <Box mb="1em">
-        <DepositUsdAmountInput value={value} max={max} onChange={onChange} maxLabel={maxLabel} />
-      </Box>
+    <div className="flex flex-col items-center w-full space-y-2">
+      <DepositUsdAmountInput value={value} max={max} onChange={onChange} maxLabel={maxLabel} />
       <TokenAmountsDisplay amountA={amountA} amountB={amountB} currencyA={currencyA} currencyB={currencyB} />
-    </>
+    </div>
   );
 });
-
-const StyledBalanceInput = styled(BalanceInput)`
-  padding: 0 16px;
-`;
-
-const StyledButton = styled(Button)`
-  width: 100%;
-  text-transform: uppercase;
-`;
 
 interface UsdAmountInputProps {
   value?: string;
@@ -59,36 +48,49 @@ export const DepositUsdAmountInput = memo(function DepositUsdAmountInput({
   return (
     <>
       <Box mb="0.5em" width="100%">
-        <StyledBalanceInput value={value} onUserInput={onChange} unit={<Text color="textSubtle">{t("USD")}</Text>} />
+        <div className="border border-gray-700 rounded-[20px] px-4 py-3 w-full flex items-end space-x-2">
+          <NumberFormat
+            className="text-on-surface-primary text-sm text-right focus:outline-none w-full bg-transparent"
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value.replace(/,/g, "."));
+            }}
+            thousandSeparator
+            allowNegative={false}
+            decimalScale={2}
+            placeholder="0"
+            pattern="^[0-9]*[.,]?[0-9]{0,2}$"
+          />
+
+          <span className="text-sm text-on-surface-primary">{t("USD")}</span>
+        </div>
       </Box>
-      <Flex>
-        <Flex flex="3" mr="0.25em">
-          <StyledButton variant={value === "100" ? "primary" : "tertiary"} scale="xs" onClick={() => onChange("100")}>
-            $100
-          </StyledButton>
-        </Flex>
-        <Flex flex="3" mr="0.25em">
-          <StyledButton variant={value === "1000" ? "primary" : "tertiary"} scale="xs" onClick={() => onChange("1000")}>
-            $1,000
-          </StyledButton>
-        </Flex>
-        <Flex flex="4">
-          <StyledButton variant={value === max ? "primary" : "tertiary"} scale="xs" mr="0.25em" onClick={onMax}>
+
+      <div className="w-full grid gap-2 grid-flow-col grid-cols-3">
+        <Button isSelected={value === "100"} onClick={() => onChange("100")} className="col-span-1">
+          $100
+        </Button>
+        <Button isSelected={value === "1000"} onClick={() => onChange("1000")} className="col-span-1">
+          $1,000
+        </Button>
+        <div className="flex items-center space-x-2 col-span-1">
+          <Button isSelected={value === max} onClick={onMax}>
             {maxLabel || t("Max")}
-          </StyledButton>
+          </Button>
+
           <QuestionHelper
             text={t("Automatically fill in the maximum token amount according to your balance and position settings.")}
             placement="top"
           />
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </>
   );
 });
 
 interface TokenAmountsDisplayProps {
-  currencyA?: Currency;
-  currencyB?: Currency;
+  currencyA?: Currency | null;
+  currencyB?: Currency | null;
   amountA?: CurrencyAmount<Currency>;
   amountB?: CurrencyAmount<Currency>;
 }
@@ -98,22 +100,20 @@ const TokenDisplayRow = memo(function TokenDisplayRow({
   currency,
 }: {
   amount?: CurrencyAmount<Currency>;
-  currency?: Currency;
+  currency?: Currency | null;
 }) {
-  if (!currency) {
-    return null;
-  }
+  if (!currency) return null;
 
   return (
-    <RowBetween>
-      <Flex>
+    <div className="flex items-center space-x-2 w-full justify-between">
+      <div className="flex items-center space-x-2">
         <CurrencyLogo currency={currency} />
-        <Text color="textSubtle" ml="0.25em">
-          {currency.symbol}
-        </Text>
-      </Flex>
-      <Text>{amount?.toExact() || "0"}</Text>
-    </RowBetween>
+
+        <span className="text-sm text-on-surface-primary">{currency.symbol}</span>
+      </div>
+
+      <span className="text-sm text-on-surface-primary">{amount?.toExact() || "0"}</span>
+    </div>
   );
 });
 
@@ -128,13 +128,35 @@ export const TokenAmountsDisplay = memo(function TokenAmountsDisplay({
   }
 
   return (
-    <Card>
-      <CardBody>
-        <Box mb="0.5em">
-          <TokenDisplayRow amount={amountA} currency={currencyA} />
-        </Box>
-        <TokenDisplayRow amount={amountB} currency={currencyB} />
-      </CardBody>
-    </Card>
+    <div className="rounded-2xl p-4 bg-surface-container-highest flex flex-col space-y-4 w-full">
+      <TokenDisplayRow amount={amountA} currency={currencyA} />
+
+      <TokenDisplayRow amount={amountB} currency={currencyB} />
+    </div>
   );
 });
+
+function Button({
+  children,
+  onClick,
+  isSelected,
+  className,
+}: {
+  children: React.ReactNode;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  isSelected?: boolean;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={clsx("rounded-[20px] hover:opacity-70 px-3 py-2 text-sm w-full", className, {
+        "bg-transparent border-gray-700 border text-on-surface-primary": !isSelected,
+        "bg-surface-orange text-on-surface-orange": isSelected,
+      })}
+    >
+      {children}
+    </button>
+  );
+}

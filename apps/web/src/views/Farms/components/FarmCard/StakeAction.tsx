@@ -1,4 +1,4 @@
-import { ChainId, DEFAULT_CHAIN_ID, DEFAULT_TESTNET_ID } from '@pancakeswap/chains'
+import { DEFAULT_CHAIN_ID, DEFAULT_TESTNET_ID } from '@pancakeswap/chains'
 import { FarmWithStakedValue } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { NATIVE, WNATIVE } from '@pancakeswap/sdk'
@@ -17,7 +17,6 @@ import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useRouter } from 'next/router'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { useAppDispatch } from 'state'
-import { useFarmFromPid } from 'state/farms/hooks'
 import { pickFarmTransactionTx } from 'state/global/actions'
 import { FarmTransactionStatus, NonBscFarmStepType } from 'state/transactions/actions'
 import { useNonBscFarmPendingTransaction, useTransactionAdder } from 'state/transactions/hooks'
@@ -77,7 +76,6 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   const { tokenBalance, stakedBalance, allowance } = userData
   const cakePrice = useCakePrice()
   const router = useRouter()
-  const { lpTokenStakedAmount } = useFarmFromPid(pid)
   const { toastSuccess } = useToast()
   const { fetchWithCatchTxError, fetchTxResponse, loading: pendingTx } = useCatchTxError()
   const { boosterState } = useContext(YieldBoosterStateContext)
@@ -143,12 +141,12 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
               isFirstTime,
               status: FarmTransactionStatus.PENDING,
             },
-            {
-              step: 2,
-              tx: '',
-              chainId: ChainId.BSC,
-              status: FarmTransactionStatus.PENDING,
-            },
+            // {
+            //   step: 2,
+            //   tx: '',
+            //   chainId: ChainId.BSC,
+            //   status: FarmTransactionStatus.PENDING,
+            // },
           ],
         },
       })
@@ -200,14 +198,14 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
               tx: receipt.hash,
               status: FarmTransactionStatus.PENDING,
             },
+            // {
+            //   step: 2,
+            //   chainId: ChainId.BSC,
+            //   tx: '',
+            //   status: FarmTransactionStatus.PENDING,
+            // },
             {
               step: 2,
-              chainId: ChainId.BSC,
-              tx: '',
-              status: FarmTransactionStatus.PENDING,
-            },
-            {
-              step: 3,
               chainId,
               tx: '',
               status: FarmTransactionStatus.PENDING,
@@ -269,7 +267,8 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
       onConfirm={handleUnstake}
       lpPrice={lpTokenPrice}
       tokenName={lpSymbol}
-      showCrossChainFarmWarning={chainId !== ChainId.BSC && chainId !== ChainId.BSC_TESTNET}
+      // showCrossChainFarmWarning={chainId !== ChainId.BSC && chainId !== ChainId.BSC_TESTNET}
+      showCrossChainFarmWarning
       decimals={18}
     />,
   )
@@ -308,7 +307,8 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   // TODO: Move this out to prevent unnecessary re-rendered
   if (!isApproved) {
     return (
-      <Button mt="8px" width="100%" disabled={pendingTx || isBloctoETH} onClick={handleApprove}>
+      // <Button mt="8px" width="100%" disabled={pendingTx || isBloctoETH} onClick={handleApprove}>
+      <Button mt="8px" width="100%" disabled={pendingTx} onClick={handleApprove}>
         {t('Enable Contract')}
       </Button>
     )

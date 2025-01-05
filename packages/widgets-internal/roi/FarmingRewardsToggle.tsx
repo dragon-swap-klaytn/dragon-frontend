@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react";
 
-import { Flex, Checkbox } from "@pancakeswap/uikit";
+import { CheckboxV2 } from "@pancakeswap/uikit";
 
 interface Props {
   on?: boolean;
@@ -10,9 +10,5 @@ interface Props {
 export const FarmingRewardsToggle = memo(function FarmingRewardsToggle({ on = true, onToggle }: Props) {
   const onChange = useCallback(() => onToggle?.(!on), [onToggle, on]);
 
-  return (
-    <Flex alignItems="center">
-      <Checkbox scale="sm" checked={on} onChange={onChange} />
-    </Flex>
-  );
+  return <CheckboxV2 checked={on} onChange={onChange} />;
 });

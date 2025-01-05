@@ -1,43 +1,18 @@
-import { useRef, RefObject, useCallback, useState, useMemo } from 'react'
-import { Token } from '@pancakeswap/sdk'
-import {
-  Text,
-  Button,
-  DeleteOutlineIcon,
-  IconButton,
-  BscScanIcon,
-  Input,
-  Link,
-  AutoColumn,
-  Column,
-} from '@pancakeswap/uikit'
-import { styled } from 'styled-components'
-import Row, { RowBetween, RowFixed } from 'components/Layout/Row'
-import { useToken } from 'hooks/Tokens'
+import { useDebounce } from '@pancakeswap/hooks'
+import { useTranslation } from '@pancakeswap/localization'
+import { ERC20Token, Token } from '@pancakeswap/sdk'
+import { TrashSimple } from '@phosphor-icons/react'
+import Button from 'components/Common/Button'
+import SearchBar from 'components/Common/SearchBar'
+import { CurrencyLogo } from 'components/Logo'
+import ImportRow from 'components/SearchModal/ImportRow'
+import { useTokens } from 'hooks/Tokens'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { RefObject, useCallback, useMemo, useRef, useState } from 'react'
 import { useRemoveUserAddedToken } from 'state/user/hooks'
 import useUserAddedTokens from 'state/user/hooks/useUserAddedTokens'
-import { CurrencyLogo } from 'components/Logo'
-import { getBlockExploreLink, safeGetAddress } from 'utils'
-import { useTranslation } from '@pancakeswap/localization'
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import ImportRow from './ImportRow'
+import { safeGetAddress } from 'utils'
 import { CurrencyModalView } from './types'
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: calc(100% - 60px);
-  position: relative;
-  padding-bottom: 60px;
-`
-
-const Footer = styled.div`
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
 
 export default function ManageTokens({
   setModalView,
@@ -51,6 +26,8 @@ export default function ManageTokens({
   const { t } = useTranslation()
 
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const debouncedQuery = useDebounce(searchQuery, 200)
+  const searchTokens = useTokens(debouncedQuery)
 
   // manage focus on modal show
   const inputRef = useRef<HTMLInputElement>()
@@ -59,9 +36,6 @@ export default function ManageTokens({
     const checksummedInput = safeGetAddress(input)
     setSearchQuery(checksummedInput || input)
   }, [])
-
-  // if they input an address, use it
-  const searchToken = useToken(searchQuery)
 
   // all tokens for local list
   const userAddedTokens: Token[] = useUserAddedTokens()
@@ -75,76 +49,87 @@ export default function ManageTokens({
     }
   }, [removeToken, userAddedTokens, chainId])
 
-  const tokenList = useMemo(() => {
-    return (
-      chainId &&
-      userAddedTokens.map((token) => (
-        <RowBetween key={token.address} width="100%">
-          <RowFixed>
-            <CurrencyLogo currency={token} size="20px" />
-            <Link
-              external
-              href={getBlockExploreLink(token.address, 'address', chainId)}
-              color="textSubtle"
-              ml="10px"
-              mr="3px"
-            >
-              {token.symbol}
-            </Link>
-            <a href={getBlockExploreLink(token.address, 'token', chainId)} target="_blank" rel="noreferrer noopener">
-              <BscScanIcon width="20px" color="textSubtle" />
-            </a>
-          </RowFixed>
-          <RowFixed>
-            <IconButton variant="text" onClick={() => removeToken(chainId, token.address)}>
-              <DeleteOutlineIcon color="textSubtle" />
-            </IconButton>
-          </RowFixed>
-        </RowBetween>
-      ))
-    )
-  }, [userAddedTokens, chainId, removeToken])
+  const searchedUserAddedTokens = useMemo(() => {
+    return userAddedTokens
+      .filter(
+        (token) =>
+          (token?.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          token.address.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+      .map((token) => ({
+        ...token,
+        isAdded: true,
+      }))
+  }, [userAddedTokens, searchQuery])
 
-  const isAddressValid = searchQuery === '' || safeGetAddress(searchQuery)
+  const unimportedTokens = useMemo(() => {
+    return (
+      searchTokens
+        ?.filter(
+          (token) =>
+            !userAddedTokens.find((addedToken) => addedToken.address.toLowerCase() === token.address.toLowerCase()),
+        )
+        .map((token) => ({
+          ...token,
+          isAdded: false,
+        })) ?? []
+    )
+  }, [searchTokens, userAddedTokens])
 
   return (
-    <Wrapper>
-      <Column style={{ width: '100%', flex: '1 1' }}>
-        <AutoColumn gap="14px">
-          <Row>
-            <Input
-              id="token-search-input"
-              scale="lg"
-              placeholder="0x0000"
-              value={searchQuery}
-              autoComplete="off"
-              ref={inputRef as RefObject<HTMLInputElement>}
-              onChange={handleInput}
-              isWarning={!isAddressValid}
-            />
-          </Row>
-          {!isAddressValid && <Text color="failure">{t('Enter valid token address')}</Text>}
-          {searchToken && (
+    <div className="flex flex-col">
+      <SearchBar ref={inputRef as RefObject<HTMLInputElement>} value={searchQuery} onChange={handleInput} fullWidth />
+
+      <div className="flex flex-col items-start w-full mt-4 px-2 max-h-[400px] overflow-y-auto">
+        {[...unimportedTokens, ...searchedUserAddedTokens].map((token) =>
+          token.isAdded ? (
+            <div key={token.address} className="flex items-center space-x-2 justify-between w-full py-2">
+              <button
+                type="button"
+                className="flex items-center space-x-2 hover:opacity-70 w-full justify-between"
+                onClick={() => removeToken(chainId, token.address)}
+              >
+                <div className="flex items-center space-x-2">
+                  <CurrencyLogo currency={token as any} size={20} />
+                  <span className="text-sm text-on-surface-primary">{token.symbol}</span>
+                  <span className="text-gray-400 text-xs">{token.name}</span>
+                </div>
+
+                <TrashSimple size={16} className="text-gray-200" />
+              </button>
+            </div>
+          ) : (
             <ImportRow
-              token={searchToken}
+              className="w-full"
+              token={new ERC20Token(chainId, token.address, token.decimals, token.symbol, token.name)}
               showImportView={() => setModalView(CurrencyModalView.importToken)}
               setImportToken={setImportToken}
               style={{ height: 'fit-content' }}
             />
-          )}
-        </AutoColumn>
-        {tokenList}
-        <Footer>
-          <Text bold color="textSubtle">
+          ),
+        )}
+      </div>
+
+      {userAddedTokens?.length > 0 ? (
+        <div className="flex items-center space-x-2 justify-between px-2 mt-4">
+          <span className="text-sm text-on-surface-primary">
             {userAddedTokens?.length} {userAddedTokens.length === 1 ? t('Imported Token') : t('Imported Tokens')}
-          </Text>
+          </span>
+
           {userAddedTokens.length > 0 && (
-            <Button variant="tertiary" onClick={handleRemoveAll}>
+            <Button variant="subtle" onClick={handleRemoveAll} scale="sm">
               {t('Clear all')}
             </Button>
           )}
-        </Footer>
-      </Column>
-    </Wrapper>
+        </div>
+      ) : !debouncedQuery && (userAddedTokens?.length || 0) === 0 ? (
+        <p className="text-center py-4">{t('No imported tokens.')}</p>
+      ) : !!debouncedQuery && (searchTokens?.length || 0) === 0 ? (
+        <p className="text-center py-4">{t('No results found.')}</p>
+      ) : (
+        <></>
+      )}
+    </div>
   )
 }

@@ -1,6 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
-import { ethereumTokens } from '@pancakeswap/tokens'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useCallback, useEffect, useState } from 'react'
 import { ConfirmModalState, PendingConfirmModalState } from 'views/Swap/V3Swap/types'
@@ -48,15 +47,15 @@ export const useConfirmModalState = ({
 
     // Any existing USDT allowance needs to be reset before we can approve the new amount (mainnet only).
     // See the `approve` function here: https://etherscan.io/address/0xdAC17F958D2ee523a2206206994597C13D831ec7#code
-    if (
-      approval === ApprovalState.NOT_APPROVED &&
-      currentAllowance?.greaterThan(0) &&
-      approvalToken &&
-      approvalToken.chainId === ethereumTokens.usdt.chainId &&
-      approvalToken.wrapped.address.toLowerCase() === ethereumTokens.usdt.address.toLowerCase()
-    ) {
-      steps.push(ConfirmModalState.RESETTING_APPROVAL)
-    }
+    // if (
+    //   approval === ApprovalState.NOT_APPROVED &&
+    //   currentAllowance?.greaterThan(0) &&
+    //   approvalToken &&
+    //   approvalToken.chainId === ethereumTokens.usdt.chainId &&
+    //   approvalToken.wrapped.address.toLowerCase() === ethereumTokens.usdt.address.toLowerCase()
+    // ) {
+    //   steps.push(ConfirmModalState.RESETTING_APPROVAL)
+    // }
 
     if (approval === ApprovalState.NOT_APPROVED) {
       setPreviouslyPending(false)
@@ -65,7 +64,7 @@ export const useConfirmModalState = ({
 
     steps.push(ConfirmModalState.PENDING_CONFIRMATION)
     return steps
-  }, [approval, approvalToken, currentAllowance])
+  }, [approval])
 
   const onCancel = useCallback(() => {
     setConfirmModalState(ConfirmModalState.REVIEWING)

@@ -8,6 +8,7 @@ import {
   TokenPocketIcon,
   TrustWalletIcon,
 } from '@pancakeswap/uikit'
+import clsx from 'clsx'
 import Button from 'components/Common/Button'
 import KaikasIcon from 'components/Svg/KaiaWalletIcon'
 import { useAccount } from 'wagmi'
@@ -81,6 +82,7 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
   tokenDecimals,
   tokenLogo,
   textOptions = AddToWalletTextOptions.NO_TEXT,
+  className,
 }) => {
   const { t } = useTranslation()
   const { connector, isConnected } = useAccount()
@@ -93,7 +95,7 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
   return (
     <Button
       variant="primary"
-      className="flex items-center space-x-2 justify-center text-sm"
+      className={clsx('flex items-center space-x-2 justify-center text-sm', className)}
       onClick={() => {
         const image = tokenLogo ? (BAD_SRCS[tokenLogo] ? undefined : tokenLogo) : undefined
         if (!tokenAddress || !tokenSymbol) return

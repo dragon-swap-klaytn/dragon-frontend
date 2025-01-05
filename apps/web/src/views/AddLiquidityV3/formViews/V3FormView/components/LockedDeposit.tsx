@@ -1,17 +1,21 @@
 import { Trans } from '@pancakeswap/localization'
-import { AutoColumn, LockIcon, Text } from '@pancakeswap/uikit'
-import { DisableCard } from 'components/Card'
+import { Lock } from '@phosphor-icons/react'
+import clsx from 'clsx'
+import { PropsWithChildren } from 'react'
 
-export default function LockedDeposit({ children, locked, ...rest }) {
+export default function LockedDeposit({
+  className,
+  locked,
+  children,
+}: PropsWithChildren<{ locked: boolean; className?: string }>) {
   return locked ? (
-    <DisableCard {...rest}>
-      <AutoColumn justify="center" gap="8px">
-        <LockIcon width="24px" height="24px" color="textDisabled" />
-        <Text bold color="textDisabled" textAlign="center">
-          <Trans>The market price is outside your specified price range. Single-asset deposit only.</Trans>
-        </Text>
-      </AutoColumn>
-    </DisableCard>
+    <div className={clsx('flex flex-col items-center space-y-2 p-4 rounded-2xl bg-surface-disable', className)}>
+      <Lock size={24} className="text-gray-400" />
+
+      <p className="text-center text-sm text-on-surface-tertiary">
+        <Trans>The market price is outside your specified price range. Single-asset deposit only.</Trans>
+      </p>
+    </div>
   ) : (
     children
   )

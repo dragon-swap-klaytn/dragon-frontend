@@ -7,51 +7,30 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 
 import addresses from 'config/constants/contracts'
 import { useMemo } from 'react'
-import { getMulticallAddress, getPredictionsV1Address, getZapAddress } from 'utils/addressHelpers'
+import { getMulticallAddress, getZapAddress } from 'utils/addressHelpers'
 import {
-  getAffiliateProgramContract,
-  getAnniversaryAchievementContract,
   getBCakeFarmBoosterContract,
   getBCakeFarmBoosterProxyFactoryContract,
   getBCakeFarmBoosterV3Contract,
   getBCakeFarmBoosterVeCakeContract,
   getBCakeProxyContract,
-  getBunnyFactoryContract,
   getCakeFlexibleSideVaultV2Contract,
   getCakeVaultV2Contract,
-  getCalcGaugesVotingContract,
   getChainlinkOracleContract,
   getContract,
   getCrossFarmingProxyContract,
-  getFarmAuctionContract,
   getFixedStakingContract,
-  getGaugesVotingContract,
-  getIfoCreditAddressContract,
-  getLotteryV2Contract,
   getMasterChefContract,
   getMasterChefV3Contract,
-  getNftMarketContract,
-  getNftSaleContract,
   getNonBscVaultContract,
-  getPointCenterIfoContract,
   getPositionManagerAdapterContract,
   getPositionManagerWrapperContract,
-  getPotteryDrawContract,
   getPotteryVaultContract,
-  getPredictionsV1Contract,
-  getPredictionsV2Contract,
-  getPredictionsV3Contract,
-  getProfileContract,
   getRevenueSharingCakePoolContract,
-  getRevenueSharingPoolContract,
   getRevenueSharingPoolGatewayContract,
   getRevenueSharingVeCakeContract,
   getSidContract,
   getStableSwapNativeHelperContract,
-  getTradingCompetitionContractEaster,
-  getTradingCompetitionContractFanToken,
-  getTradingCompetitionContractMoD,
-  getTradingCompetitionContractMobox,
   getTradingRewardContract,
   getTradingRewardTopTradesContract,
   getUnsContract,
@@ -64,19 +43,16 @@ import {
 import { ChainId } from '@pancakeswap/chains'
 import { ifoV7ABI } from '@pancakeswap/ifos'
 import { WNATIVE, WNATIVE2, pancakePairV2ABI } from '@pancakeswap/sdk'
-import { CAKE } from '@pancakeswap/tokens'
 import { nonfungiblePositionManagerABI } from '@pancakeswap/v3-sdk'
 import { multicallABI } from 'config/abi/Multicall'
 import { erc20Bytes32ABI } from 'config/abi/erc20_bytes32'
 import { ifoV1ABI } from 'config/abi/ifoV1'
 import { ifoV2ABI } from 'config/abi/ifoV2'
 import { ifoV3ABI } from 'config/abi/ifoV3'
-import { wbethBscABI } from 'config/abi/wbethBSC'
-import { wbethEthABI } from 'config/abi/wbethETH'
 import { zapABI } from 'config/abi/zap'
-import { WBETH } from 'config/constants/liquidStaking'
 import { VaultKey } from 'state/types'
 
+import { CAKE } from '@pancakeswap/tokens'
 import { erc721CollectionABI } from 'config/abi/erc721collection'
 import { infoStableSwapABI } from 'config/abi/infoStableSwap'
 import { neopin } from 'config/abi/neopin'
@@ -108,22 +84,7 @@ export const useERC20 = (address: Address, options?: UseContractOptions) => {
 export const useCake = () => {
   const { chainId } = useActiveChainId()
 
-  return useContract((chainId && CAKE[chainId]?.address) ?? CAKE[ChainId.BSC].address, erc20ABI)
-}
-
-export const useBunnyFactory = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getBunnyFactoryContract(signer ?? undefined), [signer])
-}
-
-export const useProfileContract = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getProfileContract(signer ?? undefined), [signer])
-}
-
-export const useLotteryV2Contract = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getLotteryV2Contract(signer ?? undefined), [signer])
+  return useContract((chainId && CAKE[chainId]?.address) ?? CAKE[ChainId.KLAYTN].address, erc20ABI)
 }
 
 export const useMasterchef = () => {
@@ -146,31 +107,6 @@ export const useSousChef = (id) => {
       }),
     [id, signer, chainId, publicClient],
   )
-}
-
-export const usePointCenterIfoContract = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getPointCenterIfoContract(signer ?? undefined), [signer])
-}
-
-export const useTradingCompetitionContractEaster = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getTradingCompetitionContractEaster(signer ?? undefined), [signer])
-}
-
-export const useTradingCompetitionContractFanToken = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getTradingCompetitionContractFanToken(signer ?? undefined), [signer])
-}
-
-export const useTradingCompetitionContractMobox = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getTradingCompetitionContractMobox(signer ?? undefined), [signer])
-}
-
-export const useTradingCompetitionContractMoD = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getTradingCompetitionContractMoD(signer ?? undefined), [signer])
 }
 
 export const useVaultPoolContract = <T extends VaultKey>(
@@ -199,41 +135,9 @@ export const useCakeVaultContract = () => {
   return useMemo(() => getCakeVaultV2Contract(signer ?? undefined, chainId), [signer, chainId])
 }
 
-export const useIfoCreditAddressContract = () => {
-  return useMemo(() => getIfoCreditAddressContract(), [])
-}
-
-export const usePredictionsContract = (address: Address, isNativeToken: boolean) => {
-  const { data: signer } = useWalletClient()
-  const { chainId } = useActiveChainId()
-  return useMemo(() => {
-    if (address === getPredictionsV1Address()) {
-      return getPredictionsV1Contract(signer ?? undefined)
-    }
-    const getPredContract = isNativeToken ? getPredictionsV2Contract : getPredictionsV3Contract
-
-    return getPredContract(address, chainId, signer ?? undefined)
-  }, [address, chainId, isNativeToken, signer])
-}
-
 export const useChainlinkOracleContract = (address) => {
   const { data: signer } = useWalletClient()
   return useMemo(() => getChainlinkOracleContract(address, signer ?? undefined), [signer, address])
-}
-
-export const useNftSaleContract = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getNftSaleContract(signer ?? undefined), [signer])
-}
-
-export const useFarmAuctionContract = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getFarmAuctionContract(signer ?? undefined), [signer])
-}
-
-export const useNftMarketContract = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getNftMarketContract(signer ?? undefined), [signer])
 }
 
 export const useErc721CollectionContract = (collectionAddress: Address) => {
@@ -290,17 +194,6 @@ export function useRNativeContract() {
   return useContract(chainId ? WNATIVE2[chainId]?.address : undefined, wethABI)
 }
 
-export function useWBETHContract() {
-  const { chainId } = useActiveChainId()
-
-  const abi = useMemo(
-    () => (chainId && [ChainId.ETHEREUM, ChainId.GOERLI].includes(chainId) ? wbethEthABI : wbethBscABI),
-    [chainId],
-  )
-
-  return useContract(chainId ? WBETH[chainId] : undefined, abi)
-}
-
 export function useBytes32TokenContract(tokenAddress?: Address) {
   return useContract(tokenAddress, erc20Bytes32ABI)
 }
@@ -317,11 +210,6 @@ export function useMulticallContract() {
 export const usePotterytVaultContract = (address: Address) => {
   const { data: signer } = useWalletClient()
   return useMemo(() => getPotteryVaultContract(address, signer ?? undefined), [address, signer])
-}
-
-export const usePotterytDrawContract = () => {
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getPotteryDrawContract(signer ?? undefined), [signer])
 }
 
 export function useZapContract() {
@@ -437,15 +325,6 @@ export const useInfoStableSwapContract = (infoAddress?: Address) => {
   return useContract(infoAddress, infoStableSwapABI)
 }
 
-export const useAffiliateProgramContract = ({ chainId: chainId_ }: { chainId?: ChainId } = {}) => {
-  const { chainId } = useActiveChainId()
-  const { data: signer } = useWalletClient()
-  return useMemo(
-    () => getAffiliateProgramContract(signer ?? undefined, chainId_ ?? chainId),
-    [signer, chainId_, chainId],
-  )
-}
-
 export const useTradingRewardTopTraderContract = ({ chainId: chainId_ }: { chainId?: ChainId } = {}) => {
   const { chainId } = useActiveChainId()
   const { data: signer } = useWalletClient()
@@ -459,24 +338,6 @@ export const useVCakeContract = ({ chainId: chainId_ }: { chainId?: ChainId } = 
   const { chainId } = useActiveChainId()
   const { data: signer } = useWalletClient()
   return useMemo(() => getVCakeContract(signer ?? undefined, chainId_ ?? chainId), [signer, chainId_, chainId])
-}
-
-export const useRevenueSharingPoolContract = ({ chainId: chainId_ }: { chainId?: ChainId } = {}) => {
-  const { chainId } = useActiveChainId()
-  const { data: signer } = useWalletClient()
-  return useMemo(
-    () => getRevenueSharingPoolContract(signer ?? undefined, chainId_ ?? chainId),
-    [signer, chainId_, chainId],
-  )
-}
-
-export const useAnniversaryAchievementContract = ({ chainId: chainId_ }: { chainId?: ChainId } = {}) => {
-  const { chainId } = useActiveChainId()
-  const { data: signer } = useWalletClient()
-  return useMemo(
-    () => getAnniversaryAchievementContract(signer ?? undefined, chainId_ ?? chainId),
-    [signer, chainId_, chainId],
-  )
 }
 
 export const useFixedStakingContract = () => {
@@ -494,23 +355,6 @@ export const useVeCakeContract = () => {
 
   return useMemo(() => getVeCakeContract(signer ?? undefined, chainId), [chainId, signer])
 }
-
-export const useGaugesVotingContract = () => {
-  const { chainId } = useActiveChainId()
-
-  const { data: signer } = useWalletClient()
-
-  return useMemo(() => getGaugesVotingContract(signer ?? undefined, chainId), [chainId, signer])
-}
-
-export const useCalcGaugesVotingContract = () => {
-  const { chainId } = useActiveChainId()
-
-  const { data: signer } = useWalletClient()
-
-  return useMemo(() => getCalcGaugesVotingContract(signer ?? undefined, chainId), [chainId, signer])
-}
-
 export const useRevenueSharingCakePoolContract = () => {
   const { chainId } = useActiveChainId()
   const { data: signer } = useWalletClient()

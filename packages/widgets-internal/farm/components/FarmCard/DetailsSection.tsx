@@ -1,17 +1,16 @@
-import { ReactElement } from "react";
 import { useTranslation } from "@pancakeswap/localization";
-import { styled } from "styled-components";
 import {
+  FarmMultiplierInfo,
   Flex,
+  HelpIcon,
   LinkExternal,
   ScanLink,
   Skeleton,
   Text,
-  HelpIcon,
   useTooltip,
-  FarmMultiplierInfo,
 } from "@pancakeswap/uikit";
-import { ChainId } from "@pancakeswap/chains";
+import { ReactElement } from "react";
+import { styled } from "styled-components";
 
 export interface ExpandableSectionProps {
   scanAddress?: { link: string; chainId?: number; icon?: ReactElement };
@@ -134,7 +133,8 @@ export const DetailsSection: React.FC<React.PropsWithChildren<ExpandableSectionP
           <StyledScanLink
             icon={scanAddress.icon}
             useBscCoinFallback={
-              scanAddress.chainId ? [ChainId.BSC, ChainId.BSC_TESTNET].includes(scanAddress.chainId) : false
+              // scanAddress.chainId ? [ChainId.BSC, ChainId.BSC_TESTNET].includes(scanAddress.chainId) : false
+              false
             }
             href={scanAddress.link}
           >

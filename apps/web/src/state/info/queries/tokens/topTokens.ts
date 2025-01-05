@@ -30,7 +30,7 @@ interface StableSwapTopTokensResponse {
  */
 const fetchTopTokens = async (chainName: MultiChainNameExtend, timestamp24hAgo: number): Promise<string[]> => {
   const whereCondition =
-    chainName === 'ETH' || chainName === 'KLAYTN' || chainName === 'KLAYTN_TESTNET'
+    chainName === 'KLAYTN' || chainName === 'KLAYTN_TESTNET'
       ? `where: { token_not_in: $blacklist }`
       : checkIsStableSwap()
       ? ''

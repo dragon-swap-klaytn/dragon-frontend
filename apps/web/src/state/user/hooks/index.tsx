@@ -1,44 +1,41 @@
-import { Pair, ERC20Token } from '@pancakeswap/sdk'
-import { ChainId } from '@pancakeswap/chains'
-import { deserializeToken } from '@pancakeswap/token-lists'
-import flatMap from 'lodash/flatMap'
 import { getFarmConfig } from '@pancakeswap/farms/constants'
+import { ERC20Token, Pair } from '@pancakeswap/sdk'
+import { deserializeToken } from '@pancakeswap/token-lists'
+import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'config/constants/exchange'
+import { useOfficialsAndUserAddedTokens } from 'hooks/Tokens'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useFeatureFlagEvaluation } from 'hooks/useDataDogRUM'
+import flatMap from 'lodash/flatMap'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'config/constants/exchange'
-import useSWRImmutable from 'swr/immutable'
-import { useOfficialsAndUserAddedTokens } from 'hooks/Tokens'
-import useSWR from 'swr'
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import { safeGetAddress } from 'utils'
-import { useFeeData, useWalletClient } from 'wagmi'
-import { Hex, hexToBigInt } from 'viem'
 import { AppState, useAppDispatch } from 'state'
-import { useFeatureFlagEvaluation } from 'hooks/useDataDogRUM'
+import useSWRImmutable from 'swr/immutable'
+import { safeGetAddress } from 'utils'
+import { useFeeData } from 'wagmi'
+import { GAS_PRICE_GWEI } from '../../types'
 import {
   addSerializedPair,
   addSerializedToken,
+  addWatchlistPool,
+  addWatchlistToken,
   FarmStakedOnly,
   removeSerializedToken,
   SerializedPair,
-  updateUserDeadline,
-  updateUserFarmStakedOnly,
-  updateGasPrice,
-  addWatchlistToken,
-  addWatchlistPool,
-  updateUserPoolStakedOnly,
-  updateUserPoolsViewMode,
-  ViewMode,
-  updateUserFarmsViewMode,
-  updateUserPredictionChartDisclaimerShow,
-  updateUserPredictionChainlinkChartDisclaimerShow,
-  updateUserPredictionAcceptedRisk,
-  updateUserUsernameVisibility,
   setIsExchangeChartDisplayed,
   setSubgraphHealthIndicatorDisplayed,
+  updateGasPrice,
+  updateUserDeadline,
+  updateUserFarmStakedOnly,
+  updateUserFarmsViewMode,
   updateUserLimitOrderAcceptedWarning,
+  updateUserPoolStakedOnly,
+  updateUserPoolsViewMode,
+  updateUserPredictionAcceptedRisk,
+  updateUserPredictionChainlinkChartDisclaimerShow,
+  updateUserPredictionChartDisclaimerShow,
+  updateUserUsernameVisibility,
+  ViewMode,
 } from '../actions'
-import { GAS_PRICE_GWEI } from '../../types'
 
 // Get user preference for exchange price chart
 // For mobile layout chart is hidden by default
@@ -277,7 +274,6 @@ export function useFeeDataWithGasPrice(chainIdOverride?: number): {
   const gasPrice = useGasPrice(chainId)
   const { data } = useFeeData({
     chainId,
-    enabled: chainId !== ChainId.BSC && chainId !== ChainId.BSC_TESTNET,
     watch: true,
   })
 
@@ -300,30 +296,30 @@ const DEFAULT_BSC_TESTNET_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.testnet)
  * Note that this hook will only works well for BNB chain
  */
 export function useGasPrice(chainIdOverride?: number): bigint | undefined {
-  const { chainId: chainId_ } = useActiveChainId()
-  const chainId = chainIdOverride ?? chainId_
-  const { data: signer } = useWalletClient({ chainId })
-  const userGas = useSelector<AppState, AppState['user']['gasPrice']>((state) => state.user.gasPrice)
-  const { data: bscProviderGasPrice = DEFAULT_BSC_GAS_BIGINT } = useSWR(
-    signer && chainId === ChainId.BSC && userGas === GAS_PRICE_GWEI.rpcDefault && ['bscProviderGasPrice', signer],
-    async () => {
-      // @ts-ignore
-      const gasPrice = await signer?.request({
-        method: 'eth_gasPrice' as any,
-      })
-      return hexToBigInt(gasPrice as Hex)
-    },
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    },
-  )
-  if (chainId === ChainId.BSC) {
-    return userGas === GAS_PRICE_GWEI.rpcDefault ? bscProviderGasPrice : BigInt(userGas ?? GAS_PRICE_GWEI.default)
-  }
-  if (chainId === ChainId.BSC_TESTNET) {
-    return DEFAULT_BSC_TESTNET_GAS_BIGINT
-  }
+  // const { chainId: chainId_ } = useActiveChainId()
+  // const chainId = chainIdOverride ?? chainId_
+  // const { data: signer } = useWalletClient({ chainId })
+  // const userGas = useSelector<AppState, AppState['user']['gasPrice']>((state) => state.user.gasPrice)
+  // const { data: bscProviderGasPrice = DEFAULT_BSC_GAS_BIGINT } = useSWR(
+  //   signer && chainId === ChainId.BSC && userGas === GAS_PRICE_GWEI.rpcDefault && ['bscProviderGasPrice', signer],
+  //   async () => {
+  //     // @ts-ignore
+  //     const gasPrice = await signer?.request({
+  //       method: 'eth_gasPrice' as any,
+  //     })
+  //     return hexToBigInt(gasPrice as Hex)
+  //   },
+  //   {
+  //     revalidateOnFocus: false,
+  //     revalidateOnReconnect: false,
+  //   },
+  // )
+  // if (chainId === ChainId.BSC) {
+  //   return userGas === GAS_PRICE_GWEI.rpcDefault ? bscProviderGasPrice : BigInt(userGas ?? GAS_PRICE_GWEI.default)
+  // }
+  // if (chainId === ChainId.BSC_TESTNET) {
+  //   return DEFAULT_BSC_TESTNET_GAS_BIGINT
+  // }
   return undefined
 }
 

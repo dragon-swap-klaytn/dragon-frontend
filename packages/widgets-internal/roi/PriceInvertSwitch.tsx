@@ -1,18 +1,11 @@
+import { useTranslation } from "@pancakeswap/localization";
 import { Currency } from "@pancakeswap/sdk";
 import { memo } from "react";
-import { useTranslation } from "@pancakeswap/localization";
-import { styled } from "styled-components";
 
-import { Flex, Text, Button, SyncAltIcon } from "@pancakeswap/uikit";
-
-const StyledButton = styled(Button)`
-  border-radius: 8px;
-  padding: 0 0.5em;
-  font-size: 12px;
-`;
+import { ArrowsLeftRight } from "@phosphor-icons/react";
 
 interface Props {
-  baseCurrency?: Currency;
+  baseCurrency?: Currency | null;
   onSwitch?: () => void;
 }
 
@@ -24,18 +17,17 @@ export const PriceInvertSwitch = memo(function PriceInvertSwitch({ baseCurrency,
   }
 
   return (
-    <Flex justifyContent="flex-end" alignItems="center" mb="0.5em">
-      <Text mr="0.5em" color="textSubtle" fontSize="14px">
-        {t("View prices in")}
-      </Text>
-      <StyledButton
-        variant="secondary"
-        scale="sm"
+    <div className="flex items-center space-x-2 justify-end mb-2">
+      <span className="text-xs text-on-surface-secondary">{t("View prices in")}</span>
+
+      <button
+        type="button"
         onClick={onSwitch}
-        startIcon={<SyncAltIcon color="primary" width="14px" />}
+        className="flex items-center space-x-1 text-on-surface-primary px-3 py-1 rounded-2xl bg-surface-container-highest hover:opacity-70 text-sm"
       >
-        {baseCurrency.symbol}
-      </StyledButton>
-    </Flex>
+        <ArrowsLeftRight size={16} />
+        <span>{baseCurrency.symbol}</span>
+      </button>
+    </div>
   );
 });

@@ -334,7 +334,6 @@ export const AddLiquidity = memo(function AddLiquidity({
                   balance={userCurrencyBalances.token0Balance}
                   balanceText={displayBalanceText(userCurrencyBalances?.token0Balance)}
                   onChange={onCurrencyAChange}
-                  useTrustWalletUrl={false}
                 />
               </Flex>
             )}
@@ -346,7 +345,6 @@ export const AddLiquidity = memo(function AddLiquidity({
                   balance={userCurrencyBalances.token1Balance}
                   balanceText={displayBalanceText(userCurrencyBalances?.token1Balance)}
                   onChange={onCurrencyBChange}
-                  useTrustWalletUrl={false}
                 />
               </Flex>
             )}

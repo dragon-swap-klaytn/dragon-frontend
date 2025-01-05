@@ -1,6 +1,7 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { ArrowForwardIcon, Button, FlexGap, Grid, Message, MessageText, Modal, Text } from '@pancakeswap/uikit'
+import { ArrowForwardIcon, Modal } from '@pancakeswap/uikit'
+import Button from 'components/Common/Button'
 import { ChainLogo } from 'components/Logo/ChainLogo'
 import useAuth from 'hooks/useAuth'
 import { useSessionChainId } from 'hooks/useSessionChainId'
@@ -21,48 +22,48 @@ export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain: C
   const switchText = t('Switch to %network%', { network: currentChain.name })
 
   return (
-    <Modal title={t('You are in wrong network')} headerBackground="gradientCardHeader" onDismiss={onDismiss}>
-      <Grid style={{ gap: '16px' }} maxWidth="336px">
-        <Text>{t('This page is located for %network%.', { network: currentChain.name })}</Text>
-        <Text>
+    <Modal title={t('You are in wrong network')} onDismiss={onDismiss}>
+      <div className="w-full">
+        {/* <p>{t('This page is located for %network%.', { network: currentChain.name })}</p> */}
+        <p className="text-sm text-on-surface-primary">
+          {t('This page is located for %network%.', { network: 'Kaia' })}
+        </p>
+        <p className="text-sm text-on-surface-primary">
           {t('You are under %network% now, please switch the network to continue.', { network: chain?.name ?? '' })}
-        </Text>
-        <div style={{ textAlign: 'center' }}>
-          {/* <Image width={184} height={140} src="/images/decorations/3d-pan-bunny.png" alt="check your network" /> */}
+        </p>
+
+        <div className="flex items-center space-x-2 p-3 rounded-xl bg-red-950 mt-4 text-sm text-on-surface-primary">
+          <ChainLogo chainId={chain?.id ?? 0} /> <ArrowForwardIcon color="#D67E0A" />
+          <ChainLogo chainId={chainId} />
+          <span>{t('Switch network to continue.')}</span>
         </div>
-        <Message variant="warning" icon={false} p="8px 12px">
-          <MessageText>
-            <FlexGap gap="12px">
-              <FlexGap gap="6px">
-                <ChainLogo chainId={chain?.id} /> <ArrowForwardIcon color="#D67E0A" />
-                <ChainLogo chainId={chainId} />
-              </FlexGap>
-              <span>{t('Switch network to continue.')}</span>
-            </FlexGap>
-          </MessageText>
-        </Message>
-        {canSwitch ? (
-          <Button isLoading={isLoading} onClick={() => switchNetworkAsync(chainId)}>
-            {isLoading ? <Dots>{switchText}</Dots> : switchText}
-          </Button>
-        ) : (
-          <Message variant="danger">
-            <MessageText>{t('Unable to switch network. Please try it on your wallet')}</MessageText>
-          </Message>
-        )}
-        {isConnected && (
-          <Button
-            onClick={() =>
-              logout().then(() => {
-                setSessionChainId(chainId)
-              })
-            }
-            variant="secondary"
-          >
-            {t('Disconnect Wallet')}
-          </Button>
-        )}
-      </Grid>
+
+        <div className="mt-6 grid grid-cols-2 gap-2">
+          {canSwitch ? (
+            <Button
+              variant="primary"
+              state={isLoading ? 'loading' : 'default'}
+              onClick={() => switchNetworkAsync(chainId)}
+            >
+              {isLoading ? <Dots>{switchText}</Dots> : switchText}
+            </Button>
+          ) : (
+            <p className="text-sm text-red-400">{t('Unable to switch network. Please try it on your wallet')}</p>
+          )}
+          {isConnected && (
+            <Button
+              variant="subtle"
+              onClick={() =>
+                logout().then(() => {
+                  setSessionChainId(chainId)
+                })
+              }
+            >
+              {t('Disconnect Wallet')}
+            </Button>
+          )}
+        </div>
+      </div>
     </Modal>
   )
 }

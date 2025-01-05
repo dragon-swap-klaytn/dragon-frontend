@@ -125,10 +125,10 @@ export const LockCakeForm: React.FC<{
       <FlexGap gap="8px" alignItems="center" height="40px">
         <Box width={40}>
           <TokenImage
-            src={`/images/tokens/${CAKE[ChainId.BSC].address}.png`}
+            src={`/images/tokens/${CAKE[ChainId.KLAYTN].address}.png`}
             height={40}
             width={40}
-            title={CAKE[ChainId.BSC].symbol}
+            title={CAKE[ChainId.KLAYTN].symbol}
           />
         </Box>
         <FlexGap gap="4px">

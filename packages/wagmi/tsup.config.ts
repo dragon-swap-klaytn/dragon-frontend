@@ -9,6 +9,7 @@ export default defineConfig({
     'connectors/trustWallet': 'connectors/trustWallet/index.ts',
     'connectors/kaiaWallet': 'connectors/kaiaWallet/index.ts',
     'connectors/klip': 'connectors/klip/index.ts',
+    'connectors/okxWallet': 'connectors/okxWallet/index.ts',
   },
   treeshake: true,
   splitting: true,

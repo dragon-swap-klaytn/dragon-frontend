@@ -10,14 +10,12 @@ interface GetPerpetualUrlProps {
 
 const mapPerpChain = (chainId: ChainId): string => {
   switch (chainId) {
-    case ChainId.ETHEREUM:
-      return 'ethereum'
     default:
-      return 'bsc'
+      return 'klaytn'
   }
 }
 
-const supportV1Chains: ChainId[] = [ChainId.ETHEREUM]
+const supportV1Chains: ChainId[] = []
 
 export const getPerpetualUrl = ({ chainId, languageCode, isDark }: GetPerpetualUrlProps) => {
   if (!chainId || !languageCode) {

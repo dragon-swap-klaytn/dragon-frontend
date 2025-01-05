@@ -119,7 +119,7 @@ export const CurrencyAmountDisplay = memo(function CurrencyAmountDisplay({
   return (
     <RowBetween {...rest}>
       <Flex flexDirection="row" justifyContent="flex-start">
-        <CurrencyLogo currency={currencyDisplay} useTrustWalletUrl={false} />
+        <CurrencyLogo currency={currencyDisplay} />
         <Text color="textSubtle" ml="0.5em">
           {currencyDisplay.symbol}
         </Text>

@@ -1,8 +1,8 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { memo, useCallback, useMemo } from "react";
 
-import { ButtonMenuItem, Flex, Checkbox } from "@pancakeswap/uikit";
-import { FullWidthButtonMenu } from "./FullWidthButtonMenu";
+import { CheckboxV2 } from "@pancakeswap/uikit";
+import clsx from "clsx";
 
 export const FREQUENCIES = ["12h", "1d", "7d", "30d"];
 
@@ -49,19 +49,24 @@ export const CompoundFrequency = memo(function CompoundFrequency({
   const onToggle = useCallback(() => onToggleCompound(!on), [onToggleCompound, on]);
 
   return (
-    <Flex alignItems="center">
-      <Flex flex="1">
-        <Checkbox scale="sm" checked={on} onChange={onToggle} />
-      </Flex>
-      <Flex flex="6">
-        <FullWidthButtonMenu scale="sm" disabled={!on} activeIndex={compoundIndex} onItemClick={onCompoundChange}>
-          {frequencies.map((frequency) => (
-            <ButtonMenuItem key={frequency.key} variant="tertiary">
-              {frequency.text}
-            </ButtonMenuItem>
-          ))}
-        </FullWidthButtonMenu>
-      </Flex>
-    </Flex>
+    <div className="flex items-center space-x-3">
+      <CheckboxV2 checked={on} onChange={onToggle} />
+
+      <div className="w-full grid grid-cols-4 bg-surface-container-highest rounded-2xl overflow-hidden">
+        {frequencies.map((frequency, i) => (
+          <button
+            key={frequency.key}
+            type="button"
+            className={clsx("py-1", {
+              "text-on-surface-orange bg-surface-orange": compoundIndex === i,
+              "text-on-surface-primary bg-transparent": compoundIndex !== i,
+            })}
+            onClick={() => onCompoundChange(i)}
+          >
+            {frequency.text}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 });

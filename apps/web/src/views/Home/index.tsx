@@ -2,7 +2,6 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Box, PageSection, useMatchBreakpoints } from '@pancakeswap/uikit'
 import useTheme from 'hooks/useTheme'
 import { styled } from 'styled-components'
-import Hero from './components/Hero'
 
 const StyledHeroSection = styled(PageSection)`
   padding-top: 16px;
@@ -59,7 +58,7 @@ const Home: React.FC<React.PropsWithChildren> = () => {
           <img src="/images/dragon_main_banner.png" alt="mainBanner" />
         </section>
       </DragonSwapBanner> */}
-      <StyledHeroSection
+      {/* <StyledHeroSection
         innerProps={{ style: { margin: '0', width: '100%', overflow: 'visible', padding: '16px' } }}
         containerProps={{
           id: 'home-1',
@@ -68,7 +67,7 @@ const Home: React.FC<React.PropsWithChildren> = () => {
         hasCurvedDivider={false}
       >
         <Hero />
-      </StyledHeroSection>
+      </StyledHeroSection> */}
     </Box>
   )
 }

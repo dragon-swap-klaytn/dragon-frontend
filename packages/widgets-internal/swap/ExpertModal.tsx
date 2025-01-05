@@ -22,8 +22,6 @@ export const ExpertModal: React.FC<React.PropsWithChildren<ExpertModalProps>> = 
       title={t("Expert Mode")}
       onBack={() => setShowConfirmExpertModal(false)}
       onDismiss={() => setShowConfirmExpertModal(false)}
-      headerBackground="gradientCardHeader"
-      width={["100%", "100%", "100%", "436px"]}
     >
       <Message variant="warning" mb="24px">
         <Text>

@@ -10,12 +10,12 @@ export const fetchAceTokenPrice = async (tokenAddress: string) => {
   const timestampsString = JSON.stringify([t24, t48, t7d])
   const timestampsArray = JSON.parse(timestampsString)
 
-  const blocks = await getBlocksFromTimestamps(timestampsArray, 'desc', 1000, 'BSC')
+  const blocks = await getBlocksFromTimestamps(timestampsArray, 'desc', 1000, 'KLAYTN')
 
   const result = await fetchedTokenDatas(
-    v3InfoClients[ChainId.BSC],
+    v3InfoClients[ChainId.KLAYTN],
     [tokenAddress.toLowerCase()],
-    blocks?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[ChainId.BSC]),
+    blocks?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[ChainId.KLAYTN]),
   )
 
   return result?.data?.[tokenAddress?.toLowerCase()]?.priceUSD ?? 0

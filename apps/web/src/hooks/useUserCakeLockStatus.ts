@@ -1,7 +1,6 @@
-import { useAccount } from 'wagmi'
-import { ChainId } from '@pancakeswap/chains'
 import { useQuery } from '@tanstack/react-query'
 import { useCakeVaultContract } from 'hooks/useContract'
+import { useAccount } from 'wagmi'
 import { useActiveChainId } from './useActiveChainId'
 
 export const useUserCakeLockStatus = () => {
@@ -18,7 +17,8 @@ export const useUserCakeLockStatus = () => {
       return locked && (lockEndTimeStr === '0' || Date.now() > parseInt(lockEndTimeStr) * 1000)
     },
     {
-      enabled: Boolean(account && chainId === ChainId.BSC),
+      // enabled: Boolean(account && chainId === ChainId.BSC),
+      enabled: false,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,

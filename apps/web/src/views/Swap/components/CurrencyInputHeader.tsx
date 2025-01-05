@@ -24,25 +24,25 @@ const CurrencyInputHeader: React.FC<React.PropsWithChildren<Props>> = memo(
 
     return (
       <div className="w-full">
-        <h4 className="text-xl text-white">{title}</h4>
+        <h4 className="text-xl text-on-surface-primary">{title}</h4>
         <p className="text-[13px] mt-1.5 text-on-surface-tertiary">{subtitle}</p>
 
         <div className="flex w-full justify-end items-center">
           <SettingButton onClick={onRefresh} disabled={syncing || refreshDisabled}>
             <ArrowClockwise
               size={24}
-              className={clsx('text-on-surface-tertiary', {
+              className={clsx('text-gray-50', {
                 'animate-spin-fast': !refreshDisabled && syncing,
               })}
             />
           </SettingButton>
 
           <SettingButton onClick={onPresentTransactionsModal}>
-            <ClockCounterClockwise size={24} className="text-on-surface-tertiary" />
+            <ClockCounterClockwise size={24} className="text-gray-50" />
           </SettingButton>
 
           <NotificationDot show={expertMode || isRoutingSettingChange}>
-            <GlobalSettings color="textSubtle" mr="0" mode={SettingsMode.SWAP_LIQUIDITY} />
+            <GlobalSettings mode={SettingsMode.SWAP_LIQUIDITY} />
           </NotificationDot>
         </div>
       </div>

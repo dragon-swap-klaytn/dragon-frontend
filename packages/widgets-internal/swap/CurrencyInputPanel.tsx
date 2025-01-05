@@ -60,13 +60,10 @@ export function CurrencyInputPanel({
               error={Boolean(error)}
               disabled={disabled}
               loading={loading}
-              className="token-amount-input text-white text-lg"
+              className="token-amount-input text-on-surface-primary text-lg"
               value={value}
               onBlur={onInputBlur}
-              onUserInput={(val) => {
-                onUserInput(val);
-                console.log("__origin?", val);
-              }}
+              onUserInput={onUserInput}
             />
           </AtomBox>
           {bottom}

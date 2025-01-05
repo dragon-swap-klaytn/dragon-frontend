@@ -3,8 +3,6 @@ import {
   ButtonMenu,
   ButtonMenuItem,
   Flex,
-  Message,
-  MessageText,
   Text,
   UserMenu,
   UserMenuDivider,
@@ -75,22 +73,6 @@ const InfoNav: React.FC<{ isStableSwap: boolean }> = ({ isStableSwap }) => {
           <Search />
         </Box>
       </NavWrapper>
-      {chainId === ChainId.BSC && !isStableSwap && (
-        <Box maxWidth="1200px" m="0 auto">
-          <Message my="24px" mx="24px" variant="warning">
-            <MessageText fontSize="17px">
-              <Text color="warning" as="span">
-                {t(
-                  'The markets for some of the newer and low-cap tokens displayed on the v2 info page are highly volatile, and as a result, token information may not be accurate.',
-                )}
-              </Text>
-              <Text color="warning" ml="4px" bold as="span">
-                {t('Before trading any token, please DYOR, and pay attention to the risk scanner.')}
-              </Text>
-            </MessageText>
-          </Message>
-        </Box>
-      )}
     </>
   )
 }

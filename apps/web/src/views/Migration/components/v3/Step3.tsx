@@ -1,13 +1,12 @@
-import { useTheme } from '@pancakeswap/hooks'
-import { AtomBox, AutoColumn, AutoRow, Heading, LinkExternal, Text } from '@pancakeswap/uikit'
-import { Chart } from '@pancakeswap/widgets-internal'
-import { format } from 'd3'
-import { useTranslation } from '@pancakeswap/localization'
 import { ChainId } from '@pancakeswap/chains'
-import { bscTokens, ethereumTokens } from '@pancakeswap/tokens'
+import { useTheme } from '@pancakeswap/hooks'
+import { useTranslation } from '@pancakeswap/localization'
+import { AtomBox, AutoColumn, AutoRow, Heading, LinkExternal, Text } from '@pancakeswap/uikit'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
+import { Chart } from '@pancakeswap/widgets-internal'
 import { LightCard } from 'components/Card'
 import { Bound } from 'config/constants/types'
+import { format } from 'd3'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { PoolState } from 'hooks/v3/types'
 import { tryParsePrice, tryParseTick } from 'hooks/v3/utils'
@@ -43,8 +42,8 @@ const ZOOM = {
 const feeAmount = FeeAmount.MEDIUM
 
 const MOCK_TOKENS = {
-  [ChainId.BSC]: [bscTokens.cake, bscTokens.wbnb],
-  [ChainId.ETHEREUM]: [ethereumTokens.wbtc, ethereumTokens.weth],
+  [ChainId.KLAYTN]: [],
+  [ChainId.KLAYTN_TESTNET]: [],
 }
 
 const distributions = {
@@ -69,7 +68,7 @@ export function Step3() {
   const { theme } = useTheme()
   const { chainId } = useActiveChainId()
 
-  const [token0, token1] = chainId && MOCK_TOKENS[chainId] ? MOCK_TOKENS[chainId] : MOCK_TOKENS[ChainId.BSC]
+  const [token0, token1] = chainId && MOCK_TOKENS[chainId] ? MOCK_TOKENS[chainId] : MOCK_TOKENS[ChainId.KLAYTN]
 
   const formState = useV3FormState()
 
@@ -211,7 +210,14 @@ export function Step3() {
                 content={
                   <>
                     <SelectContainer>
-                      {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUMLOW, FeeAmount.MEDIUM, FeeAmount.HIGH, FeeAmount.HIGHEST].map((_feeAmount) => {
+                      {[
+                        FeeAmount.LOWEST,
+                        FeeAmount.LOW,
+                        FeeAmount.MEDIUMLOW,
+                        FeeAmount.MEDIUM,
+                        FeeAmount.HIGH,
+                        FeeAmount.HIGHEST,
+                      ].map((_feeAmount) => {
                         return (
                           <FeeOption
                             largestUsageFeeTier={feeAmount}
@@ -256,17 +262,6 @@ export function Step3() {
                   data={{ current: MOCK.price, series: MOCK.formattedData as any[] }}
                   dimensions={{ width: 400, height: 200 }}
                   margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
-                  styles={{
-                    area: {
-                      selection: theme.colors.text,
-                    },
-                    brush: {
-                      handle: {
-                        west: theme.colors.failure,
-                        east: theme.colors.secondary,
-                      },
-                    },
-                  }}
                   interactive
                   brushLabels={brushLabelValue}
                   brushDomain={brushDomain}

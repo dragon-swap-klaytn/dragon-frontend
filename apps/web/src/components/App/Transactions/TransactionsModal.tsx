@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { InjectedModalProps, Modal, Text } from '@pancakeswap/uikit'
+import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
 import Button from 'components/Common/Button'
 import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
@@ -12,9 +12,9 @@ import { useAccount } from 'wagmi'
 import ConnectWalletButton from '../../ConnectWalletButton'
 import Transaction from './Transaction'
 
-function renderTransactions(transactions: TransactionDetails[], chainId: number) {
+export function renderTransactions(transactions: TransactionDetails[], chainId: number) {
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-3 max-h-80 overflow-y-auto">
       {transactions.map((tx) => {
         return <Transaction key={tx.hash + tx.addedTime} tx={tx} chainId={chainId} />
       })}
@@ -41,15 +41,7 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
         <>
           {hasTransactions ? (
             <>
-              <div className="flex items-center space-x-2 justify-between">
-                <h4 className="text-sm">{t('Recent Transactions')}</h4>
-
-                <Button variant="primary" size="xs" onClick={clearAllTransactionsCallback}>
-                  {t('clear all')}
-                </Button>
-              </div>
-
-              <div className="mt-7">
+              <div>
                 {Object.entries(sortedRecentTransactions).map(([chainId, transactions]) => {
                   const chainIdNumber = Number(chainId)
                   const groupedTransactions = groupBy(Object.values(transactions), (trxDetails) =>
@@ -57,19 +49,23 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
                   )
 
                   const confirmed = groupedTransactions.true ?? []
-                  const pending = groupedTransactions.false ?? []
+                  // const pending = groupedTransactions.false ?? []
 
                   return (
                     <div key={`transactions#${chainIdNumber}`}>
-                      {renderTransactions(pending, chainIdNumber)}
+                      {/* {renderTransactions(pending, chainIdNumber)} */}
                       {renderTransactions(confirmed, chainIdNumber)}
                     </div>
                   )
                 })}
               </div>
+
+              <Button scale="sm" onClick={clearAllTransactionsCallback} variant="subtle" fullWidth className="mt-7">
+                {t('Clear all')}
+              </Button>
             </>
           ) : (
-            <Text>{t('No recent transactions')}</Text>
+            <p className="text-center py-6 text-on-surface-primary">{t('No recent transactions')}</p>
           )}
         </>
       ) : (

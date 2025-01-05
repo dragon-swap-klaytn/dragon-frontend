@@ -42,7 +42,7 @@ export default function CustomSelect({
     <Listbox value={selectedOption} onChange={onSelect} multiple={multiple}>
       <ListboxButton
         className={clsx(
-          'relative w-full h-9 flex justify-between items-center space-x-2 rounded-full bg-surface-container-highest px-4 py-2 text-base text-white',
+          'relative w-full h-9 flex justify-between items-center space-x-2 rounded-full bg-surface-container-highest px-4 py-2 text-base text-on-surface-primary',
           'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25',
           'hover:bg-overlay-surface-hover-light',
         )}
@@ -52,11 +52,11 @@ export default function CustomSelect({
             ? selectedOption && selectedOption?.length > 0
               ? (prefix ? `${prefix}: ` : '') + selectedOption.map((s) => t(s.label)).join(', ')
               : placeholder || 'Select...'
-            : selectedOption
+            : selectedOption && 'label' in selectedOption
             ? (prefix ? `${prefix}: ` : '') + t(selectedOption?.label)
             : placeholder || 'Select...'}
         </span>
-        <CaretDown className="group pointer-events-none size-4 text-white" aria-hidden="true" />
+        <CaretDown className="group pointer-events-none size-4 text-on-surface-primary" aria-hidden="true" />
       </ListboxButton>
       <ListboxOptions
         anchor="bottom"
@@ -72,8 +72,8 @@ export default function CustomSelect({
             value={opt}
             className="group flex cursor-default items-center gap-2 rounded-3xl py-1.5 px-3 select-none data-[focus]:bg-white/10"
           >
-            <Check className="invisible size-4 text-white group-data-[selected]:visible" />
-            <div className="text-sm/6 text-white">{t(opt.label)}</div>
+            <Check className="invisible size-4 text-on-surface-primary group-data-[selected]:visible" />
+            <div className="text-sm/6 text-on-surface-primary">{t(opt.label)}</div>
           </ListboxOption>
         ))}
       </ListboxOptions>

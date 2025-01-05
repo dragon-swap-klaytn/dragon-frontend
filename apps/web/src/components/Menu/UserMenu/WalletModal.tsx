@@ -1,20 +1,8 @@
-import { parseEther } from 'viem'
-import {
-  ButtonMenu,
-  ButtonMenuItem,
-  CloseIcon,
-  Heading,
-  IconButton,
-  InjectedModalProps,
-  ModalBody,
-  ModalWrapper,
-  ModalHeader as UIKitModalHeader,
-  ModalTitle,
-} from '@pancakeswap/uikit'
-import { useAccount, useBalance } from 'wagmi'
-import { useState, useCallback } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
-import { styled } from 'styled-components'
+import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
+import clsx from 'clsx'
+import { useCallback, useState } from 'react'
+import { useAccount, useBalance } from 'wagmi'
 import WalletInfo from './WalletInfo'
 import WalletTransactions from './WalletTransactions'
 import WalletWrongNetwork from './WalletWrongNetwork'
@@ -29,18 +17,6 @@ interface WalletModalProps extends InjectedModalProps {
   initialView?: WalletView
 }
 
-export const LOW_NATIVE_BALANCE = parseEther('0.002', 'wei')
-
-const ModalHeader = styled(UIKitModalHeader)`
-  background: ${({ theme }) => theme.colors.gradientBubblegum};
-`
-
-const Tabs = styled.div`
-  background-color: ${({ theme }) => theme.colors.dropdown};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.cardBorder};
-  padding: 16px 24px;
-`
-
 interface TabsComponentProps {
   view: WalletView
   handleClick: (newIndex: number) => void
@@ -50,12 +26,29 @@ const TabsComponent: React.FC<React.PropsWithChildren<TabsComponentProps>> = ({ 
   const { t } = useTranslation()
 
   return (
-    <Tabs>
-      <ButtonMenu scale="sm" variant="subtle" onItemClick={handleClick} activeIndex={view} fullWidth>
-        <ButtonMenuItem>{t('Wallet')}</ButtonMenuItem>
-        <ButtonMenuItem>{t('Transactions')}</ButtonMenuItem>
-      </ButtonMenu>
-    </Tabs>
+    <div className="grid grid-cols-2 rounded-[20px] overflow-hidden text-sm">
+      <button
+        type="button"
+        className={clsx('hover:opacity-70 py-2', {
+          'bg-surface-orange': view === 0,
+          'bg-surface-container-highest text-on-surface-tertiary': view !== 0,
+        })}
+        onClick={() => handleClick(0)}
+      >
+        {t('Wallet')}
+      </button>
+
+      <button
+        type="button"
+        className={clsx('hover:opacity-70 py-2', {
+          'bg-surface-orange': view === 1,
+          'bg-surface-container-highest text-on-surface-tertiary': view !== 1,
+        })}
+        onClick={() => handleClick(1)}
+      >
+        {t('Transactions')}
+      </button>
+    </div>
   )
 }
 
@@ -67,31 +60,19 @@ const WalletModal: React.FC<React.PropsWithChildren<WalletModalProps>> = ({
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const { data, isFetched } = useBalance({ address: account })
-  const hasLowNativeBalance = isFetched && data && data.value <= LOW_NATIVE_BALANCE
 
   const handleClick = useCallback((newIndex: number) => {
     setView(newIndex)
   }, [])
 
   return (
-    <ModalWrapper minWidth="360px">
-      <ModalHeader>
-        <ModalTitle>
-          <Heading>{t('Your Wallet')}</Heading>
-        </ModalTitle>
-        <IconButton variant="text" onClick={onDismiss}>
-          <CloseIcon width="24px" color="text" />
-        </IconButton>
-      </ModalHeader>
+    <Modal title={t('Your Wallet')} onDismiss={onDismiss} maxWidth="max-w-lg">
       {view !== WalletView.WRONG_NETWORK && <TabsComponent view={view} handleClick={handleClick} />}
-      <ModalBody p="24px" width="100%">
-        {view === WalletView.WALLET_INFO && (
-          <WalletInfo hasLowNativeBalance={hasLowNativeBalance} switchView={handleClick} onDismiss={onDismiss} />
-        )}
-        {view === WalletView.TRANSACTIONS && <WalletTransactions onDismiss={onDismiss} />}
-        {view === WalletView.WRONG_NETWORK && <WalletWrongNetwork onDismiss={onDismiss} />}
-      </ModalBody>
-    </ModalWrapper>
+
+      {view === WalletView.WALLET_INFO && <WalletInfo switchView={handleClick} onDismiss={onDismiss} />}
+      {view === WalletView.TRANSACTIONS && <WalletTransactions />}
+      {view === WalletView.WRONG_NETWORK && <WalletWrongNetwork onDismiss={onDismiss} />}
+    </Modal>
   )
 }
 

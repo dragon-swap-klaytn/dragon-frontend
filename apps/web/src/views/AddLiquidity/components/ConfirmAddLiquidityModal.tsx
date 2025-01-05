@@ -1,11 +1,10 @@
-import React, { useCallback } from 'react'
-import { Currency, CurrencyAmount, Fraction, Percent, Token } from '@pancakeswap/sdk'
-import { InjectedModalProps, Button } from '@pancakeswap/uikit'
-import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
 import { useTranslation } from '@pancakeswap/localization'
+import { Currency, CurrencyAmount, Fraction, Percent, Token } from '@pancakeswap/sdk'
+import { ButtonV2, InjectedModalProps } from '@pancakeswap/uikit'
+import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import React, { useCallback } from 'react'
 import { Field } from 'state/burn/actions'
-import _toNumber from 'lodash/toNumber'
 import { AddLiquidityModalHeader, PairDistribution } from './common'
 
 interface ConfirmAddLiquidityModalProps {
@@ -24,7 +23,6 @@ interface ConfirmAddLiquidityModalProps {
   poolTokenPercentage?: Percent
   liquidityMinted?: CurrencyAmount<Token>
   currencyToAdd?: Token
-  isStable?: boolean
 }
 
 const ConfirmAddLiquidityModal: React.FC<
@@ -46,26 +44,8 @@ const ConfirmAddLiquidityModal: React.FC<
   poolTokenPercentage,
   liquidityMinted,
   currencyToAdd,
-  isStable,
 }) => {
   const { t } = useTranslation()
-
-  let percent = 0.5
-
-  // Calculate distribution percentage for display
-  if ((isStable && parsedAmounts[Field.CURRENCY_A]) || parsedAmounts[Field.CURRENCY_B]) {
-    const amountCurrencyA = parsedAmounts[Field.CURRENCY_A]
-      ? _toNumber(parsedAmounts[Field.CURRENCY_A]?.toSignificant(6))
-      : 0
-    // If there is no price fallback to compare only amounts
-    const currencyAToCurrencyB = (price && parseFloat(price?.toSignificant(4))) || 1
-    const normalizedAmountCurrencyA = currencyAToCurrencyB * amountCurrencyA
-    const amountCurrencyB = parsedAmounts[Field.CURRENCY_B]
-      ? _toNumber(parsedAmounts[Field.CURRENCY_B]?.toSignificant(6))
-      : 0
-
-    percent = normalizedAmountCurrencyA / (normalizedAmountCurrencyA + amountCurrencyB)
-  }
 
   const modalHeader = useCallback(() => {
     return (
@@ -79,7 +59,6 @@ const ConfirmAddLiquidityModal: React.FC<
       >
         <PairDistribution
           title={t('Input')}
-          percent={percent}
           currencyA={currencies[Field.CURRENCY_A]}
           currencyAValue={parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
           currencyB={currencies[Field.CURRENCY_B]}
@@ -87,13 +66,13 @@ const ConfirmAddLiquidityModal: React.FC<
         />
       </AddLiquidityModalHeader>
     )
-  }, [allowedSlippage, percent, currencies, liquidityMinted, noLiquidity, parsedAmounts, poolTokenPercentage, price, t])
+  }, [allowedSlippage, currencies, liquidityMinted, noLiquidity, parsedAmounts, poolTokenPercentage, price, t])
 
   const modalBottom = useCallback(() => {
     return (
-      <Button width="100%" onClick={onAdd} mt="20px">
+      <ButtonV2 variant="primary" onClick={onAdd} className="mt-6" fullWidth>
         {noLiquidity ? t('Create Pair & Supply') : t('Confirm Supply')}
-      </Button>
+      </ButtonV2>
     )
   }, [noLiquidity, onAdd, t])
 

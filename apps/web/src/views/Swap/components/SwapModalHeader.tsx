@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Currency, CurrencyAmount, Percent, TradeType } from '@pancakeswap/sdk'
+import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/sdk'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import { ArrowCircleDown } from '@phosphor-icons/react'
@@ -7,22 +7,19 @@ import Button from 'components/Common/Button'
 import Notification from 'components/Common/Notification'
 import TruncatedText from 'components/Common/TruncatedText'
 import { CurrencyLogo } from 'components/Logo'
-import { ReactElement, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Field } from 'state/swap/actions'
-import { warningSeverity } from 'utils/exchange'
 
 export default function SwapModalHeader({
   inputAmount,
   outputAmount,
   tradeType,
   currencyBalances,
-  priceImpactWithoutFee,
   slippageAdjustedAmounts,
   isEnoughInputBalance,
   recipient,
   showAcceptChanges,
   onAcceptChanges,
-  allowedSlippage,
 }: {
   inputAmount: CurrencyAmount<Currency>
   outputAmount: CurrencyAmount<Currency>
@@ -31,24 +28,13 @@ export default function SwapModalHeader({
     OUTPUT?: CurrencyAmount<Currency>
   }
   tradeType: TradeType
-  priceImpactWithoutFee?: Percent
   slippageAdjustedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
   isEnoughInputBalance?: boolean
   recipient?: string
   showAcceptChanges: boolean
   onAcceptChanges: () => void
-  allowedSlippage: number | ReactElement
 }) {
   const { t } = useTranslation()
-
-  const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
-
-  const inputTextColor =
-    showAcceptChanges && tradeType === TradeType.EXACT_OUTPUT && isEnoughInputBalance
-      ? 'primary'
-      : tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance
-      ? 'failure'
-      : 'text'
 
   const amount =
     tradeType === TradeType.EXACT_INPUT
@@ -86,9 +72,9 @@ export default function SwapModalHeader({
 
       {showAcceptChanges ? (
         <div className="py-4 px-6 w-full rounded-[20px] bg-surface-container-highest mt-4">
-          <p className="text-sm text-center">{t('Update with a new quote?')}</p>
+          <p className="text-sm text-center text-on-surface-primary">{t('Update with a new quote?')}</p>
 
-          <Button variant="primary" fullWidth onClick={onAcceptChanges} size="sm" className="mt-4">
+          <Button variant="primary" fullWidth onClick={onAcceptChanges} scale="sm" className="mt-4">
             {t('Accept')}
           </Button>
         </div>
@@ -99,6 +85,8 @@ export default function SwapModalHeader({
           <p>{t('Insufficient input token balance. Your transaction may fail.')}</p>
         </Notification>
       )}
+
+      <p className="text-center text-on-surface-primary tetx-sm mt-4">{tradeInfoText}</p>
 
       {recipient ? (
         <div className="flex flex-col space-y-3 mt-4 bg-surface-container-highest">
@@ -113,9 +101,9 @@ export default function SwapModalHeader({
 
 function TokenAmountRow({ amount, currency }: { amount: CurrencyAmount<Currency>; currency: Currency }) {
   return (
-    <div className="flex items-center space-x-2 text-sm justify-between w-full rounded-[20px] p-2 bg-surface-container-highest">
+    <div className="flex items-center space-x-2 text-sm justify-between w-full rounded-[20px] p-2 bg-surface-container-highest text-on-surface-primary">
       <div className="flex items-center space-x-2">
-        <CurrencyLogo currency={currency ?? amount.currency} size="28px" />
+        <CurrencyLogo currency={currency ?? amount.currency} size={28} />
         <span>{amount.currency.symbol}</span>
       </div>
 

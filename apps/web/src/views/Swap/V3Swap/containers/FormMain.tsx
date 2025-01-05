@@ -125,7 +125,7 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
         onPercentInput={handlePercentInput}
         onMax={handleMaxInput}
         onCurrencySelect={handleInputSelect}
-        otherCurrency={outputCurrency}
+        // otherCurrency={outputCurrency}
         commonBasesType={CommonBasesType.SWAP_LIMITORDER}
       />
 
@@ -143,7 +143,7 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
         currency={outputCurrency}
         onUserInput={handleTypeOutput}
         onCurrencySelect={handleOutputSelect}
-        otherCurrency={outputCurrency}
+        // otherCurrency={outputCurrency}
         commonBasesType={CommonBasesType.SWAP_LIMITORDER}
       />
 
@@ -154,7 +154,9 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
       ) : null}
 
       <Recipient />
+
       {pricingAndSlippage}
+
       {swapCommitButton}
     </div>
   )

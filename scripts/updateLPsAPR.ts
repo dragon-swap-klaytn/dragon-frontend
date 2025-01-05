@@ -1,15 +1,15 @@
-import fs from 'fs'
-import os from 'os'
-import { request, gql } from 'graphql-request'
-import BigNumber from 'bignumber.js'
-import chunk from 'lodash/chunk'
-import _toLower from 'lodash/toLower'
-import dayjs from 'dayjs'
 import { ChainId, getChainName } from '@pancakeswap/chains'
 import { SerializedFarmConfig } from '@pancakeswap/farms'
+import BigNumber from 'bignumber.js'
+import dayjs from 'dayjs'
+import fs from 'fs'
+import { gql, request } from 'graphql-request'
+import chunk from 'lodash/chunk'
+import _toLower from 'lodash/toLower'
+import os from 'os'
 import { BlockResponse } from '../apps/web/src/components/SubgraphHealthIndicator'
 import { BLOCKS_CLIENT_WITH_CHAIN } from '../apps/web/src/config/constants/endpoints'
-import { stableSwapClient, infoClientWithChain } from '../apps/web/src/utils/graphql'
+import { infoClientWithChain, stableSwapClient } from '../apps/web/src/utils/graphql'
 
 interface SingleFarmResponse {
   id: string
@@ -33,7 +33,7 @@ const getWeekAgoTimestamp = () => {
 const LP_HOLDERS_FEE = 0.0017
 const WEEKS_IN_A_YEAR = 52.1429
 
-const getBlockAtTimestamp = async (timestamp: number, chainId = ChainId.BSC) => {
+const getBlockAtTimestamp = async (timestamp: number, chainId = ChainId.KLAYTN) => {
   try {
     const { blocks } = await request<BlockResponse>(
       BLOCKS_CLIENT_WITH_CHAIN[chainId],
@@ -172,7 +172,8 @@ function splitNormalAndStableFarmsReducer(result: SplitFarmResult, farm: any): S
 }
 // ====
 
-const FETCH_CHAIN_ID = [ChainId.BSC, ChainId.ETHEREUM]
+// const FETCH_CHAIN_ID = [ChainId.BSC, ChainId.ETHEREUM]
+const FETCH_CHAIN_ID = []
 const fetchAndUpdateLPsAPR = async () => {
   Promise.all(
     FETCH_CHAIN_ID.map(async (chainId) => {

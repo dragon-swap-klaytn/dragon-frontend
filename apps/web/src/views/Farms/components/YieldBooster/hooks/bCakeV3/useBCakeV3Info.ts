@@ -1,7 +1,6 @@
 import { bCakeSupportedChainId } from '@pancakeswap/farms'
 import { useQuery } from '@tanstack/react-query'
 import BN from 'bignumber.js'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useBCakeFarmBoosterV3Contract, useBCakeFarmBoosterVeCakeContract, useMasterchefV3 } from 'hooks/useContract'
 import _toNumber from 'lodash/toNumber'
@@ -9,7 +8,7 @@ import { useMemo } from 'react'
 import { useCakeLockStatus } from 'views/CakeStaking/hooks/useVeCakeUserInfo'
 import { CakeLockStatus } from 'views/CakeStaking/types'
 import { useContractRead } from 'wagmi'
-import { PRECISION_FACTOR, getUserMultiplier } from './multiplierAPI'
+import { PRECISION_FACTOR } from './multiplierAPI'
 
 export const USER_ESTIMATED_MULTIPLIER = 2
 

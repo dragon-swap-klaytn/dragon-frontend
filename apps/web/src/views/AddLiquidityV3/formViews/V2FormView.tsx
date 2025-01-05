@@ -1,26 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Pair, Percent } from '@pancakeswap/sdk'
-import {
-  AutoColumn,
-  Box,
-  Button,
-  DynamicSection,
-  Flex,
-  LinkExternal,
-  Message,
-  MessageText,
-  ScanLink,
-  Text,
-} from '@pancakeswap/uikit'
+import { Button, ExternalLink, Notification } from '@pancakeswap/uikit'
 import { useIsExpertMode } from '@pancakeswap/utils/user'
 import { ReactNode, useCallback, useMemo } from 'react'
-import { ChainLinkSupportChains } from 'state/info/constant'
 
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { CommonBasesType } from 'components/SearchModal/types'
-import { Bound } from 'config/constants/types'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { Field } from 'state/mint/actions'
@@ -28,11 +15,9 @@ import { getBlockExploreLink } from 'utils'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
 import { LP2ChildrenProps } from 'views/AddLiquidity'
 
-import { InfoBox } from '@pancakeswap/widgets-internal'
 import { useTheme } from 'styled-components'
+import { SectionTitle } from 'views/AddLiquidityV3'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
-import { HideMedium, MediumOnly, RightContainer } from './V3FormView'
-import RangeSelector from './V3FormView/components/RangeSelector'
 
 export default function V2FormView({
   formattedAmounts,
@@ -85,7 +70,7 @@ export default function V2FormView({
     buttons = <CommitButton />
   } else {
     buttons = (
-      <AutoColumn gap="md">
+      <div className="flex flex-col items-center space-y-3">
         <ApproveLiquidityTokens
           approvalA={approvalA}
           approvalB={approvalB}
@@ -101,29 +86,39 @@ export default function V2FormView({
           shouldShowApprovalGroup={shouldShowApprovalGroup}
         />
         {isOneWeiAttack ? (
-          <Message variant="warning">
-            <Flex flexDirection="column">
-              <MessageText>
-                {t(
-                  'Adding liquidity to this V2 pair is currently not available on PancakeSwap UI. Please follow the instructions to resolve it using blockchain explorer.',
-                )}
-              </MessageText>
-              <LinkExternal
-                href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-cant-i-add-liquidity-to-a-pair-i-just-created"
-                mt="0.25rem"
-              >
+          <Notification variant="caution">
+            <p>
+              {t(
+                'Adding liquidity to this V2 pair is currently not available on PancakeSwap UI. Please follow the instructions to resolve it using blockchain explorer.',
+              )}
+            </p>
+
+            <div className="flex flex-col items-start space-y-0.5 mt-2">
+              <ExternalLink href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-cant-i-add-liquidity-to-a-pair-i-just-created">
                 {t('Learn more how to fix')}
-              </LinkExternal>
-              <ScanLink
-                useBscCoinFallback={ChainLinkSupportChains.includes(chainId)}
-                href={pairExplorerLink}
-                mt="0.25rem"
-              >
-                {t('View pool on explorer')}
-              </ScanLink>
-            </Flex>
-          </Message>
+              </ExternalLink>
+
+              <ExternalLink href={pairExplorerLink || ''}>{t('View pool on explorer')}</ExternalLink>
+            </div>
+          </Notification>
         ) : null}
+
+        <Notification variant="caution">
+          <p>
+            {t(
+              'Adding liquidity to this V2 pair is currently not available on PancakeSwap UI. Please follow the instructions to resolve it using blockchain explorer.',
+            )}
+          </p>
+
+          <div className="flex flex-col items-start space-y-0.5 mt-2">
+            <ExternalLink href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-cant-i-add-liquidity-to-a-pair-i-just-created">
+              {t('Learn more how to fix')}
+            </ExternalLink>
+
+            <ExternalLink href={pairExplorerLink || ''}>{t('View pool on explorer')}</ExternalLink>
+          </div>
+        </Notification>
+
         <CommitButton
           variant={buttonDisabled ? 'danger' : 'primary'}
           onClick={() => {
@@ -135,40 +130,36 @@ export default function V2FormView({
         >
           {errorText || t('Add')}
         </CommitButton>
-      </AutoColumn>
+      </div>
     )
   }
 
   return (
-    <>
-      <AutoColumn>
-        <Text mb="8px" bold fontSize="12px" textTransform="uppercase" color="secondary">
-          {t('Deposit Amount')}
-        </Text>
+    <div className="mt-3">
+      <SectionTitle>{t('Deposit Amount')}</SectionTitle>
 
-        <Box mb="8px">
-          <CurrencyInputPanel
-            maxAmount={maxAmounts[Field.CURRENCY_A]}
-            showUSDPrice
-            onMax={() => {
-              onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-            }}
-            onPercentInput={(percent) => {
-              if (maxAmounts[Field.CURRENCY_A]) {
-                onFieldAInput(maxAmounts[Field.CURRENCY_A]?.multiply(new Percent(percent, 100)).toExact() ?? '')
-              }
-            }}
-            disableCurrencySelect
-            value={formattedAmounts[Field.CURRENCY_A] ?? '0'}
-            onUserInput={onFieldAInput}
-            showQuickInputButton
-            showMaxButton
-            currency={currencies[Field.CURRENCY_A]}
-            id="add-liquidity-input-tokena"
-            showCommonBases
-            commonBasesType={CommonBasesType.LIQUIDITY}
-          />
-        </Box>
+      <div className="mt-2 mb-3 flex flex-col space-y-2">
+        <CurrencyInputPanel
+          maxAmount={maxAmounts[Field.CURRENCY_A]}
+          showUSDPrice
+          onMax={() => {
+            onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+          }}
+          onPercentInput={(percent) => {
+            if (maxAmounts[Field.CURRENCY_A]) {
+              onFieldAInput(maxAmounts[Field.CURRENCY_A]?.multiply(new Percent(percent, 100)).toExact() ?? '')
+            }
+          }}
+          disableCurrencySelect
+          value={formattedAmounts[Field.CURRENCY_A] ?? '0'}
+          onUserInput={onFieldAInput}
+          showQuickInputButton
+          showMaxButton
+          currency={currencies[Field.CURRENCY_A]}
+          id="add-liquidity-input-tokena"
+          showCommonBases
+          commonBasesType={CommonBasesType.LIQUIDITY}
+        />
 
         <CurrencyInputPanel
           showUSDPrice
@@ -191,42 +182,9 @@ export default function V2FormView({
           showCommonBases
           commonBasesType={CommonBasesType.LIQUIDITY}
         />
-      </AutoColumn>
-      <HideMedium>{buttons}</HideMedium>
+      </div>
 
-      <RightContainer>
-        <AutoColumn pt="12px" gap="24px">
-          <DynamicSection disabled gap="12px">
-            <InfoBox
-              message={t('Your position will appear here.')}
-              icon={
-                <img
-                  src={`/images/decorations/dgs-${isDark ? 'white' : 'dark'}.png`}
-                  style={{ width: '80px', height: '80px' }}
-                  alt="dragon logo"
-                />
-              }
-              // icon={<BunnyKnownPlaceholder />}
-            />
-            <RangeSelector
-              getDecrementLower={mockFn}
-              getIncrementLower={mockFn}
-              getDecrementUpper={mockFn}
-              getIncrementUpper={mockFn}
-              onLeftRangeInput={mockFn}
-              onRightRangeInput={mockFn}
-              currencyA={currencies[Field.CURRENCY_A]}
-              currencyB={currencies[Field.CURRENCY_B]}
-              feeAmount={0}
-              ticksAtLimit={{
-                [Bound.LOWER]: false,
-                [Bound.UPPER]: false,
-              }}
-            />
-          </DynamicSection>
-          <MediumOnly>{buttons}</MediumOnly>
-        </AutoColumn>
-      </RightContainer>
-    </>
+      {buttons}
+    </div>
   )
 }

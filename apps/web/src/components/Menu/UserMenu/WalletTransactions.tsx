@@ -1,23 +1,13 @@
-import { styled } from 'styled-components'
-import { Box, Button, Flex, Text } from '@pancakeswap/uikit'
-import { useAppDispatch } from 'state'
-import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { clearAllTransactions } from 'state/transactions/actions'
+import { renderTransactions } from 'components/App/Transactions/TransactionsModal'
+import Button from 'components/Common/Button'
+import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
-import TransactionRow from './TransactionRow'
-import { chains } from '../../../utils/wagmi'
+import { useAppDispatch } from 'state'
+import { clearAllTransactions } from 'state/transactions/actions'
+import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
 
-const TransactionsContainer = styled(Box)`
-  max-height: 300px;
-  overflow-y: auto;
-`
-
-interface WalletTransactionsProps {
-  onDismiss: () => void
-}
-
-const WalletTransactions: React.FC<React.PropsWithChildren<WalletTransactionsProps>> = ({ onDismiss }) => {
+const WalletTransactions: React.FC<React.PropsWithChildren> = () => {
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
   const sortedTransactions = useAllSortedRecentTransactions()
@@ -29,43 +19,40 @@ const WalletTransactions: React.FC<React.PropsWithChildren<WalletTransactionsPro
   }
 
   return (
-    <Box minHeight="120px">
-      <Flex alignItems="center" justifyContent="space-between" mb="24px">
-        <Text color="secondary" fontSize="12px" textTransform="uppercase" fontWeight="bold">
-          {t('Recent Transactions')}
-        </Text>
-        {hasTransactions && (
-          <Button scale="sm" onClick={handleClearAll} variant="text" px="0">
+    <div className="mt-4">
+      {hasTransactions && (
+        <div className="flex items-center space-x-2 px-2 w-full justify-between">
+          <h4 className="text-sm text-on-surface-primary font-bold">{t('Recent Transactions')}</h4>
+
+          <Button scale="sm" onClick={handleClearAll} variant="subtle">
             {t('Clear all')}
           </Button>
-        )}
-      </Flex>
+        </div>
+      )}
+
       {hasTransactions ? (
-        <TransactionsContainer>
+        <div className="mt-7 px-2">
           {Object.entries(sortedTransactions).map(([chainId, transactions]) => {
             const chainIdNumber = Number(chainId)
+            const groupedTransactions = groupBy(Object.values(transactions), (trxDetails) =>
+              Boolean(trxDetails.receipt),
+            )
+
+            const confirmed = groupedTransactions.true ?? []
+            // const pending = groupedTransactions.false ?? []
+
             return (
-              <Box key={chainId}>
-                <Text fontSize="12px" color="textSubtle" mb="4px">
-                  {chains.find((c) => c.id === chainIdNumber)?.name ?? 'Unknown network'}
-                </Text>
-                {Object.values(transactions).map((txn) => (
-                  <TransactionRow
-                    key={txn.hash}
-                    txn={txn}
-                    chainId={chainIdNumber}
-                    type={txn.type}
-                    onDismiss={onDismiss}
-                  />
-                ))}
-              </Box>
+              <div key={`wallet:transactions#${chainIdNumber}`}>
+                {/* {renderTransactions(pending, chainIdNumber)} */}
+                {renderTransactions(confirmed, chainIdNumber)}
+              </div>
             )
           })}
-        </TransactionsContainer>
+        </div>
       ) : (
-        <Text textAlign="center">{t('No recent transactions')}</Text>
+        <p className="text-center py-6 text-on-surface-primary">{t('No recent transactions')}</p>
       )}
-    </Box>
+    </div>
   )
 }
 

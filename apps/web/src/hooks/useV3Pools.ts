@@ -8,6 +8,7 @@ import { POOLS_FAST_REVALIDATE, POOLS_SLOW_REVALIDATE } from 'config/pools'
 import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
 
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { getPoolTicks } from './v3/useAllV3TicksQuery'
 
 export interface V3PoolsHookParams {
@@ -68,15 +69,17 @@ export function useV3CandidatePoolsWithoutTicks(
   currencyB?: Currency,
   options?: V3PoolsHookParams,
 ) {
+  const { isWrongNetwork } = useActiveChainId()
+
   const key = useMemo(() => {
-    if (!currencyA || !currencyB || currencyA.wrapped.equals(currencyB.wrapped)) {
+    if (!currencyA || !currencyB || currencyA.wrapped.equals(currencyB.wrapped) || !!isWrongNetwork) {
       return ''
     }
     const symbols = currencyA.wrapped.sortsBefore(currencyB.wrapped)
       ? [currencyA.symbol, currencyB.symbol]
       : [currencyB.symbol, currencyA.symbol]
     return [...symbols, currencyA.chainId].join('_')
-  }, [currencyA, currencyB])
+  }, [currencyA, currencyB, isWrongNetwork])
 
   const refetchInterval = useMemo(() => {
     if (!currencyA?.chainId) {

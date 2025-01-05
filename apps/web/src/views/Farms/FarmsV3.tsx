@@ -1,4 +1,3 @@
-import { ChainId } from '@pancakeswap/chains'
 import {
   DeserializedFarm,
   FarmV3DataWithPriceAndUserInfo,
@@ -38,7 +37,6 @@ import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFarms, usePollFarmsWithUserData } from 'state/farms/hooks'
 import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
-import { useCakeVaultUserData } from 'state/pools/hooks'
 import { ViewMode } from 'state/user/actions'
 import { useUserFarmStakedOnly, useUserFarmsViewMode } from 'state/user/hooks'
 import { keyframes, styled } from 'styled-components'
@@ -48,7 +46,6 @@ import { getStakedFarms } from 'views/Farms/utils/getStakedFarms'
 import { useAccount } from 'wagmi'
 import Table from './components/FarmTable/FarmTable'
 import { FarmTypesFilter } from './components/FarmTypesFilter'
-import { BCakeBoosterCard } from './components/YieldBooster/components/bCakeV3/BCakeBoosterCard'
 import { FarmsV3Context } from './context'
 
 const ControlContainer = styled.div`
@@ -212,23 +209,8 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
       ...farmsV3.map((f) => ({ ...f, version: 3 } as V3FarmWithoutStakedValue)),
       ...farmsV2.map((f) => ({ ...f, version: 2 } as V2FarmWithoutStakedValue)),
     ]
-    if (chainId !== ChainId.BSC) {
-      return farms
-    }
-    const sableFarm = farms.find((f) => f.version === 2 && f.pid === 167)
-    const v3TargetFarm = farms.find((f) => f.version === 3 && f.pid === 60)
-    if (!sableFarm || !v3TargetFarm) {
-      return farms
-    }
-    const sableFarmIndex = farms.indexOf(sableFarm)
-    const targetIndex = farms.indexOf(v3TargetFarm)
-    return [
-      ...farms.slice(0, targetIndex + 1),
-      sableFarm,
-      ...farms.slice(targetIndex + 1, sableFarmIndex),
-      ...farms.slice(sableFarmIndex + 1),
-    ]
-  }, [farmsV2, farmsV3, chainId])
+    return farms
+  }, [farmsV2, farmsV3])
 
   const cakePrice = useCakePrice()
 
@@ -245,8 +227,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const isArchived = pathname.includes('archived')
   const isInactive = pathname.includes('history')
   const isActive = !isInactive && !isArchived
-
-  useCakeVaultUserData()
 
   usePollFarmsWithUserData()
 
@@ -312,7 +292,7 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
 
       return filterFarmsByQuery(farmsToDisplayWithAPR, query)
     },
-    [query, isActive, chainId, cakePrice, regularCakePerBlock, mockApr],
+    [query, mockApr, chainId, cakePrice, isActive, regularCakePerBlock],
   )
 
   const handleChangeQuery = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -458,12 +438,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
               </NextLinkFromReactRouter>
               */}
             </Box>
-
-            {(chainId === ChainId.BSC || chainId === ChainId.BSC_TESTNET) && (
-              <Box>
-                <BCakeBoosterCard />
-              </Box>
-            )}
           </FarmFlexWrapper>
         </Flex>
       </PageHeader>

@@ -1,13 +1,10 @@
+import { FarmWithPrices, SerializedFarmConfig } from '@pancakeswap/farms'
 import BN from 'bignumber.js'
 import { formatUnits } from 'viem'
-import { SerializedFarmConfig, FarmWithPrices } from '@pancakeswap/farms'
-import { CurrencyAmount, Pair } from '@pancakeswap/sdk'
-import { ChainId } from '@pancakeswap/chains'
-import { BUSD, CAKE } from '@pancakeswap/tokens'
 import { farmFetcher } from './helper'
 import { FarmKV, FarmResult } from './kv'
 import { updateLPsAPR } from './lpApr'
-import { bscClient, bscTestnetClient } from './provider'
+import { bscClient } from './provider'
 
 // copy from src/config, should merge them later
 const BSC_BLOCK_TIME = 3
@@ -36,66 +33,6 @@ export const getFarmCakeRewardApr = (farm: FarmWithPrices, cakePriceBusd: BN, re
   return cakeRewardsAprAsString
 }
 
-const pairAbi = [
-  {
-    inputs: [],
-    name: 'getReserves',
-    outputs: [
-      {
-        internalType: 'uint112',
-        name: 'reserve0',
-        type: 'uint112',
-      },
-      {
-        internalType: 'uint112',
-        name: 'reserve1',
-        type: 'uint112',
-      },
-      {
-        internalType: 'uint32',
-        name: 'blockTimestampLast',
-        type: 'uint32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-] as const
-
-const cakeBusdPairMap = {
-  [ChainId.BSC]: {
-    address: Pair.getAddress(CAKE[ChainId.BSC], BUSD[ChainId.BSC]),
-    tokenA: CAKE[ChainId.BSC],
-    tokenB: BUSD[ChainId.BSC],
-  },
-  [ChainId.BSC_TESTNET]: {
-    address: Pair.getAddress(CAKE[ChainId.BSC_TESTNET], BUSD[ChainId.BSC_TESTNET]),
-    tokenA: CAKE[ChainId.BSC_TESTNET],
-    tokenB: BUSD[ChainId.BSC_TESTNET],
-  },
-}
-
-const getCakePrice = async (isTestnet: boolean) => {
-  const pairConfig = cakeBusdPairMap[isTestnet ? ChainId.BSC_TESTNET : ChainId.BSC]
-  const client = isTestnet ? bscTestnetClient : bscClient
-  const [reserve0, reserve1] = await client.readContract({
-    abi: pairAbi,
-    address: pairConfig.address,
-    functionName: 'getReserves',
-  })
-
-  const { tokenA, tokenB } = pairConfig
-
-  const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
-
-  const pair = new Pair(
-    CurrencyAmount.fromRawAmount(token0, reserve0.toString()),
-    CurrencyAmount.fromRawAmount(token1, reserve1.toString()),
-  )
-
-  return pair.priceOf(tokenA)
-}
-
 const farmConfigApi = 'https://farms-config.pages.dev'
 
 export async function saveFarms(chainId: number, event: ScheduledEvent | FetchEvent) {
@@ -120,14 +57,12 @@ export async function saveFarms(chainId: number, event: ScheduledEvent | FetchEv
       farms: farmsConfig.filter((f) => f.pid !== 0).concat(lpPriceHelpers),
     })
 
-    const cakeBusdPrice = await getCakePrice(isTestnet)
     const lpAprs = await handleLpAprs(chainId, farmsConfig)
 
     const finalFarm = farmsWithPrice.map((f) => {
       return {
         ...f,
         lpApr: lpAprs?.[f.lpAddress.toLowerCase()] || 0,
-        cakeApr: getFarmCakeRewardApr(f, new BN(cakeBusdPrice.toSignificant(3)), regularCakePerBlock),
       }
     }) as FarmResult
 

@@ -1,9 +1,3 @@
-import { ChainId } from '@pancakeswap/chains'
-
-export const SUPPORTED_CHAIN_IDS = [
-  ChainId.BSC,
-  ChainId.BSC_TESTNET,
-  ChainId.ETHEREUM,
-] as const
+export const SUPPORTED_CHAIN_IDS = [] as number[]
 
 export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number]

@@ -1,13 +1,11 @@
 import { ChainId } from "@pancakeswap/chains";
 import { Currency, NATIVE, Token } from "@pancakeswap/sdk";
-import { bscTokens, ethereumTokens, klaytnTokens } from "@pancakeswap/tokens";
+import { klaytnTokens } from "@pancakeswap/tokens";
 import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
 import memoize from "lodash/memoize";
 import { getAddress } from "viem";
 
 const mapping: { [key: number]: string } = {
-  [ChainId.BSC]: "smartchain",
-  [ChainId.ETHEREUM]: "ethereum",
   [ChainId.KLAYTN]: "klaytn",
 };
 
@@ -44,32 +42,22 @@ export const getTokenLogoURLByAddress = memoize(
 );
 
 const chainName: { [key: number]: string } = {
-  [ChainId.BSC]: "",
-  [ChainId.ETHEREUM]: "eth",
   [ChainId.KLAYTN]: "klaytn",
 };
 
-export const getTokenListTokenUrl = (token: Token) =>
-  Object.keys(chainName).includes(String(token.chainId))
+export const getTokenListTokenUrl = (token?: Token) => {
+  if (!token) return null;
+
+  return Object.keys(chainName).includes(String(token.chainId))
     ? token.chainId === ChainId.KLAYTN
       ? getTokenIconSrcFromSs(token.address)
-      : `/images/tokens/${token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`}${token.address}.png`
+      : `/images/tokens/${`${chainName[token.chainId]}/`}${token.address}.png`
     : null;
+};
 
-const commonCurrencySymbols = [
-  ethereumTokens.usdt,
-  ethereumTokens.usdc,
-  bscTokens.cake,
-  ethereumTokens.wbtc,
-  ethereumTokens.weth,
-  NATIVE[ChainId.BSC],
-  bscTokens.busd,
-  ethereumTokens.dai,
-  NATIVE[ChainId.KLAYTN],
-  klaytnTokens.weth,
-  klaytnTokens.usdt,
-  klaytnTokens.fnsa,
-].map(({ symbol }) => symbol);
+const commonCurrencySymbols = [NATIVE[ChainId.KLAYTN], klaytnTokens.weth, klaytnTokens.usdt, klaytnTokens.fnsa].map(
+  ({ symbol }) => symbol
+);
 
 export const getCommonCurrencyUrl = memoize(
   (currency?: Currency): string | undefined => getCommonCurrencyUrlBySymbol(currency?.symbol),
@@ -82,19 +70,11 @@ export const getCommonCurrencyUrlBySymbol = memoize(
   (symbol?: string) => `logoUrls#symbol#${symbol}`
 );
 
-type GetLogoUrlsOptions = {
-  useTrustWallet?: boolean;
-};
-
 export const getCurrencyLogoUrls = memoize(
-  (currency: Currency | undefined, { useTrustWallet = true }: GetLogoUrlsOptions = {}): string[] => {
-    const trustWalletLogo = getTokenLogoURL(currency?.wrapped);
+  (currency: Currency | undefined): string[] => {
     const logoUrl = currency ? getTokenListTokenUrl(currency.wrapped) : null;
 
-    return [getCommonCurrencyUrl(currency), useTrustWallet ? trustWalletLogo : undefined, logoUrl].filter(
-      (url): url is string => !!url
-    );
+    return [getCommonCurrencyUrl(currency), logoUrl].filter((url): url is string => !!url);
   },
-  (currency: Currency | undefined, options?: GetLogoUrlsOptions) =>
-    `logoUrls#${currency?.chainId}#${currency?.wrapped?.address}#${options ? JSON.stringify(options) : ""}`
+  (currency: Currency | undefined) => `logoUrls#${currency?.chainId}#${currency?.wrapped?.address}`
 );

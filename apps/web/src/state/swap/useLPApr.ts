@@ -1,12 +1,12 @@
-import { gql } from 'graphql-request'
-import { Pair } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
+import { Pair } from '@pancakeswap/sdk'
 import { useQuery } from '@tanstack/react-query'
-import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
-import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
-import { getChangeForPeriod } from 'utils/getChangeForPeriod'
 import { SLOW_INTERVAL } from 'config/constants'
 import { LP_HOLDERS_FEE, WEEKS_IN_YEAR } from 'config/constants/info'
+import { gql } from 'graphql-request'
+import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
+import { getChangeForPeriod } from 'utils/getChangeForPeriod'
+import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
 import { getMultiChainQueryEndPointWithStableSwap, MultiChainName, multiChainQueryMainToken } from '../info/constant'
 
 interface PoolReserveVolume {
@@ -45,7 +45,7 @@ export const useLPApr = (pair?: Pair | null) => {
       return lpApr7d ? { lpApr7d } : undefined
     },
     {
-      enabled: Boolean(pair && pair.chainId === ChainId.BSC),
+      enabled: Boolean(pair && pair.chainId === ChainId.KLAYTN),
       refetchInterval: SLOW_INTERVAL,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
@@ -58,7 +58,7 @@ export const useLPApr = (pair?: Pair | null) => {
 const fetchPoolVolumeAndReserveData = async (
   block7d: number,
   poolAddress: string,
-  chainName: 'ETH' | 'BSC' = 'BSC',
+  chainName: 'KLAYTN' | 'KLAYTN_TESTNET' = 'KLAYTN',
 ) => {
   try {
     const query = gql`

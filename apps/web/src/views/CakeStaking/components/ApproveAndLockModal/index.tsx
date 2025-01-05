@@ -14,16 +14,7 @@ const SeamlessModal: React.FC<React.PropsWithChildren<Omit<ModalProps, 'title'> 
   ...props
 }) => {
   return (
-    <Modal
-      title={title}
-      minHeight="415px"
-      width={['100%', '100%', '100%', '367px']}
-      headerPadding="12px 24px"
-      bodyPadding="0 24px 24px"
-      headerBackground="transparent"
-      headerBorderColor="transparent"
-      {...props}
-    >
+    <Modal title={title} {...props}>
       {children}
     </Modal>
   )

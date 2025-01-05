@@ -1,5 +1,6 @@
 import { KaiaWalletConnector } from '@pancakeswap/wagmi/connectors/kaiaWallet'
 import { KlipConnector } from '@pancakeswap/wagmi/connectors/klip'
+import { OKXWalletConnector } from '@pancakeswap/wagmi/connectors/okxWallet'
 import memoize from 'lodash/memoize'
 import { createConfig, createStorage } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
@@ -41,6 +42,7 @@ export const metaMaskConnector = new MetaMaskConnector({
 })
 
 const kaiaWalletConnector = new KaiaWalletConnector({ chains })
+const okxWalletConnector = new OKXWalletConnector({ chains })
 
 export const klipConnector = new KlipConnector({
   chains,
@@ -77,6 +79,14 @@ export const wagmiConfig = createConfig({
     ...(walletConnectConnector ? [walletConnectConnector as any] : []),
     ...(kaiaWalletConnector ? [kaiaWalletConnector as any] : []),
     ...(klipConnector ? [klipConnector as any] : []),
+    ...(okxWalletConnector ? [okxWalletConnector as any] : []),
+    // new InjectedConnector({
+    //   chains,
+    //   options: {
+    //     name: 'OKX Wallet',
+    //     getProvider: () => (typeof window !== 'undefined' ? window.okxwallet : undefined),
+    //   },
+    // }),
     // @ts-ignore FIXME: wagmi
   ],
 })

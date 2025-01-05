@@ -1,10 +1,10 @@
-import { getBCakeFarmBoosterAddress } from 'utils/addressHelpers'
-import { useMemo } from 'react'
-import BigNumber from 'bignumber.js'
-import { publicClient } from 'utils/wagmi'
 import { ChainId } from '@pancakeswap/chains'
-import { bCakeFarmBoosterABI } from 'config/abi/bCakeFarmBooster'
 import { useQuery } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import { bCakeFarmBoosterABI } from 'config/abi/bCakeFarmBooster'
+import { useMemo } from 'react'
+import { getBCakeFarmBoosterAddress } from 'utils/addressHelpers'
+import { publicClient } from 'utils/wagmi'
 
 const useFarmBoosterConstants = () => {
   const bCakeFarmBoosterAddress = getBCakeFarmBoosterAddress()
@@ -12,7 +12,7 @@ const useFarmBoosterConstants = () => {
   const { data, status } = useQuery(
     ['farmBoosterConstants'],
     async () => {
-      return publicClient({ chainId: ChainId.BSC }).multicall({
+      return publicClient({ chainId: ChainId.KLAYTN }).multicall({
         contracts: [
           {
             address: bCakeFarmBoosterAddress,

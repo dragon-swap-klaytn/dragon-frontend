@@ -1,16 +1,12 @@
 import { DeserializedFarm, FarmWithStakedValue, filterFarmsByQuery } from '@pancakeswap/farms'
 import { useIntersectionObserver } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { ChainId } from '@pancakeswap/chains'
 import {
-  ArrowForwardIcon,
   Box,
-  Button,
   Flex,
   FlexLayout,
   Heading,
   Image,
-  Link,
   Loading,
   OptionProps,
   PageHeader,
@@ -21,7 +17,7 @@ import {
   ToggleView,
 } from '@pancakeswap/uikit'
 
-import { FarmWidget, NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
+import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import Page from 'components/Layout/Page'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -29,19 +25,17 @@ import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFarms, usePollFarmsWithUserData } from 'state/farms/hooks'
-import { useCakePrice } from 'hooks/useCakePrice'
-import { useCakeVaultUserData } from 'state/pools/hooks'
 import { ViewMode } from 'state/user/actions'
 import { useUserFarmStakedOnly, useUserFarmsViewMode } from 'state/user/hooks'
-import { styled, keyframes } from 'styled-components'
+import { keyframes, styled } from 'styled-components'
 import { getFarmApr } from 'utils/apr'
-import { useAccount } from 'wagmi'
 import { getStakedMinProgramFarms } from 'views/Farms/utils/getStakedMinProgramFarms'
+import { useAccount } from 'wagmi'
 
+import { useCakePrice } from 'hooks/useCakePrice'
 import { V2Farm } from './FarmsV3'
 import Table from './components/FarmTable/FarmTable'
 import { FarmTypesFilter } from './components/FarmTypesFilter'
-import { BCakeBoosterCard } from './components/YieldBooster/components/bCakeV3/BCakeBoosterCard'
 import { FarmsContext } from './context'
 import useMultiChainHarvestModal from './hooks/useMultiChainHarvestModal'
 
@@ -148,20 +142,6 @@ const StyledImage = styled(Image)`
   animation: ${ImageRotate} 1s infinite linear alternate;
 `
 
-const FinishedTextContainer = styled(Flex)`
-  padding-bottom: 32px;
-  flex-direction: column;
-  ${({ theme }) => theme.mediaQueries.md} {
-    flex-direction: row;
-  }
-`
-
-const FinishedTextLink = styled(Link)`
-  font-weight: 400;
-  white-space: nowrap;
-  text-decoration: underline;
-`
-
 const NUMBER_OF_FARMS_VISIBLE = 12
 
 const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -171,7 +151,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { data: farmsLP, userDataLoaded, poolLength, regularCakePerBlock } = useFarms()
 
   const cakePrice = useCakePrice()
-
   const [_query, setQuery] = useState('')
   const normalizedUrlSearch = useMemo(() => (typeof urlQuery?.search === 'string' ? urlQuery.search : ''), [urlQuery])
   const query = normalizedUrlSearch && !_query ? normalizedUrlSearch : _query
@@ -185,8 +164,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const isArchived = pathname.includes('archived')
   const isInactive = pathname.includes('history')
   const isActive = !isInactive && !isArchived
-
-  useCakeVaultUserData()
 
   usePollFarmsWithUserData()
 
@@ -250,7 +227,7 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
               )
             : { cakeRewardsApr: 0, lpRewardsApr: 0 }
 
-        return { ...farm, apr: cakeRewardsApr, lpRewardsApr, liquidity: totalLiquidity }
+        return { ...farm, apr: cakeRewardsApr || 0, lpRewardsApr, liquidity: totalLiquidity }
       })
 
       return filterFarmsByQuery(farmsToDisplayWithAPR, query)
@@ -378,11 +355,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
               </NextLinkFromReactRouter>
               */}
             </Box>
-            {chainId === ChainId.BSC && (
-              <Box>
-                <BCakeBoosterCard />
-              </Box>
-            )}
           </FarmFlexWrapper>
         </Flex>
       </PageHeader>

@@ -45,7 +45,7 @@ const DataCard = ({ tokenData }: { tokenData: TokenData }) => {
         <Flex>
           <Box width="32px" height="32px">
             {/* wrapped in a box because of alignment issues between img and svg */}
-            <CurrencyLogo address={tokenData.address} size="32px" chainName={chainName} />
+            <CurrencyLogo address={tokenData.address} size={32} chainName={chainName} />
           </Box>
           <Box ml="16px">
             <Text>{tokenData.symbol}</Text>

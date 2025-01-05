@@ -2,8 +2,7 @@ import { useTranslation } from "@pancakeswap/localization";
 import { formatNumber } from "@pancakeswap/utils/formatBalance";
 import { useTheme } from "styled-components";
 
-import { Flex, Heading, Button, Text, AutoRenewIcon, Modal } from "@pancakeswap/uikit";
-import getThemeValue from "@pancakeswap/uikit/util/getThemeValue";
+import { AutoRenewIcon, Button, Flex, Heading, Modal, Text } from "@pancakeswap/uikit";
 
 export interface CollectModalProps {
   formattedBalance: string;
@@ -34,11 +33,7 @@ export function CollectModal({
   const theme = useTheme();
 
   return (
-    <Modal
-      title={`${earningTokenSymbol} ${t("Harvest")}`}
-      onDismiss={onDismiss}
-      headerBackground={getThemeValue(theme, "colors.gradientCardHeader")}
-    >
+    <Modal title={`${earningTokenSymbol} ${t("Harvest")}`} onDismiss={onDismiss}>
       <Flex justifyContent="space-between" alignItems="center" mb="8px">
         <Text>{t("Harvesting")}:</Text>
       </Flex>

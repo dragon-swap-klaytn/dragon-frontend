@@ -57,7 +57,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
 
   return (
     <div className="mt-4">
-      <div className="flex flex-col space-y-3 p-4 bg-surface-container-highest rounded-[20px]">
+      <div className="flex flex-col space-y-3 p-4 bg-surface-container-highest rounded-[20px] text-on-surface-primary">
         <SwapModalFooterContainer>
           <SwapModalFooterTitle title={t('Price')} />
 
@@ -132,7 +132,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
             <div className="flex items-center space-x-2">
               <span className="text-sm">{`${formatAmount(realizedLPFee, 6)} ${inputAmount.currency.symbol}`}</span>
 
-              <CurrencyLogo currency={currencyBalances.INPUT?.currency ?? inputAmount.currency} size="24px" />
+              <CurrencyLogo currency={currencyBalances.INPUT?.currency ?? inputAmount.currency} size={24} />
             </div>
           ) : (
             <span className="text-sm">-</span>

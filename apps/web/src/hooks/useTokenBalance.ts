@@ -1,5 +1,4 @@
 import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
-import { CAKE } from '@pancakeswap/tokens'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
@@ -32,18 +31,6 @@ export const useTokenBalanceByChain = (tokenAddress: Address, chainIdOverride?: 
   }
 }
 
-export const useGetBnbBalance = () => {
-  const { address: account } = useAccount()
-  const { status, refetch, data } = useBalance({
-    chainId: ChainId.BSC,
-    address: account,
-    watch: true,
-    enabled: !!account,
-  })
-
-  return { balance: data?.value ? BigInt(data.value) : 0n, fetchStatus: status, refresh: refetch }
-}
-
 export const useGetNativeTokenBalance = () => {
   const { address: account } = useAccount()
   const { chainId } = useActiveChainId()
@@ -56,14 +43,6 @@ export const useGetNativeTokenBalance = () => {
 
   return { balance: data?.value ? BigInt(data.value) : 0n, fetchStatus: status, refresh: refetch }
 }
-
-export const useBSCCakeBalance = () => {
-  const { balance, fetchStatus } = useTokenBalance(CAKE[ChainId.BSC]?.address, true)
-
-  return { balance: BigInt(balance.toString()), fetchStatus }
-}
-
-// veCake only deploy on bsc/bscTestnet
 export const useVeCakeBalance = () => {
   const { chainId } = useActiveChainId()
   const { balance, fetchStatus } = useTokenBalance(getVeCakeAddress(chainId))
