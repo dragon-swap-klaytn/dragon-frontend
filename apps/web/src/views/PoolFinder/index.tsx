@@ -1,24 +1,22 @@
 import { Currency } from '@pancakeswap/sdk'
-import { AddIcon, AutoColumn, Button, ChevronDownIcon, ColumnCenter, Text, useModal } from '@pancakeswap/uikit'
-import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
+import { CurrencyLogoWithSymbol, useModal } from '@pancakeswap/uikit'
 
 import { useTranslation } from '@pancakeswap/localization'
-import { LightCard } from 'components/Card'
+import { ArrowDown, CaretDown, Plus } from '@phosphor-icons/react'
+import ConnectWalletButton from 'components/ConnectWalletButton'
 import { MinimalPositionCard } from 'components/PositionCard'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { BIG_INT_ZERO } from 'config/constants/exchange'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { PairState, useV2Pair } from 'hooks/usePairs'
-import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { PropsWithChildren, useCallback, useEffect, useState } from 'react'
 import { usePairAdder } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
-import { styled } from 'styled-components'
 import { currencyId } from 'utils/currencyId'
 import { useAccount } from 'wagmi'
 import { AppBody, AppHeader } from '../../components/App'
-import Row from '../../components/Layout/Row'
 import Dots from '../../components/Loader/Dots'
-import { CurrencyLogo } from '../../components/Logo'
 import CurrencySearchModal from '../../components/SearchModal/CurrencySearchModal'
 import Page from '../Page'
 
@@ -26,13 +24,6 @@ enum Fields {
   TOKEN0 = 0,
   TOKEN1 = 1,
 }
-
-const StyledButton = styled(Button)`
-  background-color: ${({ theme }) => theme.colors.input};
-  color: ${({ theme }) => theme.colors.text};
-  box-shadow: none;
-  border-radius: 16px;
-`
 
 export default function PoolFinder() {
   const { address: account } = useAccount()
@@ -74,14 +65,6 @@ export default function PoolFinder() {
     [activeField],
   )
 
-  const prerequisiteMessage = (
-    <LightCard padding="45px 10px">
-      <Text textAlign="center">
-        {!account ? t('Connect to a wallet to find pools') : t('Select a token to find your liquidity.')}
-      </Text>
-    </LightCard>
-  )
-
   const [onPresentCurrencyModal] = useModal(
     <CurrencySearchModal
       onCurrencySelect={handleCurrencySelect}
@@ -94,123 +77,125 @@ export default function PoolFinder() {
     'selectCurrencyModal',
   )
 
-  // const [onPresentCurrencyModal] = useModal(
-  //   <CurrencySearchModal
-  //     onCurrencySelect={onCurrencySelect}
-  //     selectedCurrency={selectedCurrency}
-  //     otherSelectedCurrency={otherSelectedCurrency}
-  //     showCommonBases={showCommonBases}
-  //     commonBasesType={commonBasesType}
-  //   />,
-  // )
-
   return (
     <Page>
-      <AppBody>
+      <AppBody maxWidth="max-w-md">
         <AppHeader title={t('Import Pool')} subtitle={t('Import an existing pool')} backTo="/liquidity" />
-        <AutoColumn style={{ padding: '1rem' }} gap="md">
-          <StyledButton
-            endIcon={<ChevronDownIcon />}
-            onClick={() => {
-              onPresentCurrencyModal()
-              setActiveField(Fields.TOKEN0)
-            }}
-          >
-            {currency0 ? (
-              <Row>
-                <CurrencyLogo currency={currency0} />
-                <Text ml="8px">{currency0.symbol}</Text>
-              </Row>
-            ) : (
-              <Text ml="8px">{t('Select a Token')}</Text>
-            )}
-          </StyledButton>
+        <div className="p-5 md:p-8">
+          {!account ? (
+            <div className="flex flex-col items-center space-y-4 mt-4">
+              <p className="text-sm text-on-surface">{t('Connect to a wallet to find pools')}</p>
 
-          <ColumnCenter>
-            <AddIcon />
-          </ColumnCenter>
-
-          <StyledButton
-            endIcon={<ChevronDownIcon />}
-            onClick={() => {
-              onPresentCurrencyModal()
-              setActiveField(Fields.TOKEN1)
-            }}
-          >
-            {currency1 ? (
-              <Row>
-                <CurrencyLogo currency={currency1} />
-                <Text ml="8px">{currency1.symbol}</Text>
-              </Row>
-            ) : (
-              <Text as={Row}>{t('Select a Token')}</Text>
-            )}
-          </StyledButton>
-
-          {currency0 && currency1 ? (
-            pairState === PairState.EXISTS ? (
-              hasPosition && pair ? (
-                <>
-                  <MinimalPositionCard pair={pair} />
-                  <Button
-                    as={NextLinkFromReactRouter}
-                    to={`/v2/pair/${pair.token0.address}/${pair.token1.address}`}
-                    variant="secondary"
-                    width="100%"
-                  >
-                    {t('Manage this pair')}
-                  </Button>
-                </>
-              ) : (
-                <LightCard padding="45px 10px">
-                  <AutoColumn gap="sm" justify="center">
-                    <Text textAlign="center">{t('You don’t have liquidity in this pair yet.')}</Text>
-                    <Button
-                      as={NextLinkFromReactRouter}
-                      to={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}
-                      variant="secondary"
-                    >
-                      {t('Add Liquidity')}
-                    </Button>
-                  </AutoColumn>
-                </LightCard>
-              )
-            ) : validPairNoLiquidity ? (
-              <LightCard padding="45px 10px">
-                <AutoColumn gap="sm" justify="center">
-                  <Text textAlign="center">{t('No pair found.')}</Text>
-                  <Button
-                    as={NextLinkFromReactRouter}
-                    to={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}
-                    variant="secondary"
-                  >
-                    {t('Create pair')}
-                  </Button>
-                </AutoColumn>
-              </LightCard>
-            ) : pairState === PairState.INVALID ? (
-              <LightCard padding="45px 10px">
-                <AutoColumn gap="sm" justify="center">
-                  <Text textAlign="center" fontWeight={500}>
-                    {t('Invalid pair.')}
-                  </Text>
-                </AutoColumn>
-              </LightCard>
-            ) : pairState === PairState.LOADING ? (
-              <LightCard padding="45px 10px">
-                <AutoColumn gap="sm" justify="center">
-                  <Text textAlign="center">
-                    {t('Loading')}
-                    <Dots />
-                  </Text>
-                </AutoColumn>
-              </LightCard>
-            ) : null
+              <ConnectWalletButton />
+            </div>
           ) : (
-            prerequisiteMessage
+            <>
+              <button
+                type="button"
+                className="flex items-center py-1 pl-1 rounded-[20px] bg-neutral pr-4 w-full justify-between hover:opacity-70"
+                onClick={() => {
+                  onPresentCurrencyModal()
+                  setActiveField(Fields.TOKEN0)
+                }}
+              >
+                {currency0 ? (
+                  <CurrencyLogoWithSymbol
+                    currencyA={currency0}
+                    logoSize={28}
+                    symbol={currency0.symbol}
+                    symbolClassName="text-on-surface font-bold"
+                  />
+                ) : (
+                  <span className="font-bold inline-block px-3 text-on-surface py-0.5">{t('Select a Token')}</span>
+                )}
+
+                <CaretDown size={16} className="text-on-surface ml-2" />
+              </button>
+
+              <Plus size={16} className="text-on-surface my-4 mx-auto" />
+
+              <button
+                type="button"
+                className="flex items-center py-1 pl-1 rounded-[20px] bg-neutral pr-4 w-full justify-between hover:opacity-70"
+                onClick={() => {
+                  onPresentCurrencyModal()
+                  setActiveField(Fields.TOKEN1)
+                }}
+              >
+                {currency1 ? (
+                  <CurrencyLogoWithSymbol
+                    currencyA={currency1}
+                    logoSize={28}
+                    symbol={currency1.symbol}
+                    symbolClassName="text-on-surface font-bold"
+                  />
+                ) : (
+                  <span className="font-bold inline-block px-3 text-on-surface py-0.5">{t('Select a Token')}</span>
+                )}
+
+                <CaretDown size={16} className="text-on-surface ml-2" />
+              </button>
+
+              {!!currency0 && !!currency1 && <ArrowDown size={16} className="text-on-surface mt-4 mx-auto" />}
+
+              {!!currency0 &&
+                !!currency1 &&
+                (pairState === PairState.EXISTS ? (
+                  hasPosition && pair ? (
+                    <Wrapper>
+                      <MinimalPositionCard pair={pair} />
+                      <NextLink href={`/v2/pair/${pair.token0.address}/${pair.token1.address}`}>
+                        {t('Manage this pair')}
+                      </NextLink>
+                    </Wrapper>
+                  ) : (
+                    <Wrapper>
+                      <p className="text-center">{t('You don’t have liquidity in this pair yet.')}</p>
+                      <NextLink href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
+                        {t('Add Liquidity')}
+                      </NextLink>
+                    </Wrapper>
+                  )
+                ) : validPairNoLiquidity ? (
+                  <Wrapper>
+                    <p className="text-sm text-on-surface text-center">{t('No pair found.')}</p>
+                    <NextLink href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
+                      {t('Create pair')}
+                    </NextLink>
+                  </Wrapper>
+                ) : pairState === PairState.INVALID ? (
+                  <Wrapper>
+                    <p className="text-sm">
+                      {t('Loading')}
+                      <Dots />
+                    </p>
+                  </Wrapper>
+                ) : pairState === PairState.LOADING ? (
+                  <Wrapper>
+                    <p className="text-sm">{t('Invalid pair.')}</p>
+                  </Wrapper>
+                ) : null)}
+            </>
           )}
-        </AutoColumn>
+        </div>
       </AppBody>
     </Page>
+  )
+}
+
+function Wrapper({ children }: PropsWithChildren) {
+  return (
+    <div className="mt-4 flex flex-col items-center justify-center rounded-2xl text-sm text-on-surface">{children}</div>
+  )
+}
+
+function NextLink({ children, href }: PropsWithChildren<{ href: string }>) {
+  return (
+    <Link
+      href={href}
+      className="rounded-[20px] bg-brand text-on-surface-inverse hover:opacity-70 px-4 py-2.5 text-sm mt-4 w-full inline-block text-center"
+    >
+      {children}
+    </Link>
   )
 }

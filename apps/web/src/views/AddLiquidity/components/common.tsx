@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Fraction, Percent, Token } from '@pancakeswap/sdk'
-import { Container, CurrencyLogoWithAmount, useTooltip } from '@pancakeswap/uikit'
+import { ContainerV2, CurrencyLogoWithAmount, useTooltip } from '@pancakeswap/uikit'
 import React from 'react'
 import { Field } from 'state/burn/actions'
 import { getLPSymbol } from 'utils/getLpSymbol'
@@ -23,15 +23,25 @@ export const PairDistribution = ({
     <div>
       <SectionTitle>{title}</SectionTitle>
 
-      <Container className="mt-2 text-sm text-on-surface-primary">
+      <ContainerV2 className="mt-2">
         {currencyA && (
-          <CurrencyLogoWithAmount currencyA={currencyA} symbol={currencyA?.symbol} amount={currencyAValue || '0'} />
+          <CurrencyLogoWithAmount
+            className="pb-3 border-b boder border-border"
+            currencyA={currencyA}
+            symbol={currencyA?.symbol}
+            amount={currencyAValue || '0'}
+          />
         )}
 
         {currencyB && (
-          <CurrencyLogoWithAmount currencyA={currencyB} symbol={currencyB?.symbol} amount={currencyBValue || '0'} />
+          <CurrencyLogoWithAmount
+            className="pt-3"
+            currencyA={currencyB}
+            symbol={currencyB?.symbol}
+            amount={currencyBValue || '0'}
+          />
         )}
-      </Container>
+      </ContainerV2>
     </div>
   )
 }
@@ -63,13 +73,13 @@ export const AddLiquidityModalHeader = ({
   )
 
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-8">
       {children}
 
       <div>
         <SectionTitle>{t('You will receive')}</SectionTitle>
 
-        <div className="p-4 rounded-2xl bg-surface-container-highest w-full mt-2">
+        <ContainerV2 className="mt-2">
           <CurrencyLogoWithAmount
             currencyA={currencies[Field.CURRENCY_A]}
             currencyB={currencies[Field.CURRENCY_B]}
@@ -84,34 +94,34 @@ export const AddLiquidityModalHeader = ({
             }
             amount={liquidityMinted?.toSignificant(6) || '0'}
           />
-        </div>
+        </ContainerV2>
 
-        <p className="mt-1 px-2 text-sm text-on-surface-secondary">
+        <p className="mt-1.5 text-[13px] text-on-surface-subtle">
           {t('Your share in the pair')}: {noLiquidity ? '100' : poolTokenPercentage?.toSignificant(4)}%
         </p>
-      </div>
 
-      {!!price && (
-        <div className="flex items-center space-x-2 w-full justify-between text-sm text-on-surface-secondary">
-          <h5>{t('Rates')}</h5>
-          <div className="flex flex-col items-end space-y-1">
-            <span>{`1 ${currencies[Field.CURRENCY_A]?.symbol} = ${price?.toSignificant(4)} ${
-              currencies[Field.CURRENCY_B]?.symbol
-            }`}</span>
+        {!!price && (
+          <div className="flex items-start space-x-2 w-full justify-between text-sm text-on-surface-subtle mt-6">
+            <h5 className="text-on-surface-brand">{t('Prices')}</h5>
+            <div className="flex flex-col items-end space-y-1">
+              <span>{`1 ${currencies[Field.CURRENCY_A]?.symbol} = ${price?.toSignificant(4)} ${
+                currencies[Field.CURRENCY_B]?.symbol
+              }`}</span>
 
-            <span>{`1 ${currencies[Field.CURRENCY_B]?.symbol} = ${price?.invert()?.toSignificant(4)} ${
-              currencies[Field.CURRENCY_A]?.symbol
-            }`}</span>
+              <span>{`1 ${currencies[Field.CURRENCY_B]?.symbol} = ${price?.invert()?.toSignificant(4)} ${
+                currencies[Field.CURRENCY_A]?.symbol
+              }`}</span>
+            </div>
           </div>
-        </div>
-      )}
-      {!noLiquidity && (
-        <div className="flex items-center space-x-2 w-full justify-between text-sm text-on-surface-secondary">
-          <h5>{t('Slippage Tolerance')}</h5>
-          <span ref={targetRef}>{allowedSlippage / 100}%</span>
-          {tooltipVisible && tooltip}
-        </div>
-      )}
+        )}
+        {!noLiquidity && (
+          <div className="flex items-center space-x-2 w-full justify-between text-sm text-on-surface-subtle mt-2">
+            <h5>{t('Slippage Tolerance')}</h5>
+            <span ref={targetRef}>{allowedSlippage / 100}%</span>
+            {tooltipVisible && tooltip}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

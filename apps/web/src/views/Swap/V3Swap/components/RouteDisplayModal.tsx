@@ -100,7 +100,7 @@ export const RouteDisplay = memo(function RouteDisplay({ route }: RouteDisplayPr
           <CurrencyLogo size={40} currency={inputCurrency} />
         </div>
 
-        <span className="text-sm text-on-surface-primary">{route.percent}%</span>
+        <span className="text-sm text-on-surface">{route.percent}%</span>
       </div>
       {tooltipVisible && tooltip}
       {pairNodes}
@@ -119,10 +119,7 @@ function PairNode({ pair, text, tooltipText }: { pair: Pair; text: string; toolt
 
   return (
     <div className="flex flex-col items-center space-y-1">
-      <div
-        className="flex items-center space-x-1 z-50 px-1 py-1 rounded-[20px] bg-surface-container-highest"
-        ref={tooltip.targetRef}
-      >
+      <div className="flex items-center space-x-1 z-50 px-1 py-1 rounded-[20px] bg-neutral" ref={tooltip.targetRef}>
         {tooltip.tooltipVisible && tooltip.tooltip}
         <div className="flex items-center space-x-1">
           <CurrencyLogo size={32} currency={input} />
@@ -130,7 +127,7 @@ function PairNode({ pair, text, tooltipText }: { pair: Pair; text: string; toolt
         </div>
       </div>
 
-      <span className="text-sm text-on-surface-primary">{text}</span>
+      <span className="text-sm text-on-surface">{text}</span>
     </div>
   )
 }

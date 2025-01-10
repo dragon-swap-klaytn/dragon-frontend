@@ -16,7 +16,7 @@ export function TransactionErrorContent({
       <div className="flex flex-col items-center space-y-7">
         <XCircle size={100} className="text-red-400" weight="light" />
 
-        <p className="text-center break-keep text-on-surface-primary">{message}</p>
+        <p className="text-center break-keep text-on-surface">{message}</p>
 
         {onDismiss ? (
           // TODO: need to replace with Button component in web

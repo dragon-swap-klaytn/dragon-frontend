@@ -1,10 +1,9 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
-import { ButtonV2, InjectedModalProps, Modal, ModalProps } from '@pancakeswap/uikit'
+import { ButtonV2, ExternalLink, InjectedModalProps, Modal, ModalProps } from '@pancakeswap/uikit'
 import { ConfirmationPendingContent, TransactionErrorContent } from '@pancakeswap/widgets-internal'
 import { ArrowCircleUp } from '@phosphor-icons/react'
-import ExternalLink from 'components/Common/ExternalLink'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useTokenLogo } from 'hooks/useTokenLogo'
@@ -31,12 +30,12 @@ export function TransactionSubmittedContent({
 
   return (
     <div className="w-full flex flex-col items-center">
-      <ArrowCircleUp size={80} className="text-on-surface-primary" />
+      <ArrowCircleUp size={80} className="text-on-surface" />
 
       <div className="flex flex-col items-center space-y-3 mt-6">
-        <p className="text-on-surface-primary">{t('Transaction Submitted')}</p>
+        <p className="text-on-surface">{t('Transaction Submitted')}</p>
         {chainId && hash && (
-          <ExternalLink href={getBlockExploreLink(hash, 'transaction', chainId)} className="text-on-surface-secondary">
+          <ExternalLink href={getBlockExploreLink(hash, 'transaction', chainId)} className="text-on-surface-subtle">
             {t('View on %site%', {
               site: getBlockExploreName(chainId),
             })}
@@ -55,7 +54,7 @@ export function TransactionSubmittedContent({
           />
         )}
 
-        <ButtonV2 onClick={onDismiss} className="mt-6" variant="subtle">
+        <ButtonV2 onClick={onDismiss} variant="subtle">
           {t('Close')}
         </ButtonV2>
       </div>
@@ -103,7 +102,7 @@ const TransactionConfirmationModal: React.FC<
   if (!chainId) return null
 
   return (
-    <Modal title={title} {...props} onDismiss={handleDismiss}>
+    <Modal title={title} {...props} onDismiss={handleDismiss} maxWidth="max-w-sm">
       {attemptingTxn ? (
         <ConfirmationPendingContent qrUri={qrUri} pendingText={pendingText} />
       ) : hash ? (

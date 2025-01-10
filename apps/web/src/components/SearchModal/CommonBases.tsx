@@ -4,8 +4,7 @@ import { QuestionHelper } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 
-import { DEFAULT_LOCAL_STORAGE_DATA, LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
-import useLocalStorage from 'hooks/use-local-storage-v2'
+import useRecentSelectedCurrencies from 'hooks/use-recent-selected-currencies'
 import { CommonBasesType } from './types'
 
 export default function CommonBases({
@@ -20,15 +19,12 @@ export default function CommonBases({
   const native = useNativeCurrency()
   const { t } = useTranslation()
 
-  const [recentSelectedCurrencies] = useLocalStorage<Currency[]>(
-    LOCAL_STORAGE_KEYS.recentSelectedCurrencies,
-    DEFAULT_LOCAL_STORAGE_DATA.recentSelectedCurrencies,
-  )
+  const { recentSelectedCurrencies, setRecentSelectedCurrency } = useRecentSelectedCurrencies()
 
   return (
-    <div>
+    <div className="pb-4 border-b border-border">
       <div className="flex items-center space-x-1">
-        <h3 className="text-on-surface-primary font-bold text-sm">{t('Recent tokens')}</h3>
+        <h3 className="text-brand text-xs">{t('Recent tokens')}</h3>
 
         {commonBasesType === CommonBasesType.LIQUIDITY && (
           <QuestionHelper text={t('These tokens are commonly paired with other tokens.')} ml="4px" />
@@ -43,14 +39,17 @@ export default function CommonBases({
           symbol={native.symbol}
         />
 
-        {(recentSelectedCurrencies ?? []).map((currency) => {
+        {recentSelectedCurrencies.map((currency) => {
           const { address } = currency as Token
-          const selected = selectedCurrency?.wrapped.address.toLocaleLowerCase() === address.toLowerCase()
+          const selected = selectedCurrency?.wrapped?.address.toLocaleLowerCase() === address.toLowerCase()
 
           return (
             <RecentTokenButton
               key={`buttonRecent:${address}`}
-              onClick={() => onSelect(currency)}
+              onClick={() => {
+                onSelect(currency)
+                setRecentSelectedCurrency(currency as Token)
+              }}
               currency={currency}
               address={address}
               selected={selected}
@@ -79,12 +78,12 @@ function RecentTokenButton({
   return (
     <button
       type="button"
-      className="px-2 py-1.5 rounded-lg border hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+      className="pl-1 py-1 pr-3 bg-neutral rounded-[20px] hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
       onClick={onClick}
       disabled={selected}
     >
       <CurrencyLogo currency={currency} address={address} />
-      <span className="text-[13px] text-on-surface-primary">{symbol}</span>
+      <span className="text-[13px] text-on-surface">{symbol}</span>
     </button>
   )
 }

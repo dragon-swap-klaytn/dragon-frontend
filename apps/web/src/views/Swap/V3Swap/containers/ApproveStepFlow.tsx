@@ -1,15 +1,12 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Text, useTooltip } from '@pancakeswap/uikit'
+import { ExternalLink, Text, useTooltip } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import ExternalLink from 'components/Common/ExternalLink'
 import { PropsWithChildren, useMemo } from 'react'
 import { ConfirmModalState, PendingConfirmModalState } from '../types'
 
 function StepsContainer({ children }: PropsWithChildren) {
   return (
-    <div className="flex items-center w-[100px] h-2 rounded-[4px] mx-auto overflow-hidden bg-surface-container-highest">
-      {children}
-    </div>
+    <div className="flex items-center w-[100px] h-2 rounded-[4px] mx-auto overflow-hidden bg-neutral">{children}</div>
   )
 }
 
@@ -18,7 +15,7 @@ function Step({ active, width }: { active: boolean; width: string }) {
     <div
       style={{ width }}
       className={clsx('h-full', {
-        'bg-surface-orange': active,
+        'bg-brand': active,
         'bg-surface-disable': !active,
       })}
     />
@@ -67,7 +64,7 @@ export const ApproveStepFlow: React.FC<React.PropsWithChildren<ApproveStepFlowPr
             </ExternalLink>
           )}
           {confirmModalState === ConfirmModalState.APPROVING_TOKEN && (
-            <ExternalLink href="https://docs.dgswap.io/products/how-to-trade" className="text-on-surface-primary">
+            <ExternalLink href="https://docs.dgswap.io/products/how-to-trade" className="text-on-surface">
               <span>{t('Why')}</span>&nbsp;
               <span ref={targetRef} className="font-bold">
                 &nbsp;

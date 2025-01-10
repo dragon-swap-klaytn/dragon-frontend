@@ -9,11 +9,11 @@ export function CurrencyLogoWithAmount({
   addressA,
   addressB,
   symbol,
-  symbolClassName = "text-on-surface-primary text-sm",
+  symbolClassName = "text-on-surface font-bold",
   amount,
-  amountClassName = "text-on-surface-primary text-sm",
+  amountClassName = "text-on-surface",
   value,
-  valueClassName = "text-on-surface-tertiary text-[13px]",
+  valueClassName = "text-on-surface-subtlest text-xs",
 }: CurrencyLogoWithSymbolProps & {
   amount: ReactNode;
   amountClassName?: string;
@@ -21,7 +21,7 @@ export function CurrencyLogoWithAmount({
   valueClassName?: string;
 }) {
   return (
-    <div className={clsx("flex items-start w-full space-x-2 justify-between", className)}>
+    <div className={clsx("flex w-full space-x-2 justify-between", className)}>
       <CurrencyLogoWithSymbol
         currencyA={currencyA}
         currencyB={currencyB}

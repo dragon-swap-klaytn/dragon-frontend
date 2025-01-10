@@ -1,59 +1,18 @@
-import { ChainId, getLlamaChainName } from '@pancakeswap/chains'
-import { chainlinkOracleKLAY } from '@pancakeswap/prediction'
-import { Currency, ERC20Token } from '@pancakeswap/sdk'
+import { ChainId } from '@pancakeswap/chains'
+import { Currency, ERC20Token, Native } from '@pancakeswap/sdk'
 import { CAKE } from '@pancakeswap/tokens'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { tickToPrice } from '@pancakeswap/v3-sdk'
 import BN from 'bignumber.js'
 import chunk from 'lodash/chunk'
-import { Address, PublicClient, formatUnits } from 'viem'
+import { Address, PublicClient } from 'viem'
 
+import { ZERO_ADDRESS } from '@pancakeswap/uikit'
+import { fetchCurrencyPriceMap, getCurrencyKey, getCurrencyListUsdPrice } from '@pancakeswap/utils/getCurrencyPrice'
 import { DEFAULT_COMMON_PRICE, PriceHelper } from '../constants/common'
 import { getFarmApr } from './apr'
 import { FarmV3SupportedChainId, supportedChainIdV3 } from './const'
 import { ComputedFarmConfigV3, FarmV3Data, FarmV3DataWithPrice } from './types'
-
-const oraklNetworkOracleABI = [
-  {
-    inputs: [
-      {
-        internalType: 'string',
-        name: 'feedName',
-        type: 'string',
-      },
-    ],
-    name: 'latestRoundData',
-    outputs: [
-      {
-        internalType: 'uint80',
-        name: 'id',
-        type: 'uint80',
-      },
-      {
-        internalType: 'int256',
-        name: 'answer',
-        type: 'int256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'startedAt',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'updatedAt',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint80',
-        name: 'answeredInRound',
-        type: 'uint80',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-]
 
 export async function farmV3FetchFarms({
   farms,
@@ -70,18 +29,15 @@ export async function farmV3FetchFarms({
   totalAllocPoint: bigint
   commonPrice: CommonPrice
 }) {
-  const [poolInfos, cakePrice, v3PoolData] = await Promise.all([
+  const NATIVE_TOKEN = Native.onChain(ChainId.KLAYTN)
+
+  const [poolInfos, priceMap, v3PoolData] = await Promise.all([
     fetchPoolInfos(farms, chainId, provider, masterChefAddress),
-    provider({ chainId: ChainId.KLAYTN })
-      .readContract({
-        abi: oraklNetworkOracleABI,
-        address: chainlinkOracleKLAY[ChainId.KLAYTN],
-        functionName: 'latestRoundData',
-        args: ['KLAY-USDT'],
-      })
-      .then((res) => formatUnits((res ?? [0n, 0n, 0n, 0n, 0n])[1] as bigint, 8)),
+    getCurrencyListUsdPrice([NATIVE_TOKEN]),
     fetchV3Pools(farms, chainId, provider),
   ])
+
+  const cakePrice = priceMap[getCurrencyKey(NATIVE_TOKEN) || '']
 
   const lmPoolInfos = await fetchLmPools(
     v3PoolData.map((v3Pool) => (v3Pool[1] ? v3Pool[1] : null)).filter(Boolean) as Address[],
@@ -470,26 +426,35 @@ export const fetchCommonTokenUSDValue = async (priceHelper?: PriceHelper): Promi
 }
 
 export const fetchTokenUSDValues = async (currencies: Currency[] = []): Promise<CommonPrice> => {
-  const commonTokenUSDValue: CommonPrice = {}
-  if (!supportedChainIdV3.includes(currencies[0]?.chainId)) {
-    return commonTokenUSDValue
+  if (currencies.length === 0) {
+    return {}
   }
 
-  if (currencies.length > 0) {
-    const list = currencies
-      .map((currency) => `${getLlamaChainName(currency.chainId)}:${currency.wrapped.address}`)
-      .join(',')
-    const result: { coins: { [key: string]: { price: string } } } = await fetch(
-      `https://coins.llama.fi/prices/current/${list}`,
-    ).then((res) => res.json())
+  const priceMap = await fetchCurrencyPriceMap()
 
-    Object.entries(result.coins || {}).forEach(([key, value]) => {
-      const [, address] = key.split(':')
-      commonTokenUSDValue[address] = value.price
-    })
+  if (currencies.some((c) => c.chainId !== ChainId.KLAYTN)) {
+    throw new Error('Contains an invalid token')
   }
 
-  return commonTokenUSDValue
+  return currencies.reduce((acc, c) => {
+    if (c.isNative)
+      return {
+        ...acc,
+        [ZERO_ADDRESS]: priceMap[ZERO_ADDRESS].toString(),
+      }
+
+    if ('address' in c) {
+      const price = priceMap[c.address.toLowerCase()]
+      if (!price) return acc
+
+      return {
+        ...acc,
+        [c.address]: price.toString(),
+      }
+    }
+
+    return acc
+  }, {} as CommonPrice)
 }
 
 export function getFarmsPrices(
@@ -542,6 +507,7 @@ export function getFarmsPrices(
 
   return commonPriceFarms.map((farm) => {
     let { tokenPriceBusd, quoteTokenPriceBusd } = farm
+
     // if token price is zero, try to get price from existing farms
     if (tokenPriceBusd.isZero()) {
       const ifTokenPriceFound = commonPriceFarms.find(
@@ -575,10 +541,10 @@ export function getFarmsPrices(
         }
 
         if (tokenPriceBusd.isZero()) {
-          console.error(`Can't get price for ${farm.token.address}`)
+          console.error(`[tokenPriceBusd] Can't get price for ${farm.token.address}`)
         }
         if (quoteTokenPriceBusd.isZero()) {
-          console.error(`Can't get price for ${farm.quoteToken.address}`)
+          console.error(`[quoteTokenPriceBusd] Can't get price for ${farm.quoteToken.address}`)
         }
       }
     }

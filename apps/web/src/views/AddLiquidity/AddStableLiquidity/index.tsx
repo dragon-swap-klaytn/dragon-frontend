@@ -53,11 +53,11 @@ export interface AddStableChildrenProps {
   stableAPR: number
   shouldShowApprovalGroup: boolean
   showFieldAApproval: boolean
-  approveACallback: () => Promise<SendTransactionResult>
+  approveACallback: () => Promise<SendTransactionResult | undefined>
   approvalA: ApprovalState
   showFieldBApproval: boolean
   approvalB: ApprovalState
-  approveBCallback: () => Promise<SendTransactionResult>
+  approveBCallback: () => Promise<SendTransactionResult | undefined>
   onAdd: () => Promise<void>
   onPresentAddLiquidityModal: () => void
   buttonDisabled: boolean
@@ -78,8 +78,8 @@ export default function AddStableLiquidity({
   currencyB,
   children,
 }: {
-  currencyA: Currency
-  currencyB: Currency
+  currencyA?: Currency
+  currencyB?: Currency
   children: (props: AddStableChildrenProps) => ReactElement
 }) {
   const { account, chainId } = useAccountActiveChain()

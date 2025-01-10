@@ -325,11 +325,7 @@ export const ImpermanentLossCalculator = memo(function ImpermanentLossCalculator
   ) : null;
 
   return (
-    <Section
-      title={t("Calculate impermanent loss")}
-      className="p-4 rounded-2xl flex flex-col bg-surface-container-highest"
-      mb="mb-0"
-    >
+    <Section title={t("Calculate impermanent loss")} className="p-4 rounded-2xl flex flex-col bg-neutral" mb="mb-0">
       <ToggleSwitch activated={on} setActivated={toggle} className="mb-4" />
 
       {calculator}

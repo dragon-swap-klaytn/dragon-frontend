@@ -34,7 +34,7 @@ export function CurrencyInputPanel({
         position="relative"
         backgroundColor="formBackground"
         zIndex="1"
-        className="bg-surface-container-highest rounded-2xl"
+        className="bg-neutral rounded-2xl"
       >
         <AtomBox
           as="label"
@@ -43,7 +43,7 @@ export function CurrencyInputPanel({
               showBridgeWarning: !!showBridgeWarning,
               error: Boolean(error),
             }),
-            "bg-surface-container-highest"
+            "bg-neutral"
           )}
         >
           <AtomBox
@@ -60,7 +60,7 @@ export function CurrencyInputPanel({
               error={Boolean(error)}
               disabled={disabled}
               loading={loading}
-              className="token-amount-input text-on-surface-primary text-lg"
+              className="token-amount-input text-on-surface text-lg"
               value={value}
               onBlur={onInputBlur}
               onUserInput={onUserInput}

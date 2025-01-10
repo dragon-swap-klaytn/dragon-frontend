@@ -1,11 +1,15 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Currency, CurrencyAmount, WNATIVE } from '@pancakeswap/sdk'
+import { CurrencyAmount, WNATIVE } from '@pancakeswap/sdk'
 import { CAKE_SYMBOL } from '@pancakeswap/tokens'
 import {
   ButtonV2,
+  Chip,
+  ContainerV2,
   CurrencyLogoWithAmount,
   CurrencyLogoWithSymbol,
+  Notification,
   PercentageSlider,
+  ToggleSwitch,
   useModal,
 } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
@@ -15,7 +19,6 @@ import { useUserSlippage } from '@pancakeswap/utils/user'
 import { MasterChefV3, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
 import { AppBody, AppHeader } from 'components/App'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
-import { CurrencyLogo } from 'components/Logo'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import useLocalSelector from 'contexts/LocalRedux/useSelector'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
@@ -38,9 +41,7 @@ import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmoun
 import { getViemClients } from 'utils/viem'
 
 import { ArrowDown } from '@phosphor-icons/react'
-import Chip from 'components/Common/Chip'
-import Notification from 'components/Common/Notification'
-import ToggleSwitch from 'components/Common/ToggleSwitch'
+import ConnectWalletButton from 'components/ConnectWalletButton'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
@@ -229,39 +230,44 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
   const modalHeader = useCallback(() => {
     return (
       <>
-        <div className="flex flex-col space-y-2">
-          <RemoveLiquidityContent
-            title={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
-            amount={liquidityValue0}
-            currency={liquidityValue0?.currency}
+        <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
+
+        <ContainerV2 className="mt-2">
+          <CurrencyLogoWithAmount
+            currencyA={liquidityValue0?.currency}
+            amount={<FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
+            symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
+            className="pb-3 border-b border-border"
           />
-          <RemoveLiquidityContent
-            title={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
-            amount={liquidityValue1}
-            currency={liquidityValue1?.currency}
+          <CurrencyLogoWithAmount
+            currencyA={liquidityValue1?.currency}
+            amount={<FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
+            symbol={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
+            className="pt-3"
           />
-        </div>
+        </ContainerV2>
 
         {feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) ? (
-          <>
-            <p className="text-sm text-on-surface-primary mt-4">
-              {t('You will also collect fees earned from this position.')}
-            </p>
+          <div className="pt-4 mt-4">
+            <p className="text-sm text-on-surface">{t('You will also collect fees earned from this position.')}</p>
 
-            <div className="flex flex-col space-y-2 mt-2">
-              <RemoveLiquidityContent
-                title={`${feeValue0?.currency?.symbol} ${t('Fees Earned')}`}
-                amount={feeValue0}
-                currency={feeValue0?.currency}
-              />
+            <h5 className="text-xs text-on-surface-subtle mt-4">{t('earned fees')}</h5>
 
-              <RemoveLiquidityContent
-                title={`${feeValue1?.currency?.symbol} ${t('Fees Earned')}`}
-                amount={feeValue1}
-                currency={feeValue1?.currency}
+            <ContainerV2 className="mt-2">
+              <CurrencyLogoWithAmount
+                currencyA={feeValue0?.currency}
+                amount={<FormattedCurrencyAmount currencyAmount={feeValue0} />}
+                symbol={`${feeValue0?.currency?.symbol} ${t('Fees Earned')}`}
+                className="pb-3 border-b border-border"
               />
-            </div>
-          </>
+              <CurrencyLogoWithAmount
+                currencyA={feeValue1?.currency}
+                amount={<FormattedCurrencyAmount currencyAmount={feeValue1} />}
+                symbol={`${feeValue1?.currency?.symbol} ${t('Fees Earned')}`}
+                className="pt-3"
+              />
+            </ContainerV2>
+          </div>
         ) : null}
       </>
     )
@@ -341,21 +347,22 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
           })}
           noConfig
         />
-        <div className="p-4">
-          <div className="flex items-center space-x-w w-full justify-between">
-            <div className="flex flex-col items-start space-y-1">
-              <CurrencyLogoWithSymbol
-                currencyA={liquidityValue0?.currency}
-                currencyB={liquidityValue1?.currency}
-                symbol={`${liquidityValue0?.currency?.symbol}-${liquidityValue1?.currency?.symbol} LP`}
-                symbolClassName="text-on-surface-primary"
-              />
-              <h4 className="text-sm text-on-surface-tertiary">#{tokenId?.toString()}</h4>
-            </div>
+        <div className="p-5 md:p-8">
+          <div className="flex items-center gap-2 flex-wrap w-full justify-between">
+            <div className="flex flex-col items-start space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <CurrencyLogoWithSymbol
+                  currencyA={liquidityValue0?.currency}
+                  currencyB={liquidityValue1?.currency}
+                  symbol={`${liquidityValue0?.currency?.symbol}-${liquidityValue1?.currency?.symbol} LP`}
+                  symbolClassName="text-on-surface"
+                />
 
-            <div className="flex items-center space-x-2">
-              {isStakedInMCv3 && <Chip color="orange">{t('Farming')}</Chip>}
-              {liquidityValue0 && liquidityValue1 ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
+                {isStakedInMCv3 && <Chip color="orange">{t('Farming')}</Chip>}
+                {liquidityValue0 && liquidityValue1 ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
+              </div>
+
+              <h4 className="text-sm text-on-surface-subtlest">V3 LP #{tokenId?.toString()}</h4>
             </div>
           </div>
 
@@ -370,12 +377,29 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
             />
           </div>
 
-          <ArrowDown size={24} className="text-on-surface-primary my-4 mx-auto" />
+          <ArrowDown size={24} className="text-on-surface my-4 mx-auto" />
 
           <div>
-            <SectionTitle>{t('You will receive')}</SectionTitle>
+            <div className="w-full flex items-center space-x-2 justify-between">
+              <SectionTitle>{t('You will receive')}</SectionTitle>
 
-            <div className="p-4 mt-2 rounded-2xl bg-surface-container-highest">
+              {showCollectAsWNative && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-[13px] text-on-surface-subtlest">
+                    {t('Collect as')} {nativeWrappedSymbol}
+                  </span>
+
+                  <ToggleSwitch
+                    activated={receiveWNATIVE}
+                    setActivated={() => setReceiveWNATIVE((prevState) => !prevState)}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="mt-2">
+              <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
+
               <CurrencyLogoWithAmount
                 currencyA={liquidityValue0?.currency}
                 symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
@@ -385,6 +409,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
                     ? `~$${price0.quote(liquidityValue0.wrapped).toFixed(2, { groupSeparator: ',' })}`
                     : ''
                 }
+                className="border-y border-border py-2 mt-2"
               />
 
               <CurrencyLogoWithAmount
@@ -396,10 +421,10 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
                     ? `~$${price1.quote(liquidityValue1.wrapped).toFixed(2, { groupSeparator: ',' })}`
                     : ''
                 }
-                className="mt-3"
+                className="border-b border-border py-2"
               />
 
-              <div className="border w-full my-4 border-on-surface-tertiary" />
+              <h5 className="text-xs text-on-surface-subtle mt-6">{t('earned fees')}</h5>
 
               <CurrencyLogoWithAmount
                 currencyA={feeValue0?.currency}
@@ -408,6 +433,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
                 value={
                   price0 && feeValue0 ? `~$${price0.quote(feeValue0.wrapped).toFixed(2, { groupSeparator: ',' })}` : ''
                 }
+                className="border-y border-border py-2 mt-2"
               />
               <CurrencyLogoWithAmount
                 currencyA={feeValue1?.currency}
@@ -416,26 +442,13 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
                 value={
                   price1 && feeValue1 ? `~$${price1.quote(feeValue1.wrapped).toFixed(2, { groupSeparator: ',' })}` : ''
                 }
-                className="mt-3"
+                className="border-b border-border py-2"
               />
             </div>
           </div>
 
-          {showCollectAsWNative && (
-            <div className="mt-1 w-full flex items-center space-x-2 justify-end">
-              <h5 className="text-sm text-on-surface-tertiary">
-                {t('Collect as')} {nativeWrappedSymbol}
-              </h5>
-
-              <ToggleSwitch
-                activated={receiveWNATIVE}
-                setActivated={() => setReceiveWNATIVE((prevState) => !prevState)}
-              />
-            </div>
-          )}
-
           {isStakedInMCv3 ? (
-            <Notification variant="info" className="mt-4">
+            <Notification variant="info" className="mt-4" nStyle="highlight">
               {t(
                 'This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed %cake% to your wallet.',
                 {
@@ -445,15 +458,19 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
             </Notification>
           ) : null}
 
-          <ButtonV2
-            disabled={attemptingTxn || removed || Boolean(error)}
-            fullWidth
-            onClick={onPresentRemoveLiquidityModal}
-            className="mt-4"
-            variant="primary"
-          >
-            {removed ? t('Closed') : error ?? t('Remove')}
-          </ButtonV2>
+          {!account ? (
+            <ConnectWalletButton className="mt-8" />
+          ) : (
+            <ButtonV2
+              disabled={attemptingTxn || removed || Boolean(error)}
+              fullWidth
+              onClick={onPresentRemoveLiquidityModal}
+              className="mt-8"
+              variant="primary"
+            >
+              {removed ? t('Closed') : error ?? t('Remove')}
+            </ButtonV2>
+          )}
         </div>
       </AppBody>
     </Page>
@@ -461,28 +478,5 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 }
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-xs text-surface-orange">{children}</h3>
-}
-
-function RemoveLiquidityContent({
-  title,
-  amount,
-  currency,
-}: {
-  title: string
-  amount?: CurrencyAmount<Currency>
-  currency?: Currency
-}) {
-  return (
-    <div className="flex items-center space-x-2 justify-between">
-      <h5 className="text-sm text-on-surface-primary">{title} :</h5>
-
-      <div className="flex items-center space-x-2">
-        <span className="text-sm text-on-surface-primary">
-          {amount && <FormattedCurrencyAmount currencyAmount={amount} />}
-        </span>
-        <CurrencyLogo size={20} currency={currency} />
-      </div>
-    </div>
-  )
+  return <h3 className="text-xs text-on-surface-brand">{children}</h3>
 }

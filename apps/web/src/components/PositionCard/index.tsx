@@ -1,11 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Percent } from '@pancakeswap/sdk'
-import { AutoColumn, Card, CardBody, CardProps, Flex, Link, Text, TooltipText, useTooltip } from '@pancakeswap/uikit'
+import { CardProps, CurrencyLogoWithSymbol, ExternalLink, Notification, QuestionHelper } from '@pancakeswap/uikit'
 import { BIG_INT_ZERO } from 'config/constants/exchange'
 import { useStablecoinPriceAmount } from 'hooks/useBUSDPrice'
 import useTotalSupply from 'hooks/useTotalSupply'
-import { useContext, useMemo } from 'react'
-import { styled } from 'styled-components'
+import { ReactNode, useContext, useMemo } from 'react'
 import { useGetRemovedTokenAmounts } from 'views/RemoveLiquidity/RemoveStableLiquidity/hooks/useStableDerivedBurnInfo'
 import { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
 import { useAccount } from 'wagmi'
@@ -15,13 +14,6 @@ import { useTokenBalance } from 'state/wallet/hooks'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
 
 import { formatAmount } from '../../utils/formatInfoNumbers'
-import { LightCard } from '../Card'
-import { RowBetween, RowFixed } from '../Layout/Row'
-import { DoubleCurrencyLogo } from '../Logo'
-
-const FixedHeightRow = styled(RowBetween)`
-  height: 24px;
-`
 
 export interface PositionCardProps extends CardProps {
   pair: Pair
@@ -50,11 +42,11 @@ export const useTokensDeposited = ({ pair, totalPoolTokens, userPoolBalance }) =
 export const useTotalUSDValue = ({ currency0, currency1, token0Deposited, token1Deposited }) => {
   const token0USDValue = useStablecoinPriceAmount(
     currency0,
-    token0Deposited ? parseFloat(token0Deposited.toSignificant(6)) : null,
+    token0Deposited ? parseFloat(token0Deposited.toSignificant(6)) : undefined,
   )
   const token1USDValue = useStablecoinPriceAmount(
     currency1,
-    token1Deposited ? parseFloat(token1Deposited.toSignificant(6)) : null,
+    token1Deposited ? parseFloat(token1Deposited.toSignificant(6)) : undefined,
   )
 
   return token0USDValue && token1USDValue ? token0USDValue + token1USDValue : null
@@ -135,124 +127,101 @@ function MinimalPositionCardView({
 
   const { t } = useTranslation()
   const poolData = useLPApr(pair)
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    t(`Based on last 7 days' performance. Does not account for impermanent loss`),
-    {
-      placement: 'bottom',
-    },
-  )
 
   return (
     <>
       {userPoolBalance && userPoolBalance.quotient > BIG_INT_ZERO ? (
-        <Card>
-          <CardBody>
-            <AutoColumn gap="16px">
-              <FixedHeightRow>
-                <RowFixed>
-                  <Text color="secondary" bold>
-                    {t('LP tokens in your wallet')}
-                  </Text>
-                </RowFixed>
-              </FixedHeightRow>
-              <FixedHeightRow>
-                <RowFixed>
-                  <DoubleCurrencyLogo currency0={currency0} currency1={currency1} />
-                  <Text small color="textSubtle">
-                    {currency0.name === 'Tether USD (Stargate)' ? 'USDT(Stargate)' : currency0.symbol}-
-                    {currency1.name === 'Tether USD (Stargate)' ? 'USDT(Stargate)' : currency1.symbol} LP
-                  </Text>
-                </RowFixed>
-                <RowFixed>
-                  <Flex flexDirection="column" alignItems="flex-end">
-                    <Text>{userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}</Text>
-                    {Number.isFinite(totalUSDValue) && (
-                      <Text small color="textSubtle">{`(~${totalUSDValue.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })} USD)`}</Text>
-                    )}
-                  </Flex>
-                </RowFixed>
-              </FixedHeightRow>
-              <AutoColumn gap="4px">
-                {poolData && (
-                  <FixedHeightRow>
-                    <TooltipText ref={targetRef} color="textSubtle" small>
-                      {t('LP reward APR')}:
-                    </TooltipText>
-                    {tooltipVisible && tooltip}
-                    <Text>{formatAmount(poolData.lpApr7d)}%</Text>
-                  </FixedHeightRow>
+        <div className="p-4 bg-neutral rounded-2xl w-full">
+          <h5 className="text-on-surface-brand text-sm">{t('LP tokens in your wallet')}</h5>
+
+          <div className="mt-4 flex flex-col items-center space-y-2">
+            <div className="flex items-start space-x-2 justify-between w-full">
+              <CurrencyLogoWithSymbol
+                currencyA={currency0}
+                currencyB={currency1}
+                symbol={`${currency0.name === 'Tether USD (Stargate)' ? 'USDT(Stargate)' : currency0.symbol}-${
+                  currency1.name === 'Tether USD (Stargate)' ? 'USDT(Stargate)' : currency1.symbol
+                } LP`}
+                symbolClassName="text-on-surface text-sm"
+              />
+
+              <div className="flex flex-col items-end">
+                <span className="text-on-surface text-sm">
+                  {userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}
+                </span>
+
+                {Number.isFinite(totalUSDValue) && (
+                  <span className="text-on-surface-subtlest text-[13px]">{`(~${totalUSDValue.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })} USD)`}</span>
                 )}
-                <FixedHeightRow>
-                  <Text color="textSubtle" small>
-                    {t('Share in Trading Pair')}:
-                  </Text>
-                  <Text>{poolTokenPercentage ? `${poolTokenPercentage.toFixed(6)}%` : '-'}</Text>
-                </FixedHeightRow>
-                {isStableLP ? null : (
-                  <FixedHeightRow>
-                    <Text color="textSubtle" small>
-                      {t('Pooled %asset%', { asset: currency0.symbol })}:
-                    </Text>
-                    {token0Deposited ? (
-                      <RowFixed>
-                        <Text ml="6px">{token0Deposited?.toSignificant(6)}</Text>
-                      </RowFixed>
-                    ) : (
-                      '-'
-                    )}
-                  </FixedHeightRow>
-                )}
-                {isStableLP ? null : (
-                  <FixedHeightRow>
-                    <Text color="textSubtle" small>
-                      {t('Pooled %asset%', { asset: currency1.symbol })}:
-                    </Text>
-                    {token1Deposited ? (
-                      <RowFixed>
-                        <Text ml="6px">{token1Deposited?.toSignificant(6)}</Text>
-                      </RowFixed>
-                    ) : (
-                      '-'
-                    )}
-                  </FixedHeightRow>
-                )}
-              </AutoColumn>
-            </AutoColumn>
-          </CardBody>
-        </Card>
-      ) : (
-        <LightCard>
-          <Text fontSize="14px" style={{ textAlign: 'center' }}>
-            <span role="img" aria-label="pancake-icon">
-              🐉
-            </span>{' '}
-            {isStableLP ? (
-              <>
-                {t(
-                  'By adding liquidity, you’ll earn 50% from the fees of all trades on this pair, proportional to your share in the trading pair. Fees are added to the pair, accrue in real time, and can be claimed by withdrawing your liquidity. For more information on Stableswap fees click',
-                )}
-                <Link
-                  style={{ display: 'inline' }}
-                  ml="4px"
-                  external
-                  href="https://docs.dgswap.io/products/stableswap#stableswap-fees"
-                >
-                  {t('here.')}
-                </Link>
-              </>
-            ) : (
-              t(
-                "By adding liquidity you'll earn 0.24% of all trades on this pair proportional to your share in the trading pair. Fees are added to the pair, accrue in real time and can be claimed by withdrawing your liquidity.",
-              )
+              </div>
+            </div>
+
+            {poolData && (
+              <Wrapper
+                title={
+                  <h5 className="flex items-center space-x-1">
+                    <span>{t('LP reward APR')}</span>
+                    <QuestionHelper
+                      text={t(`Based on last 7 days' performance. Does not account for impermanent loss`)}
+                    />
+                  </h5>
+                }
+                value={`${formatAmount(poolData.lpApr7d)}%`}
+              />
             )}
-          </Text>
-        </LightCard>
+
+            <Wrapper
+              title={<h5>{t('Share in Trading Pair')}</h5>}
+              value={poolTokenPercentage ? `${poolTokenPercentage.toFixed(2)}%` : '-'}
+            />
+
+            {isStableLP ? null : (
+              <Wrapper
+                title={<h5>{t('Pooled %asset%', { asset: currency0.symbol })}</h5>}
+                value={token0Deposited?.toSignificant(6) || '-'}
+              />
+            )}
+
+            {isStableLP ? null : (
+              <Wrapper
+                title={<h5>{t('Pooled %asset%', { asset: currency1.symbol })}</h5>}
+                value={token1Deposited?.toSignificant(6) || '-'}
+              />
+            )}
+          </div>
+        </div>
+      ) : (
+        <Notification variant="info" nStyle="highlight" fullWidth>
+          {isStableLP ? (
+            <>
+              {t(
+                'By adding liquidity, you’ll earn 50% from the fees of all trades on this pair, proportional to your share in the trading pair. Fees are added to the pair, accrue in real time, and can be claimed by withdrawing your liquidity. For more information on Stableswap fees click',
+              )}
+
+              <ExternalLink href="https://docs.dgswap.io/products/stableswap#stableswap-fees" className="ml-1" hideIcon>
+                {t('here.')}
+              </ExternalLink>
+            </>
+          ) : (
+            t(
+              "By adding liquidity you'll earn 0.24% of all trades on this pair proportional to your share in the trading pair. Fees are added to the pair, accrue in real time and can be claimed by withdrawing your liquidity.",
+            )
+          )}
+        </Notification>
       )}
     </>
   )
 }
 
 export const MinimalPositionCard = withLPValues(MinimalPositionCardView)
+
+function Wrapper({ title, value }: { title: ReactNode; value: string }) {
+  return (
+    <div className="flex items-start space-x-2 justify-between w-full text-sm text-on-surface-subtle">
+      {title} <span>{value}</span>
+    </div>
+  )
+}

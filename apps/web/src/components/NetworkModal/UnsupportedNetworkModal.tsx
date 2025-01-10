@@ -1,7 +1,6 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { Modal } from '@pancakeswap/uikit'
-import Button from 'components/Common/Button'
+import { ButtonV2, Modal } from '@pancakeswap/uikit'
 import { useMenuItems } from 'components/Menu/hooks/useMenuItems'
 import { getActiveMenuItem, getActiveSubMenuItem } from 'components/Menu/utils'
 import { useLocalNetworkChain } from 'hooks/useActiveChainId'
@@ -47,7 +46,7 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
         <p className="mt-2 text-center break-keep">{t('Please switch your network to continue.')}</p>
 
         {canSwitch ? (
-          <Button
+          <ButtonV2
             className="mt-6"
             variant="primary"
             state={isLoading ? 'loading' : 'default'}
@@ -61,15 +60,15 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
             fullWidth
           >
             {isLoading ? <Dots>{t('Switch network in wallet')}</Dots> : t('Switch network in wallet')}
-          </Button>
+          </ButtonV2>
         ) : (
-          <Button className="mt-6" variant="primary" disabled onClick={() => {}} fullWidth>
+          <ButtonV2 className="mt-6" variant="primary" disabled onClick={() => {}} fullWidth>
             {t('Unable to switch network. Please try it on your wallet')}
-          </Button>
+          </ButtonV2>
         )}
 
         {isConnected && (
-          <Button
+          <ButtonV2
             variant="subtle"
             fullWidth
             className="mt-3"
@@ -80,7 +79,7 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
             }
           >
             {t('Disconnect Wallet')}
-          </Button>
+          </ButtonV2>
         )}
       </div>
     </Modal>

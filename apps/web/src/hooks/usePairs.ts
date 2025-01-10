@@ -44,6 +44,7 @@ export function useV2Pairs(
       }),
     [tokens],
   )
+
   const results = useMultipleContractSingleData({
     addresses: pairAddresses,
     abi: pancakePairV2ABI,

@@ -1,7 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { useToast } from '@pancakeswap/uikit'
 import { MasterChefV3, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
-import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
+import { useQueryClient } from '@tanstack/react-query'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useCatchTxError from 'hooks/useCatchTxError'
@@ -10,10 +11,9 @@ import { useCallback } from 'react'
 import { calculateGasMargin } from 'utils'
 import { getViemClients, viemClients } from 'utils/viem'
 import { Address, hexToBigInt } from 'viem'
-import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
-import { useQueryClient } from '@tanstack/react-query'
-import { useUnwrapReward } from 'views/Farms/hooks/useUnwrapReward'
 import { useFinishedFarm } from 'views/Farms/hooks/useFinishedFarm'
+import { useUnwrapReward } from 'views/Farms/hooks/useUnwrapReward'
+import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
 
 interface FarmV3ActionContainerChildrenProps {
   attemptingTxn: boolean
@@ -27,8 +27,8 @@ const useFarmV3Actions = ({
   reward,
   onDone,
 }: {
-  tokenId: string,
-  reward: bigint,
+  tokenId: string
+  reward: bigint
   onDone?: () => void
 }): FarmV3ActionContainerChildrenProps => {
   const { t } = useTranslation()
@@ -48,7 +48,7 @@ const useFarmV3Actions = ({
 
   const { onAlert } = useUnwrapReward({
     reward,
-    chainId: chainId as number
+    chainId: chainId as number,
   })
 
   const onUnstake = useCallback(async () => {
@@ -94,6 +94,7 @@ const useFarmV3Actions = ({
     toastSuccess,
     tokenId,
     onDone,
+    onAlert,
   ])
 
   const onStake = useCallback(async () => {
@@ -194,8 +195,7 @@ const useFarmV3Actions = ({
     toastSuccess,
     tokenId,
     queryClient,
-    reward,
-    onAlert
+    onAlert,
   ])
 
   return {

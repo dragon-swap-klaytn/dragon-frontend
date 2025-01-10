@@ -2,17 +2,21 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
 import { Position } from '@pancakeswap/v3-sdk'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
-import { DoubleCurrencyLogo } from 'components/Logo'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import { RangePriceSection } from 'components/RangePriceSection'
 import { Bound } from 'config/constants/types'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
-import { ReactNode, useCallback, useState } from 'react'
+import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { formatPrice } from 'utils/formatCurrencyAmount'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
+import { Chip, CurrencyLogoWithAmount, CurrencyLogoWithSymbol } from '@pancakeswap/uikit'
+import clsx from 'clsx'
 import { RangeTag } from 'components/RangeTag'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { useMasterchefV3 } from 'hooks/useContract'
+import { useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
+import { useRouter } from 'next/router'
 import RateToggle from './RateToggle'
 
 export const PositionPreview = ({
@@ -21,12 +25,14 @@ export const PositionPreview = ({
   inRange,
   baseCurrencyDefault,
   ticksAtLimit,
+  className,
 }: {
   position: Position
   title?: ReactNode
   inRange: boolean
   baseCurrencyDefault?: Currency | undefined
   ticksAtLimit: { [bound: string]: boolean | undefined }
+  className?: string
 }) => {
   const {
     t,
@@ -64,73 +70,70 @@ export const PositionPreview = ({
 
   const removed = typeof position?.liquidity === 'bigint' && position?.liquidity === 0n
 
+  const router = useRouter()
+
+  const { currency } = router.query
+  const tokenId = currency ? currency[currency.length - 1] : undefined
+
+  const { account } = useAccountActiveChain()
+  const masterchefV3 = useMasterchefV3()
+  const { tokenIds: stakedTokenIds } = useV3TokenIdsByAccount(masterchefV3?.address, account)
+
+  const isStakedInMCv3 = useMemo(
+    () => Boolean(tokenId) && Boolean(stakedTokenIds.find((id) => id.toString() === tokenId)),
+    [tokenId, stakedTokenIds],
+  )
+
   return (
-    <div className="flex flex-col space-y-3">
-      <div className="flex items-center w-full space-x2 justify-between">
-        <div className="flex items-center space-x-3">
-          <DoubleCurrencyLogo currency0={currency0 ?? undefined} currency1={currency1 ?? undefined} size={24} />
+    <div className={clsx('flex flex-col', className)}>
+      <div className="w-full items-center gap-2 flex justify-between flex-wrap">
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-2 flex-wrap">
+            <CurrencyLogoWithSymbol
+              currencyA={currency0 ?? undefined}
+              currencyB={currency1 ?? undefined}
+              symbol={`${currency0?.symbol}-${currency1?.symbol}`}
+              symbolClassName="font-bold text-on-surface"
+            />
 
-          <span className="font-bold text-on-surface-primary">
-            {currency0?.symbol}-{currency1?.symbol}
-          </span>
-        </div>
-
-        <RangeTag removed={removed} outOfRange={!inRange} />
-      </div>
-
-      <div className="flex flex-col rounded-2xl p-4 bg-surface-container-highest space-y-3">
-        <div className="flex items-center space-x-2 w-full justify-between">
-          <div className="flex items-center space-x-2">
-            <CurrencyLogo currency={currency0} />
-
-            <span className="text-sm text-on-surface-primary">{currency0?.symbol}</span>
+            {Boolean(isStakedInMCv3) && <Chip color="orange">{t('Farming')}</Chip>}
+            <RangeTag removed={removed} outOfRange={!inRange} />
           </div>
 
-          <div className="flex flex-col items-end">
-            <p className="text-sm text-on-surface-primary">
-              <FormattedCurrencyAmount currencyAmount={position.amount0} />
-            </p>
-
-            <p className="text-[13px] text-on-surface-tertiary">
-              {position.amount0 && price0
-                ? `~$${price0.quote(position.amount0?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                : ''}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2 w-full justify-between">
-          <div className="flex items-center space-x-2">
-            <CurrencyLogo currency={currency1} />
-
-            <span className="text-sm text-on-surface-primary">{currency1?.symbol}</span>
-          </div>
-
-          <div className="flex flex-col items-end">
-            <p className="text-sm text-on-surface-primary">
-              <FormattedCurrencyAmount currencyAmount={position.amount1} />
-            </p>
-
-            <p className="text-[13px] text-on-surface-tertiary">
-              {position.amount1 && price1
-                ? `~$${price1.quote(position.amount1?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                : ''}
-            </p>
-          </div>
-        </div>
-
-        <div className="border w-full bg-on-surface-tertiary" />
-
-        <div className="w-full flex items-center space-x-2 justify-between text-sm text-on-surface-primary">
-          <h4>{t('Fee Tier')}</h4>
-
-          <span>{position?.pool?.fee / 10000}%</span>
+          <p className="text-sm text-on-surface-subtlest mt-2">
+            {tokenId && `V3 LP #${tokenId}`} / {position?.pool?.fee / 10000}% {t('Fee Tier')}
+          </p>
         </div>
       </div>
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col mt-8 border-t border-border">
+        <CurrencyLogoWithAmount
+          className="py-2 border-b border-border"
+          currencyA={currency0}
+          symbol={currency0?.symbol}
+          amount={<FormattedCurrencyAmount currencyAmount={position.amount0} />}
+          value={
+            position.amount0 && price0
+              ? `~$${price0.quote(position.amount0?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+              : ''
+          }
+        />
+        <CurrencyLogoWithAmount
+          className="py-2 border-b border-border"
+          currencyA={currency1}
+          symbol={currency1?.symbol}
+          amount={<FormattedCurrencyAmount currencyAmount={position.amount1} />}
+          value={
+            position.amount1 && price1
+              ? `~$${price1.quote(position.amount1?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+              : ''
+          }
+        />
+      </div>
+
+      <div className="flex flex-col items-center mt-8">
         <div className="flex items-center space-x-2 justify-between w-full">
-          {title && <span className="text-surface-orange text-xs">{title}</span>}
+          <span className="text-on-surface-brand text-xs">{title}</span>
           <RateToggle currencyA={sorted ? currency0 : currency1} handleRateToggle={handleRateChange} />
         </div>
 
@@ -152,6 +155,7 @@ export const PositionPreview = ({
         </div>
         <RangePriceSection
           title={t('Current Price')}
+          titleColor="text-on-surface-brand"
           currency0={quoteCurrency}
           currency1={baseCurrency}
           price={formatPrice(price, 6, locale)}

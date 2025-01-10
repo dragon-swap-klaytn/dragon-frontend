@@ -1,12 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/sdk'
+import { ButtonV2, CurrencyLogoWithSymbol, Notification, TruncatedText } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import truncateHash from '@pancakeswap/utils/truncateHash'
-import { ArrowCircleDown } from '@phosphor-icons/react'
-import Button from 'components/Common/Button'
-import Notification from 'components/Common/Notification'
-import TruncatedText from 'components/Common/TruncatedText'
-import { CurrencyLogo } from 'components/Logo'
+import { ArrowDown } from '@phosphor-icons/react'
 import { useMemo } from 'react'
 import { Field } from 'state/swap/actions'
 
@@ -66,17 +63,17 @@ export default function SwapModalHeader({
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center space-y-3 w-full">
         <TokenAmountRow amount={inputAmount} currency={currencyBalances.INPUT?.currency ?? inputAmount.currency} />
-        <ArrowCircleDown size={24} className="text-gray-50" />
+        <ArrowDown size={24} className="text-gray-50" />
         <TokenAmountRow amount={outputAmount} currency={currencyBalances.OUTPUT?.currency ?? outputAmount.currency} />
       </div>
 
       {showAcceptChanges ? (
-        <div className="py-4 px-6 w-full rounded-[20px] bg-surface-container-highest mt-4">
-          <p className="text-sm text-center text-on-surface-primary">{t('Update with a new quote?')}</p>
+        <div className="py-4 px-6 w-full rounded-[20px] bg-neutral mt-4">
+          <p className="text-sm text-center text-on-surface">{t('Update with a new quote?')}</p>
 
-          <Button variant="primary" fullWidth onClick={onAcceptChanges} scale="sm" className="mt-4">
+          <ButtonV2 variant="primary" fullWidth onClick={onAcceptChanges} scale="sm" className="mt-4">
             {t('Accept')}
-          </Button>
+          </ButtonV2>
         </div>
       ) : null}
 
@@ -86,10 +83,10 @@ export default function SwapModalHeader({
         </Notification>
       )}
 
-      <p className="text-center text-on-surface-primary tetx-sm mt-4">{tradeInfoText}</p>
+      <p className="text-center text-on-surface text-sm mt-4">{tradeInfoText}</p>
 
       {recipient ? (
-        <div className="flex flex-col space-y-3 mt-4 bg-surface-container-highest">
+        <div className="flex flex-col space-y-3 mt-4 bg-neutral">
           {recipientSentToText}
           <b title={recipient}>{truncatedRecipient}</b>
           {postSentToText}
@@ -101,13 +98,10 @@ export default function SwapModalHeader({
 
 function TokenAmountRow({ amount, currency }: { amount: CurrencyAmount<Currency>; currency: Currency }) {
   return (
-    <div className="flex items-center space-x-2 text-sm justify-between w-full rounded-[20px] p-2 bg-surface-container-highest text-on-surface-primary">
-      <div className="flex items-center space-x-2">
-        <CurrencyLogo currency={currency ?? amount.currency} size={28} />
-        <span>{amount.currency.symbol}</span>
-      </div>
+    <div className="flex items-center space-x-2 text-sm justify-between w-full rounded-[20px] p-2 bg-neutral text-on-surface">
+      <CurrencyLogoWithSymbol currencyA={currency ?? amount.currency} symbol={amount.currency.symbol} logoSize={28} />
 
-      <TruncatedText className="font-bold text-lg text-right pr-2">{formatAmount(amount, 6)}</TruncatedText>
+      <TruncatedText className="font-bold text-right pr-2">{formatAmount(amount, 6)}</TruncatedText>
     </div>
   )
 }

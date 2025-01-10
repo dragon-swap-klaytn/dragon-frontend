@@ -1,8 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
+import { ButtonV2 } from '@pancakeswap/uikit'
 import { TOTAL_FEE } from 'config/constants/info'
 import { useState } from 'react'
-
-import Button from 'components/Common/Button'
 import { HandleFeePoolSelectFn, SELECTOR_TYPE } from '../types'
 import HideShowSelectorSection from './HideShowSelectorSection'
 
@@ -23,7 +22,7 @@ export function V2Selector({
       showOptions={showOptions}
       setShowOptions={setShowOptions}
       heading={
-        <span className="text-[15px] text-on-surface-primary">
+        <span className="text-[15px] text-on-surface">
           {selectorType === SELECTOR_TYPE.STABLE
             ? 'StableSwap LP'
             : selectorType === SELECTOR_TYPE.V2
@@ -34,61 +33,33 @@ export function V2Selector({
       content={
         <div className="grid grid-cols-2 gap-3 w-full">
           {isStable ? (
-            <Button
+            <ButtonV2
               variant={selectorType === SELECTOR_TYPE.STABLE ? 'primary' : 'blank'}
               onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.STABLE })}
               fullWidth
+              scale="sm"
             >
-              {/* <SelectButton
-                isActive={selectorType === SELECTOR_TYPE.STABLE}
-                onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.STABLE })}
-              > */}
               StableSwap LP
-              {/* </SelectButton> */}
-            </Button>
+            </ButtonV2>
           ) : (
-            <Button
+            <ButtonV2
               variant={selectorType === SELECTOR_TYPE.V3 ? 'primary' : 'blank'}
               onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.V3 })}
               fullWidth
+              scale="sm"
             >
-              {/* <SelectButton
-                isActive={selectorType === SELECTOR_TYPE.STABLE}
-                onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.STABLE })}
-              > */}
               V3 LP
-              {/* </SelectButton> */}
-            </Button>
-
-            // <>
-            //   <SelectButton
-            //     isActive={selectorType === SELECTOR_TYPE.V3}
-            //     onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.V3 })}
-            //   >
-            //     V3 LP
-            //   </SelectButton>
-            // </>
+            </ButtonV2>
           )}
 
-          <Button
+          <ButtonV2
             variant={selectorType === SELECTOR_TYPE.V2 ? 'primary' : 'blank'}
             onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.V2 })}
             fullWidth
-          >
-            {/* <SelectButton
-                isActive={selectorType === SELECTOR_TYPE.STABLE}
-                onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.STABLE })}
-              > */}
-            V2 LP
-            {/* </SelectButton> */}
-          </Button>
-
-          {/* <SelectButton
-            isActive={selectorType === SELECTOR_TYPE.V2}
-            onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.V2 })}
+            scale="sm"
           >
             V2 LP
-          </SelectButton> */}
+          </ButtonV2>
         </div>
       }
     />

@@ -19,16 +19,16 @@ interface V3SubmitButtonProps {
   approvalB: ApprovalState
   isValid: boolean
   showApprovalA: boolean
-  approveACallback: () => Promise<SendTransactionResult>
+  approveACallback: () => Promise<SendTransactionResult | undefined>
   currentAllowanceA: CurrencyAmount<Currency> | undefined
-  revokeACallback: () => Promise<SendTransactionResult>
+  revokeACallback: () => Promise<SendTransactionResult | undefined>
   currencies: {
     CURRENCY_A?: Currency
     CURRENCY_B?: Currency
   }
-  approveBCallback: () => Promise<SendTransactionResult>
+  approveBCallback: () => Promise<SendTransactionResult | undefined>
   currentAllowanceB: CurrencyAmount<Currency> | undefined
-  revokeBCallback: () => Promise<SendTransactionResult>
+  revokeBCallback: () => Promise<SendTransactionResult | undefined>
   showApprovalB: boolean
   parsedAmounts: {
     CURRENCY_A?: CurrencyAmount<Currency>

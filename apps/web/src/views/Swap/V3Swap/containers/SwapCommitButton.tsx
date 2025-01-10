@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { TradeType } from '@pancakeswap/sdk'
 import { SMART_ROUTER_ADDRESSES, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { Dots, ModalV2, useModal } from '@pancakeswap/uikit'
+import { ButtonV2, Dots, ModalV2, Notification, useModal } from '@pancakeswap/uikit'
 import { confirmPriceImpactWithoutFee } from '@pancakeswap/widgets-internal'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
@@ -28,10 +28,12 @@ import { useRoutingSettingChanged } from 'state/user/smartRouter'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { warningSeverity } from 'utils/exchange'
 
+import { useDebounce } from '@pancakeswap/hooks'
 import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
-import Button from 'components/Common/Button'
-import Notification from 'components/Common/Notification'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useAtom } from 'jotai'
+import { swapReducerAtom } from 'state/swap/reducer'
+import { safeGetAddress } from 'utils'
 import { useConfirmModalState } from 'views/Swap/V3Swap/hooks/useConfirmModalState'
 import { useAccount } from 'wagmi'
 import { useParsedAmounts, useSlippageAdjustedAmounts, useSwapCallback, useSwapInputError } from '../hooks'
@@ -66,6 +68,11 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   const outputCurrency = useCurrency(outputCurrencyId)
   const swapIsUnsupported = useIsTransactionUnsupported(inputCurrency, outputCurrency)
   const { onUserInput } = useSwapActionHandlers()
+
+  const [s] = useAtom(swapReducerAtom)
+  const debouncedAddress = useDebounce(s.recipient, 500)
+  const address = useMemo(() => safeGetAddress(debouncedAddress), [debouncedAddress])
+  const recipientError = Boolean((debouncedAddress?.length || 0) > 0 && !address)
 
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
     <ApprovalConfirmationModal
@@ -190,8 +197,8 @@ export const SwapCommitButton = memo(function SwapCommitButton({
       })
       .catch((error) => {
         if (error instanceof TransactionRejectedError) {
-          setSwapState((s) => ({
-            ...s,
+          setSwapState((_s) => ({
+            ..._s,
             txHash: undefined,
             attemptingTxn: false,
           }))
@@ -316,9 +323,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
 
   if (swapIsUnsupported) {
     return (
-      <Button variant="subtle" fullWidth disabled onClick={() => {}}>
+      <ButtonV2 variant="subtle" fullWidth disabled onClick={() => {}}>
         {t('Unsupported Asset')}
-      </Button>
+      </ButtonV2>
     )
   }
 
@@ -396,16 +403,24 @@ export const SwapCommitButton = memo(function SwapCommitButton({
 
       <CommitButton
         width="100%"
-        disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError || tradeLoading}
+        disabled={
+          !isValid ||
+          (priceImpactSeverity > 3 && !isExpertMode) ||
+          !!swapCallbackError ||
+          tradeLoading ||
+          recipientError
+        }
         onClick={onSwapHandler}
       >
-        {swapInputError ||
-          (tradeLoading && <Dots>{t('Searching For The Best Price')}</Dots>) ||
-          (priceImpactSeverity > 3 && !isExpertMode
-            ? t('Price Impact Too High')
-            : priceImpactSeverity > 2
-            ? t('Swap Anyway')
-            : t('Swap'))}
+        {recipientError
+          ? t('Invalid recipient address')
+          : swapInputError ||
+            (tradeLoading && <Dots>{t('Searching For The Best Price')}</Dots>) ||
+            (priceImpactSeverity > 3 && !isExpertMode
+              ? t('Price Impact Too High')
+              : priceImpactSeverity > 2
+              ? t('Swap Anyway')
+              : t('Swap'))}
       </CommitButton>
     </div>
   )

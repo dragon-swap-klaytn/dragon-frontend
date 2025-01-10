@@ -1,4 +1,4 @@
-import { ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
+import { ExternalLink, ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { ErrorBoundary } from 'components/ErrorBoundary'
 import { PageMeta } from 'components/Layout/Page'
@@ -20,8 +20,10 @@ import { Fragment } from 'react'
 import { PersistGate } from 'redux-persist/integration/react'
 
 // import { useDataDogRUM } from 'hooks/useDataDogRUM'
+import { Envelope, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from '@phosphor-icons/react'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
+import Link from 'next/link'
 import { persistor, useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
 import { Blocklist, Updaters } from '..'
@@ -130,6 +132,34 @@ type AppPropsWithLayout = AppProps & {
 
 const ProductionErrorBoundary = process.env.NODE_ENV === 'production' ? ErrorBoundary : Fragment
 
+const FOOTER_OUTER_LINKS = [
+  {
+    id: 'twitter',
+    icon: <TwitterLogo size={24} weight="fill" className="text-on-surface" />,
+    href: 'https://twitter.com/dgswap',
+  },
+  {
+    id: 'github',
+    icon: <GithubLogo size={24} weight="fill" className="text-on-surface" />,
+    href: 'https://github.com/dragon-swap-klaytn',
+  },
+  {
+    id: 'telegram',
+    icon: <TelegramLogo size={24} weight="fill" className="text-on-surface" />,
+    href: 'https://t.me/DragonSwap_COMM',
+  },
+  {
+    id: 'support',
+    icon: <Envelope size={24} weight="fill" className="text-on-surface" />,
+    href: 'mailto:support@dgswap.io',
+  },
+  {
+    id: 'medium',
+    icon: <MediumLogo size={24} weight="fill" className="text-on-surface" />,
+    href: 'https://dgswap.medium.com/',
+  },
+]
+
 const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   if (Component.pure) {
     return <Component {...pageProps} />
@@ -146,6 +176,8 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
         <Component {...pageProps} />
       </Layout>
 
+      <Footer />
+
       <ToastListener />
       <FixedSubgraphHealthIndicator />
       <NetworkModal pageSupportedChains={Component.chains} />
@@ -156,3 +188,42 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
 }
 
 export default MyApp
+
+function Footer() {
+  return (
+    <div className="px-4 md:px-[60px] py-10 bg-transparent w-full mt-52">
+      <div className="w-full flex flex-col space-y-10 md:space-y-2 md:flex-row md:items-start md:space-x-2 md:justify-between">
+        <div className="flex items-center space-x-6">
+          {FOOTER_OUTER_LINKS.map((link) => (
+            <ExternalLink key={`footer:${link.id}`} href={link.href} hideIcon>
+              {link.icon}
+            </ExternalLink>
+          ))}
+        </div>
+
+        <div className="flex items-start space-x-12">
+          <div className="flex flex-col items-start space-y-5">
+            <h4 className="font-bold text-on-surface">Ecosystem</h4>
+
+            <Link href="/swap" className="text-on-surface-subtlest">
+              Trade
+            </Link>
+
+            <Link href="/farms" className="text-on-surface-subtlest">
+              Earn
+            </Link>
+          </div>
+          <div className="flex flex-col items-start space-y-5">
+            <h4 className="font-bold text-on-surface">Support</h4>
+
+            <Link href="/swap" className="text-on-surface-subtlest">
+              Contact
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-sm text-on-surface-subtlest py-4 border-t border-border mt-20">Ⓒ2025 - present Dragonswap</p>
+    </div>
+  )
+}

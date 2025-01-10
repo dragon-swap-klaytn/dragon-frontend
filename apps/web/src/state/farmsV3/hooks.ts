@@ -10,10 +10,9 @@ import {
   createFarmFetcherV3,
   supportedChainIdV3,
 } from '@pancakeswap/farms'
-import { priceHelperTokens } from '@pancakeswap/farms/constants/common'
 import { farmsV3ConfigChainMap, farmsV3FinishedConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterVeCake'
-import { TvlMap, fetchCommonTokenUSDValue } from '@pancakeswap/farms/src/fetchFarmsV3'
+import { TvlMap, fetchTokenUSDValues } from '@pancakeswap/farms/src/fetchFarmsV3'
 import { usePreviousValue } from '@pancakeswap/hooks'
 import { deserializeToken } from '@pancakeswap/token-lists'
 import { useQuery } from '@tanstack/react-query'
@@ -81,7 +80,8 @@ export const useFarmsV3Public = () => {
         ? farmsV3FinishedConfigChainMap[chainId as ChainId]
         : farmsV3ConfigChainMap[chainId as ChainId]
 
-      const commonPrice = await fetchCommonTokenUSDValue(priceHelperTokens[chainId ?? -1])
+      const currencies = farms.flatMap((f) => [f.token0, f.token1])
+      const commonPrice = await fetchTokenUSDValues(currencies)
 
       try {
         const data = await farmFetcherV3.fetchFarms({

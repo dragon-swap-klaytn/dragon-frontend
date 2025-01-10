@@ -30,8 +30,8 @@ const TabsComponent: React.FC<React.PropsWithChildren<TabsComponentProps>> = ({ 
       <button
         type="button"
         className={clsx('hover:opacity-70 py-2', {
-          'bg-surface-orange': view === 0,
-          'bg-surface-container-highest text-on-surface-tertiary': view !== 0,
+          'bg-brand': view === 0,
+          'bg-neutral text-on-surface-subtlest': view !== 0,
         })}
         onClick={() => handleClick(0)}
       >
@@ -41,8 +41,8 @@ const TabsComponent: React.FC<React.PropsWithChildren<TabsComponentProps>> = ({ 
       <button
         type="button"
         className={clsx('hover:opacity-70 py-2', {
-          'bg-surface-orange': view === 1,
-          'bg-surface-container-highest text-on-surface-tertiary': view !== 1,
+          'bg-brand': view === 1,
+          'bg-neutral text-on-surface-subtlest': view !== 1,
         })}
         onClick={() => handleClick(1)}
       >

@@ -54,7 +54,8 @@ export function useStablecoinPrice(
     baseCurrency: stableCoin,
     tradeType: TradeType.EXACT_OUTPUT,
     maxSplits: 0,
-    enabled: Boolean(!isLoading && !priceFromApi && shouldEnabled),
+    // enabled: Boolean(!isLoading && !priceFromApi && shouldEnabled),
+    enabled: Boolean(!isLoading && shouldEnabled),
     autoRevalidate: false,
     type: 'api',
   })
@@ -78,15 +79,6 @@ export function useStablecoinPrice(
       return new Price(stableCoin, stableCoin, '1', '1')
     }
 
-    if (priceFromApi) {
-      return new Price(
-        currency,
-        stableCoin,
-        1 * 10 ** currency.decimals,
-        getFullDecimalMultiplier(stableCoin.decimals).times(priceFromApi.toFixed(stableCoin.decimals)).toString(),
-      )
-    }
-
     if (trade) {
       const { inputAmount, outputAmount } = trade as unknown as SmartRouterTrade<TradeType>
 
@@ -100,6 +92,15 @@ export function useStablecoinPrice(
       }
 
       return new Price(currency, stableCoin, inputAmount.quotient, outputAmount.quotient)
+    }
+
+    if (priceFromApi) {
+      return new Price(
+        currency,
+        stableCoin,
+        1 * 10 ** currency.decimals,
+        getFullDecimalMultiplier(stableCoin.decimals).times(priceFromApi.toFixed(stableCoin.decimals)).toString(),
+      )
     }
 
     return undefined

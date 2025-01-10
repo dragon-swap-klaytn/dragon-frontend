@@ -1,20 +1,20 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Button, Flex, Heading, TooltipText, useToast, useTooltip, useModal, Balance } from '@pancakeswap/uikit'
+import { Balance, Button, Flex, Heading, TooltipText, useModal, useToast, useTooltip } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
-import { useAccount } from 'wagmi'
-import { SendTransactionResult } from 'wagmi/actions'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import useCatchTxError from 'hooks/useCatchTxError'
+import { useAccount } from 'wagmi'
+import { SendTransactionResult } from 'wagmi/actions'
 
-import { useCakePrice } from 'hooks/useCakePrice'
-import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import { getBalanceAmount } from '@pancakeswap/utils/formatBalance'
 import { Token } from '@pancakeswap/sdk'
 import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
+import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
+import { getBalanceAmount } from '@pancakeswap/utils/formatBalance'
+import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useCakePrice } from 'hooks/useCakePrice'
 import MultiChainHarvestModal from 'views/Farms/components/MultiChainHarvestModal'
 import { useUnwrapReward } from 'views/Farms/hooks/useUnwrapReward'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 
 interface FarmCardActionsProps {
   pid?: number
@@ -62,7 +62,7 @@ const HarvestAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = (
   const { chainId } = useActiveChainId()
   const { onAlert } = useUnwrapReward({
     reward: BigInt(earnings?.toString() ?? '0'),
-    chainId: chainId as number
+    chainId: chainId as number,
   })
 
   const onClickHarvestButton = () => {

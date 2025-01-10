@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent, TradeType } from '@pancakeswap/sdk'
 import { SmartRouter, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { QuestionHelper } from '@pancakeswap/uikit'
+import { ButtonV2, Notification, QuestionHelper } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo } from 'components/Logo'
 import { memo, PropsWithChildren, ReactElement, ReactNode, useMemo, useState } from 'react'
@@ -9,8 +9,6 @@ import { Field } from 'state/swap/actions'
 import { basisPointsToPercent, warningSeverity } from 'utils/exchange'
 
 import { ArrowsLeftRight } from '@phosphor-icons/react'
-import Button from 'components/Common/Button'
-import Notification from 'components/Common/Notification'
 import FormattedPriceImpact from '../../components/FormattedPriceImpact'
 import { formatExecutionPrice } from '../utils/exchange'
 
@@ -57,7 +55,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
 
   return (
     <div className="mt-4">
-      <div className="flex flex-col space-y-3 p-4 bg-surface-container-highest rounded-[20px] text-on-surface-primary">
+      <div className="flex flex-col space-y-3 p-4 bg-neutral rounded-[20px] text-on-surface">
         <SwapModalFooterContainer>
           <SwapModalFooterTitle title={t('Price')} />
 
@@ -140,11 +138,11 @@ export const SwapModalFooter = memo(function SwapModalFooter({
         </SwapModalFooterContainer>
       </div>
 
-      <Button className="mt-3" variant="primary" onClick={onConfirm} disabled={disabledConfirm} fullWidth>
+      <ButtonV2 className="mt-3" variant="primary" onClick={onConfirm} disabled={disabledConfirm} fullWidth>
         {severity > 2 || (tradeType === TradeType.EXACT_OUTPUT && !isEnoughInputBalance)
           ? t('Swap Anyway')
           : t('Confirm Swap')}
-      </Button>
+      </ButtonV2>
 
       {swapErrorMessage ? (
         <Notification className="mt-3" variant="warning">

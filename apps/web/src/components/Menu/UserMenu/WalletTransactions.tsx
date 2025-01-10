@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
+import { ButtonV2 } from '@pancakeswap/uikit'
 import { renderTransactions } from 'components/App/Transactions/TransactionsModal'
-import Button from 'components/Common/Button'
 import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
 import { useAppDispatch } from 'state'
@@ -22,11 +22,11 @@ const WalletTransactions: React.FC<React.PropsWithChildren> = () => {
     <div className="mt-4">
       {hasTransactions && (
         <div className="flex items-center space-x-2 px-2 w-full justify-between">
-          <h4 className="text-sm text-on-surface-primary font-bold">{t('Recent Transactions')}</h4>
+          <h4 className="text-sm text-on-surface font-bold">{t('Recent Transactions')}</h4>
 
-          <Button scale="sm" onClick={handleClearAll} variant="subtle">
+          <ButtonV2 scale="sm" onClick={handleClearAll} variant="subtle">
             {t('Clear all')}
-          </Button>
+          </ButtonV2>
         </div>
       )}
 
@@ -50,7 +50,7 @@ const WalletTransactions: React.FC<React.PropsWithChildren> = () => {
           })}
         </div>
       ) : (
-        <p className="text-center py-6 text-on-surface-primary">{t('No recent transactions')}</p>
+        <p className="text-center py-6 text-on-surface">{t('No recent transactions')}</p>
       )}
     </div>
   )

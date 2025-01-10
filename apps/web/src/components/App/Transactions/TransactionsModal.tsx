@@ -1,6 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
-import Button from 'components/Common/Button'
+import { ButtonV2, InjectedModalProps, Modal } from '@pancakeswap/uikit'
 import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback } from 'react'
@@ -60,12 +59,12 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
                 })}
               </div>
 
-              <Button scale="sm" onClick={clearAllTransactionsCallback} variant="subtle" fullWidth className="mt-7">
+              <ButtonV2 scale="sm" onClick={clearAllTransactionsCallback} variant="subtle" fullWidth className="mt-7">
                 {t('Clear all')}
-              </Button>
+              </ButtonV2>
             </>
           ) : (
-            <p className="text-center py-6 text-on-surface-primary">{t('No recent transactions')}</p>
+            <p className="text-center py-6 text-on-surface">{t('No recent transactions')}</p>
           )}
         </>
       ) : (

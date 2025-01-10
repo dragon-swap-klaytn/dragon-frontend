@@ -1,10 +1,10 @@
-import { Address, getAddress } from 'viem'
+import { Address } from 'viem'
 
 export default function getTokenIconSrcFromSs(address?: Address | string) {
   try {
     if (!address) return null
 
-    return address ? `https://api.swapscanner.io/v0/tokens/${getAddress(address).toLocaleLowerCase()}/icon` : null
+    return address ? `https://api.swapscanner.io/v0/tokens/${address.toLocaleLowerCase()}/icon` : null
   } catch (e) {
     console.error(e)
 

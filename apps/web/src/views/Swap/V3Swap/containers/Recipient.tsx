@@ -4,8 +4,8 @@ import { memo } from 'react'
 import { useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 
+import { ButtonV2 } from '@pancakeswap/uikit'
 import { ArrowCircleDown } from '@phosphor-icons/react'
-import Button from 'components/Common/Button'
 import AddressInputPanel from '../../components/AddressInputPanel'
 import { useAllowRecipient } from '../hooks'
 
@@ -23,11 +23,11 @@ export const Recipient = memo(function Recipient() {
     <>
       <div className="flex items-center space-x-2">
         <ArrowCircleDown size={24} className="text-gray-50" />
-        <Button variant="subtle" fullWidth onClick={() => onChangeRecipient(null)}>
+        <ButtonV2 variant="subtle" fullWidth onClick={() => onChangeRecipient(null)}>
           {t('Remove send')}
-        </Button>
+        </ButtonV2>
       </div>
-      <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
+      <AddressInputPanel value={recipient} onChange={onChangeRecipient} />
     </>
   )
 })

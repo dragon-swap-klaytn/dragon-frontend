@@ -54,10 +54,6 @@ export function LiquidityChartRangeInput({
 }) {
   const { t } = useTranslation();
 
-  // Get token color
-  const tokenAColor = "#7645D9";
-  const tokenBColor = "#7645D9";
-
   const isSorted = useMemo(
     () => currencyA && currencyB && currencyA?.wrapped.sortsBefore(currencyB?.wrapped),
     [currencyA, currencyB]
@@ -130,20 +126,22 @@ export function LiquidityChartRangeInput({
   const isUninitialized = !currencyA || !currencyB || (formattedData === undefined && !isLoading);
 
   return (
-    <div className="flex flex-col w-full items-center mb-4">
+    <div className="flex flex-col w-full items-center relative mt-2 mb-10">
       {isUninitialized ? (
-        <InfoBox message={t("Your position will appear here.")} />
+        <InfoBox className="mt-5" message={t("Your position will appear here.")} />
       ) : isLoading ? (
-        <InfoBox />
+        <InfoBox className="mt-5" />
       ) : error ? (
         <InfoBox
+          className="mt-5"
           message={t("Liquidity data not available.")}
-          icon={<QuestionMark size={32} className="text-on-surface-primary opacity-70" />}
+          icon={<QuestionMark size={32} className="text-on-surface opacity-70" />}
         />
       ) : !formattedData || formattedData.length === 0 || !price ? (
         <InfoBox
+          className="mt-5"
           message={t("There is no liquidity data.")}
-          icon={<Empty size={32} className="text-on-surface-primary opacity-70" />}
+          icon={<Empty size={32} className="text-on-surface opacity-70" />}
         />
       ) : (
         <Chart

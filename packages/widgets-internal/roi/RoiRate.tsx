@@ -12,11 +12,11 @@ export const RoiRate = memo(function RoiRate({ usdAmount = 0, roiPercent }: Prop
   const { t } = useTranslation();
 
   return (
-    <div className="p-4 bg-surface-container-highest rounded-2xl w-full">
-      <h4 className="text-xs text-surface-orange">{t("ROI at current rates")}</h4>
+    <div className="p-4 bg-neutral rounded-2xl w-full">
+      <h4 className="text-xs text-on-surface-brand">{t("ROI at current rates")}</h4>
 
       <div className="mt-4 flex flex-col items-start space-y-1 sm:flex-row sm:space-y-0 sm:items-center font-bold sm:space-x-1 text-lg overflow-x-auto">
-        <span className="text-on-surface-primary">
+        <span className="text-on-surface">
           $&nbsp;
           {usdAmount.toLocaleString("en", {
             minimumFractionDigits: usdAmount > MILLION ? 0 : 2,

@@ -50,7 +50,7 @@ export const ModalCloseButton: React.FC<React.PropsWithChildren<{ onDismiss: Mod
       aria-label="Close the dialog"
       className="hover:opacity-70 fixed right-6 top-6 z-50"
     >
-      <X height={20} width={20} className="text-on-surface-tertiary" />
+      <X height={20} width={20} className="text-on-surface-subtlest" />
     </button>
   );
 };

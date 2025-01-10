@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Token } from '@pancakeswap/sdk'
-import { CurrencyLogoWithSymbol, Skeleton, useModal } from '@pancakeswap/uikit'
+import { CurrencyLogoWithSymbol, Loading, NumberFormat, Skeleton, useModal } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { memo, PropsWithChildren, useCallback, useMemo } from 'react'
@@ -11,8 +11,6 @@ import { StablePair } from 'views/AddLiquidity/AddStableLiquidity/hooks/useStabl
 
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import Loading from 'components/Common/Loading'
-import NumberFormat from 'components/Common/NumberFormat'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ButtonOnClickType } from 'types'
 import { useAccount } from 'wagmi'
@@ -131,7 +129,7 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
             disabled={disableCurrencySelect}
           >
             <div
-              className={clsx('flex items-center py-1 pl-1 rounded-[20px] bg-surface-container-highest', {
+              className={clsx('flex items-center py-1 pl-1 rounded-[20px] bg-neutral', {
                 'pr-2': !currencyLoading && !disableCurrencySelect,
                 'pr-4': !(!currencyLoading && !disableCurrencySelect),
               })}
@@ -149,7 +147,7 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
               ) : null}
 
               {currencyLoading || pair ? null : (
-                <span className="font-bold text-on-surface-primary">
+                <span className="font-bold text-on-surface">
                   {(currency && currency.symbol && currency.symbol.length > 10
                     ? `${currency.symbol.slice(0, 4)}...${currency.symbol.slice(
                         currency.symbol.length - 5,
@@ -158,16 +156,14 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
                     : currency?.symbol) || t('Select a currency')}
                 </span>
               )}
-              {!currencyLoading && !disableCurrencySelect && (
-                <CaretDown size={16} className="text-on-surface-primary ml-2" />
-              )}
+              {!currencyLoading && !disableCurrencySelect && <CaretDown size={16} className="text-on-surface ml-2" />}
             </div>
           </button>
         </div>
         {account && !hideBalanceComp && (
           <button
             type="button"
-            className={clsx('text-xs text-on-surface-secondary mr-2 self-end xxs:self-auto', {
+            className={clsx('text-xs text-on-surface-subtle mr-2 self-end xxs:self-auto', {
               'hover:opacity-70': !disabled && !isToInput,
               'cursor-default': disabled || isToInput,
             })}
@@ -177,11 +173,11 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
           </button>
         )}
       </div>
-      <div className="flex flex-col flex-nowrap relative bg-surface-container-highest rounded-2xl z-10">
+      <div className="flex flex-col flex-nowrap relative bg-neutral rounded-2xl z-10">
         <div className="flex flex-nowrap px-4 pt-3">
           <NumberFormat
             disabled={disabled}
-            className="text-on-surface-primary text-lg bg-surface-container-highest w-full text-right focus:outline-none"
+            className="text-on-surface text-lg bg-transparent w-full text-right focus:outline-none"
             value={value}
             onBlur={onInputBlur}
             onChange={(e) => {
@@ -198,9 +194,9 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
           <div className="flex items-center justify-end">
             <div className="max-w-[200px] pr-4">
               {inputLoading ? (
-                <Loading size={16} className="text-on-surface-secondary" />
+                <Loading size={16} className="text-on-surface-subtle" />
               ) : showUSDPrice && Number.isFinite(amountInDollar ?? 0) ? (
-                <p className="text-xs text-on-surface-tertiary">
+                <p className="text-xs text-on-surface-subtlest">
                   {`${amountInDollar ? `~${formatNumber(amountInDollar)}` : 0} USD`}
                 </p>
               ) : (
@@ -262,7 +258,7 @@ function PercentageButton({
     <button
       type="button"
       onClick={onClick}
-      className="text-[13px] bg-surface-container-high px-2 py-1 text-on-surface-primary rounded-2xl hover:opacity-70"
+      className="text-[13px] bg-surface md:bg-surface-overlay px-2 py-1 text-on-surface rounded-2xl hover:opacity-70"
     >
       {children}
     </button>

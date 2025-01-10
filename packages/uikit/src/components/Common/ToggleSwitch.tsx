@@ -21,7 +21,7 @@ export function ToggleSwitch({
       checked={activated}
       onChange={setActivated}
       className={clsx(
-        activated ? "bg-surface-orange" : "bg-surface-disable",
+        activated ? "bg-brand" : "bg-surface-disable",
         "relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
         className,
         {

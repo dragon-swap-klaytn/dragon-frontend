@@ -8,9 +8,11 @@ import {
   ButtonMenuItem,
   CardFooter,
   Checkbox,
+  Chip,
   Dots,
   Flex,
   Link,
+  MenuIconButton,
   Text,
   useModal,
 } from '@pancakeswap/uikit'
@@ -18,7 +20,6 @@ import { Liquidity } from '@pancakeswap/widgets-internal'
 import { ClockCounterClockwise } from '@phosphor-icons/react'
 import { AppBody, AppHeader } from 'components/App'
 import TransactionsModal from 'components/App/Transactions/TransactionsModal'
-import Chip from 'components/Common/Chip'
 import { RangeTag } from 'components/RangeTag'
 import { V3SubgraphHealthIndicator } from 'components/SubgraphHealthIndicator'
 import { V3_MIGRATION_SUPPORTED_CHAINS } from 'config/constants/supportChains'
@@ -278,13 +279,9 @@ export default function PoolListPage() {
           title={t('Your Liquidity')}
           subtitle={t('List of your liquidity positions')}
           IconSlot={
-            <button
-              type="button"
-              className="hover:bg-overlay-surface-hover-light p-2 rounded-full"
-              onClick={onPresentTransactionsModal}
-            >
+            <MenuIconButton onClick={onPresentTransactionsModal}>
               <ClockCounterClockwise size={24} className="text-gray-50" weight="fill" />
-            </button>
+            </MenuIconButton>
           }
           filter={
             <>

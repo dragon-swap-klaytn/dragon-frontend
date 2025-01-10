@@ -1,9 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
-import { Dots } from '@pancakeswap/uikit'
-import Button from 'components/Common/Button'
-import ExternalLink from 'components/Common/ExternalLink'
-import Notification from 'components/Common/Notification'
+import { ButtonV2, Dots, ExternalLink, Notification } from '@pancakeswap/uikit'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useMemo } from 'react'
 import { Field } from 'state/mint/actions'
@@ -16,13 +13,13 @@ interface ApproveLiquidityTokensProps {
   }
   shouldShowApprovalGroup: boolean
   showFieldAApproval: boolean
-  approveACallback: () => Promise<SendTransactionResult>
-  revokeACallback: () => Promise<SendTransactionResult>
+  approveACallback: () => Promise<SendTransactionResult | undefined>
+  revokeACallback: () => Promise<SendTransactionResult | undefined>
   currentAllowanceA: CurrencyAmount<Currency> | undefined
   approvalA: ApprovalState
   showFieldBApproval: boolean
-  approveBCallback: () => Promise<SendTransactionResult>
-  revokeBCallback: () => Promise<SendTransactionResult>
+  approveBCallback: () => Promise<SendTransactionResult | undefined>
+  revokeBCallback: () => Promise<SendTransactionResult | undefined>
   currentAllowanceB: CurrencyAmount<Currency> | undefined
   approvalB: ApprovalState
 }
@@ -82,7 +79,7 @@ export default function ApproveLiquidityTokens({
       )}
       {showFieldAApproval &&
         (revokeANeeded ? (
-          <Button
+          <ButtonV2
             onClick={revokeACallback}
             disabled={approvalA === ApprovalState.PENDING}
             fullWidth
@@ -94,9 +91,9 @@ export default function ApproveLiquidityTokens({
             ) : (
               t('Reset Approval on USDT', { asset: currencies[Field.CURRENCY_A]?.symbol })
             )}
-          </Button>
+          </ButtonV2>
         ) : (
-          <Button
+          <ButtonV2
             onClick={approveACallback}
             disabled={approvalA === ApprovalState.PENDING}
             fullWidth
@@ -108,11 +105,11 @@ export default function ApproveLiquidityTokens({
             ) : (
               t('Enable %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })
             )}
-          </Button>
+          </ButtonV2>
         ))}
       {showFieldBApproval &&
         (revokeBNeeded ? (
-          <Button
+          <ButtonV2
             onClick={revokeBCallback}
             disabled={approvalB === ApprovalState.PENDING}
             fullWidth
@@ -124,9 +121,9 @@ export default function ApproveLiquidityTokens({
             ) : (
               t('Reset Approval on USDT', { asset: currencies[Field.CURRENCY_B]?.symbol })
             )}
-          </Button>
+          </ButtonV2>
         ) : (
-          <Button
+          <ButtonV2
             onClick={approveBCallback}
             disabled={approvalB === ApprovalState.PENDING}
             fullWidth
@@ -138,7 +135,7 @@ export default function ApproveLiquidityTokens({
             ) : (
               t('Enable %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })
             )}
-          </Button>
+          </ButtonV2>
         ))}
     </div>
   ) : null

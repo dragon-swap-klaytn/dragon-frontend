@@ -18,7 +18,7 @@ export const EditableAssets = memo(function EditableAssets({ title, onReset, ...
   }, []);
 
   return (
-    <div className="rounded-2xl bg-surface-container-highest w-full">
+    <div className="rounded-2xl bg-neutral w-full">
       <div className="w-full flex items-center space-x-2 justify-between mb-2.5">
         <SectionTitle>{title}</SectionTitle>
 

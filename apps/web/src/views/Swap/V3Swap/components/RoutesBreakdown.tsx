@@ -47,7 +47,7 @@ export const RoutesBreakdown = memo(function RoutesBreakdown({ routes = [] }: Pr
             className="hover:opacity-70 text-[13px] flex items-center space-x-1"
           >
             {count > 1 ? <span>{t('%count% Separate Routes', { count })}</span> : <RouteComp route={routes[0]} />}
-            <span className="text-on-surface-accent">More</span>
+            <span className="text-on-surface-brand">More</span>
           </button>
         }
       />

@@ -86,26 +86,26 @@ export default function Zoom({
   }, [zoomInitial, zoomLevels]);
 
   return (
-    <div className="flex items-center space-x-1 absolute -top-[27px] right-0">
+    <div className="flex items-center space-x-1 absolute -top-[35px] right-0">
       {showResetButton && (
         <button
           type="button"
-          className="p-1.5 rounded-full hover:bg-surface-container-highest"
+          className="p-1.5 rounded-full hover:bg-neutral"
           onClick={() => {
             resetBrush();
             zoomReset();
           }}
         >
-          <ArrowsClockwise className="text-on-surface-primary" size={20} />
+          <ArrowsClockwise className="text-on-surface" size={20} />
         </button>
       )}
 
-      <button type="button" className="p-1.5 rounded-full hover:bg-surface-container-highest" onClick={zoomIn}>
-        <MagnifyingGlassPlus className="text-on-surface-primary" size={20} />
+      <button type="button" className="p-1.5 rounded-full hover:bg-neutral" onClick={zoomIn}>
+        <MagnifyingGlassPlus className="text-on-surface" size={20} />
       </button>
 
-      <button type="button" className="p-1.5 rounded-full hover:bg-surface-container-highest" onClick={zoomOut}>
-        <MagnifyingGlassMinus className="text-on-surface-primary" size={20} />
+      <button type="button" className="p-1.5 rounded-full hover:bg-neutral" onClick={zoomOut}>
+        <MagnifyingGlassMinus className="text-on-surface" size={20} />
       </button>
     </div>
   );

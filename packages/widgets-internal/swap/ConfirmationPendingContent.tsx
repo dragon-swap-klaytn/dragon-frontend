@@ -18,7 +18,7 @@ export function ConfirmationPendingContent({ qrUri, pendingText }: { qrUri?: str
         )}
       </div>
 
-      <div className="flex flex-col items-center text-on-surface-primary mt-7">
+      <div className="flex flex-col items-center text-on-surface mt-7">
         {pendingText ? (
           <>
             <p>{t("Waiting For Confirmation")}</p>

@@ -16,8 +16,8 @@ interface UseConfirmModalStateProps {
   isExpertMode: boolean
   currentAllowance?: CurrencyAmount<Currency>
   onConfirm: () => Promise<void>
-  approveCallback: () => Promise<SendTransactionResult>
-  revokeCallback: () => Promise<SendTransactionResult>
+  approveCallback: () => Promise<SendTransactionResult | undefined>
+  revokeCallback: () => Promise<SendTransactionResult | undefined>
 }
 
 function isInApprovalPhase(confirmModalState: ConfirmModalState) {

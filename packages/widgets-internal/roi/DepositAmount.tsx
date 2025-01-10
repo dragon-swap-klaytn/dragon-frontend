@@ -50,7 +50,7 @@ export const DepositUsdAmountInput = memo(function DepositUsdAmountInput({
       <Box mb="0.5em" width="100%">
         <div className="border border-gray-700 rounded-[20px] px-4 py-3 w-full flex items-end space-x-2">
           <NumberFormat
-            className="text-on-surface-primary text-sm text-right focus:outline-none w-full bg-transparent"
+            className="text-on-surface text-sm text-right focus:outline-none w-full bg-transparent"
             value={value}
             onChange={(e) => {
               onChange(e.target.value.replace(/,/g, "."));
@@ -62,7 +62,7 @@ export const DepositUsdAmountInput = memo(function DepositUsdAmountInput({
             pattern="^[0-9]*[.,]?[0-9]{0,2}$"
           />
 
-          <span className="text-sm text-on-surface-primary">{t("USD")}</span>
+          <span className="text-sm text-on-surface">{t("USD")}</span>
         </div>
       </Box>
 
@@ -109,10 +109,10 @@ const TokenDisplayRow = memo(function TokenDisplayRow({
       <div className="flex items-center space-x-2">
         <CurrencyLogo currency={currency} />
 
-        <span className="text-sm text-on-surface-primary">{currency.symbol}</span>
+        <span className="text-sm text-on-surface">{currency.symbol}</span>
       </div>
 
-      <span className="text-sm text-on-surface-primary">{amount?.toExact() || "0"}</span>
+      <span className="text-sm text-on-surface">{amount?.toExact() || "0"}</span>
     </div>
   );
 });
@@ -128,7 +128,7 @@ export const TokenAmountsDisplay = memo(function TokenAmountsDisplay({
   }
 
   return (
-    <div className="rounded-2xl p-4 bg-surface-container-highest flex flex-col space-y-4 w-full">
+    <div className="rounded-2xl p-4 bg-neutral flex flex-col space-y-4 w-full">
       <TokenDisplayRow amount={amountA} currency={currencyA} />
 
       <TokenDisplayRow amount={amountB} currency={currencyB} />
@@ -152,8 +152,8 @@ function Button({
       type="button"
       onClick={onClick}
       className={clsx("rounded-[20px] hover:opacity-70 px-3 py-2 text-sm w-full", className, {
-        "bg-transparent border-gray-700 border text-on-surface-primary": !isSelected,
-        "bg-surface-orange text-on-surface-orange": isSelected,
+        "bg-transparent border-gray-700 border text-on-surface": !isSelected,
+        "bg-brand text-on-surface-inverse": isSelected,
       })}
     >
       {children}

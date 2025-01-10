@@ -1,7 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Text } from '@pancakeswap/uikit'
+import { ExternalLink } from '@pancakeswap/uikit'
 import truncateHash from '@pancakeswap/utils/truncateHash'
-import ExternalLink from 'components/Common/ExternalLink'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 
@@ -21,11 +20,11 @@ const DescriptionWithTx: React.FC<React.PropsWithChildren<DescriptionWithTxProps
 
   return (
     <>
-      {typeof children === 'string' ? <Text as="p">{children}</Text> : children}
+      {typeof children === 'string' ? <p className="text-sm text-on-surface text-left">{children}</p> : children}
       {txHash && (
         <ExternalLink
           href={getBlockExploreLink(txHash, 'transaction', txChainId || chainId)}
-          className="mt-1 text-on-surface-primary"
+          className="mt-1 text-on-surface"
         >
           {t('View on %site%', { site: getBlockExploreName(txChainId || chainId) })}: {truncateHash(txHash, 8, 0)}
         </ExternalLink>

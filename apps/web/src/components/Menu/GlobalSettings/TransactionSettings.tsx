@@ -3,9 +3,8 @@ import { useUserSlippage } from '@pancakeswap/utils/user'
 import { useState } from 'react'
 import { escapeRegExp } from 'utils'
 
+import { ButtonV2, NumberFormat } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import Button from 'components/Common/Button'
-import NumberFormat from 'components/Common/NumberFormat'
 import { SettingTitle } from 'components/Menu/GlobalSettings/SettingsModal'
 import { useUserTransactionTTL } from 'state/user/hooks'
 
@@ -92,7 +91,7 @@ const SlippageTabs = () => {
       />
 
       <div className="flex flex-wrap gap-2 mt-3">
-        <Button
+        <ButtonV2
           variant={userSlippageTolerance === 10 ? 'secondary' : 'blank'}
           onClick={() => {
             setSlippageInput('')
@@ -100,8 +99,8 @@ const SlippageTabs = () => {
           }}
         >
           0.1%
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={userSlippageTolerance === 50 ? 'secondary' : 'blank'}
           onClick={() => {
             setSlippageInput('')
@@ -109,8 +108,8 @@ const SlippageTabs = () => {
           }}
         >
           0.5%
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={userSlippageTolerance === 100 ? 'secondary' : 'blank'}
           onClick={() => {
             setSlippageInput('')
@@ -118,10 +117,10 @@ const SlippageTabs = () => {
           }}
         >
           1.0%
-        </Button>
+        </ButtonV2>
         <div className="items-center space-x-1 inline-flex">
           <NumberFormat
-            className="text-on-surface-primary w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
+            className="text-on-surface w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
             value={slippageInput}
             onBlur={() => {
               parseCustomSlippage((userSlippageTolerance / 100).toFixed(2))
@@ -138,14 +137,14 @@ const SlippageTabs = () => {
             pattern="^[0-9]*[.,]?[0-9]{0,2}$"
           />
 
-          <span className="text-sm text-on-surface-primary">%</span>
+          <span className="text-sm text-on-surface">%</span>
         </div>
       </div>
       {slippageError && (
         <p
           className={clsx(
             'mt-2 text-sm text-center',
-            slippageError === SlippageError.InvalidInput ? 'text-red-400' : 'text-orange-400',
+            slippageError === SlippageError.InvalidInput ? 'text-red-400' : 'text-on-surface-brand',
           )}
         >
           {slippageError === SlippageError.InvalidInput
@@ -163,7 +162,7 @@ const SlippageTabs = () => {
         />
 
         <NumberFormat
-          className="text-on-surface-primary w-16 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
+          className="text-on-surface w-16 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
           value={slippageInput}
           onBlur={() => {
             parseCustomDeadline((ttl / 60).toString())

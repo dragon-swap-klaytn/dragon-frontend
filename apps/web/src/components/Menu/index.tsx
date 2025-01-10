@@ -43,13 +43,13 @@ const Menu = () => {
 
   return (
     <>
-      <div className="fixed top-0 w-full z-50 left-0 bg-surface-background flex items-center px-4 md:px-8 py-5 justify-between">
-        <div className="md:hidden flex items-center space-x-4">
+      <div className="fixed top-0 w-full z-50 left-0 bg-surface flex items-center p-5 md:p-8 justify-between">
+        <div className="md:hidden flex items-center space-x-6">
           <Link href="/" className="hover:opacity-70">
             <DragonSwapLogo />
           </Link>
 
-          <List height={24} width={24} className="text-on-surface-secondary" />
+          <List size={24} className="text-on-surface-subtle shrink-0" />
         </div>
 
         <div className="hidden md:flex items-center space-x-10">
@@ -58,7 +58,7 @@ const Menu = () => {
           </Link>
 
           {MENU_ITEMS.map((item) => (
-            <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface-primary">
+            <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface">
               {item.title}
             </Link>
           ))}

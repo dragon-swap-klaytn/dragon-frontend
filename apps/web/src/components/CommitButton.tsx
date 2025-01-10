@@ -1,5 +1,4 @@
-import { ButtonProps } from '@pancakeswap/uikit'
-import Button from 'components/Common/Button'
+import { ButtonProps, ButtonV2 } from '@pancakeswap/uikit'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useSwitchNetworkLoading } from 'hooks/useSwitchNetworkLoading'
 import { useSetAtom } from 'jotai'
@@ -11,7 +10,7 @@ export const CommitButton = (props: ButtonProps) => {
   const setHideWrongNetwork = useSetAtom(hideWrongNetworkModalAtom)
 
   return (
-    <Button
+    <ButtonV2
       variant="primary"
       onClick={(e) => {
         if (isWrongNetwork) {
@@ -24,6 +23,6 @@ export const CommitButton = (props: ButtonProps) => {
       fullWidth
     >
       {props.children}
-    </Button>
+    </ButtonV2>
   )
 }

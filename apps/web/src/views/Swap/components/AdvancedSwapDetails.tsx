@@ -3,6 +3,7 @@ import { Currency, CurrencyAmount, Percent, TradeType } from '@pancakeswap/sdk'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { memo, useMemo } from 'react'
 
+import { ExternalLink } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { ONE_BIPS } from 'config/constants/exchange'
 import { Field } from 'state/swap/actions'
@@ -41,7 +42,7 @@ export const TradeSummary = memo(function TradeSummary({
           'Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.',
         )}
         content={
-          <span className="text-on-surface-primary">
+          <span className="text-on-surface">
             {isExactIn
               ? `${formatAmount(slippageAdjustedAmounts?.[Field.OUTPUT], 4)} ${
                   outputAmount?.currency?.symbol
@@ -66,7 +67,7 @@ export const TradeSummary = memo(function TradeSummary({
             <span
               className={clsx({
                 'text-red-400': severity === 2 || severity === 3 || severity === 4,
-                'text-on-surface-primary': severity < 2,
+                'text-on-surface': severity < 2,
               })}
             >
               {priceImpactWithoutFee
@@ -85,29 +86,17 @@ export const TradeSummary = memo(function TradeSummary({
           questionHelperText={
             <div className="text-sm">
               <p>
-                <b>{t('AMM')}</b>:{' '}
                 {t(
                   'Fee ranging from 0.1% to 0.01% depending on the pool fee tier. You can check the fee tier by clicking the magnifier icon under the “Route” section.',
                 )}
               </p>
-              <a
-                href="https://docs.dgswap.io/products/fees"
-                className="text-blue-400 mt-4 underline underline-offset-2 inline-block hover:opacity-70"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <ExternalLink href="https://docs.dgswap.io/products/fees" className="mt-4">
                 {t('Fee Breakdown and Tokenomics')}
-              </a>
-              <p className="mt-4">
-                <b>{t('MM')}</b>:{' '}
-                {t(
-                  'PancakeSwap does not charge any fees for trades. However, the market makers charge an implied fee of 0.05% - 0.25% (non-stablecoin) / 0.01% (stablecoin) factored into the quotes provided by them.',
-                )}
-              </p>
+              </ExternalLink>
             </div>
           }
           content={
-            <span className="text-on-surface-primary">{`${formatAmount(realizedLPFee, 4)} ${
+            <span className="text-on-surface">{`${formatAmount(realizedLPFee, 4)} ${
               inputAmount?.currency?.symbol
             }`}</span>
           }

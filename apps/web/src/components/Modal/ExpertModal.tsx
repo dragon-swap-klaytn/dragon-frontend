@@ -1,8 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
-import Button from 'components/Common/Button'
-import Checkbox from 'components/Common/Checkbox'
-import Notification from 'components/Common/Notification'
+import { ButtonV2, CheckboxV2, InjectedModalProps, Modal, Notification } from '@pancakeswap/uikit'
 import { useState } from 'react'
 
 interface ExpertModalProps extends InjectedModalProps {
@@ -26,7 +23,7 @@ export const ExpertModal: React.FC<React.PropsWithChildren<ExpertModalProps>> = 
       onBack={() => setShowConfirmExpertModal(false)}
       onDismiss={() => setShowConfirmExpertModal(false)}
     >
-      <div className="flex flex-col space-y-4 mt-4">
+      <div className="flex flex-col space-y-4">
         <Notification variant="caution">
           <p>
             {t(
@@ -35,19 +32,19 @@ export const ExpertModal: React.FC<React.PropsWithChildren<ExpertModalProps>> = 
           </p>
         </Notification>
 
-        <p className="text-sm text-on-surface-primary">{t('Only use this mode if you know what you’re doing.')}</p>
+        <p className="text-sm text-on-surface">{t('Only use this mode if you know what you’re doing.')}</p>
 
         <div className="flex items-center space-x-2">
-          <Checkbox
+          <CheckboxV2
             id="export-modal-checkbox"
             checked={isRememberChecked}
             onChange={() => setIsRememberChecked(!isRememberChecked)}
             label={t('Don’t show this again')}
-            labelClassName="text-sm text-on-surface-secondary"
+            labelClassName="text-sm text-on-surface-subtle"
           />
         </div>
 
-        <Button
+        <ButtonV2
           variant="primary"
           onClick={() => {
             // eslint-disable-next-line no-alert
@@ -61,11 +58,11 @@ export const ExpertModal: React.FC<React.PropsWithChildren<ExpertModalProps>> = 
           }}
         >
           {t('Turn On Expert Mode')}
-        </Button>
+        </ButtonV2>
 
-        <Button variant="subtle" onClick={() => setShowConfirmExpertModal(false)}>
+        <ButtonV2 variant="subtle" onClick={() => setShowConfirmExpertModal(false)}>
           {t('Cancel')}
-        </Button>
+        </ButtonV2>
       </div>
     </Modal>
   )

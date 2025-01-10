@@ -1,9 +1,7 @@
-import { Skeleton } from '@pancakeswap/uikit'
+import { ButtonV2, Skeleton } from '@pancakeswap/uikit'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import { PoolState } from 'hooks/v3/types'
 import { useFeeTierDistribution } from 'hooks/v3/useFeeTierDistribution'
-
-import Button from 'components/Common/Button'
 import { FeeTierPercentageBadge } from './FeeTierPercentageBadge'
 import { FEE_AMOUNT_DETAIL } from './shared'
 
@@ -27,7 +25,7 @@ export function FeeOption({
   isLoading,
 }: FeeOptionProps) {
   return (
-    <Button
+    <ButtonV2
       variant={active ? 'primary' : 'blank'}
       onClick={onClick}
       className="flex flex-col items-center space-y-1"
@@ -45,6 +43,6 @@ export function FeeOption({
           largestUsageFeeTier={largestUsageFeeTier}
         />
       ) : null}
-    </Button>
+    </ButtonV2>
   )
 }

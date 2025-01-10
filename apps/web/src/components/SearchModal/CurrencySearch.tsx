@@ -3,9 +3,8 @@ import { useDebounce, useSortedTokensByQuery } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
 import { WrappedTokenInfo, createFilterToken } from '@pancakeswap/token-lists'
-import { useMatchBreakpoints } from '@pancakeswap/uikit'
+import { SearchBar, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useAudioPlay } from '@pancakeswap/utils/user'
-import SearchBar from 'components/Common/SearchBar'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -122,9 +121,10 @@ function CurrencySearch({
 
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
-  const filteredSortedTokens: Token[] = useMemo(() => {
-    return [...filteredQueryTokens].sort(tokenComparator)
-  }, [filteredQueryTokens, tokenComparator])
+  const filteredSortedTokens: Token[] = useMemo(
+    () => filteredQueryTokens.sort(tokenComparator),
+    [filteredQueryTokens, tokenComparator],
+  )
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
@@ -196,7 +196,7 @@ function CurrencySearch({
         setImportToken={setImportToken}
       />
     ) : (
-      <p className="text-center py-4">{t('No results found.')}</p>
+      <p className="text-center py-4 text-on-surface text-sm">{t('No results found.')}</p>
     )
   }, [
     filteredInactiveTokens,

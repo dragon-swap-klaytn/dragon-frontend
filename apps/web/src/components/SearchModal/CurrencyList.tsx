@@ -3,8 +3,7 @@ import { Currency, Token } from '@pancakeswap/sdk'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import clsx from 'clsx'
-import { DEFAULT_LOCAL_STORAGE_DATA, LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
-import useLocalStorage from 'hooks/use-local-storage-v2'
+import useRecentSelectedCurrencies from 'hooks/use-recent-selected-currencies'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useCallback, useMemo } from 'react'
@@ -39,14 +38,14 @@ function CurrencyRow({
       type="button"
       onClick={() => (isSelected ? null : onSelect())}
       disabled={isSelected}
-      className={clsx('flex items-center justify-between w-full p-3 hover:opacity-70 rounded-md', {
-        'bg-surface-container-highest': isSelected,
+      className={clsx('flex items-center justify-between w-full py-2 pl-3 pr-4 hover:opacity-70 rounded-xl', {
+        'bg-neutral': isSelected,
       })}
     >
       <div className="flex items-center space-x-2">
         <CurrencyLogo currency={currency} size={24} />
         <div className="flex flex-col items-start">
-          <span className="font-bold text-sm text-on-surface-primary">{currency?.symbol}</span>
+          <span className="font-bold text-sm text-on-surface">{currency?.symbol}</span>
 
           <span className="text-xs max-w-40 overflow-hidden text-ellipsis text-gray-400 whitespace-nowrap">
             {!isOnSelectedList && customAdded && `${t('Added by user')} •`} {currency?.name}
@@ -54,7 +53,7 @@ function CurrencyRow({
         </div>
       </div>
 
-      {balance && <span className="text-right text-on-surface-primary text-sm">{formatAmount(balance, 4)}</span>}
+      {balance && <span className="text-right text-on-surface text-sm">{formatAmount(balance, 4)}</span>}
     </button>
   )
 }
@@ -92,10 +91,7 @@ export default function CurrencyList({
 
   const { chainId } = useActiveChainId()
 
-  const [recentSelectedCurrencies, setRecentSelectedCurrencies] = useLocalStorage<Currency[]>(
-    LOCAL_STORAGE_KEYS.recentSelectedCurrencies,
-    DEFAULT_LOCAL_STORAGE_DATA.recentSelectedCurrencies,
-  )
+  const { setRecentSelectedCurrency } = useRecentSelectedCurrencies()
 
   const Row = useCallback(
     ({ index }) => {
@@ -104,16 +100,11 @@ export default function CurrencyList({
 
       // the alternative to making a fiat currency token list
       // with class methods
-      const isSelected = Boolean(selectedCurrency && currency && selectedCurrency.equals(currency))
+      const isSelected = Boolean(selectedCurrency && currency && selectedCurrency?.equals(currency))
 
       const handleSelect = () => {
         onCurrencySelect(currency)
-
-        const newRecent =
-          recentSelectedCurrencies?.filter(
-            (c) => (c as Token).address.toLowerCase() !== currency.address.toLowerCase(),
-          ) ?? []
-        setRecentSelectedCurrencies([currency, ...newRecent].slice(0, 5))
+        setRecentSelectedCurrency(currency as Token)
       }
 
       const token = wrappedCurrency(currency, chainId)
@@ -148,10 +139,13 @@ export default function CurrencyList({
       showImportView,
       setImportToken,
       itemData,
-      recentSelectedCurrencies,
-      setRecentSelectedCurrencies,
+      setRecentSelectedCurrency,
     ],
   )
 
-  return <div className="flex flex-col overflow-y-auto max-h-[400px]">{itemData.map((_, index) => Row({ index }))}</div>
+  return (
+    <div className="flex flex-col overflow-y-auto max-h-[400px] space-y-1">
+      {itemData.map((_, index) => Row({ index }))}
+    </div>
+  )
 }

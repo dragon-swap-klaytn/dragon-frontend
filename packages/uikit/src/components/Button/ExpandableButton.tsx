@@ -31,7 +31,7 @@ export const ExpandableLabel: React.FC<React.PropsWithChildren<Props>> = ({ onCl
   return (
     <button
       type="button"
-      className="hover:opacity-70 font-bold text-on-surface-primary flex items-center space-x-2 mx-auto"
+      className="hover:opacity-70 font-bold text-on-surface-brand flex items-center space-x-2 mx-auto text-xs"
       onClick={onClick}
     >
       <span>{children}</span> {expanded ? <CaretUp size={16} /> : <CaretDown size={16} />}

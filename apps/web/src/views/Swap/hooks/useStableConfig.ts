@@ -81,7 +81,7 @@ export const StableConfigContext = createContext<{
   stableSwapInfoContract: UseStableSwapInfoContract
   stableSwapContract: ReturnType<typeof useStableSwapContract>
   stableSwapLPContract: ReturnType<typeof useStableSwapLPContract>
-  stableSwapConfig: StableSwapConfig
+  stableSwapConfig?: StableSwapConfig
 } | null>(null)
 
 export default function useStableConfig({ tokenA, tokenB }: { tokenA?: Currency | null; tokenB?: Currency | null }) {

@@ -45,16 +45,16 @@ export const CurrencySelect = ({
     <div className="w-full">
       <button
         type="button"
-        className="flex items-center py-1 pl-1 pr-2 rounded-[20px] bg-surface-container-highest justify-between hover:opacity-70 w-full"
+        className="flex items-center py-1 pl-1 pr-2 rounded-[20px] bg-neutral justify-between hover:opacity-70 w-full"
         onClick={onPresentCurrencyModal}
       >
         {!selectedCurrency ? (
-          <span className="text-on-surface-primary leading-7 pl-3">{t('Select')}</span>
+          <span className="text-on-surface leading-7 pl-3">{t('Select')}</span>
         ) : (
           <div className="flex items-center space-x-2">
             <CurrencyLogo currency={selectedCurrency} size={28} />
 
-            <span className="font-bold text-on-surface-primary">
+            <span className="font-bold text-on-surface">
               {selectedCurrency && selectedCurrency.symbol && selectedCurrency.symbol.length > 20
                 ? `${selectedCurrency.symbol.slice(0, 4)}...${selectedCurrency.symbol.slice(
                     selectedCurrency.symbol.length - 5,
@@ -65,18 +65,18 @@ export const CurrencySelect = ({
           </div>
         )}
 
-        <CaretDown size={16} className="text-on-surface-primary ml-2" />
+        <CaretDown size={16} className="text-on-surface ml-2" />
       </button>
 
       {account && !!selectedCurrency && !hideBalance && (
-        <div className="flex items-start w-full space-x-2 justify-between text-xs text-on-surface-primary px-1 mt-1">
+        <div className="flex items-start w-full space-x-2 justify-between text-xs text-on-surface px-1 mt-1">
           <h5>{t('Balance')}:</h5>
 
           <div className="flex flex-col items-end">
-            <span className="text-on-surface-primary">{formatAmount(selectedCurrencyBalance, 6) ?? t('Loading')}</span>
+            <span className="text-on-surface">{formatAmount(selectedCurrencyBalance, 6) ?? t('Loading')}</span>
 
             {quoted?.toExact() && Number.isFinite(+quoted.toExact()) && (
-              <span className="text-on-surface-tertiary">~${formatNumber(+quoted.toExact())}</span>
+              <span className="text-on-surface-subtlest">~${formatNumber(+quoted.toExact())}</span>
             )}
           </div>
         </div>

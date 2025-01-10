@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { WNATIVE } from '@pancakeswap/sdk'
-import { CopyButton, InjectedModalProps, Skeleton } from '@pancakeswap/uikit'
+import { ButtonV2, CopyButton, ExternalLink, InjectedModalProps, Skeleton } from '@pancakeswap/uikit'
 import { FetchStatus } from 'config/constants/types'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import useAuth from 'hooks/useAuth'
@@ -9,8 +9,7 @@ import useTokenBalance from 'hooks/useTokenBalance'
 
 import { formatBigInt, getFullDisplayBalance } from '@pancakeswap/utils/formatBalance'
 
-import Button from 'components/Common/Button'
-import ExternalLink from 'components/Common/ExternalLink'
+import { useCallback } from 'react'
 import { getBlockExploreLink } from 'utils'
 import { Address, useBalance } from 'wagmi'
 
@@ -28,42 +27,36 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ onDismiss }) => {
   const { balance: wNativeBalance, fetchStatus: wNativeFetchStatus } = useTokenBalance(wNativeToken?.address)
   const { logout } = useAuth()
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     onDismiss?.()
     logout()
-  }
+  }, [logout, onDismiss])
 
   return (
     <>
       {/* <p className="mt-4">{account && <CopyAddress tooltipMessage={t('Copied')} address={account} />}</p> */}
       {account && (
-        <div className="px-4 py-3 rounded-[20px] bg-surface-container-highest mt-4 justify-between relative">
-          <span className="text-sm text-on-surface-primary overflow-x-auto pr-2">{account}</span>
+        <div className="px-4 py-3 rounded-[20px] bg-neutral mt-4 justify-between relative">
+          <span className="text-sm text-on-surface overflow-x-auto pr-2">{account}</span>
 
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 bg-surface-container-highest pl-2 pr-3 h-5">
-            <CopyButton
-              className="text-on-surface-primary shrink-0"
-              width="20px"
-              text={account}
-              tooltipMessage={t('Copied')}
-            />
-          </div>
+          <CopyButton
+            className="text-on-surface shrink-0 absolute right-0 top-1/2 -translate-y-1/2 pl-2 pr-3 h-5"
+            text={account}
+            tooltipMessage={t('Copied')}
+          />
         </div>
       )}
 
       <div className="mt-4 flex flex-col space-y-2">
         {account && (
           <div className="flex w-full justify-end">
-            <ExternalLink
-              href={getBlockExploreLink(account, 'address', chainId)}
-              className="text-sm text-on-surface-primary"
-            >
+            <ExternalLink href={getBlockExploreLink(account, 'address', chainId)} className="text-sm text-on-surface">
               KaiaScope
             </ExternalLink>
           </div>
         )}
 
-        <div className="flex items-center space-x-2 justify-between text-on-surface-primary text-sm">
+        <div className="flex items-center space-x-2 justify-between text-on-surface text-sm">
           <h4>
             {native.symbol} {t('Balance')}
           </h4>
@@ -76,7 +69,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ onDismiss }) => {
         </div>
 
         {wNativeBalance && wNativeBalance.gt(0) && (
-          <div className="flex items-center space-x-2 justify-between text-on-surface-primary text-sm">
+          <div className="flex items-center space-x-2 justify-between text-on-surface text-sm">
             <h4>
               {wNativeToken.symbol} {t('Balance')}
             </h4>
@@ -90,9 +83,9 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ onDismiss }) => {
         )}
       </div>
 
-      <Button variant="primary" fullWidth onClick={handleLogout} className="mt-6">
+      <ButtonV2 variant="primary" fullWidth onClick={handleLogout} className="mt-6">
         {t('Disconnect Wallet')}
-      </Button>
+      </ButtonV2>
     </>
   )
 }

@@ -52,14 +52,14 @@ export const CompoundFrequency = memo(function CompoundFrequency({
     <div className="flex items-center space-x-3">
       <CheckboxV2 checked={on} onChange={onToggle} />
 
-      <div className="w-full grid grid-cols-4 bg-surface-container-highest rounded-2xl overflow-hidden">
+      <div className="w-full grid grid-cols-4 bg-neutral rounded-2xl overflow-hidden">
         {frequencies.map((frequency, i) => (
           <button
             key={frequency.key}
             type="button"
             className={clsx("py-1", {
-              "text-on-surface-orange bg-surface-orange": compoundIndex === i,
-              "text-on-surface-primary bg-transparent": compoundIndex !== i,
+              "text-on-surface-inverse bg-brand": compoundIndex === i,
+              "text-on-surface bg-transparent": compoundIndex !== i,
             })}
             onClick={() => onCompoundChange(i)}
           >

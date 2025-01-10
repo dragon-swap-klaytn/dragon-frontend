@@ -16,7 +16,7 @@ export const QuestionHelper: React.FC<React.PropsWithChildren<Props>> = ({
   placement = "right-end",
   size = 12,
   background = "bg-gray-500",
-  color = "text-surface-container",
+  color = "text-on-surface-subtle",
 }) => {
   const { targetRef, tooltip, tooltipVisible } = useTooltip(text, { placement });
 

@@ -1,8 +1,9 @@
-import { createReducer } from '@reduxjs/toolkit'
 import { SerializedWrappedToken } from '@pancakeswap/token-lists'
+import { createReducer } from '@reduxjs/toolkit'
 import omitBy from 'lodash/omitBy'
 import { DEFAULT_DEADLINE_FROM_NOW } from '../../config/constants'
 import { updateVersion } from '../global/actions'
+import { GAS_PRICE_GWEI } from '../types'
 import {
   addSerializedPair,
   addSerializedToken,
@@ -12,22 +13,21 @@ import {
   removeSerializedPair,
   removeSerializedToken,
   SerializedPair,
+  setIsExchangeChartDisplayed,
+  setSubgraphHealthIndicatorDisplayed,
   updateGasPrice,
   updateUserDeadline,
   updateUserFarmStakedOnly,
   updateUserFarmsViewMode,
+  updateUserLimitOrderAcceptedWarning,
   updateUserPoolStakedOnly,
   updateUserPoolsViewMode,
-  ViewMode,
   updateUserPredictionAcceptedRisk,
-  updateUserPredictionChartDisclaimerShow,
   updateUserPredictionChainlinkChartDisclaimerShow,
+  updateUserPredictionChartDisclaimerShow,
   updateUserUsernameVisibility,
-  setIsExchangeChartDisplayed,
-  setSubgraphHealthIndicatorDisplayed,
-  updateUserLimitOrderAcceptedWarning,
+  ViewMode,
 } from './actions'
-import { GAS_PRICE_GWEI } from '../types'
 
 const currentTimestamp = () => Date.now()
 
@@ -64,7 +64,7 @@ export interface UserState {
   gasPrice: string
   watchlistTokens: string[]
   watchlistPools: string[]
-  hideTimestampPhishingWarningBanner: number
+  hideTimestampPhishingWarningBanner: number | null
 }
 
 function pairKey(token0Address: string, token1Address: string) {

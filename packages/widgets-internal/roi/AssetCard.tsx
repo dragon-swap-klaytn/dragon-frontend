@@ -22,7 +22,7 @@ import { toSignificant } from "./utils";
 // }
 
 export function SectionTitle({ children }: PropsWithChildren) {
-  return <h4 className="text-xs text-surface-orange">{children}</h4>;
+  return <h4 className="text-xs text-on-surface-brand">{children}</h4>;
 }
 
 export interface AssetCardProps extends SpaceProps {
@@ -63,7 +63,7 @@ export const CurrencyLogoDisplay = memo(function CurrencyLogoDisplay({
     <div className="flex items-center space-x-2">
       {logo}
 
-      <span className="text-sm text-on-surface-primary">{name}</span>
+      <span className="text-sm text-on-surface">{name}</span>
     </div>
   );
 });
@@ -136,12 +136,12 @@ export const AssetCard = memo(function AssetCard({
           </colgroup> */}
           <thead>
             <tr>
-              <th className="text-left font-bold text-on-surface-primary px-3 pt-2 pb-4 text-sm">{t("Asset")}</th>
+              <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Asset")}</th>
               {showPrice && (
-                <th className="text-left font-bold text-on-surface-primary px-3 pt-2 pb-4 text-sm">{t("Price")}</th>
+                <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Price")}</th>
               )}
-              <th className="text-left font-bold text-on-surface-primary px-3 pt-2 pb-4 text-sm">{t("Balance")}</th>
-              <th className="text-left font-bold text-on-surface-primary px-3 pt-2 pb-4 text-sm">{t("Value")}</th>
+              <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Balance")}</th>
+              <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Value")}</th>
             </tr>
           </thead>
           <tbody>
@@ -203,11 +203,11 @@ export const AssetRow = memo(function AssetRow({
       {showPrice && (
         <td className="px-3">
           <div className="flex items-center space-x-1">
-            <span className="text-sm text-on-surface-primary">$</span>
+            <span className="text-sm text-on-surface">$</span>
 
             <NumberFormat
               ref={priceInputRef}
-              className="text-on-surface-primary w-16 text-sm bg-transparent text-left focus:outline-none"
+              className="text-on-surface w-16 text-sm bg-transparent text-left focus:outline-none"
               value={price}
               onChange={onPriceUpdate}
               onMouseDown={onMouseDown}
@@ -219,15 +219,13 @@ export const AssetRow = memo(function AssetRow({
               disabled={!priceEditable}
             />
 
-            {priceChanged && <Pencil size={12} className="text-on-surface-primary" />}
+            {priceChanged && <Pencil size={12} className="text-on-surface" />}
           </div>
         </td>
       )}
+      <td className="px-3">{amount && <span className="text-sm text-on-surface">{formatAmount(+amount)}</span>}</td>
       <td className="px-3">
-        {amount && <span className="text-sm text-on-surface-primary">{formatAmount(+amount)}</span>}
-      </td>
-      <td className="px-3">
-        <span className="text-sm text-on-surface-primary">${formatAmount(+value)}</span>
+        <span className="text-sm text-on-surface">${formatAmount(+value)}</span>
       </td>
     </tr>
   );
@@ -241,7 +239,7 @@ interface InterestDisplayProps {
 export const InterestDisplay = memo(function InterestDisplay({ amount, interest }: InterestDisplayProps) {
   return (
     <div className="flex items-center space-x-1 text-sm">
-      {amount && <span className="text-on-surface-primary">${toSignificant(amount)}</span>}
+      {amount && <span className="text-on-surface">${toSignificant(amount)}</span>}
 
       {interest && (
         <span
@@ -278,8 +276,8 @@ export const CardTag = memo(function CardTag({ isActive, children, ...rest }: Pr
   return (
     <div
       className={clsx("text-xs font-bold", {
-        "text-on-surface-secondary": !isActive,
-        "bg-gradient-to-br from-surface-orange via-on-surface-accentSubtle to-surface-orange text-on-surface-primary text-transparent bg-clip-text":
+        "text-on-surface-subtle": !isActive,
+        "bg-gradient-to-br from-surface-orange via-on-surface-accentSubtle to-surface-orange text-on-surface text-transparent bg-clip-text":
           isActive,
       })}
     >

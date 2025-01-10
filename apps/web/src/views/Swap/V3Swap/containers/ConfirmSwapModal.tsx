@@ -3,7 +3,7 @@ import { memo, useCallback, useMemo, useState } from 'react'
 
 import { useTranslation } from '@pancakeswap/localization'
 import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { InjectedModalProps } from '@pancakeswap/uikit'
+import { ExternalLink, InjectedModalProps } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import {
   ApproveModalContent,
@@ -16,7 +16,6 @@ import { useDebounce } from '@pancakeswap/hooks'
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWallet/AddToWalletButton'
-import ExternalLink from 'components/Common/ExternalLink'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState } from 'hooks/useApproveCallback'
@@ -161,10 +160,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
         <SwapTransactionReceiptModalContent>
           <div className="flex flex-col space-y-3">
             {chainId && (
-              <ExternalLink
-                href={getBlockExploreLink(txHash, 'transaction', chainId)}
-                className="text-on-surface-primary"
-              >
+              <ExternalLink href={getBlockExploreLink(txHash, 'transaction', chainId)} className="text-on-surface">
                 {t('View on %site%', { site: getBlockExploreName(chainId) })}: {truncateHash(txHash, 8, 0)}
               </ExternalLink>
             )}

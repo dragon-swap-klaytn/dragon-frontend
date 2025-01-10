@@ -44,14 +44,14 @@ export const StakeSpan = memo(function StakeSpan({
   );
 
   return (
-    <div className="w-full grid grid-cols-5 bg-surface-container-highest rounded-2xl overflow-hidden">
+    <div className="w-full grid grid-cols-5 bg-neutral rounded-2xl overflow-hidden">
       {SPAN.map((span, i) => (
         <button
           key={span.key}
           type="button"
           className={clsx("py-1", {
-            "text-on-surface-orange bg-surface-orange": spanIndex === i,
-            "text-on-surface-primary bg-transparent": spanIndex !== i,
+            "text-on-surface-inverse bg-brand": spanIndex === i,
+            "text-on-surface bg-transparent": spanIndex !== i,
           })}
           onClick={() => onSpanChange(i)}
         >

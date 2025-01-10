@@ -1,17 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
 import { WrappedTokenInfo } from '@pancakeswap/token-lists'
-import { HelpIcon, useTooltip } from '@pancakeswap/uikit'
+import { ButtonV2, CheckboxV2, ExternalLink, HelpIcon, Notification, useTooltip } from '@pancakeswap/uikit'
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { Warning } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { TOKEN_RISK } from 'components/AccessRisk'
 import { fetchRiskToken } from 'components/AccessRisk/utils/fetchTokenRisk'
-import Button from 'components/Common/Button'
-import Checkbox from 'components/Common/Checkbox'
-import ExternalLink from 'components/Common/ExternalLink'
-import Notification from 'components/Common/Notification'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useState } from 'react'
 import { useCombinedInactiveList } from 'state/lists/hooks'
@@ -74,7 +70,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
           return (
             <div key={`importToken:${token.address}`} className="flex flex-col space-y-3">
               {!!token.chainId && (
-                <div className="bg-surface-container-highest p-4 rounded-xl">
+                <div className="bg-neutral p-4 rounded-xl">
                   {list !== undefined ? (
                     <div className="flex items-center space-x-2 text-sm">
                       {list.logoURI && (
@@ -94,7 +90,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
                     </div>
                   )}
 
-                  <div className="flex items-center space-x-2 justify-between mt-2 text-on-surface-primary">
+                  <div className="flex items-center space-x-2 justify-between mt-2 text-on-surface">
                     <div className="flex items-center space-x-3">
                       <CurrencyLogo currency={token} size={32} />
 
@@ -116,12 +112,12 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
       </div>
 
       <div className="mt-4">
-        <Checkbox
+        <CheckboxV2
           id="import-token-checkbox"
           checked={confirmed}
           onChange={() => setConfirmed(!confirmed)}
           label={t('I understand')}
-          labelClassName="text-on-surface-primary"
+          labelClassName="text-on-surface"
         />
 
         {hasRiskToken && (
@@ -132,7 +128,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
         )}
       </div>
 
-      <Button
+      <ButtonV2
         className="mt-3"
         variant="primary"
         disabled={!confirmed}
@@ -156,7 +152,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
         fullWidth
       >
         {hasRiskToken ? t('Proceed') : t('Import')}
-      </Button>
+      </ButtonV2>
     </div>
   )
 }

@@ -455,7 +455,7 @@ export function RoiCalculator({
             cakePrice={farmingRewardsEnabled ? props.cakePrice : undefined}
             setEditCakePrice={setEditCakePrice}
           />
-          <ArrowDown size={24} className="text-on-surface-primary" />
+          <ArrowDown size={24} className="text-on-surface" />
           <RoiRate usdAmount={totalReward} roiPercent={totalRate} />
           {allowApply && (
             <ButtonV2 variant="primary" fullWidth onClick={handleApply}>

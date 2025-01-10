@@ -1,4 +1,4 @@
-import { useModal } from '@pancakeswap/uikit'
+import { Loading, useModal } from '@pancakeswap/uikit'
 
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Price } from '@pancakeswap/sdk'
@@ -9,7 +9,6 @@ import { useIsMounted } from '@pancakeswap/hooks'
 import { formatPrice } from '@pancakeswap/utils/formatFractions'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import Loading from 'components/Common/Loading'
 import SettingsModal from '../../../../components/Menu/GlobalSettings/SettingsModal'
 import { SettingsMode } from '../../../../components/Menu/GlobalSettings/types'
 import { useIsWrapping } from '../hooks'
@@ -43,7 +42,7 @@ export const PricingAndSlippage = memo(function PricingAndSlippage({
   return (
     <div className="flex flex-col py-0 px-2 space-y-1">
       <p className="flex items-center justify-between space-x-4">
-        <span className="text-on-surface-accent text-[13px]">{t('Price')}</span>
+        <span className="text-on-surface-brand text-[13px]">{t('Price')}</span>
 
         <span
           className={clsx('text-sm flex items-center justify-center space-x-1', {
@@ -52,35 +51,35 @@ export const PricingAndSlippage = memo(function PricingAndSlippage({
         >
           {show ? (
             <>
-              <span className="text-[13px] text-on-surface-primary">
+              <span className="text-[13px] text-on-surface">
                 {`1 ${showInverted ? price?.baseCurrency?.symbol : price?.quoteCurrency?.symbol}`}
               </span>
 
               {priceLoading ? (
-                <Loading size={16} />
+                <Loading size={16} className="text-on-surface-subtle" />
               ) : (
                 <button
                   type="button"
-                  className="text-sm text-on-surface-tertiary hover:opacity-70"
+                  className="text-sm text-on-surface-subtlest hover:opacity-70"
                   onClick={() => setShowInverted(!showInverted)}
                 >
                   <ArrowsLeftRight size={16} />
                 </button>
               )}
 
-              <span className="text-[13px] text-on-surface-primary">
+              <span className="text-[13px] text-on-surface">
                 {`${formattedPrice} ${showInverted ? price?.quoteCurrency?.symbol : price?.baseCurrency?.symbol}`}
               </span>
             </>
           ) : (
-            <span className="text-[13px] text-on-surface-primary">-</span>
+            <span className="text-[13px] text-on-surface">-</span>
           )}
         </span>
       </p>
       {typeof allowedSlippage === 'number' && (
         <button
           type="button"
-          className="flex items-center w-full justify-between hover:opacity-70 text-[13px] text-on-surface-primary"
+          className="flex items-center w-full justify-between hover:opacity-70 text-[13px] text-on-surface"
           onClick={onPresentSettingsModal}
         >
           <span className="text-[13px]">{t('Slippage Tolerance')}</span>

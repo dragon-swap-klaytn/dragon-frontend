@@ -2,6 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import {
   BinanceChainIcon,
   ButtonProps,
+  ButtonV2,
   CoinbaseWalletIcon,
   MetamaskIcon,
   OperaIcon,
@@ -9,7 +10,6 @@ import {
   TrustWalletIcon,
 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import Button from 'components/Common/Button'
 import KaikasIcon from 'components/Svg/KaiaWalletIcon'
 import { useAccount } from 'wagmi'
 import { canRegisterToken } from '../../utils/wallet'
@@ -93,7 +93,7 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
   if (!isCanRegisterToken) return null
 
   return (
-    <Button
+    <ButtonV2
       variant="primary"
       className={clsx('flex items-center space-x-2 justify-center text-sm', className)}
       onClick={() => {
@@ -110,7 +110,7 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
     >
       <span>{getWalletText(textOptions, tokenSymbol, t)}</span>
       {getWalletIcon(connector?.name)}
-    </Button>
+    </ButtonV2>
   )
 }
 

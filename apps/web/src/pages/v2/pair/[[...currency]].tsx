@@ -3,7 +3,7 @@ import { Currency } from '@pancakeswap/sdk'
 import {
   ButtonV2,
   Card,
-  Container,
+  Chip,
   CurrencyLogoWithAmount,
   CurrencyLogoWithSymbol,
   useMatchBreakpoints,
@@ -109,17 +109,12 @@ export default function PoolV2Page() {
 
   const buttons = useMemo(() => {
     return (
-      <div
-        className={clsx({
-          'flex items-center space-x-2': !isMobile,
-          'w-full flex flex-col items-center space-y-2 mb-4': isMobile,
-        })}
-      >
+      <div className="flex items-center space-x-2 mt-6">
         <NextLinkFromReactRouter
           to={`/v2/add/${tokenLabels[0]}/${tokenLabels[1]}`}
           className={clsx({ 'w-full': isMobile })}
         >
-          <ButtonV2 disabled={!pair} variant="primary" onClick={() => {}} fullWidth={isMobile} scale="sm">
+          <ButtonV2 disabled={!pair} variant="primary" onClick={() => {}} fullWidth={isMobile}>
             {t('Add')}
           </ButtonV2>
         </NextLinkFromReactRouter>
@@ -127,7 +122,7 @@ export default function PoolV2Page() {
           to={`/v2/remove/${tokenLabels[0]}/${tokenLabels[1]}`}
           className={clsx({ 'w-full': isMobile })}
         >
-          <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile} scale="sm">
+          <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile}>
             {t('Remove')}
           </ButtonV2>
         </NextLinkFromReactRouter>
@@ -136,7 +131,7 @@ export default function PoolV2Page() {
             to={`/v2/migrate/${pair?.liquidityToken?.address}`}
             className={clsx({ 'w-full': isMobile })}
           >
-            <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile} scale="sm">
+            <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile}>
               {t('Migrate')}
             </ButtonV2>
           </NextLinkFromReactRouter>
@@ -150,23 +145,24 @@ export default function PoolV2Page() {
       <AppBody>
         <AppHeader
           title={
-            <CurrencyLogoWithSymbol
-              currencyA={tokens[0]}
-              currencyB={tokens[1]}
-              symbol={`${tokens[0]?.symbol}-${tokens[1]?.symbol}`}
-              symbolClassName="text-lg font-bold text-on-surface-primary"
-            />
+            <div className="flex items-center space-x-2 w-full justify-between">
+              <CurrencyLogoWithSymbol
+                currencyA={tokens[0]}
+                currencyB={tokens[1]}
+                symbol={`${tokens[0]?.symbol}-${tokens[1]?.symbol}`}
+                symbolClassName="text-lg font-bold text-on-surface"
+              />
+
+              <Chip>V2 LP</Chip>
+            </div>
           }
           backTo="/liquidity"
           noConfig
-          buttons={!isMobile && buttons}
         />
-        <div className="p-4">
-          {isMobile && buttons}
+        <div className="p-5 md:p-8">
+          <h3 className="text-xs text-on-surface-brand">{t('Liquidity')}</h3>
 
-          <h3 className="text-xs text-surface-orange">{t('Liquidity')}</h3>
-
-          <p className="mt-2 text-2xl font-bold text-on-surface-primary">
+          <p className="mt-2 font-bold text-on-surface text-xl">
             $
             {totalUSDValue
               ? totalUSDValue.toLocaleString(undefined, {
@@ -181,7 +177,7 @@ export default function PoolV2Page() {
             b={{ currency: tokens[1], symbol: tokens[1]?.symbol, amount: token1Deposited?.toSignificant(4) }}
           />
 
-          <div className="flex flex-col items-start space-y-0.5 mt-1.5 px-2 text-on-surface-secondary text-sm">
+          <div className="flex flex-col items-start space-y-0.5 mt-1.5 text-on-surface-subtle text-[13px]">
             {poolData && (
               <p>
                 {t('LP reward APR')}: {formatAmount(poolData?.lpApr7d)}%
@@ -192,6 +188,8 @@ export default function PoolV2Page() {
               {t('Your share in pool')}: {poolTokenPercentage ? `${poolTokenPercentage.toFixed(8)}%` : '-'}
             </p>
           </div>
+
+          {buttons}
         </div>
       </AppBody>
     </Page>
@@ -206,9 +204,19 @@ type CurrencyWithAmountProps = {
 
 function CurrencyWithAmount({ a, b }: { a: CurrencyWithAmountProps; b: CurrencyWithAmountProps }) {
   return (
-    <Container className="mt-2">
-      <CurrencyLogoWithAmount currencyA={a.currency} symbol={a.symbol} amount={a.amount} />
-      <CurrencyLogoWithAmount currencyA={b.currency} symbol={b.symbol} amount={b.amount} />
-    </Container>
+    <div className="mt-2">
+      <CurrencyLogoWithAmount
+        currencyA={a.currency}
+        symbol={a.symbol}
+        amount={a.amount}
+        className="py-3 border-y border-border"
+      />
+      <CurrencyLogoWithAmount
+        currencyA={b.currency}
+        symbol={b.symbol}
+        amount={b.amount}
+        className="py-3 border-b border-border"
+      />
+    </div>
   )
 }

@@ -1,7 +1,6 @@
+import { ExternalLink, Loading } from '@pancakeswap/uikit'
 import { CheckCircle, Warning } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import ExternalLink from 'components/Common/ExternalLink'
-import Loading from 'components/Common/Loading'
 import { TransactionDetails } from 'state/transactions/reducer'
 import { getBlockExploreLink } from 'utils'
 
@@ -13,7 +12,7 @@ export default function Transaction({ tx, chainId }: { tx: TransactionDetails; c
   if (!chainId) return null
 
   return (
-    <div className="flex items-center space-x-2 justify-between text-on-surface-primary">
+    <div className="flex items-center space-x-2 justify-between text-on-surface">
       <ExternalLink href={getBlockExploreLink(tx.hash, 'transaction', chainId)}>{summary ?? tx.hash}</ExternalLink>
 
       <span

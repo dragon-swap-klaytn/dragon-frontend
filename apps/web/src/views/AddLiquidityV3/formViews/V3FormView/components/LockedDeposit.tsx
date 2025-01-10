@@ -12,7 +12,7 @@ export default function LockedDeposit({
     <div className={clsx('flex flex-col items-center space-y-2 p-4 rounded-2xl bg-surface-disable', className)}>
       <Lock size={24} className="text-gray-400" />
 
-      <p className="text-center text-sm text-on-surface-tertiary">
+      <p className="text-center text-sm text-on-surface-subtlest">
         <Trans>The market price is outside your specified price range. Single-asset deposit only.</Trans>
       </p>
     </div>

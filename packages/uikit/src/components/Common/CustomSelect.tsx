@@ -42,7 +42,7 @@ export function CustomSelect({
     <Listbox value={selectedOption} onChange={onSelect} multiple={multiple}>
       <ListboxButton
         className={clsx(
-          "relative w-full h-9 flex justify-between items-center space-x-2 rounded-full bg-surface-container-highest px-4 py-2 text-base text-on-surface-primary",
+          "relative w-full h-9 flex justify-between items-center space-x-2 rounded-full bg-neutral px-4 py-2 text-base text-on-surface",
           "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
           "hover:bg-overlay-surface-hover-light"
         )}
@@ -56,13 +56,13 @@ export function CustomSelect({
             ? (prefix ? `${prefix}: ` : "") + t(selectedOption?.label)
             : placeholder || "Select..."}
         </span>
-        <CaretDown className="group pointer-events-none size-4 text-on-surface-primary" aria-hidden="true" />
+        <CaretDown className="group pointer-events-none size-4 text-on-surface" aria-hidden="true" />
       </ListboxButton>
       <ListboxOptions
         anchor="bottom"
         transition
         className={clsx(
-          "w-[var(--button-width)] rounded-3xl border border-white/20 bg-surface-container-highest p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
+          "w-[var(--button-width)] rounded-3xl border border-white/20 bg-neutral p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
           "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
         )}
       >
@@ -72,8 +72,8 @@ export function CustomSelect({
             value={opt}
             className="group flex cursor-default items-center gap-2 rounded-3xl py-1.5 px-3 select-none data-[focus]:bg-white/10"
           >
-            <Check className="invisible size-4 text-on-surface-primary group-data-[selected]:visible" />
-            <div className="text-sm/6 text-on-surface-primary">{t(opt.label)}</div>
+            <Check className="invisible size-4 text-on-surface group-data-[selected]:visible" />
+            <div className="text-sm/6 text-on-surface">{t(opt.label)}</div>
           </ListboxOption>
         ))}
       </ListboxOptions>

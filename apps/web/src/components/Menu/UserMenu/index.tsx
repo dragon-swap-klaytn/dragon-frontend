@@ -49,7 +49,7 @@ const UserMenu = ({
       <div className="relative mr-3">
         <button
           type="button"
-          className="flex items-center space-x-2 hover:opacity-70 text-on-surface-orange pl-1.5 pr-2 py-1.5 bg-surface-orange rounded-3xl"
+          className="flex items-center space-x-2 hover:opacity-70 text-on-surface-inverse pl-1.5 pr-2 py-1.5 bg-brand rounded-3xl"
           onClick={() => setUserMenuOpen((prev) => !prev)}
         >
           {connector && (
@@ -67,14 +67,14 @@ const UserMenu = ({
         </button>
 
         <div
-          className={clsx('absolute top-12 right-0 bg-surface-container-high p-6 rounded-2xl transition-opacity z-50', {
+          className={clsx('absolute top-12 right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50', {
             'opacity-100': userMenuOpen,
             'opacity-0 pointer-events-none': !userMenuOpen,
           })}
         >
-          <h3 className="text-on-surface-primary font-bold text-lg">{t('Preferences')}</h3>
+          <h3 className="text-on-surface font-bold text-lg">{t('Preferences')}</h3>
 
-          <div className="mt-[30px] flex flex-col items-start space-y-6 text-on-surface-primary">
+          <div className="mt-[30px] flex flex-col items-start space-y-6 text-on-surface">
             <button
               type="button"
               className="text-sm whitespace-nowrap"

@@ -1,9 +1,8 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { ERC20Token, Token } from '@pancakeswap/sdk'
+import { ButtonV2, SearchBar } from '@pancakeswap/uikit'
 import { TrashSimple } from '@phosphor-icons/react'
-import Button from 'components/Common/Button'
-import SearchBar from 'components/Common/SearchBar'
 import { CurrencyLogo } from 'components/Logo'
 import ImportRow from 'components/SearchModal/ImportRow'
 import { useTokens } from 'hooks/Tokens'
@@ -92,7 +91,7 @@ export default function ManageTokens({
               >
                 <div className="flex items-center space-x-2">
                   <CurrencyLogo currency={token as any} size={20} />
-                  <span className="text-sm text-on-surface-primary">{token.symbol}</span>
+                  <span className="text-sm text-on-surface">{token.symbol}</span>
                   <span className="text-gray-400 text-xs">{token.name}</span>
                 </div>
 
@@ -113,20 +112,20 @@ export default function ManageTokens({
 
       {userAddedTokens?.length > 0 ? (
         <div className="flex items-center space-x-2 justify-between px-2 mt-4">
-          <span className="text-sm text-on-surface-primary">
+          <span className="text-sm text-on-surface">
             {userAddedTokens?.length} {userAddedTokens.length === 1 ? t('Imported Token') : t('Imported Tokens')}
           </span>
 
           {userAddedTokens.length > 0 && (
-            <Button variant="subtle" onClick={handleRemoveAll} scale="sm">
+            <ButtonV2 variant="subtle" onClick={handleRemoveAll} scale="sm">
               {t('Clear all')}
-            </Button>
+            </ButtonV2>
           )}
         </div>
       ) : !debouncedQuery && (userAddedTokens?.length || 0) === 0 ? (
-        <p className="text-center py-4">{t('No imported tokens.')}</p>
+        <p className="text-center py-4 text-on-surface text-sm">{t('No imported tokens.')}</p>
       ) : !!debouncedQuery && (searchTokens?.length || 0) === 0 ? (
-        <p className="text-center py-4">{t('No results found.')}</p>
+        <p className="text-center py-4 text-on-surface text-sm">{t('No results found.')}</p>
       ) : (
         <></>
       )}

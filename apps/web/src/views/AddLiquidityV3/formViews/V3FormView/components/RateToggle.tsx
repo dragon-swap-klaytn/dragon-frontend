@@ -13,12 +13,12 @@ export default function RateToggle({
 
   return currencyA ? (
     <div className="flex items-center space-x-2">
-      <span className="text-xs text-on-surface-secondary">{t('View prices in')}</span>
+      <span className="text-xs text-on-surface-subtle">{t('View prices in')}</span>
 
       <button
         type="button"
         onClick={handleRateToggle}
-        className="flex items-center space-x-1 text-on-surface-primary px-3 py-1 rounded-2xl bg-surface-container-highest hover:opacity-70 text-sm"
+        className="flex items-center space-x-1 text-on-surface px-3 py-1 rounded-2xl bg-neutral hover:opacity-70 text-sm"
       >
         <ArrowsLeftRight size={16} />
         <span>{currencyA?.symbol}</span>

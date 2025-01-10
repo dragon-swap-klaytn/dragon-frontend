@@ -4,15 +4,17 @@ import { ChainId } from '@pancakeswap/chains'
 import { isActiveV3Farm } from '@pancakeswap/farms'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@pancakeswap/sdk'
 import {
-  AtomBox,
   ButtonV2,
-  Container,
+  Chip,
+  ContainerV2,
   CurrencyLogoWithAmount,
   CurrencyLogoWithSymbol,
-  ExpandableLabel,
-  Flex,
+  Dots,
+  ExternalLink,
   NotFound,
+  Notification,
   Spinner,
+  ToggleSwitch,
   useMatchBreakpoints,
   useModal,
 } from '@pancakeswap/uikit'
@@ -31,9 +33,8 @@ import { NextSeo } from 'next-seo'
 // import { usePositionTokenURI } from 'hooks/v3/usePositionTokenURI'
 import { Trans, useTranslation } from '@pancakeswap/localization'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
-import { CurrencyLogo, DoubleCurrencyLogo } from 'components/Logo'
+import { CurrencyLogo } from 'components/Logo'
 import { RangePriceSection } from 'components/RangePriceSection'
-import { RangeTag } from 'components/RangeTag'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
 import dayjs from 'dayjs'
@@ -48,7 +49,7 @@ import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
-import { PropsWithChildren, ReactNode, memo, useCallback, useMemo, useState } from 'react'
+import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useMemo, useState } from 'react'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin, getBlockExploreLink } from 'utils'
@@ -67,18 +68,27 @@ import { MerklSection } from 'components/Merkl/MerklSection'
 import { MerklTag } from 'components/Merkl/MerklTag'
 import { useMerklInfo } from 'hooks/useMerkl'
 */
-import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
-import { ArrowsClockwise } from '@phosphor-icons/react'
+import { CAKE, CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
+import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
 import { useQuery } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import clsx from 'clsx'
-import Chip from 'components/Common/Chip'
-import ExternalLink from 'components/Common/ExternalLink'
-import Notification from 'components/Common/Notification'
-import ToggleSwitch from 'components/Common/ToggleSwitch'
+import { RangeTag } from 'components/RangeTag'
+import { useCakePrice } from 'hooks/useCakePrice'
 import Link from 'next/link'
+import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import currencyId from 'utils/currencyId'
 import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
+import {
+  useIsBoostedPool,
+  useUserBoostedPoolsTokenId,
+  useUserPositionInfo,
+  useVeCakeUserMultiplierBeforeBoosted,
+} from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
+import { useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
+import { V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
+import useFarmV3Actions, { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
 
 const useInverter = ({
   priceLower,
@@ -125,7 +135,7 @@ function PositionPriceSection({
 
   return (
     <>
-      <div className="flex items-center space-x-2 w-full justify-between mt-4">
+      <div className="flex items-center space-x-2 w-full justify-between mt-8">
         <SectionTitle>{t('Price Range')}</SectionTitle>
 
         {currencyBase && currencyQuote && (
@@ -133,33 +143,35 @@ function PositionPriceSection({
         )}
       </div>
 
-      <div className="flex flex-col items-center w-full space-y-4 mt-2">
-        <div className="flex items-center space-x-2 w-full">
-          <RangePriceSection
-            title={t('Min Price')}
-            price={formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
-            currency0={currencyQuote}
-            currency1={currencyBase}
-          />
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+        <RangePriceSection
+          title={t('Min Price')}
+          price={formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
+          currency0={currencyQuote}
+          currency1={currencyBase}
+        />
 
-          {isMobile ? null : <ArrowsClockwise size={24} className="text-on-surface-tertiary shrink-0" />}
+        <RangePriceSection
+          title={t('Max Price')}
+          price={formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
+          currency0={currencyQuote}
+          currency1={currencyBase}
+        />
 
-          <RangePriceSection
-            title={t('Max Price')}
-            price={formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
-            currency0={currencyQuote}
-            currency1={currencyBase}
-          />
+        <div className="flex items-center col-span-2 md:col-span-1">
+          <hr className="border-r border-border w-px mr-4 h-[120px] hidden md:block" />
+
+          {pool && currencyQuote && currencyBase ? (
+            <RangePriceSection
+              className="pl-4"
+              title={t('Current Price')}
+              titleColor="text-on-surface-brand"
+              currency0={currencyQuote}
+              currency1={currencyBase}
+              price={formatPrice(inverted ? pool.token1Price : pool.token0Price, 6, locale)}
+            />
+          ) : null}
         </div>
-
-        {pool && currencyQuote && currencyBase ? (
-          <RangePriceSection
-            title={t('Current Price')}
-            currency0={currencyQuote}
-            currency1={currencyBase}
-            price={formatPrice(inverted ? pool.token1Price : pool.token0Price, 6, locale)}
-          />
-        ) : null}
       </div>
     </>
   )
@@ -197,6 +209,7 @@ export default function PoolPage() {
     tickUpper,
     tokenId,
   } = positionDetails || {}
+  const tokenIdStr = tokenId?.toString() || ''
 
   const removed = liquidity === 0n
 
@@ -431,20 +444,23 @@ export default function PoolPage() {
 
   const modalHeader = () => (
     <>
-      <Container>
+      <ContainerV2>
         <CurrencyLogoWithAmount
+          className="pb-2 border-b border-border"
           currencyA={feeValueUpper?.currency}
           symbol={feeValueUpper?.currency?.symbol}
           amount={feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}
         />
 
         <CurrencyLogoWithAmount
+          className="pt-2"
           currencyA={feeValueLower?.currency}
           symbol={feeValueLower?.currency?.symbol}
           amount={feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}
         />
-      </Container>
-      <p className="my-4 text-sm text-on-surface-primary">
+      </ContainerV2>
+
+      <p className="my-4 text-sm text-on-surface text-center">
         {t('Collecting fees will withdraw currently available fees for you')}
       </p>
     </>
@@ -485,32 +501,67 @@ export default function PoolPage() {
   const buttons = useMemo(
     () =>
       currency0 && currency1 ? (
-        <div
-          className={clsx({
-            'flex items-center space-x-2': !isMobile,
-            'w-full flex flex-col items-center space-y-2': isMobile,
-          })}
-        >
+        <div className="flex items-center space-x-2 mt-2">
           <NextLinkFromReactRouter
             to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
-            className={isMobile ? 'w-full' : ''}
           >
-            <ButtonV2 disabled={!isOwnNFT} fullWidth={isMobile} variant="primary" onClick={() => {}} scale="sm">
+            <ButtonV2 disabled={!isOwnNFT} variant="primary" onClick={() => {}}>
               {t('Add')}
             </ButtonV2>
           </NextLinkFromReactRouter>
 
           {!removed && (
-            <NextLinkFromReactRouter to={`/remove/${tokenId}`} className={isMobile ? 'w-full' : ''}>
-              <ButtonV2 disabled={!isOwnNFT} fullWidth={isMobile} variant="subtle" onClick={() => {}} scale="sm">
+            <NextLinkFromReactRouter to={`/remove/${tokenId}`}>
+              <ButtonV2 disabled={!isOwnNFT} variant="subtle" onClick={() => {}}>
                 {t('Remove')}
               </ButtonV2>
             </NextLinkFromReactRouter>
           )}
         </div>
       ) : null,
-    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId, isMobile],
+    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId],
   )
+
+  const cake = CAKE[ChainId.KLAYTN]
+  const { farmsWithPositions: farmsV3 } = useFarmsV3WithPositionsAndBooster()
+  const farmsLP = useMemo(() => farmsV3.map((f) => ({ ...f, version: 3 } as V3FarmWithoutStakedValue)), [farmsV3])
+  const farm = useMemo(
+    () => farmsLP.find((f) => f.lpAddress.toLowerCase() === poolAddress?.toLowerCase()),
+    [farmsLP, poolAddress],
+  )
+  const pendingCake = useMemo(() => farm?.pendingCakeByTokenIds[tokenIdStr] || 0n, [farm, tokenIdStr])
+  const numberedPendingCake = useMemo(
+    () => new BigNumber(pendingCake.toString()).div(getFullDecimalMultiplier(cake.decimals)).toNumber(),
+    [pendingCake, cake],
+  )
+
+  const { updatedUserMultiplierBeforeBoosted } = useVeCakeUserMultiplierBeforeBoosted()
+  const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenIdStr)
+  const { updateUserPositionInfo } = useUserPositionInfo(tokenIdStr)
+  const { updateBoostedPoolsTokenId } = useUserBoostedPoolsTokenId()
+  const { updateStatus } = useBoostStatus(farm?.pid || 0, tokenIdStr)
+
+  const onDone = useCallback(() => {
+    updateIsBoostedPool()
+    updateUserPositionInfo()
+    updateBoostedPoolsTokenId()
+    updatedUserMultiplierBeforeBoosted()
+    updateStatus()
+  }, [
+    updateIsBoostedPool,
+    updateUserPositionInfo,
+    updateBoostedPoolsTokenId,
+    updatedUserMultiplierBeforeBoosted,
+    updateStatus,
+  ])
+  const cakePrice = useCakePrice()
+  const { harvesting } = useFarmsV3BatchHarvest()
+  const { onHarvest, attemptingTxn } = useFarmV3Actions({
+    tokenId: tokenIdStr,
+    reward: pendingCake,
+    onDone,
+  })
+  const isHarvesting = useMemo(() => attemptingTxn || (harvesting ?? false), [attemptingTxn, harvesting])
 
   if (!isLoading && poolState === PoolState.NOT_EXISTS) {
     return (
@@ -522,12 +573,7 @@ export default function PoolPage() {
 
   const farmingTips =
     inRange && ownsNFT && hasActiveFarm && !isStakedInMCv3 ? (
-      <Notification
-        variant="info"
-        className={clsx('mb-4', {
-          'mt-2': isMobile,
-        })}
-      >
+      <Notification variant="info" nStyle="highlight" className="mb-8">
         <p>
           <b>{`${currencyQuote?.symbol}-${currencyBase?.symbol}`}</b>&nbsp;
           {t(
@@ -546,47 +592,84 @@ export default function PoolPage() {
   return (
     <Page>
       {!isLoading && <NextSeo title={`${currencyQuote?.symbol}-${currencyBase?.symbol} V3 LP #${tokenIdFromUrl}`} />}
-      <AppBody maxWidth="max-w-2xl">
+      <AppBody maxWidth="max-w-[900px]">
         {isLoading ? (
-          <Flex width="100%" justifyContent="center" alignItems="center" minHeight="200px" mb="32px">
+          <div className="mx-auto h-[450px] flex items-center justify-center">
             <Spinner />
-          </Flex>
+          </div>
         ) : (
-          <div className="bg-surface-container">
+          <>
             <AppHeader
               title={
-                <div className="flex flex-col items-start space-y-2">
+                <div className="flex flex-col items-start space-y-2 w-full">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center space-x-2">
-                      <DoubleCurrencyLogo size={24} currency0={currencyQuote} currency1={currencyBase} />
-                      <h2 className="text-lg font-bold text-on-surface-primary">
-                        {currencyQuote?.symbol}-{currencyBase?.symbol}
-                      </h2>
-                    </div>
+                    <CurrencyLogoWithSymbol
+                      currencyA={currencyQuote}
+                      currencyB={currencyBase}
+                      symbol={`${currencyQuote?.symbol}-${currencyBase?.symbol}`}
+                      symbolClassName="text-lg font-bold text-on-surface"
+                    />
 
                     {Boolean(isStakedInMCv3) && <Chip color="orange">{t('Farming')}</Chip>}
                     <RangeTag removed={removed} outOfRange={!inRange} />
                   </div>
 
-                  <span className="text-sm text-on-surface-secondary">
+                  <span className="text-sm text-on-surface-subtlest">
                     V3 LP #{tokenIdFromUrl} / {new Percent(feeAmount || 0, 1_000_000).toSignificant()}% {t('fee tier')}
                   </span>
                 </div>
               }
               backTo="/liquidity"
               noConfig
-              buttons={!isMobile && Boolean(currency0) && Boolean(currency1) && buttons}
             />
 
-            <div className="p-4">
-              {isMobile && buttons}
+            <div className="p-5 md:p-8">
               {farmingTips}
 
-              <div className="grid md:grid-cols-2 gap-4 w-full">
-                <div className="w-full">
-                  <div className="w-full flex items-center space-x-2 justify-between">
-                    <SectionTitle>{t('Liquidity')}</SectionTitle>
+              {!!numberedPendingCake && (
+                <div className={clsx({ 'mt-8': !!farmingTips })}>
+                  <SectionTitle>{t('Boosts')}</SectionTitle>
 
+                  <div className="px-4 py-3 bg-neutral w-full flex items-center space-x-2 justify-between rounded-xl mt-2">
+                    <div className="flex flex-col space-y-2 items-start">
+                      <h5 className="text-on-surface-subtlest text-xs">{t('Harvested Amount')}</h5>
+
+                      <span className="text-on-surface font-bold">
+                        {numberedPendingCake.toLocaleString(undefined, {
+                          minimumSignificantDigits: 6,
+                          maximumSignificantDigits: 6,
+                        })}{' '}
+                        {cake.symbol}
+                      </span>
+
+                      <span className="text-on-surface-subtlest text-xs">
+                        ~
+                        {(numberedPendingCake * cakePrice.toNumber()).toLocaleString(undefined, {
+                          minimumSignificantDigits: 3,
+                          maximumSignificantDigits: 3,
+                        })}{' '}
+                        USD
+                      </span>
+                    </div>
+
+                    <ButtonV2 variant="secondary" onClick={onHarvest} disabled={isHarvesting}>
+                      {isHarvesting ? <Dots>{t('Harvesting')}</Dots> : t('Harvest')}
+                    </ButtonV2>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid gap-8 w-full md:grid-flow-col md:grid-cols-2 md:gap-[60px] mt-8">
+                <div className="w-full">
+                  <SectionTitle>{t('Liquidity')}</SectionTitle>
+
+                  <div className="w-full flex flex-wrap items-center gap-2 justify-between mt-3 border-b border-border pb-2">
+                    <span className="font-bold text-on-surface text-xl">
+                      $
+                      {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100))
+                        ? fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })
+                        : '-'}
+                    </span>
                     <AprCalculator
                       allowApply={false}
                       showQuestion
@@ -600,19 +683,12 @@ export default function PoolPage() {
                     />
                   </div>
 
-                  <p className="font-bold mb-2 text-on-surface-primary text-2xl">
-                    $
-                    {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100))
-                      ? fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })
-                      : '-'}
-                  </p>
-
-                  <CurrencyWithBalance
+                  <CurrencyWithValue
                     a={{
                       currency: currencyQuote,
                       symbol: unwrappedToken(positionValueUpper?.currency)?.symbol,
                       amount: positionValueUpper,
-                      balance:
+                      value:
                         positionValueUpper && priceValueUpper
                           ? `~$${priceValueUpper
                               .quote(positionValueUpper?.wrapped)
@@ -623,7 +699,7 @@ export default function PoolPage() {
                       currency: currencyBase,
                       symbol: unwrappedToken(positionValueLower?.currency)?.symbol,
                       amount: positionValueLower,
-                      balance:
+                      value:
                         positionValueLower && priceValueLower
                           ? `~$${priceValueLower
                               .quote(positionValueLower?.wrapped)
@@ -631,44 +707,26 @@ export default function PoolPage() {
                           : '',
                     }}
                   />
+
+                  {buttons}
                 </div>
 
                 <div className="w-full">
                   <SectionTitle>{t('Unclaimed Fees')}</SectionTitle>
 
-                  <div className="flex items-center space-x-2 w-full justify-between mb-2">
-                    <p className="font-bold text-on-surface-primary text-2xl">
-                      $
-                      {fiatValueOfFees?.greaterThan(new Fraction(1, 100))
-                        ? fiatValueOfFees.toFixed(2, { groupSeparator: ',' })
-                        : '-'}
-                    </p>
+                  <p className="font-bold text-on-surface text-xl mt-3 border-b border-border pb-2">
+                    $
+                    {fiatValueOfFees?.greaterThan(new Fraction(1, 100))
+                      ? fiatValueOfFees.toFixed(2, { groupSeparator: ',' })
+                      : '-'}
+                  </p>
 
-                    <ButtonV2
-                      scale="sm"
-                      disabled={
-                        !isOwnNFT ||
-                        collecting ||
-                        isCollectPending ||
-                        !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
-                      }
-                      onClick={onClaimFee}
-                      variant="primary"
-                    >
-                      {!!collectMigrationHash && !isCollectPending
-                        ? t('Collected')
-                        : isCollectPending || collecting
-                        ? t('Collecting...')
-                        : t('Collect')}
-                    </ButtonV2>
-                  </div>
-
-                  <CurrencyWithBalance
+                  <CurrencyWithValue
                     a={{
                       currency: feeValueUpper?.currency,
                       symbol: feeValueUpper?.currency?.symbol,
                       amount: feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-',
-                      balance:
+                      value:
                         feeValueUpper && priceValueUpper
                           ? `~$${priceValueUpper.quote(feeValueUpper?.wrapped).toFixed(2, { groupSeparator: ',' })}`
                           : '',
@@ -677,27 +735,47 @@ export default function PoolPage() {
                       currency: feeValueLower?.currency,
                       symbol: feeValueLower?.currency?.symbol,
                       amount: feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-',
-                      balance:
+                      value:
                         feeValueLower && priceValueLower
                           ? `~$${priceValueLower.quote(feeValueLower?.wrapped).toFixed(2, { groupSeparator: ',' })}`
                           : '',
                     }}
                   />
+
+                  <div className="flex w-full items-center space-x-2 justify-between">
+                    <ButtonV2
+                      disabled={
+                        !isOwnNFT ||
+                        collecting ||
+                        isCollectPending ||
+                        !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
+                      }
+                      onClick={onClaimFee}
+                      variant="primary"
+                      className="mt-2"
+                    >
+                      {!!collectMigrationHash && !isCollectPending
+                        ? t('Collected')
+                        : isCollectPending || collecting
+                        ? t('Collecting...')
+                        : t('Collect')}
+                    </ButtonV2>
+
+                    {showCollectAsWNative && (
+                      <div className="w-full flex items-center space-x-2 justify-end mt-1">
+                        <span className="text-sm text-on-surface">
+                          {t('Collect as')} {nativeWrappedSymbol}
+                        </span>
+
+                        <ToggleSwitch
+                          activated={receiveWNATIVE}
+                          setActivated={() => setReceiveWNATIVE((prevState) => !prevState)}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {showCollectAsWNative && (
-                <div className="w-full flex items-center space-x-2 justify-end mt-1">
-                  <span className="text-sm text-on-surface-primary">
-                    {t('Collect as')} {nativeWrappedSymbol}
-                  </span>
-
-                  <ToggleSwitch
-                    activated={receiveWNATIVE}
-                    setActivated={() => setReceiveWNATIVE((prevState) => !prevState)}
-                  />
-                </div>
-              )}
 
               <PositionPriceSection
                 manuallyInverted={manuallyInverted}
@@ -720,7 +798,7 @@ export default function PoolPage() {
                 />
               )}
             </div>
-          </div>
+          </>
         )}
       </AppBody>
     </Page>
@@ -760,9 +838,7 @@ function PositionHistory_({
   currency1: Currency
 }) {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded] = useState(false)
   const { chainId } = useActiveChainId()
-  const { isMobile } = useMatchBreakpoints()
   const client = v3Clients[chainId as ChainId]
   const { data, isLoading } = useQuery(
     ['positionHistory', chainId, tokenId],
@@ -821,39 +897,22 @@ function PositionHistory_({
   }
 
   return (
-    <AtomBox textAlign="center" pt="16px">
-      <ExpandableLabel
-        expanded={isExpanded}
-        onClick={() => {
-          setIsExpanded(!isExpanded)
-        }}
-      >
-        {isExpanded ? t('Hide') : t('History')}
-      </ExpandableLabel>
+    <div className="mt-8">
+      <SectionTitle>{`${t('History')}(Transaction)`}</SectionTitle>
 
-      {isExpanded && (
-        <div className="flex flex-col mt-6 space-y-4">
-          <div
-            className={clsx('grid text-center border-b pb-4 border-gray-400', {
-              'grid-cols-4 gap-2': isMobile,
-              'grid-cols-3': !isMobile,
-            })}
-          >
-            <SectionTitle className="col-span-1">{t('Timestamp')}</SectionTitle>
-            <SectionTitle className="col-span-1">{t('Action')}</SectionTitle>
-            <SectionTitle
-              className={clsx({
-                'col-span-2': isMobile,
-                'col-span-1': !isMobile,
-              })}
-            >
-              {t('Token Transferred')}
-            </SectionTitle>
-          </div>
+      <table className="w-full rounded-2xl overflow-hidden mt-3 bg-surface-overlay">
+        <thead>
+          <tr className="text-sm text-on-surface-subtlest bg-neutral border-b border-border h-10">
+            <th className="text-left px-4 font-normal">{t('Timestamp')}</th>
+            <th className="text-left px-3 font-normal">{t('Action')}</th>
+            <th className="text-left px-3 font-normal">{t('Token Transferred')}</th>
+          </tr>
+        </thead>
 
+        <tbody>
           {data.map((d) => {
             return (
-              <div key={d.id} className="flex flex-col w-full space-y-3">
+              <Fragment key={d.id}>
                 {d.transaction.mints.map((positionTx) => (
                   <PositionHistoryRow
                     chainId={chainId}
@@ -908,12 +967,12 @@ function PositionHistory_({
                     currency1={currency1}
                   />
                 ))}
-              </div>
+              </Fragment>
             )
           })}
-        </div>
-      )}
-    </AtomBox>
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -970,78 +1029,91 @@ function PositionHistoryRow({
 
   if (isMobile) {
     return (
-      <div className="grid grid-cols-4 gap-2 text-center items-center border-b border-dashed border-gray-600 pb-3">
-        <ExternalLink
-          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
-          className="text-on-surface-primary col-span-1"
-        >
-          {mobileDate} {mobileTime}
-        </ExternalLink>
-        <span className="text-sm text-on-surface-primary col-span-1">{positionHistoryTypeText[type]}</span>
-        <div className="flex flex-col items-end space-y-1 col-span-2">
-          {+positionTx.amount0 > 0 && (
-            <div className="flex items-center space-x-1.5 text-sm text-on-surface-primary">
-              <span>
-                {isPlus ? '+' : '-'}{' '}
-                {position0AmountString
-                  ? Number(position0AmountString).toLocaleString(undefined, {
-                      maximumFractionDigits: 3,
-                      maximumSignificantDigits: 3,
-                    })
-                  : '-'}
-              </span>
-              <CurrencyLogo currency={currency0} />
-            </div>
-          )}
-          {+positionTx.amount1 > 0 && (
-            <div className="flex items-center space-x-1.5 text-sm text-on-surface-primary">
-              <span>
-                {isPlus ? '+' : '-'}{' '}
-                {position1AmountString
-                  ? Number(position1AmountString).toLocaleString(undefined, {
-                      maximumFractionDigits: 3,
-                      maximumSignificantDigits: 3,
-                    })
-                  : '-'}
-              </span>
-              <CurrencyLogo currency={currency1} />
-            </div>
-          )}
-        </div>
-      </div>
+      <tr className="border-b border-border">
+        <td className="p-3">
+          <ExternalLink
+            href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+            className="text-on-surface col-span-1"
+          >
+            {mobileDate} {mobileTime}
+          </ExternalLink>
+        </td>
+
+        <td className="p-3">
+          <span className="text-sm text-on-surface col-span-1">{positionHistoryTypeText[type]}</span>
+        </td>
+        <td className="p-3">
+          <div className="flex flex-col items-end space-y-1.5 col-span-2">
+            {+positionTx.amount0 > 0 && (
+              <div className="flex items-center space-x-1 text-sm text-on-surface">
+                <span>
+                  {isPlus ? '+' : '-'}{' '}
+                  {position0AmountString
+                    ? Number(position0AmountString).toLocaleString(undefined, {
+                        maximumFractionDigits: 3,
+                        maximumSignificantDigits: 3,
+                      })
+                    : '-'}
+                </span>
+                <CurrencyLogo currency={currency0} />
+              </div>
+            )}
+            {+positionTx.amount1 > 0 && (
+              <div className="flex items-center space-x-1 text-sm text-on-surface">
+                <span>
+                  {isPlus ? '+' : '-'}{' '}
+                  {position1AmountString
+                    ? Number(position1AmountString).toLocaleString(undefined, {
+                        maximumFractionDigits: 3,
+                        maximumSignificantDigits: 3,
+                      })
+                    : '-'}
+                </span>
+                <CurrencyLogo currency={currency1} />
+              </div>
+            )}
+          </div>
+        </td>
+      </tr>
     )
   }
 
   return (
-    <div className="grid grid-cols-3 text-center items-center border-b border-dashed border-gray-600 pb-3">
-      <ExternalLink
-        href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
-        className="text-on-surface-primary"
-      >
-        {desktopDate}
-      </ExternalLink>
-      <span className="text-sm text-on-surface-primary">{positionHistoryTypeText[type]}</span>
-      <div className="flex flex-col items-end space-y-1">
-        {+positionTx.amount0 > 0 && (
-          <div className="flex items-center space-x-2.5 text-sm text-on-surface-primary">
-            <span>
-              {isPlus ? '+' : '-'} {position0AmountString}
-            </span>
+    <tr className="border-b border-border">
+      <td className="p-3">
+        <ExternalLink
+          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+          className="text-on-surface"
+        >
+          {desktopDate}
+        </ExternalLink>
+      </td>
+      <td className="p-3">
+        <span className="text-sm text-on-surface">{positionHistoryTypeText[type]}</span>
+      </td>
+      <td className="p-3">
+        <div className="flex flex-col items-start space-y-1.5">
+          {+positionTx.amount0 > 0 && (
+            <div className="flex items-center space-x-1 text-sm text-on-surface">
+              <span>
+                {isPlus ? '+' : '-'} {position0AmountString}
+              </span>
 
-            <CurrencyLogoWithSymbol currencyA={currency0} symbol={currency0.symbol} />
-          </div>
-        )}
-        {+positionTx.amount1 > 0 && (
-          <div className="flex items-center space-x-2.5 text-sm text-on-surface-primary">
-            <span>
-              {isPlus ? '+' : '-'} {position1AmountString}
-            </span>
+              <CurrencyLogoWithSymbol currencyA={currency0} symbol={currency0.symbol} />
+            </div>
+          )}
+          {+positionTx.amount1 > 0 && (
+            <div className="flex items-center space-x-1 text-sm text-on-surface">
+              <span>
+                {isPlus ? '+' : '-'} {position1AmountString}
+              </span>
 
-            <CurrencyLogoWithSymbol currencyA={currency1} symbol={currency1.symbol} />
-          </div>
-        )}
-      </div>
-    </div>
+              <CurrencyLogoWithSymbol currencyA={currency1} symbol={currency1.symbol} />
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
   )
 }
 
@@ -1072,31 +1144,33 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 }
 
 export function SectionTitle({ children, className }: PropsWithChildren<{ className?: string }>) {
-  return <h3 className={clsx('text-xs text-surface-orange', className)}>{children}</h3>
+  return <h3 className={clsx('text-xs text-on-surface-brand', className)}>{children}</h3>
 }
 
-type CurrencyWithBalanceProps = {
+type CurrencyWithValueProps = {
   currency: Currency | undefined
   symbol?: string
   amount?: CurrencyAmount<Token> | string
-  balance: string
+  value: string
 }
 
-function CurrencyWithBalance({ a, b }: { a: CurrencyWithBalanceProps; b: CurrencyWithBalanceProps }) {
+function CurrencyWithValue({ a, b }: { a: CurrencyWithValueProps; b: CurrencyWithValueProps }) {
   return (
-    <Container>
+    <>
       <CurrencyLogoWithAmount
+        className="py-2 border-b border-border"
         currencyA={a.currency}
         symbol={a.symbol}
         amount={typeof a.amount === 'string' ? a.amount : <FormattedCurrencyAmount currencyAmount={a.amount} />}
-        value={a.balance}
+        value={a.value || '0'}
       />
       <CurrencyLogoWithAmount
+        className="py-2 border-b border-border"
         currencyA={b.currency}
         symbol={b.symbol}
         amount={typeof b.amount === 'string' ? b.amount : <FormattedCurrencyAmount currencyAmount={b.amount} />}
-        value={b.balance}
+        value={b.value || '0'}
       />
-    </Container>
+    </>
   )
 }

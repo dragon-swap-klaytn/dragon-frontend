@@ -1,10 +1,9 @@
-import { createFarmFetcherV3, ComputedFarmConfigV3, fetchTokenUSDValues } from '@pancakeswap/farms'
+import { ComputedFarmConfigV3, createFarmFetcherV3, fetchTokenUSDValues } from '@pancakeswap/farms'
 import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
-import { priceHelperTokens } from '@pancakeswap/farms/constants/common'
-import { Currency, ERC20Token } from '@pancakeswap/sdk'
+import { Currency } from '@pancakeswap/sdk'
 import { FeeAmount, Pool } from '@pancakeswap/v3-sdk'
-import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 
 import { FAST_INTERVAL } from 'config/constants'
 import { getViemClients } from 'utils/viem'
@@ -38,14 +37,9 @@ export function useFarm({ currencyA, currencyB, feeAmount }: FarmParams) {
       if (!farmConfig || !chainId) {
         throw new Error('Invalid farm config')
       }
-      const tokensToGetPrice: ERC20Token[] = priceHelperTokens[chainId].list || []
-      for (const token of [farmConfig.token, farmConfig.quoteToken]) {
-        if (tokensToGetPrice.every((t) => t.address !== token.address)) {
-          tokensToGetPrice.push(token)
-        }
-      }
 
-      const commonPrice = await fetchTokenUSDValues(tokensToGetPrice)
+      const currencies = [farmConfig.token0, farmConfig.token1]
+      const commonPrice = await fetchTokenUSDValues(currencies)
 
       try {
         const data = await farmFetcherV3.fetchFarms({

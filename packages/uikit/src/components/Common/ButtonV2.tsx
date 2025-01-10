@@ -26,24 +26,24 @@ export function ButtonV2({
       type="button"
       onClick={onClick}
       className={clsx(
-        "rounded-[20px] disabled:bg-surface-disable disabled:text-on-surface-tertiary disabled:cursor-not-allowed",
+        "rounded-[20px] disabled:bg-surface-disable disabled:text-on-surface-subtlest disabled:cursor-not-allowed",
         className,
         state && ["loading"].includes(state)
-          ? "bg-surface-disable text-on-surface-tertiary"
+          ? "bg-surface-disable text-on-surface-subtlest"
           : variant === "primary"
-          ? "bg-surface-orange text-on-surface-orange"
+          ? "bg-brand text-on-surface-inverse"
           : variant === "secondary"
-          ? "bg-gray-50 text-on-surface-orange"
+          ? "bg-bold text-on-surface-inverse"
           : variant === "subtle"
-          ? "bg-surface-container-highest text-on-surface-primary"
+          ? "bg-neutral text-on-surface"
           : variant === "blank"
-          ? "bg-transparent border-gray-700 border text-on-surface-primary"
+          ? "bg-transparent border-gray-700 border text-on-surface"
           : "",
         {
           "hover:opacity-70": !disabled,
           "px-2 py-1 text-xs": scale === "xs",
-          "px-3 py-2 text-sm": scale === "sm",
-          "px-4 py-3 text-sm": scale === "md",
+          "px-3 py-1.5 text-sm": scale === "sm",
+          "px-4 py-2.5 text-sm": scale === "md",
           "w-full": fullWidth,
         }
       )}

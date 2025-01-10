@@ -6,8 +6,7 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 // @ts-ignore
 // eslint-disable-next-line import/extensions
-import { useMatchBreakpoints, useModal } from '@pancakeswap/uikit'
-import Button from 'components/Common/Button'
+import { ButtonV2, useMatchBreakpoints, useModal } from '@pancakeswap/uikit'
 // import { useActiveHandle } from 'hooks/useEagerConnect.bmp.ts'
 import clsx from 'clsx'
 import { PropsWithChildren, useCallback, useMemo, useState } from 'react'
@@ -63,9 +62,9 @@ const ConnectWalletButton = ({
 
   return (
     <>
-      <Button variant="primary" onClick={handleClick} className={clsx(width, className)} disabled={disabled}>
+      <ButtonV2 variant="primary" onClick={handleClick} className={clsx(width, className)} disabled={disabled}>
         {children || <Trans>Connect Wallet</Trans>}
-      </Button>
+      </ButtonV2>
 
       {/* {open && (
         <WalletModalV2

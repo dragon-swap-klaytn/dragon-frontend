@@ -191,7 +191,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
       throw new Error('Attempting to confirm without approval or a signature')
     }
 
-    let methodSafeGasEstimate: { methodName: string; safeGasEstimate: bigint }
+    let methodSafeGasEstimate: { methodName: string; safeGasEstimate: bigint } | undefined
     for (let i = 0; i < methodNames.length; i++) {
       let safeGasEstimate
       try {
@@ -319,8 +319,6 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
       onRemove={onRemove}
       pendingText={pendingText}
       approval={approvalState}
-      tokenA={tokenA}
-      tokenB={tokenB}
       liquidityErrorMessage={liquidityErrorMessage}
       parsedAmounts={parsedAmounts}
       currencyA={currencyA}
@@ -334,7 +332,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)
 
   return (
-    <div className="p-4">
+    <div className="p-5 md:p-8">
       <AutoColumn gap="20px">
         <RowBetween>
           <Text>{t('Amount')}</Text>
@@ -584,10 +582,8 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
 }
 
 export const RemoveLiquidityStableLayout = ({ currencyA, currencyB, children }) => {
-  const { pair } = useStableDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined)
-
   return (
-    <RemoveLiquidityLayout currencyA={currencyA} currencyB={currencyB} pair={pair}>
+    <RemoveLiquidityLayout currencyA={currencyA} currencyB={currencyB}>
       {children}
     </RemoveLiquidityLayout>
   )

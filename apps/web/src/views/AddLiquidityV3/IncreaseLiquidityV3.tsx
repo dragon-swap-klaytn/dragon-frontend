@@ -1,7 +1,7 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
-import { Button, useModal } from '@pancakeswap/uikit'
+import { ButtonV2, useModal } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
 
 import { useIsExpertMode, useUserSlippage } from '@pancakeswap/utils/user'
@@ -316,9 +316,9 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
             position ? <PositionPreview position={position} inRange={!outOfRange} ticksAtLimit={ticksAtLimit} /> : null
           }
           bottomContent={() => (
-            <Button width="100%" mt="16px" onClick={onIncrease}>
+            <ButtonV2 variant="primary" fullWidth className="mt-4" onClick={onIncrease}>
               {t('Increase')}
-            </Button>
+            </ButtonV2>
           )}
         />
       )}
@@ -364,7 +364,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
 
   return (
     <Page>
-      <div className="max-w-md mx-auto bg-surface-container rounded-2xl">
+      <div className="max-w-md mx-auto md:bg-surface-raised rounded-2xl">
         <AppHeader
           backTo={`/liquidity/${tokenId}`}
           title={t('Add %assetA%-%assetB% Liquidity', {
@@ -374,7 +374,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
           noConfig
         />
 
-        <div className="p-4">
+        <div className="p-5 md:p-8">
           {existingPosition && (
             <PositionPreview
               position={existingPosition}
@@ -423,9 +423,9 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
               />
             </LockedDeposit>
           </div>
-        </div>
 
-        <div className="pb-4 px-4">{buttons}</div>
+          <div className="mt-8">{buttons}</div>
+        </div>
       </div>
     </Page>
   )

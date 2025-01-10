@@ -1,9 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { InjectedModalProps, Modal, ModalV2, QuestionHelper } from '@pancakeswap/uikit'
+import { InjectedModalProps, Modal, ModalV2, QuestionHelper, ToggleSwitch } from '@pancakeswap/uikit'
 import { useExpertMode, useUserExpertModeAcknowledgement, useUserSingleHopOnly } from '@pancakeswap/utils/user'
 import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import ToggleSwitch from 'components/Common/ToggleSwitch'
 import SlippageTabs from 'components/Menu/GlobalSettings/TransactionSettings'
 import { ExpertModal } from 'components/Modal/ExpertModal'
 import { PropsWithChildren, ReactNode, useCallback, useState } from 'react'
@@ -117,7 +116,7 @@ export function RoutingSettingsButton({ showRedDot = true }: { showRedDot?: bool
           />
         </div>
 
-        <CaretRight size={20} className="text-on-surface-primary" />
+        <CaretRight size={20} className="text-on-surface" />
       </button>
 
       <ModalV2 isOpen={show} onDismiss={() => setShow(false)} closeOnOverlayClick>
@@ -144,13 +143,13 @@ export function RoutingSettings() {
       title={t('Customize Routing')}
       headerRightSlot={
         isRoutingSettingChange && (
-          <button type="button" onClick={reset} className="text-sm hover:opacity-70">
+          <button type="button" onClick={reset} className="text-sm hover:opacity-70 text-on-surface-subtle">
             {t('Reset')}
           </button>
         )
       }
     >
-      <h3 className="text-orange-400 text-xs mt-5">{t('Liquidity source')}</h3>
+      <h3 className="text-on-surface-brand text-xs">{t('Liquidity source')}</h3>
 
       <SettingWrapper>
         <div className="flex items-center justify-between w-full">
@@ -189,7 +188,7 @@ export function RoutingSettings() {
         </div>
       </SettingWrapper>
 
-      <h3 className="text-orange-400 text-xs mt-5">{t('Routing preference')}</h3>
+      <h3 className="text-on-surface-brand text-xs mt-8">{t('Routing preference')}</h3>
 
       <SettingWrapper>
         <div className="flex items-center justify-between w-full">
@@ -249,13 +248,13 @@ export function RoutingSettings() {
 }
 
 export function SettingWrapper({ children }: PropsWithChildren) {
-  return <div className="flex items-center justify-between py-3">{children}</div>
+  return <div className="flex items-center justify-between py-2">{children}</div>
 }
 
 export function SettingTitle({ title, questionHelperText }: { title: string; questionHelperText?: ReactNode }) {
   return (
     <div className="flex items-center space-x-1">
-      <h4 className="text-sm whitespace-nowrap text-on-surface-primary">{title}</h4>
+      <h4 className="text-sm whitespace-nowrap text-on-surface">{title}</h4>
       {questionHelperText && <QuestionHelper text={questionHelperText} placement="top" ml="4px" />}
     </div>
   )

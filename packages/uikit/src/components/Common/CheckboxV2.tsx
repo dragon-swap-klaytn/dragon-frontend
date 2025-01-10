@@ -23,14 +23,14 @@ export function CheckboxV2({
           type="checkbox"
           checked={checked}
           onChange={onChange}
-          className="common-checkbox checked:accent-white bg-surface-container-highest w-full h-full rounded-[4px] cursor-pointer mb-1"
+          className="common-checkbox checked:accent-white bg-neutral w-full h-full rounded-[4px] cursor-pointer mb-1"
         />
 
         {checked && (
           <Check
             size={12}
             weight="bold"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-on-surface-orange pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-on-surface-inverse pointer-events-none"
           />
         )}
       </div>

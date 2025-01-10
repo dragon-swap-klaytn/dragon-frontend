@@ -1,4 +1,5 @@
 import { Copy } from "@phosphor-icons/react";
+import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
 import { useTooltip } from "../../hooks";
 import { SvgProps } from "../Svg";
@@ -8,12 +9,13 @@ interface CopyButtonProps extends SvgProps {
   text: string;
   tooltipMessage: string;
   className?: string;
+  size?: number;
 }
 
 export const CopyButton: React.FC<React.PropsWithChildren<CopyButtonProps>> = ({
   text,
   tooltipMessage,
-  width = "20px",
+  size = 20,
   className = "",
 }) => {
   const [isTooltipDisplayed, setIsTooltipDisplayed] = useState(false);
@@ -45,8 +47,8 @@ export const CopyButton: React.FC<React.PropsWithChildren<CopyButtonProps>> = ({
 
   return (
     <>
-      <button ref={targetRef} type="button" onClick={handleOnClick} className="hover:opacity-70">
-        <Copy size={width} className={className} />
+      <button ref={targetRef} type="button" onClick={handleOnClick} className={clsx("hover:opacity-70", className)}>
+        <Copy size={size} />
       </button>
 
       {isTooltipDisplayed && tooltip}

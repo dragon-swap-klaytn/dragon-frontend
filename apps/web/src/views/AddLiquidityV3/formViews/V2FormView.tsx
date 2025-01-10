@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Pair, Percent } from '@pancakeswap/sdk'
-import { Button, ExternalLink, Notification } from '@pancakeswap/uikit'
+import { ButtonV2, ExternalLink, Notification } from '@pancakeswap/uikit'
 import { useIsExpertMode } from '@pancakeswap/utils/user'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
@@ -15,7 +15,6 @@ import { getBlockExploreLink } from 'utils'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
 import { LP2ChildrenProps } from 'views/AddLiquidity'
 
-import { useTheme } from 'styled-components'
 import { SectionTitle } from 'views/AddLiquidityV3'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
 
@@ -45,9 +44,6 @@ export default function V2FormView({
   isOneWeiAttack,
   pair,
 }: LP2ChildrenProps) {
-  const mockFn = useCallback(() => undefined, [])
-
-  const { isDark } = useTheme()
   const { chainId } = useActiveChainId()
   const { account, isWrongNetwork } = useActiveWeb3React()
   const { t } = useTranslation()
@@ -60,9 +56,9 @@ export default function V2FormView({
   let buttons: ReactNode = null
   if (addIsUnsupported || addIsWarning) {
     buttons = (
-      <Button disabled mb="4px">
+      <ButtonV2 variant="subtle" disabled onClick={() => {}}>
         {t('Unsupported Asset')}
-      </Button>
+      </ButtonV2>
     )
   } else if (!account) {
     buttons = <ConnectWalletButton />
@@ -70,7 +66,7 @@ export default function V2FormView({
     buttons = <CommitButton />
   } else {
     buttons = (
-      <div className="flex flex-col items-center space-y-3">
+      <div className="flex flex-col items-center space-y-4">
         <ApproveLiquidityTokens
           approvalA={approvalA}
           approvalB={approvalB}
@@ -138,7 +134,7 @@ export default function V2FormView({
     <div className="mt-3">
       <SectionTitle>{t('Deposit Amount')}</SectionTitle>
 
-      <div className="mt-2 mb-3 flex flex-col space-y-2">
+      <div className="mt-2 mb-4 flex flex-col space-y-3">
         <CurrencyInputPanel
           maxAmount={maxAmounts[Field.CURRENCY_A]}
           showUSDPrice

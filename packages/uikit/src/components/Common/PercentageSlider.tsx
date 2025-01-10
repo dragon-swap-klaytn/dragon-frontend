@@ -17,8 +17,8 @@ export function PercentageSlider({
   const { t } = useTranslation();
 
   return (
-    <div className={clsx("p-4 rounded-2xl bg-surface-container-highest", className)}>
-      <span className="text-2xl font-bold text-on-surface-primary">{percentForSlider}%</span>
+    <div className={clsx("p-4 rounded-2xl bg-neutral", className)}>
+      <span className="text-2xl font-bold text-on-surface">{percentForSlider}%</span>
 
       <Slider
         name="lp-amount"
@@ -31,7 +31,13 @@ export function PercentageSlider({
 
       <div className="grid grid-cols-4 gap-2">
         {[25, 50, 75, "Max"].map((p) => (
-          <ButtonV2 fullWidth onClick={() => onPercentSelect(p)} variant="blank" scale="sm">
+          <ButtonV2
+            key={`PercentageSlider:${p}`}
+            fullWidth
+            onClick={() => onPercentSelect(p)}
+            variant="blank"
+            scale="sm"
+          >
             {typeof p === "number" ? `${p}%` : t("Max")}
           </ButtonV2>
         ))}

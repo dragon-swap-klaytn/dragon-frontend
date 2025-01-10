@@ -10,7 +10,7 @@ export const ModalWrapper = ({ children, maxWidth = "max-w-md" }: PropsWithChild
   return (
     <div
       className={clsx(
-        "p-6 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-gray-850 z-[9999] w-full",
+        "p-6 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-gray-850 z-[9999] w-[calc(100%-2rem)]",
         maxWidth
       )}
     >
@@ -37,10 +37,10 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
         <div className="flex items-center space-x-1">
           {onBack && (
             <button type="button" onClick={onBack}>
-              <CaretLeft height={20} width={20} className="text-on-surface-tertiary" />
+              <CaretLeft height={20} width={20} className="text-on-surface-subtlest" />
             </button>
           )}
-          <h2 className="text-lg font-bold text-on-surface-primary">{title}</h2>
+          <h2 className="text-lg font-bold text-on-surface">{title}</h2>
         </div>
         <div className="flex items-center space-x-3">
           {headerRightSlot}
@@ -55,13 +55,13 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
               aria-label="Close the dialog"
               className="hover:opacity-70"
             >
-              <X height={20} width={20} className="text-on-surface-tertiary" />
+              <X height={20} width={20} className="text-on-surface-subtlest" />
             </button>
           )}
         </div>
       </div>
 
-      <div className="flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[90vh] pt-8">{children}</div>
+      <div className="flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[90vh] pt-4">{children}</div>
     </ModalWrapper>
   );
 };

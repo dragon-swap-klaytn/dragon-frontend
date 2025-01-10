@@ -28,7 +28,7 @@ export const SwapPendingModalContent: React.FC<SwapPendingModalContentProps> = (
   return (
     <div className="flex flex-col items-center space-y-7">
       {showIcon ? (
-        <ArrowCircleUp size={80} className="text-on-surface-primary" />
+        <ArrowCircleUp size={100} className="text-on-surface" />
       ) : (
         <>
           {qrUri ? (

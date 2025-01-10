@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
-import { CircleLoader } from '@pancakeswap/uikit'
+import { ButtonV2, CircleLoader } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -186,12 +186,12 @@ export default function FeeSelector({
       setShowOptions={setShowOptions}
       heading={
         feeAmount ? (
-          <span className="text-[15px] text-on-surface-primary">
+          <span className="text-[15px] text-on-surface">
             V3 LP - {FEE_AMOUNT_DETAIL[feeAmount].label}% {t('fee tier')}
           </span>
         ) : (
           <>
-            <span className="text-[15px] text-on-surface-primary">V3 LP</span>
+            <span className="text-[15px] text-on-surface">V3 LP</span>
 
             {isLoading && <CircleLoader />}
           </>
@@ -223,13 +223,9 @@ export default function FeeSelector({
           {currencyA && currencyB && v2PairHasBetterTokenAmounts && handleSelectV2 && (
             // using state instead of replacing url to /v2 here
             // avoid pages keep in v2 when user change the tokens in selection
-            <button
-              type="button"
-              onClick={handleSelectV2}
-              className="font-bold text-on-surface-primary hover:opacity-70 mx-auto"
-            >
+            <ButtonV2 onClick={handleSelectV2} variant="subtle" scale="sm">
               {t('Add V2 Liquidity')}
-            </button>
+            </ButtonV2>
           )}
         </>
       }

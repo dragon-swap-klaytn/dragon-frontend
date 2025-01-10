@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Price, Token } from '@pancakeswap/swap-sdk-core'
+import { NumberFormat } from '@pancakeswap/uikit'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import { Minus, Plus } from '@phosphor-icons/react'
-import NumberFormat from 'components/Common/NumberFormat'
 import { tryParsePrice } from 'hooks/v3/utils'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 
@@ -86,12 +86,12 @@ const StepCounter = ({
 
   return (
     <div
-      className="bg-surface-container-highest px-4 py-3 rounded-xl w-full flex items-center justify-between space-x-3"
+      className="bg-neutral px-4 py-3 rounded-xl w-full flex items-center justify-between space-x-3"
       onFocus={handleOnFocus}
       onBlur={handleOnBlur}
     >
       <div className="flex flex-col items-start space-y-2">
-        <span className="text-xs text-on-surface-tertiary">{title}</span>
+        <span className="text-xs text-on-surface-subtlest">{title}</span>
 
         {/* <NumericalInput
           value={localValue}
@@ -103,7 +103,7 @@ const StepCounter = ({
 
         <NumberFormat
           disabled={locked}
-          className="text-on-surface-primary w-full focus:outline-none font-bold bg-transparent"
+          className="text-on-surface w-full focus:outline-none font-bold bg-transparent"
           value={localValue}
           onChange={(e) => {
             setLocalValue(e.target.value.replace(/,/g, ''))
@@ -114,7 +114,7 @@ const StepCounter = ({
           placeholder="0.00"
         />
 
-        <span className="text-xs text-on-surface-tertiary">
+        <span className="text-xs text-on-surface-subtlest">
           {tokenA && tokenB && t('%assetA% per %assetB%', { assetA: tokenB?.symbol, assetB: tokenA?.symbol })}
         </span>
       </div>
@@ -122,22 +122,22 @@ const StepCounter = ({
         {!locked && (
           <button
             type="button"
-            className="p-1.5 rounded-full bg-surface-container "
+            className="p-1.5 rounded-full bg-surface-raised "
             onClick={handleIncrement}
             disabled={incrementDisabled}
           >
-            <Plus className="text-on-surface-primary" size={16} />
+            <Plus className="text-on-surface" size={16} />
           </button>
         )}
 
         {!locked && (
           <button
             type="button"
-            className="p-1.5 rounded-full bg-surface-container "
+            className="p-1.5 rounded-full bg-surface-raised "
             onClick={handleDecrement}
             disabled={decrementDisabled}
           >
-            <Minus className="text-on-surface-primary" size={16} />
+            <Minus className="text-on-surface" size={16} />
           </button>
         )}
       </div>

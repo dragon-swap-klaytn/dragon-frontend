@@ -435,7 +435,7 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
         )}
         {account && !userDataLoaded && stakedOnly && (
           <Flex justifyContent="center">
-            <Loading />
+            <Loading className="text-on-surface-subtle" />
           </Flex>
         )}
         {poolLength && <div ref={observerRef} />}

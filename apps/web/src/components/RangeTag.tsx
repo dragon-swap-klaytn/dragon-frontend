@@ -1,6 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { QuestionHelper, TagProps } from '@pancakeswap/uikit'
-import Chip from 'components/Common/Chip'
+import { Chip, QuestionHelper, TagProps } from '@pancakeswap/uikit'
 import { ReactNode } from 'react'
 
 export function RangeTag({
@@ -28,7 +27,7 @@ export function RangeTag({
             }
             placement="bottom"
             background="bg-gray-600"
-            color="text-on-surface-primary"
+            color="text-on-surface"
           />
         </div>
       )}

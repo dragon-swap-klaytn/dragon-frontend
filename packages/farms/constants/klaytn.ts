@@ -116,13 +116,13 @@ export const farmsV3 = defineFarmV3Configs([
   //   token1: klaytnTokens.npt,
   //   feeAmount: FeeAmount.MEDIUM,
   // },
-  {
-    pid: 16,
-    lpAddress: '0xb39A385dba6aB12B09391F9a30ea927EAa4754Ef',
-    token0: klaytnTokens.d1,
-    token1: klaytnTokens.d0,
-    feeAmount: FeeAmount.LOWEST,
-  },
+  // {
+  //   pid: 16,
+  //   lpAddress: '0xb39A385dba6aB12B09391F9a30ea927EAa4754Ef',
+  //   token0: klaytnTokens.d1,
+  //   token1: klaytnTokens.d0,
+  //   feeAmount: FeeAmount.LOWEST,
+  // },
   {
     pid: 17,
     lpAddress: '0xcC8336d19953F687A4A0fb4D6ca1053227e69a3e',
@@ -255,13 +255,13 @@ export const farmsV3Finished = defineFarmV3Configs([
 ])
 
 const farmsV2: SerializedFarmConfig[] = [
-  {
-    pid: 0,
-    lpSymbol: 'D0_D1',
-    lpAddress: '0x21Ae4EC70Cf93cf4Ce58843660915Dbb1bdc2C09',
-    token: klaytnTokens.d0,
-    quoteToken: klaytnTokens.d1,
-  },
+  // {
+  //   pid: 0,
+  //   lpSymbol: 'D0_D1',
+  //   lpAddress: '0x21Ae4EC70Cf93cf4Ce58843660915Dbb1bdc2C09',
+  //   token: klaytnTokens.d0,
+  //   quoteToken: klaytnTokens.d1,
+  // },
 ]
 
 export default farmsV2

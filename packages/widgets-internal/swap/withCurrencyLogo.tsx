@@ -51,7 +51,7 @@ export function withCurrencyLogo<T extends BaseCurrency>(
           <CurrencyLogo currency={token} size={size} />
 
           <div className="text-ellipsis overflow-hidden flex items-center space-x-2">
-            <span className="text-sm text-on-surface-primary">{token.symbol}</span>
+            <span className="text-sm text-on-surface">{token.symbol}</span>
             <span className="text-gray-400 text-xs">{token.name}</span>
           </div>
         </div>

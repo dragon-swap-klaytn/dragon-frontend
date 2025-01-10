@@ -26,8 +26,8 @@ export const ApproveModalContent: React.FC<ApproveModalContentProps> = ({ isBonu
         <Spinner />
       )}
 
-      <div className="flex items-center space-x-1 text-sm text-on-surface-primary">
-        <span className="text-sm text-on-surface-primary">{t("Swapping thru:")}</span>
+      <div className="flex items-center space-x-1 text-sm text-on-surface">
+        <span className="text-sm text-on-surface">{t("Swapping thru:")}</span>
 
         {isBonus ? (
           <b>{t("Bonus Route")}</b>

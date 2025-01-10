@@ -85,16 +85,16 @@ export const StepCounter = memo(
 
     return (
       <div
-        className="bg-surface-container-highest px-4 py-3 rounded-xl w-full flex items-center justify-between space-x-3"
+        className="bg-neutral px-4 py-3 rounded-xl w-full flex items-center justify-between space-x-3"
         onFocus={handleOnFocus}
         onBlur={handleOnBlur}
       >
         <div className="flex flex-col items-start space-y-2">
-          <span className="text-xs text-on-surface-tertiary">{title}</span>
+          <span className="text-xs text-on-surface-subtlest">{title}</span>
 
           <NumberFormat
             disabled={locked}
-            className="text-on-surface-primary w-full focus:outline-none font-bold bg-transparent"
+            className="text-on-surface w-full focus:outline-none font-bold bg-transparent"
             value={localValue}
             onChange={(e) => {
               setLocalValue(e.target.value.replace(/,/g, ""));
@@ -103,7 +103,7 @@ export const StepCounter = memo(
             allowNegative={false}
           />
 
-          <span className="text-xs text-on-surface-tertiary">
+          <span className="text-xs text-on-surface-subtlest">
             {tokenA && tokenB && t("%assetA% per %assetB%", { assetA: tokenB, assetB: tokenA })}
           </span>
         </div>
@@ -111,22 +111,22 @@ export const StepCounter = memo(
           {!locked && (
             <button
               type="button"
-              className="p-1.5 rounded-full bg-surface-container "
+              className="p-1.5 rounded-full bg-surface-raised "
               onClick={handleIncrement}
               disabled={incrementDisabled}
             >
-              <Plus className="text-on-surface-primary" size={16} />
+              <Plus className="text-on-surface" size={16} />
             </button>
           )}
 
           {!locked && (
             <button
               type="button"
-              className="p-1.5 rounded-full bg-surface-container "
+              className="p-1.5 rounded-full bg-surface-raised "
               onClick={handleDecrement}
               disabled={decrementDisabled}
             >
-              <Minus className="text-on-surface-primary" size={16} />
+              <Minus className="text-on-surface" size={16} />
             </button>
           )}
         </div>

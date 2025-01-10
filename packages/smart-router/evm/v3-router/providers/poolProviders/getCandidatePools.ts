@@ -1,9 +1,9 @@
 import { BigintIsh, Currency } from '@pancakeswap/sdk'
 
 import { OnChainProvider, Pool, PoolType, SubgraphProvider } from '../../types'
+import { getStableCandidatePools } from './getStableCandidatePools'
 import { getV2CandidatePools } from './getV2CandidatePools'
 import { getV3CandidatePools } from './getV3CandidatePools'
-import { getStableCandidatePools } from './getStableCandidatePools'
 
 export type GetCandidatePoolsParams = {
   currencyA?: Currency

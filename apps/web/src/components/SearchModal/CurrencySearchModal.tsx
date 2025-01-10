@@ -1,8 +1,7 @@
 import { usePreviousValue } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
-import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
-import Button from 'components/Common/Button'
+import { ButtonV2, InjectedModalProps, Modal } from '@pancakeswap/uikit'
 import ImportToken from 'components/SearchModal/ImportToken'
 import { useCallback, useState } from 'react'
 import CurrencySearch from './CurrencySearch'
@@ -78,9 +77,9 @@ export default function CurrencySearchModal({
         )}
 
         {modalView === CurrencyModalView.search && (
-          <Button variant="subtle" onClick={() => setModalView(CurrencyModalView.manage)} className="mt-6" fullWidth>
+          <ButtonV2 variant="subtle" onClick={() => setModalView(CurrencyModalView.manage)} className="mt-4" fullWidth>
             {t('Manage Tokens')}
-          </Button>
+          </ButtonV2>
         )}
       </div>
     </Modal>

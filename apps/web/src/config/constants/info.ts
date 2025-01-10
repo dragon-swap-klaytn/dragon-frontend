@@ -2,7 +2,7 @@ export const MINIMUM_SEARCH_CHARACTERS = 2
 
 export const WEEKS_IN_YEAR = 52.1429
 
-export const TOTAL_FEE = 0.0025
+export const TOTAL_FEE = 0.003
 export const LP_HOLDERS_FEE = 0.0017
 export const TREASURY_FEE = 0.000225
 export const BUYBACK_FEE = 0.000575

@@ -104,7 +104,6 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
       console.log('__poolLength', poolLength)
 
       const cakePerSecond = new BigNumber(latestPeriodCakePerSecond.toString()).div(1e18).div(1e12).toString()
-
       const farmsWithPrice = await farmV3FetchFarms({
         farms,
         chainId,

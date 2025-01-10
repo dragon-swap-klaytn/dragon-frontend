@@ -19,7 +19,7 @@ export default function AppBody({
   maxWidth = 'max-w-md',
 }: PropsWithChildren<{ className?: string; maxWidth?: string }>) {
   return (
-    <div className={clsx('rounded-2xl mx-auto w-full z-10 bg-surface-container overflow-hidden', maxWidth, className)}>
+    <div className={clsx('rounded-2xl mx-auto w-full z-10 md:bg-surface-raised overflow-hidden', maxWidth, className)}>
       {children}
     </div>
   )

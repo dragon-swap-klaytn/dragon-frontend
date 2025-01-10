@@ -167,13 +167,13 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
   return (
     <>
       <Modal title={t('Connect Wallet')} onDismiss={onDismiss}>
-        <p className="text-sm text-on-surface-primary">
+        <p className="text-sm text-on-surface">
           {t(
             'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
           )}
         </p>
 
-        <p className="text-sm text-on-surface-primary mt-2">
+        <p className="text-sm text-on-surface mt-2">
           By connecting a wallet, you agree to Dragonswap{' '}
           <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
             Terms of Service
@@ -191,14 +191,14 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
             </div>
 
             {remainTime > 7 && (
-              <p className="text-sm text-surface-orange text-center">{`${Math.floor(remainTime / 60)}:${String(
+              <p className="text-sm text-on-surface-brand text-center">{`${Math.floor(remainTime / 60)}:${String(
                 remainTime % 60,
               ).padStart(2, '0')}`}</p>
             )}
 
             <button
               type="button"
-              className="text-sm h-10 px-4 bg-surface-container-highest text-on-surface-primary rounded-2xl self-end"
+              className="text-sm h-10 px-4 bg-neutral text-on-surface rounded-2xl self-end"
               onClick={() => {
                 setQrCode(undefined)
                 setSelected(null)
@@ -217,13 +217,10 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
                 <button
                   key={wallet.title}
                   type="button"
-                  className={clsx(
-                    'p-3 flex items-center justify-between rounded-xl text-on-surface-primary hover:opacity-70',
-                    {
-                      'bg-surface-orange': selected?.id === wallet.id,
-                      'bg-surface-container-highest': selected?.id !== wallet.id,
-                    },
-                  )}
+                  className={clsx('p-3 flex items-center justify-between rounded-xl text-on-surface hover:opacity-70', {
+                    'bg-brand': selected?.id === wallet.id,
+                    'bg-neutral': selected?.id !== wallet.id,
+                  })}
                   onClick={() => {
                     if (wallet.installed === false && wallet.downloadLink) {
                       window.open(getDesktopLink(wallet.downloadLink))

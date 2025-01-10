@@ -1,9 +1,8 @@
 import { Transition } from '@headlessui/react'
 import { languageList, useTranslation } from '@pancakeswap/localization'
-import { MenuIconButton, useModal } from '@pancakeswap/uikit'
+import { MenuIconButton, ToggleSwitch, useModal } from '@pancakeswap/uikit'
 import { CaretRight, Gear, Question } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import ToggleSwitch from 'components/Common/ToggleSwitch'
 import { SettingModeType, SettingsMode } from 'components/Menu/GlobalSettings/types'
 import { Dispatch, SetStateAction, useState } from 'react'
 import SettingsModal from './SettingsModal'
@@ -39,20 +38,20 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
 
       <div
         className={clsx(
-          'absolute top-[50px] right-0 bg-surface-container-high p-6 rounded-2xl transition-opacity z-50 w-64 xxs:w-80 md:w-[340px]',
+          'absolute top-[50px] right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50 w-64 xxs:w-80 md:w-[340px]',
           {
             'opacity-100': setGlobalSettingsOpen ? globalSettingsOpen : open,
             'opacity-0 pointer-events-none': setGlobalSettingsOpen ? !globalSettingsOpen : !open,
           },
         )}
       >
-        <h3 className="text-on-surface-primary font-bold text-lg">{t('Preferences')}</h3>
+        <h3 className="text-on-surface font-bold text-lg">{t('Preferences')}</h3>
 
-        <div className="mt-[30px] flex flex-col items-start space-y-6 text-on-surface-primary">
+        <div className="mt-[30px] flex flex-col items-start space-y-6 text-on-surface">
           <div className="flex items-center w-full justify-between">
             <div className="flex items-center space-x-2">
               <h4 className="text-sm">{t('Subgraph Health Indicator')}</h4>
-              <Question height={16} width={16} className="text-on-surface-tertiary ml-1 shrink-0" weight="fill" />
+              <Question height={16} width={16} className="text-on-surface-subtlest ml-1 shrink-0" weight="fill" />
             </div>
 
             <ToggleSwitch
@@ -71,7 +70,7 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
               <div className="flex items-center space-x-1">
                 <button
                   type="button"
-                  className="text-sm text-on-surface-tertiary"
+                  className="text-sm text-on-surface-subtlest"
                   onClick={() => {
                     setShowLanguage((prev) => !prev)
                   }}
@@ -82,7 +81,7 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
                 <CaretRight
                   height={16}
                   width={16}
-                  className={clsx('text-on-surface-tertiary', {
+                  className={clsx('text-on-surface-subtlest', {
                     'transform rotate-90': showLanguage,
                   })}
                 />
@@ -109,7 +108,7 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
                         setGlobalSettingsOpen?.(false)
                       }}
                       className={clsx('rounded-[20px] p-2 text-sm hover:opacity-70 px-4 h-10 whitespace-nowrap', {
-                        'bg-surface-orange': lang.code === currentLanguage.code,
+                        'bg-brand': lang.code === currentLanguage.code,
                         'bg-surface-disable': lang.code !== currentLanguage.code,
                       })}
                     >

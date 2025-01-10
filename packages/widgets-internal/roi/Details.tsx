@@ -45,7 +45,7 @@ export const Details = memo(function Details({
 
   const details = isExpanded ? (
     <div className="p-4">
-      <div className="flex flex-col items-center w-full justify-between text-sm text-on-surface-primary">
+      <div className="flex flex-col items-center w-full justify-between text-sm text-on-surface">
         <div className="w-full flex items-center space-x-2 justify-between">
           <h4>{t("Yield")}</h4>
           <b className="text-base">${formatAmount(+totalYield)}</b>
@@ -64,7 +64,7 @@ export const Details = memo(function Details({
         )}
       </div>
 
-      <div className="flex flex-col items-center w-full justify-between mt-4 text-sm text-on-surface-primary">
+      <div className="flex flex-col items-center w-full justify-between mt-4 text-sm text-on-surface">
         <div className="w-full flex items-center space-x-2 justify-between">
           <h4>{t("APR")}</h4>
           <b className="text-base">{`${formatPercent(lpApr.add(farmApr), 5) || "0"}%`}</b>
@@ -86,7 +86,7 @@ export const Details = memo(function Details({
       </div>
 
       {compoundOn && (
-        <div className="w-full flex items-center space-x-2 justify-between mt-4 text-sm text-on-surface-primary">
+        <div className="w-full flex items-center space-x-2 justify-between mt-4 text-sm text-on-surface">
           <h4>
             {t("APY")} {compoundText && `(${compoundText})`}
           </h4>
@@ -95,7 +95,7 @@ export const Details = memo(function Details({
       )}
 
       <ul
-        className="text-sm text-on-surface-tertiary mt-6 px-4"
+        className="text-sm text-on-surface-subtlest mt-6 px-4"
         style={{
           listStyleType: "disc",
         }}

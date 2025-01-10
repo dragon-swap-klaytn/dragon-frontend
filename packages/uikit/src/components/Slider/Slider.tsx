@@ -35,7 +35,7 @@ const Slider: React.FC<React.PropsWithChildren<SliderProps>> = ({
         step={step}
         onChange={handleChange}
         disabled={disabled}
-        className="w-full accent-on-surface-accent"
+        className="w-full accent-on-surface-brand"
       />
 
       {valueLabel && (

@@ -301,7 +301,7 @@ export function AprCalculator({
   })
   const farmAprTips = hasFarmApr ? (
     <>
-      <p className="font-bold text-sm text-on-surface-primary">
+      <p className="font-bold text-sm text-on-surface">
         {t('This position must be staking in farm to apply the combined APR with farming rewards.')}
       </p>
       <br />
@@ -313,16 +313,16 @@ export function AprCalculator({
     <div className={className}>
       <div className="flex items-center space-x-1">
         {showTitle && (
-          <span className="text-xs text-on-surface-primary">{hasFarmApr ? t('APR (with farming)') : t('APR')}</span>
+          <span className="text-xs text-on-surface">{hasFarmApr ? t('APR (with farming)') : t('APR')}</span>
         )}
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1.5 text-on-surface">
           <AprText onClick={() => setOpen(true)}>
-            <div className="flex items-center space-x-1 text-gray-50">
-              {isBoosted && <span className="text-sm">🚀 {boostedAprDisplay}%</span>}
+            <div className="flex items-center space-x-1.5 text-on-surface font-bold">
+              {isBoosted && <span>🚀 {boostedAprDisplay}%</span>}
 
               <span
-                className={clsx('text-sm', {
-                  'line-through': isBoosted,
+                className={clsx({
+                  'line-through text-on-surface-subtlest': isBoosted,
                 })}
               >
                 {aprDisplay}%
@@ -330,7 +330,7 @@ export function AprCalculator({
             </div>
           </AprText>
           <button type="button" onClick={() => setOpen(true)} className="hover:opacity-70">
-            <Calculator size={24} className="text-gray-50" />
+            <Calculator size={20} className="text-on-surface" />
           </button>
           {showQuestion ? (
             <QuestionHelper
