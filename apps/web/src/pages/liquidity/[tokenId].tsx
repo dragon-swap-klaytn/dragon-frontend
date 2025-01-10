@@ -49,7 +49,7 @@ import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { useRouter } from 'next/router'
-import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useMemo, useState } from 'react'
+import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin, getBlockExploreLink } from 'utils'
@@ -120,7 +120,6 @@ function PositionPriceSection({
   priceUpper,
   currencyQuote,
   currencyBase,
-  isMobile,
   priceLower,
   inverted,
   pool,
@@ -491,9 +490,6 @@ export default function PoolPage() {
   )
 
   const isLoading = loading || poolState === PoolState.LOADING || poolState === PoolState.INVALID || !feeAmount
-
-  const { isMobile } = useMatchBreakpoints()
-
   const isOwnNFT = isStakedInMCv3 || ownsNFT
 
   // const { hasMerkl } = useMerklInfo(poolAddress)
@@ -523,17 +519,23 @@ export default function PoolPage() {
   )
 
   const cake = CAKE[ChainId.KLAYTN]
-  const { farmsWithPositions: farmsV3 } = useFarmsV3WithPositionsAndBooster()
+  const { farmsWithPositions: farmsV3, updateFarmsV3WithPositionsAndBooster } = useFarmsV3WithPositionsAndBooster()
   const farmsLP = useMemo(() => farmsV3.map((f) => ({ ...f, version: 3 } as V3FarmWithoutStakedValue)), [farmsV3])
   const farm = useMemo(
     () => farmsLP.find((f) => f.lpAddress.toLowerCase() === poolAddress?.toLowerCase()),
     [farmsLP, poolAddress],
   )
   const pendingCake = useMemo(() => farm?.pendingCakeByTokenIds[tokenIdStr] || 0n, [farm, tokenIdStr])
-  const numberedPendingCake = useMemo(
-    () => new BigNumber(pendingCake.toString()).div(getFullDecimalMultiplier(cake.decimals)).toNumber(),
-    [pendingCake, cake],
-  )
+
+  const [numberedPendingCake, setNumberedPendingCake] = useState<number>(0)
+  useEffect(() => {
+    if (!pendingCake) return
+    if (!cake || !cake.decimals) return
+
+    setNumberedPendingCake(
+      new BigNumber(pendingCake.toString()).div(getFullDecimalMultiplier(cake.decimals)).toNumber(),
+    )
+  }, [pendingCake, cake])
 
   const { updatedUserMultiplierBeforeBoosted } = useVeCakeUserMultiplierBeforeBoosted()
   const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenIdStr)
@@ -547,12 +549,16 @@ export default function PoolPage() {
     updateBoostedPoolsTokenId()
     updatedUserMultiplierBeforeBoosted()
     updateStatus()
+    updateFarmsV3WithPositionsAndBooster()
+    setNumberedPendingCake(0)
   }, [
     updateIsBoostedPool,
     updateUserPositionInfo,
     updateBoostedPoolsTokenId,
     updatedUserMultiplierBeforeBoosted,
     updateStatus,
+    updateFarmsV3WithPositionsAndBooster,
+    setNumberedPendingCake,
   ])
   const cakePrice = useCakePrice()
   const { harvesting } = useFarmsV3BatchHarvest()
@@ -639,7 +645,8 @@ export default function PoolPage() {
                           minimumSignificantDigits: 6,
                           maximumSignificantDigits: 6,
                         })}{' '}
-                        {cake.symbol}
+                        {/* {cake.symbol} */}
+                        RKAIA
                       </span>
 
                       <span className="text-on-surface-subtlest text-xs">
@@ -782,7 +789,6 @@ export default function PoolPage() {
                 setManuallyInverted={setManuallyInverted}
                 currencyQuote={currencyQuote}
                 currencyBase={currencyBase}
-                isMobile={isMobile}
                 priceLower={priceLower}
                 inverted={inverted}
                 pool={pool}

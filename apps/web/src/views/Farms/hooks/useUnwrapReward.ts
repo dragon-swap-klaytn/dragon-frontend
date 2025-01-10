@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CAKE, CAKE_SYMBOL } from '@pancakeswap/tokens'
-import { formatBigInt } from '@pancakeswap/utils/formatBalance'
+import { CAKE, LEGACY_CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
+import BigNumber from 'bignumber.js'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import { useWNativeContract } from 'hooks/useContract'
 import useNativeCurrency from 'hooks/useNativeCurrency'
@@ -24,13 +25,23 @@ export function useUnwrapReward({ reward, chainId }: IProps) {
   const wNativeContract = useWNativeContract(rewardToken.address)
 
   const onAlert = useCallback(async () => {
-    const rewardAmount = formatBigInt(reward, 4)
-    const alertText = t(`Are you convert %wrap% reward(%reward%) to %native% now?`, {
-      wrap: rewardToken.symbol,
-      native: nativeInfo.symbol,
+    const rewardAmount = new BigNumber(reward.toString())
+      .div(getFullDecimalMultiplier(rewardToken.decimals))
+      .toNumber()
+      .toLocaleString(undefined, {
+        minimumSignificantDigits: 6,
+        maximumSignificantDigits: 6,
+      })
+    // const alertText = t(`Are you convert %wrap% reward(%reward%) to %native% now?`, {
+    //   wrap: rewardToken.symbol,
+    //   native: nativeInfo.symbol,
+    //   reward: rewardAmount,
+    // })
+    const alertText = t(`Are you convert RKAIA reward(%reward%) to KAIA now?`, {
       reward: rewardAmount,
     })
-    const isConfirmed = reward > 0n && rewardToken?.symbol === CAKE_SYMBOL ? window.confirm(alertText) : false
+
+    const isConfirmed = reward > 0n && rewardToken?.symbol === LEGACY_CAKE_SYMBOL ? window.confirm(alertText) : false
 
     if (!isConfirmed) {
       return false
@@ -52,7 +63,7 @@ export function useUnwrapReward({ reward, chainId }: IProps) {
       console.error('Could not withdraw', e)
       return false
     }
-  }, [reward, nativeInfo, rewardToken, wNativeContract, callWithGasPrice])
+  }, [reward, nativeInfo, rewardToken, wNativeContract, callWithGasPrice, addTransaction, t])
 
   return {
     onAlert,

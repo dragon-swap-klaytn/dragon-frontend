@@ -1,6 +1,6 @@
 import { ChainId, chainNames } from '@pancakeswap/chains'
 import memoize from 'lodash/memoize'
-import { Chain, bsc as bsc_, klaytn, klaytnBaobab } from 'wagmi/chains'
+import { klaytn, klaytnBaobab } from 'wagmi/chains'
 
 export const CHAIN_QUERY_NAME = chainNames
 
@@ -16,27 +16,13 @@ export const getChainId = memoize((chainName: string) => {
   return CHAIN_QUERY_NAME_TO_ID[chainName.toLowerCase()] ? +CHAIN_QUERY_NAME_TO_ID[chainName.toLowerCase()] : undefined
 })
 
-const bsc = {
-  ...bsc_,
-  rpcUrls: {
-    ...bsc_.rpcUrls,
-    public: {
-      ...bsc_.rpcUrls.public,
-      http: ['https://bsc-dataseed.binance.org/'],
-    },
-    default: {
-      ...bsc_.rpcUrls.default,
-      http: ['https://bsc-dataseed.binance.org/'],
-    },
-  },
-} satisfies Chain
-
 const _klaytnRpc = [
   'https://public-en.node.kaia.io',
-  'https://klaytn-mainnet-rpc.allthatnode.com:8551',
-  'https://kaia.blockpi.network/v1/rpc/public	',
-  'https://klaytn-rpc.gateway.pokt.network',
-  'https://klaytn.drpc.org',
+  'https://alpha-hardworking-orb.kaia-mainnet.quiknode.pro/',
+  'https://kaia.blockpi.network/v1/rpc/public',
+  'https://klaytn.api.onfinality.io/public',
+  'https://kaia-mainnet.rpc.grove.city/v1/803ceedf',
+  'https://go.getblock.io/d7094dbd80ab474ba7042603fe912332',
 ]
 export const _klaytn = {
   ...klaytn,
@@ -52,10 +38,8 @@ export const _klaytn = {
 
 const _klaytnBaobabRPC = [
   'https://public-en-kairos.node.kaia.io',
-  'https://api.baobab.klaytn.net:8651',
-  'https://rpc.ankr.com/klaytn_testnet',
+  'https://responsive-green-emerald.kaia-kairos.quiknode.pro/',
   'https://kaia-kairos.blockpi.network/v1/rpc/public',
-  'https://klaytn-baobab.blockpi.network/v1/rpc/public',
 ]
 export const _klaytnBaobab = {
   ...klaytnBaobab,

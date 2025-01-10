@@ -144,7 +144,9 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
                 <CurrencyLogo currency={currency} size={28} className="mr-2" />
               ) : currencyLoading ? (
                 <Skeleton width="24px" height="24px" variant="circle" />
-              ) : null}
+              ) : (
+                <div className="pl-2" />
+              )}
 
               {currencyLoading || pair ? null : (
                 <span className="font-bold text-on-surface">

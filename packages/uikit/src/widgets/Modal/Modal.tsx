@@ -61,7 +61,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
         </div>
       </div>
 
-      <div className="flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[90vh] pt-4">{children}</div>
+      <div className="flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[90vh] mt-4">{children}</div>
     </ModalWrapper>
   );
 };

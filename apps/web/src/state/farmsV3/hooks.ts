@@ -24,7 +24,7 @@ import { useBCakeFarmBoosterVeCakeContract, useMasterchefV3, useV3NFTPositionMan
 import { useV3PositionsFromTokenIds, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import toLower from 'lodash/toLower'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
 import { publicClient } from 'utils/wagmi'
@@ -226,6 +226,7 @@ export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
     }, [chainId, data, farmV3.data, farmV3.isLoading]),
     isLoading: farmV3.isLoading,
     error: farmV3.error,
+    updateFarmsV3: refetch,
   }
 }
 
@@ -391,9 +392,15 @@ export function useFarmsV3WithPositionsAndBooster(
   cakePerSecond: string
   poolLength: number
   isLoading: boolean
+  updateFarmsV3WithPositionsAndBooster: () => void
 } {
-  const { data, error: _error, isLoading } = useFarmsV3(options)
-  const { data: boosterWhitelist } = useV3BoostedFarm(data?.farmsWithPrice?.map((f) => f.pid))
+  const { data, error: _error, isLoading, updateFarmsV3 } = useFarmsV3(options)
+  const { data: boosterWhitelist, updateV3BoostedFarm } = useV3BoostedFarm(data?.farmsWithPrice?.map((f) => f.pid))
+
+  const updateFarmsV3WithPositionsAndBooster = useCallback(() => {
+    updateFarmsV3()
+    updateV3BoostedFarm()
+  }, [updateFarmsV3, updateV3BoostedFarm])
 
   return {
     ...usePositionsByUserFarms(
@@ -403,6 +410,7 @@ export function useFarmsV3WithPositionsAndBooster(
     poolLength: data.poolLength,
     cakePerSecond: data.cakePerSecond,
     isLoading,
+    updateFarmsV3WithPositionsAndBooster,
   }
 }
 
@@ -410,7 +418,7 @@ const useV3BoostedFarm = (pids?: number[]) => {
   const { chainId } = useActiveChainId()
   const farmBoosterVeCakeContract = useBCakeFarmBoosterVeCakeContract()
 
-  const { data } = useQuery(
+  const { data, refetch } = useQuery(
     ['v3/boostedFarm', chainId, pids?.join('-')],
     () =>
       getV3FarmBoosterWhiteList({
@@ -425,7 +433,7 @@ const useV3BoostedFarm = (pids?: number[]) => {
       retryDelay: 3000,
     },
   )
-  return { data }
+  return { data, updateV3BoostedFarm: refetch }
 }
 
 export async function getV3FarmBoosterWhiteList({

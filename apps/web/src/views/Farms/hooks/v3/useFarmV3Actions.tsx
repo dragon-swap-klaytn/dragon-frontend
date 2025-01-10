@@ -174,6 +174,7 @@ const useFarmV3Actions = ({
     )
 
     if (resp?.status) {
+      onDone?.()
       await onAlert()
 
       toastSuccess(
@@ -196,6 +197,7 @@ const useFarmV3Actions = ({
     tokenId,
     queryClient,
     onAlert,
+    onDone,
   ])
 
   return {

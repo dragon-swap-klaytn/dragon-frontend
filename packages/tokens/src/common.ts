@@ -13,6 +13,7 @@ export const CAKE = {
   ),
 }
 
+export const LEGACY_CAKE_SYMBOL = 'RKLAY'
 export const CAKE_SYMBOL = 'RKAIA'
 export const CAKE_SYMBOL_VIEW = 'KAIA'
 
