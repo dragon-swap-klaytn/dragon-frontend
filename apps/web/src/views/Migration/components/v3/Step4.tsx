@@ -5,12 +5,12 @@ import {
   AtomBox,
   AutoRow,
   Button,
-  Chip,
   Dots,
   Flex,
   Modal,
   ModalV2,
   PreTitle,
+  TagV2,
   Text,
   useModalV2,
 } from '@pancakeswap/uikit'
@@ -90,7 +90,7 @@ export function Step4() {
                   }
                   tags={
                     <div className="flex items-center space-x-2">
-                      {p.isStaked && <Chip color="orange">{t('Farming')}</Chip>}
+                      {p.isStaked && <TagV2 color="orange">{t('Farming')}</TagV2>}
                       <RangeTag removed={removed} outOfRange={outOfRange} />
                     </div>
                   }

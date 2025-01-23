@@ -3,9 +3,9 @@ import { Currency } from '@pancakeswap/sdk'
 import {
   ButtonV2,
   Card,
-  Chip,
   CurrencyLogoWithAmount,
   CurrencyLogoWithSymbol,
+  TagV2,
   useMatchBreakpoints,
 } from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
@@ -153,7 +153,7 @@ export default function PoolV2Page() {
                 symbolClassName="text-lg font-bold text-on-surface"
               />
 
-              <Chip>V2 LP</Chip>
+              <TagV2>V2 LP</TagV2>
             </div>
           }
           backTo="/liquidity"

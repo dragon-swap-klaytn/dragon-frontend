@@ -16,5 +16,6 @@ export * from "./NumberFormat";
 export * from "./PercentageSlider";
 export * from "./SearchBar";
 export * from "./Spinner";
+export * from "./TagV2";
 export * from "./ToggleSwitch";
 export * from "./TruncatedText";

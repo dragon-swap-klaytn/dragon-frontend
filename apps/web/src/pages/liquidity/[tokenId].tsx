@@ -5,7 +5,6 @@ import { isActiveV3Farm } from '@pancakeswap/farms'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@pancakeswap/sdk'
 import {
   ButtonV2,
-  Chip,
   ContainerV2,
   CurrencyLogoWithAmount,
   CurrencyLogoWithSymbol,
@@ -14,6 +13,7 @@ import {
   NotFound,
   Notification,
   Spinner,
+  TagV2,
   ToggleSwitch,
   useMatchBreakpoints,
   useModal,
@@ -616,7 +616,7 @@ export default function PoolPage() {
                       symbolClassName="text-lg font-bold text-on-surface"
                     />
 
-                    {Boolean(isStakedInMCv3) && <Chip color="orange">{t('Farming')}</Chip>}
+                    {Boolean(isStakedInMCv3) && <TagV2 color="orange">{t('Farming')}</TagV2>}
                     <RangeTag removed={removed} outOfRange={!inRange} />
                   </div>
 

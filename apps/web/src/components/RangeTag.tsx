@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Chip, QuestionHelper, TagProps } from '@pancakeswap/uikit'
+import { QuestionHelper, TagV2, TagV2Props } from '@pancakeswap/uikit'
 import { ReactNode } from 'react'
 
 export function RangeTag({
@@ -7,13 +7,13 @@ export function RangeTag({
   outOfRange,
   children,
   questionHelper,
-}: { removed?: boolean; outOfRange: boolean; children?: ReactNode; questionHelper?: string } & TagProps) {
+}: { removed?: boolean; outOfRange: boolean; children?: ReactNode; questionHelper?: string } & TagV2Props) {
   const { t } = useTranslation()
 
   return removed ? (
-    <Chip>{children || t('Closed')}</Chip>
+    <TagV2>{children || t('Closed')}</TagV2>
   ) : outOfRange ? (
-    <Chip color="red">
+    <TagV2 color="red">
       {children || (
         <div className="flex items-center space-x-1">
           <span>{t('Inactive')}</span>
@@ -31,8 +31,8 @@ export function RangeTag({
           />
         </div>
       )}
-    </Chip>
+    </TagV2>
   ) : (
-    <Chip color="green">{children || t('Active')}</Chip>
+    <TagV2 color="green">{children || t('Active')}</TagV2>
   )
 }

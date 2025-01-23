@@ -3,12 +3,12 @@ import { CurrencyAmount, WNATIVE } from '@pancakeswap/sdk'
 import { CAKE_SYMBOL } from '@pancakeswap/tokens'
 import {
   ButtonV2,
-  Chip,
   ContainerV2,
   CurrencyLogoWithAmount,
   CurrencyLogoWithSymbol,
   Notification,
   PercentageSlider,
+  TagV2,
   ToggleSwitch,
   useModal,
 } from '@pancakeswap/uikit'
@@ -358,7 +358,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
                   symbolClassName="text-on-surface"
                 />
 
-                {isStakedInMCv3 && <Chip color="orange">{t('Farming')}</Chip>}
+                {isStakedInMCv3 && <TagV2 color="orange">{t('Farming')}</TagV2>}
                 {liquidityValue0 && liquidityValue1 ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
               </div>
 

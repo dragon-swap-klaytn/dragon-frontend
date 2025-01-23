@@ -8,11 +8,11 @@ import {
   ButtonMenuItem,
   CardFooter,
   Checkbox,
-  Chip,
   Dots,
   Flex,
   Link,
   MenuIconButton,
+  TagV2,
   Text,
   useModal,
 } from '@pancakeswap/uikit'
@@ -149,7 +149,7 @@ export default function PoolListPage() {
                 }
                 tags={
                   <div className="flex items-center space-x-2">
-                    {p.isStaked && <Chip color="orange">{t('Farming')}</Chip>}
+                    {p.isStaked && <TagV2 color="orange">{t('Farming')}</TagV2>}
                     {token0Symbol && token1Symbol ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
                   </div>
                 }

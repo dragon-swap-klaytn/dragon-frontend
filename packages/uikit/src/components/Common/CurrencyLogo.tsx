@@ -1,8 +1,9 @@
 import { Currency } from "@pancakeswap/swap-sdk-core";
-import { TokenLogo, ZERO_ADDRESS } from "@pancakeswap/uikit";
 import { useMemo } from "react";
 
 import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
+import { ZERO_ADDRESS } from "../../tokens";
+import { TokenLogo } from "../TokenLogo";
 
 export function CurrencyLogo({
   currency,

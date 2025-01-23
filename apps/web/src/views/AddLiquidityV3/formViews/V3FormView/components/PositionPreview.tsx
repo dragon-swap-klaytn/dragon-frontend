@@ -10,7 +10,7 @@ import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { formatPrice } from 'utils/formatCurrencyAmount'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { Chip, CurrencyLogoWithAmount, CurrencyLogoWithSymbol } from '@pancakeswap/uikit'
+import { CurrencyLogoWithAmount, CurrencyLogoWithSymbol, TagV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { RangeTag } from 'components/RangeTag'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
@@ -96,7 +96,7 @@ export const PositionPreview = ({
               symbolClassName="font-bold text-on-surface"
             />
 
-            {Boolean(isStakedInMCv3) && <Chip color="orange">{t('Farming')}</Chip>}
+            {Boolean(isStakedInMCv3) && <TagV2 color="orange">{t('Farming')}</TagV2>}
             <RangeTag removed={removed} outOfRange={!inRange} />
           </div>
 

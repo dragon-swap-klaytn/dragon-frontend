@@ -1,4 +1,4 @@
-import { Chip } from '@pancakeswap/uikit'
+import { TagV2 } from '@pancakeswap/uikit'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
 import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
@@ -44,7 +44,13 @@ export default function HideShowSelectorSection({
         )}
       </div>
 
-      {showOptions ? content : feeAmount ? <Chip color="orange">{(feeAmount / 10_000).toFixed(2)}% Pick</Chip> : <></>}
+      {showOptions ? (
+        content
+      ) : feeAmount ? (
+        <TagV2 color="orange">{(feeAmount / 10_000).toFixed(2)}% Pick</TagV2>
+      ) : (
+        <></>
+      )}
     </div>
   )
 }
