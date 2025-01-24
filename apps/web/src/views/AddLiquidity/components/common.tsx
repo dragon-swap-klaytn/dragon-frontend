@@ -102,7 +102,7 @@ export const AddLiquidityModalHeader = ({
 
         {!!price && (
           <div className="flex items-start space-x-2 w-full justify-between text-sm text-on-surface-subtle mt-6">
-            <h5 className="text-on-surface-brand">{t('Prices')}</h5>
+            <h5>{t('Prices')}</h5>
             <div className="flex flex-col items-end space-y-1">
               <span>{`1 ${currencies[Field.CURRENCY_A]?.symbol} = ${price?.toSignificant(4)} ${
                 currencies[Field.CURRENCY_B]?.symbol

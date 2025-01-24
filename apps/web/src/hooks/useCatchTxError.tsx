@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { useToast } from '@pancakeswap/uikit'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import { useCallback, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import { getViemErrorMessage, parseViemError } from 'utils/errors'
 import { isUserRejected, logError } from 'utils/sentry'
 import { Hash } from 'viem'
@@ -12,7 +12,9 @@ export type CatchTxErrorReturn = {
   fetchWithCatchTxError: (fn: () => Promise<SendTransactionResult | Hash>) => Promise<WaitForTransactionResult | null>
   fetchTxResponse: (fn: () => Promise<SendTransactionResult | Hash>) => Promise<SendTransactionResult | null>
   loading: boolean
+  setLoading: Dispatch<SetStateAction<boolean>>
   txResponseLoading: boolean
+  setTxResponseLoading: Dispatch<SetStateAction<boolean>>
 }
 
 const notPreview = process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
@@ -159,6 +161,8 @@ export default function useCatchTxError(params?: Params): CatchTxErrorReturn {
     fetchWithCatchTxError,
     fetchTxResponse,
     loading,
+    setLoading,
     txResponseLoading,
+    setTxResponseLoading,
   }
 }

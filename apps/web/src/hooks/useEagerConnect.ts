@@ -1,14 +1,17 @@
 import { useEffect } from 'react'
-import { useConfig, useConnect } from 'wagmi'
+import { useAccount, useConfig, useConnect } from 'wagmi'
 
+import { addressLocalStorageKey, connectorLocalStorageKey, walletLocalStorageKey } from '@pancakeswap/ui-wallets'
+import { WalletIds } from '@pancakeswap/uikit'
 import { CHAINS } from 'config/chains'
-import { getConnectorId, WalletIds } from 'config/wallet'
+import { getConnectorId } from 'config/wallet'
 import useAuth from 'hooks/useAuth'
 
 const useEagerConnect = () => {
   const config = useConfig()
-  const { connectAsync, connectors } = useConnect()
-  const { login } = useAuth()
+  const { connectAsync } = useConnect()
+  const { login, logout } = useAuth()
+  const { address: account } = useAccount()
 
   useEffect(() => {
     if (
@@ -26,22 +29,35 @@ const useEagerConnect = () => {
       return
     }
 
-    const connectorId = getConnectorId(WalletIds.klip)
-    if (connectorId && config.storage.getItem('wallet') === connectorId) {
-      const prevAccount = localStorage.getItem('address') ?? ''
+    if (config.storage.getItem(walletLocalStorageKey) === WalletIds.klip) {
+      const prevAccount = localStorage.getItem(addressLocalStorageKey) ?? ''
 
       if (prevAccount !== '') {
-        login(connectorId).catch(() => {
-          localStorage.removeItem('wallet')
-          localStorage.removeItem('address')
+        login(getConnectorId(WalletIds.klip)).catch(() => {
+          localStorage.removeItem(walletLocalStorageKey)
+          localStorage.removeItem(connectorLocalStorageKey)
+          localStorage.removeItem(addressLocalStorageKey)
         })
       }
 
       return
     }
 
-    config.autoConnect()
-  }, [config, connectAsync, connectors, login])
+    const prevAccount = localStorage.getItem(addressLocalStorageKey) ?? ''
+    if (!prevAccount) {
+      return
+    }
+
+    config.autoConnect().then((res) => {
+      const connectedAccount = res?.account
+      if (!connectedAccount) {
+        return
+      }
+      if (connectedAccount?.toLocaleLowerCase() !== prevAccount.toLocaleLowerCase()) {
+        logout()
+      }
+    })
+  }, [config, connectAsync, login, logout, account])
 }
 
 export default useEagerConnect

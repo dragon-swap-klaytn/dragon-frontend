@@ -73,7 +73,7 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   const addTransaction = useTransactionAdder()
   const { account, chainId } = useAccountActiveChain()
   const native = useNativeCurrency()
-  const { tokenBalance, stakedBalance, allowance } = userData
+  const { tokenBalance, stakedBalance, allowance } = userData ?? {}
   const cakePrice = useCakePrice()
   const router = useRouter()
   const { toastSuccess } = useToast()
@@ -82,7 +82,6 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
   const [bCakeMultiplier, setBCakeMultiplier] = useState<number | null>(() => null)
   const pendingFarm = useNonBscFarmPendingTransaction(lpAddress)
   const { isFirstTime, refresh: refreshFirstTime } = useFirstTimeCrossFarming(vaultPid)
-  // const isBloctoETH = useIsBloctoETH()
 
   const crossChainWarningText = useMemo(() => {
     return isFirstTime
@@ -110,7 +109,7 @@ const StakeAction: React.FC<React.PropsWithChildren<FarmCardActionsProps>> = ({
             {t('Your funds have been staked in the farm')}
           </ToastDescriptionWithTx>,
         )
-        onDone()
+        onDone?.()
       }
     }
   }

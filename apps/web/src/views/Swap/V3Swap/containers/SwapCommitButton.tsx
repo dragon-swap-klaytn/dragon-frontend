@@ -76,11 +76,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
 
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
     <ApprovalConfirmationModal
-      minWidth={['100%', null, '420px']}
       title="Confirm Transaction"
       content={() => ''}
       pendingText="wating confirm..."
-      hash={undefined}
       attemptingTxn
     />,
     true,

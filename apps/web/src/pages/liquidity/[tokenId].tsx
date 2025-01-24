@@ -56,7 +56,6 @@ import { calculateGasMargin, getBlockExploreLink } from 'utils'
 import { formatCurrencyAmount, formatPrice } from 'utils/formatCurrencyAmount'
 import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
-import { CHAIN_IDS } from 'utils/wagmi'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { hexToBigInt } from 'viem'
 import { AprCalculator } from 'views/AddLiquidityV3/components/AprCalculator'
@@ -73,8 +72,10 @@ import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMulti
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import clsx from 'clsx'
+import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
 import { RangeTag } from 'components/RangeTag'
 import { useCakePrice } from 'hooks/useCakePrice'
+import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import Link from 'next/link'
 import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import currencyId from 'utils/currencyId'
@@ -322,10 +323,6 @@ export default function PoolPage() {
   const manager = isStakedInMCv3 ? masterchefV3 : positionManager
   const interfaceManager = isStakedInMCv3 ? MasterChefV3 : NonfungiblePositionManager
 
-  const handleDismissConfirmation = useCallback(() => {
-    setErrorMessage(undefined)
-  }, [])
-
   const collect = useCallback(() => {
     if (
       tokenIdsInMCv3Loading ||
@@ -465,30 +462,6 @@ export default function PoolPage() {
     </>
   )
 
-  const [onClaimFee] = useModal(
-    <TransactionConfirmationModal
-      title={t('Claim fees')}
-      attemptingTxn={collecting}
-      customOnDismiss={handleDismissConfirmation}
-      hash={collectMigrationHash ?? ''}
-      errorMessage={errorMessage}
-      content={() => (
-        <ConfirmationModalContent
-          topContent={modalHeader}
-          bottomContent={() => (
-            <ButtonV2 variant="primary" fullWidth onClick={collect}>
-              {t('Collect')}
-            </ButtonV2>
-          )}
-        />
-      )}
-      pendingText={t('Collecting fees')}
-    />,
-    true,
-    true,
-    'TransactionConfirmationModalCollectFees',
-  )
-
   const isLoading = loading || poolState === PoolState.LOADING || poolState === PoolState.INVALID || !feeAmount
   const isOwnNFT = isStakedInMCv3 || ownsNFT
 
@@ -562,12 +535,72 @@ export default function PoolPage() {
   ])
   const cakePrice = useCakePrice()
   const { harvesting } = useFarmsV3BatchHarvest()
-  const { onHarvest, attemptingTxn } = useFarmV3Actions({
+  const { onHarvest, attemptingTxn, dismissFarmV3Action } = useFarmV3Actions({
     tokenId: tokenIdStr,
     reward: pendingCake,
     onDone,
   })
+  const handleDismissConfirmation = useCallback(() => {
+    setErrorMessage(undefined)
+    setCollecting(false)
+    dismissFarmV3Action()
+  }, [dismissFarmV3Action])
+
   const isHarvesting = useMemo(() => attemptingTxn || (harvesting ?? false), [attemptingTxn, harvesting])
+
+  const [onClaimFee] = useModal(
+    <TransactionConfirmationModal
+      title={t('Claim fees')}
+      attemptingTxn={collecting}
+      customOnDismiss={handleDismissConfirmation}
+      hash={collectMigrationHash ?? ''}
+      errorMessage={errorMessage}
+      content={() => (
+        <ConfirmationModalContent
+          topContent={modalHeader}
+          bottomContent={() => (
+            <ButtonV2 variant="primary" fullWidth onClick={collect}>
+              {t('Collect')}
+            </ButtonV2>
+          )}
+        />
+      )}
+      pendingText={t('Collecting fees')}
+      maxWidth="max-w-[400px]"
+    />,
+    true,
+    true,
+    'TransactionConfirmationModalCollectFees',
+  )
+
+  const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
+    <ApprovalConfirmationModal
+      title="Confirm Transaction"
+      content={() => ''}
+      pendingText="wating confirm..."
+      attemptingTxn
+      customOnDismiss={handleDismissConfirmation}
+    />,
+    true,
+    true,
+    'TxConfirmationModal',
+  )
+
+  const showKlipQrCode = useKlipQrCondition()
+  const handleHarvest = useCallback(async () => {
+    if (showKlipQrCode) {
+      onPresentKlipTxModal()
+    }
+
+    await onHarvest()
+
+    if (showKlipQrCode) {
+      onDismissKlipTxModal({ force: true })
+    }
+    if (!attemptingTxn) {
+      handleDismissConfirmation()
+    }
+  }, [onPresentKlipTxModal, onDismissKlipTxModal, showKlipQrCode, onHarvest, attemptingTxn, handleDismissConfirmation])
 
   if (!isLoading && poolState === PoolState.NOT_EXISTS) {
     return (
@@ -659,7 +692,7 @@ export default function PoolPage() {
                       </span>
                     </div>
 
-                    <ButtonV2 variant="secondary" onClick={onHarvest} disabled={isHarvesting}>
+                    <ButtonV2 variant="secondary" onClick={handleHarvest} disabled={isHarvesting}>
                       {isHarvesting ? <Dots>{t('Harvesting')}</Dots> : t('Harvest')}
                     </ButtonV2>
                   </div>
@@ -749,7 +782,7 @@ export default function PoolPage() {
                     }}
                   />
 
-                  <div className="flex w-full items-center space-x-2 justify-between">
+                  <div className="flex w-full items-center space-x-2 justify-between mt-2">
                     <ButtonV2
                       disabled={
                         !isOwnNFT ||
@@ -759,7 +792,6 @@ export default function PoolPage() {
                       }
                       onClick={onClaimFee}
                       variant="primary"
-                      className="mt-2"
                     >
                       {!!collectMigrationHash && !isCollectPending
                         ? t('Collected')
@@ -769,7 +801,7 @@ export default function PoolPage() {
                     </ButtonV2>
 
                     {showCollectAsWNative && (
-                      <div className="w-full flex items-center space-x-2 justify-end mt-1">
+                      <div className="w-full flex items-center space-x-2 justify-end">
                         <span className="text-sm text-on-surface">
                           {t('Collect as')} {nativeWrappedSymbol}
                         </span>
@@ -810,8 +842,6 @@ export default function PoolPage() {
     </Page>
   )
 }
-
-PoolPage.chains = CHAIN_IDS
 
 type PositionTX = {
   id: string

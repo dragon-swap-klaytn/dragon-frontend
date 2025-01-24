@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Percent, WNATIVE } from '@pancakeswap/sdk'
-import { Box, ButtonV2, ContainerV2, CurrencyLogoWithAmount, useModal, useToast, useTooltip } from '@pancakeswap/uikit'
+import { Box, ButtonV2, CurrencyLogoWithAmount, useModal, useToast, useTooltip } from '@pancakeswap/uikit'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { CommitButton } from 'components/CommitButton'
 import { formattedCurrencyAmount } from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
@@ -467,25 +467,25 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
         ) : null}
       </div>
 
-      <ContainerV2 className="mt-2">
+      <div className="mt-2">
         <CurrencyLogoWithAmount
           currencyA={currencyA}
           symbol={currencyA?.symbol}
           amount={`${formattedAmounts[Field.CURRENCY_A] || '0'}`}
-          className="pb-3 border-b border-border"
+          className="py-3 border-y border-border"
         />
 
         <CurrencyLogoWithAmount
           currencyA={currencyB}
           symbol={currencyB?.symbol}
           amount={`${formattedAmounts[Field.CURRENCY_B] || '0'}`}
-          className="pt-3"
+          className="py-3 border-b border-border"
         />
-      </ContainerV2>
+      </div>
 
       {pair && (
         <div className="flex items-start space-x-2 w-full justify-between text-[13px] text-on-surface mt-2">
-          <h5 className="text-on-surface-brand">{t('Prices')}</h5>
+          <h5>{t('Prices')}</h5>
 
           <div className="flex flex-col items-end space-y-1">
             <span>
@@ -575,13 +575,22 @@ export const RemoveLiquidityV2Layout = ({ currencyA, currencyB, children }) => {
 }
 
 export const RemoveLiquidityLayout = ({ currencyA, currencyB, children }) => {
+  const addressA = useMemo(() => {
+    if (!currencyA) return ''
+    return currencyA && 'isNative' in currencyA && currencyA.isNative ? currencyA.symbol : currencyA.address
+  }, [currencyA])
+  const addressB = useMemo(() => {
+    if (!currencyB) return ''
+
+    return currencyB && 'isNative' in currencyB && currencyB.isNative ? currencyB.symbol : currencyB.address
+  }, [currencyB])
   const { t } = useTranslation()
 
   return (
     <Page>
       <AppBody>
         <AppHeader
-          backTo={`/v2/pair/${currencyA?.address}/${currencyB?.address}`}
+          backTo={`/v2/pair/${addressA}/${addressB}`}
           title={t('Remove %assetA%-%assetB% Liquidity', {
             assetA: currencyA?.symbol ?? '',
             assetB: currencyB?.symbol ?? '',

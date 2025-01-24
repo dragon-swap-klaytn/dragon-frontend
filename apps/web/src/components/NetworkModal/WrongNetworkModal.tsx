@@ -3,9 +3,8 @@ import { useTranslation } from '@pancakeswap/localization'
 import { ArrowForwardIcon, ButtonV2, Modal } from '@pancakeswap/uikit'
 import { ChainLogo } from 'components/Logo/ChainLogo'
 import useAuth from 'hooks/useAuth'
-import { useSessionChainId } from 'hooks/useSessionChainId'
 import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
-import { Chain, useAccount, useNetwork } from 'wagmi'
+import { Chain, useNetwork } from 'wagmi'
 import Dots from '../Loader/Dots'
 
 // Where page network is not equal to wallet network
@@ -13,12 +12,11 @@ export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain: C
   const { switchNetworkAsync, isLoading, canSwitch } = useSwitchNetwork()
   const { chain } = useNetwork()
   const { logout } = useAuth()
-  const { isConnected } = useAccount()
-  const [, setSessionChainId] = useSessionChainId()
   const chainId = currentChain.id || DEFAULT_CHAIN_ID
   const { t } = useTranslation()
 
-  const switchText = t('Switch to %network%', { network: currentChain.name })
+  // const switchText = t('Switch to %network%', { network: currentChain.name })
+  const switchText = t('Switch to %network%', { network: 'Kaia' })
 
   return (
     <Modal title={t('You are in wrong network')} onDismiss={onDismiss}>
@@ -47,18 +45,9 @@ export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain: C
           ) : (
             <p className="text-sm text-red-400">{t('Unable to switch network. Please try it on your wallet')}</p>
           )}
-          {isConnected && (
-            <ButtonV2
-              variant="subtle"
-              onClick={() =>
-                logout().then(() => {
-                  setSessionChainId(chainId)
-                })
-              }
-            >
-              {t('Disconnect Wallet')}
-            </ButtonV2>
-          )}
+          <ButtonV2 variant="subtle" onClick={logout}>
+            {t('Disconnect Wallet')}
+          </ButtonV2>
         </div>
       </div>
     </Modal>

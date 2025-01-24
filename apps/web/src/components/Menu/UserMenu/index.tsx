@@ -1,15 +1,16 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { useModal } from '@pancakeswap/uikit'
+import { connectorLocalStorageKey, walletLocalStorageKey } from '@pancakeswap/ui-wallets'
+import { useModal, WalletId } from '@pancakeswap/uikit'
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { ConnectorId, getWalletIconByConnectorId } from 'config/wallet'
+import { getWalletIcon } from 'config/wallet'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useSwitchNetworkLocal } from 'hooks/useSwitchNetwork'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { Dispatch, SetStateAction, useCallback } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import WalletModal, { WalletView } from './WalletModal'
 
@@ -44,6 +45,33 @@ const UserMenu = ({
     setUserMenuOpen(false)
   }, [isWrongNetwork, onPresentWalletModal, onPresentWrongNetworkModal, setUserMenuOpen])
 
+  const [connectedWalletId, setConnectedWalletId] = useState<WalletId | null>(null)
+  useEffect(() => {
+    if (!connector) {
+      return
+    }
+
+    let safeCount = 0
+    const intervalId = setInterval(() => {
+      const recentConnectorId = localStorage.getItem(connectorLocalStorageKey)
+
+      if (!connector || !recentConnectorId || connector.id !== recentConnectorId) {
+        setConnectedWalletId(null)
+      } else {
+        const recentWalletId = localStorage.getItem(walletLocalStorageKey)
+        if (recentWalletId) {
+          setConnectedWalletId(recentWalletId as WalletId)
+          clearInterval(intervalId)
+        }
+      }
+
+      safeCount++
+      if (safeCount > 100) {
+        clearInterval(intervalId)
+      }
+    }, 10)
+  }, [connector])
+
   if (account) {
     return (
       <div className="relative mr-3">
@@ -52,11 +80,11 @@ const UserMenu = ({
           className="flex items-center space-x-2 hover:opacity-70 text-on-surface-inverse pl-1.5 pr-2 py-1.5 bg-brand rounded-3xl"
           onClick={() => setUserMenuOpen((prev) => !prev)}
         >
-          {connector && (
+          {connectedWalletId && (
             <div className="w-6 h-6 shrink-0 rounded-full overflow-hidden">
               <img
-                src={getWalletIconByConnectorId(connector.id as ConnectorId)}
-                alt="avatar"
+                src={getWalletIcon(connectedWalletId as WalletId)}
+                alt={`${connectedWalletId} icon`}
                 className="w-full h-full object-cover object-center"
               />
             </div>

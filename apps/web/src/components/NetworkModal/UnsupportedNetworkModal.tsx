@@ -38,12 +38,12 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
   return (
     <Modal title={t('Check your network')} hideCloseButton>
       <div className="w-full">
-        <p className="break-keep text-center">
+        <p className="break-keep text-center text-on-surface">
           {t('Currently %feature% only supported in', { feature: typeof title === 'string' ? title : 'this page' })}{' '}
           {/* {supportedMainnetChains?.map((c) => c.name).join(', ')} */}
           Kaia Network
         </p>
-        <p className="mt-2 text-center break-keep">{t('Please switch your network to continue.')}</p>
+        <p className="mt-2 text-center break-keep text-on-surface">{t('Please switch your network to continue.')}</p>
 
         {canSwitch ? (
           <ButtonV2
@@ -67,20 +67,9 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
           </ButtonV2>
         )}
 
-        {isConnected && (
-          <ButtonV2
-            variant="subtle"
-            fullWidth
-            className="mt-3"
-            onClick={() =>
-              logout().then(() => {
-                switchNetworkLocal(DEFAULT_CHAIN_ID)
-              })
-            }
-          >
-            {t('Disconnect Wallet')}
-          </ButtonV2>
-        )}
+        <ButtonV2 variant="subtle" fullWidth className="mt-3" onClick={logout}>
+          {t('Disconnect Wallet')}
+        </ButtonV2>
       </div>
     </Modal>
   )

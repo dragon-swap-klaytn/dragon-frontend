@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
   addressLocalStorageKey,
+  connectorLocalStorageKey,
   useSelectedWallet,
   WalletConnectorNotFoundError,
   walletLocalStorageKey,
@@ -9,7 +10,7 @@ import {
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 // import { ConnectorNames } from 'config/wallet'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { useAppDispatch } from 'state'
 import { ConnectorNotFoundError, SwitchChainNotSupportedError, useConnect, useDisconnect, useNetwork } from 'wagmi'
 import { clearUserStates } from '../utils/clearUserStates'
@@ -24,16 +25,29 @@ const useAuth = () => {
   const { chainId } = useActiveChainId()
   const [, setSessionChainId] = useSessionChainId()
   const { t } = useTranslation()
+  const [, setSelected] = useSelectedWallet()
+
+  const lastRequestedConnectorIdRef = useRef('')
 
   const login = useCallback(
     async (connectorID: string) => {
       const findConnector = connectors.find((c) => c.id === connectorID)
 
+      lastRequestedConnectorIdRef.current = connectorID
       try {
-        const connected = await connectAsync({ connector: findConnector, chainId })
+        const connected = await connectAsync({ connector: findConnector, chainId }).catch((error) => {
+          setSelected(null)
+          throw error
+        })
+
+        if (!connected.account || connected.chain.unsupported || connected.chain.id !== chainId) {
+          await disconnectAsync()
+        }
+
         if (!connected.chain.unsupported && connected.chain.id !== chainId) {
           replaceBrowserHistory('chain', CHAIN_QUERY_NAME[connected.chain.id])
           setSessionChainId(connected.chain.id)
+          lastRequestedConnectorIdRef.current = ''
         }
         return connected
       } catch (error) {
@@ -50,22 +64,21 @@ const useAuth = () => {
       }
       return undefined
     },
-    [connectors, connectAsync, chainId, setSessionChainId, t],
+    [connectors, connectAsync, chainId, setSessionChainId, t, disconnectAsync, setSelected],
   )
-
-  const [, setSelected] = useSelectedWallet()
 
   const logout = useCallback(async () => {
     try {
+      localStorage.removeItem(walletLocalStorageKey)
+      localStorage.removeItem(connectorLocalStorageKey)
+      localStorage.removeItem(addressLocalStorageKey)
+
       await disconnectAsync()
       setSelected(null)
     } catch (error) {
       console.error(error)
     } finally {
       // clear web2app state
-      localStorage.removeItem(walletLocalStorageKey)
-      localStorage.removeItem(addressLocalStorageKey)
-
       clearUserStates(dispatch, { chainId: chain?.id })
     }
   }, [disconnectAsync, dispatch, chain?.id, setSelected])

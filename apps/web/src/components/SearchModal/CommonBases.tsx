@@ -40,12 +40,12 @@ export default function CommonBases({
         />
 
         {recentSelectedCurrencies.map((currency) => {
-          const { address } = currency as Token
+          const address = currency?.address
           const selected = selectedCurrency?.wrapped?.address.toLocaleLowerCase() === address.toLowerCase()
 
           return (
             <RecentTokenButton
-              key={`buttonRecent:${address}`}
+              key={`recentTokenButton:${address}`}
               onClick={() => {
                 onSelect(currency)
                 setRecentSelectedCurrency(currency as Token)

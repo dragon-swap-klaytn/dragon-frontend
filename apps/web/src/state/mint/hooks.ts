@@ -1,10 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Percent, Price, Token } from '@pancakeswap/sdk'
+import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { BIG_INT_ZERO } from 'config/constants/exchange'
 import { PairState, useV2Pair } from 'hooks/usePairs'
 import useTotalSupply from 'hooks/useTotalSupply'
 import { useCallback, useMemo } from 'react'
-import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useAddLiquidityV2FormDispatch, useAddLiquidityV2FormState } from 'state/mint/reducer'
 import { useAccount } from 'wagmi'
 import { useCurrencyBalances } from '../wallet/hooks'
@@ -81,8 +81,8 @@ export function useDerivedMintInfo(
         pairState === PairState.EXISTS &&
           totalSupply &&
           totalSupply.quotient === BIG_INT_ZERO &&
-          ((pair.reserve0.quotient > BIG_INT_ZERO && pair.reserve1.quotient === BIG_INT_ZERO) ||
-            (pair.reserve1.quotient > BIG_INT_ZERO && pair.reserve0.quotient === BIG_INT_ZERO)),
+          (((pair?.reserve0.quotient ?? 0n) > BIG_INT_ZERO && pair?.reserve1.quotient === BIG_INT_ZERO) ||
+            ((pair?.reserve1.quotient ?? 0n) > BIG_INT_ZERO && pair?.reserve0.quotient === BIG_INT_ZERO)),
       ),
     [pairState, totalSupply, pair],
   )

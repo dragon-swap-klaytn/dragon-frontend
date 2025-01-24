@@ -155,18 +155,14 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
   const manager = isStakedInMCv3 ? masterchefV3 : positionManager
   const interfaceManager = isStakedInMCv3 ? MasterChefV3 : NonfungiblePositionManager
 
-  const {
-    approvalState: approvalA,
-    approveCallback: approveACallback,
-    revokeCallback: revokeACallback,
-    currentAllowance: currentAllowanceA,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_A], manager?.address)
-  const {
-    approvalState: approvalB,
-    approveCallback: approveBCallback,
-    revokeCallback: revokeBCallback,
-    currentAllowance: currentAllowanceB,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_B], manager?.address)
+  const { approvalState: approvalA, approveCallback: approveACallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_A],
+    manager?.address,
+  )
+  const { approvalState: approvalB, approveCallback: approveBCallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_B],
+    manager?.address,
+  )
 
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
@@ -181,6 +177,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
 
     if (position && account && deadline) {
       const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
+
       const { calldata, value } =
         hasExistingPosition && tokenId
           ? interfaceManager.addCallParameters(position, {
@@ -265,7 +262,6 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
   ])
 
   const addIsUnsupported = useIsTransactionUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
-
   const addIsWarning = useIsTransactionWarning(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
 
   const handleDismissConfirmation = useCallback(() => {
@@ -275,6 +271,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
       router.push(`/liquidity/${tokenId}`)
     }
     setTxnErrorMessage(undefined)
+    setAttemptingTxn(false)
   }, [onFieldAInput, router, txHash, tokenId])
 
   const pendingText = useMemo(() => {
@@ -304,7 +301,6 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
 
   const [onPresentIncreaseLiquidityModal] = useModal(
     <TransactionConfirmationModal
-      minWidth={['100%', null, '420px']}
       title={t('Increase Liquidity')}
       customOnDismiss={handleDismissConfirmation}
       attemptingTxn={attemptingTxn}
@@ -345,12 +341,8 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
       isValid={isValid}
       showApprovalA={showApprovalA}
       approveACallback={approveACallback}
-      currentAllowanceA={currentAllowanceA}
-      revokeACallback={revokeACallback}
       currencies={currencies}
       approveBCallback={approveBCallback}
-      currentAllowanceB={currentAllowanceB}
-      revokeBCallback={revokeBCallback}
       showApprovalB={showApprovalB}
       parsedAmounts={parsedAmounts}
       onClick={handleButtonSubmit}

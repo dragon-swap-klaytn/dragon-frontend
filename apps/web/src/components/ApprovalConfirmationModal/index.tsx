@@ -7,8 +7,6 @@ import { useCallback } from 'react'
 interface ConfirmationModalProps {
   title: string
   customOnDismiss?: () => void
-  hash: string | undefined
-  errorMessage?: string
   content: () => React.ReactNode
   attemptingTxn: boolean
   pendingText?: string
@@ -16,8 +14,8 @@ interface ConfirmationModalProps {
 
 const ApprovalConfirmationModal: React.FC<
   React.PropsWithChildren<InjectedModalProps & ConfirmationModalProps & ModalProps>
-> = ({ title, onDismiss, customOnDismiss, attemptingTxn, errorMessage, hash, content, pendingText, ...props }) => {
-  const qrUri = useA2AConnectorQRUri()
+> = ({ title, onDismiss, customOnDismiss, attemptingTxn, content, pendingText, ...props }) => {
+  const { requestKey, cancelKlipRequest, qrUri } = useA2AConnectorQRUri()
 
   const { chainId } = useActiveChainId()
 
@@ -27,7 +25,11 @@ const ApprovalConfirmationModal: React.FC<
     }
 
     onDismiss?.()
-  }, [customOnDismiss, onDismiss])
+
+    if (requestKey) {
+      cancelKlipRequest()
+    }
+  }, [customOnDismiss, onDismiss, cancelKlipRequest, requestKey])
 
   if (!chainId) return null
 

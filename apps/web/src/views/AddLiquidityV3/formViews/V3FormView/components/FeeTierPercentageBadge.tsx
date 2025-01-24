@@ -21,7 +21,7 @@ export function FeeTierPercentageBadge({
       {!distributions || poolState === PoolState.NOT_EXISTS || poolState === PoolState.INVALID
         ? t('Not Created')
         : distributions[feeAmount] !== undefined
-        ? `${feeAmount === largestUsageFeeTier && '🔥'} ${distributions[feeAmount]?.toFixed(0)}% ${t('Pick')}`
+        ? `${feeAmount === largestUsageFeeTier ? '🔥' : ''} ${distributions[feeAmount]?.toFixed(0)}% ${t('Pick')}`
         : t('No Data')}
     </div>
   )

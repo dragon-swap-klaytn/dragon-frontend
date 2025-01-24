@@ -17,6 +17,7 @@ import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
 
 interface FarmV3ActionContainerChildrenProps {
   attemptingTxn: boolean
+  dismissFarmV3Action: () => void
   onStake: () => Promise<void>
   onUnstake: () => Promise<void>
   onHarvest: () => Promise<void>
@@ -40,7 +41,10 @@ const useFarmV3Actions = ({
   const queryClient = useQueryClient()
   const publicClient = viemClients[chainId as keyof typeof viemClients]
 
-  const { loading, fetchWithCatchTxError } = useCatchTxError()
+  const { loading, setLoading, fetchWithCatchTxError } = useCatchTxError()
+  const dismissFarmV3Action = useCallback(() => {
+    setLoading(false)
+  }, [setLoading])
 
   const isFinished = useFinishedFarm()
   const masterChefV3Address = useMasterchefV3(isFinished)?.address as Address
@@ -52,6 +56,7 @@ const useFarmV3Actions = ({
   })
 
   const onUnstake = useCallback(async () => {
+    if (!account || !masterChefV3Address) return
     const { calldata, value } = MasterChefV3.withdrawCallParameters({ tokenId, to: account })
 
     const txn = {
@@ -98,6 +103,8 @@ const useFarmV3Actions = ({
   ])
 
   const onStake = useCallback(async () => {
+    if (!account || !nftPositionManagerAddress) return
+
     const { calldata, value } = NonfungiblePositionManager.safeTransferFromParameters({
       tokenId,
       recipient: masterChefV3Address,
@@ -147,6 +154,7 @@ const useFarmV3Actions = ({
   ])
 
   const onHarvest = useCallback(async () => {
+    if (!account) return
     const { calldata } = MasterChefV3.harvestCallParameters({ tokenId, to: account })
 
     const txn = {
@@ -202,6 +210,7 @@ const useFarmV3Actions = ({
 
   return {
     attemptingTxn: loading,
+    dismissFarmV3Action,
     onStake,
     onUnstake,
     onHarvest,
@@ -214,12 +223,17 @@ export function useFarmsV3BatchHarvest() {
   const { toastSuccess } = useToast()
   const { address: account } = useAccount()
   const { sendTransactionAsync } = useSendTransaction()
-  const { loading, fetchWithCatchTxError } = useCatchTxError()
+  const { loading, fetchWithCatchTxError, setLoading } = useCatchTxError()
   const queryClient = useQueryClient()
+  const onDismissHarvestAll = useCallback(() => {
+    setLoading(false)
+  }, [setLoading])
 
   const masterChefV3Address = useMasterchefV3()?.address
   const onHarvestAll = useCallback(
     async (tokenIds: string[]) => {
+      if (!account || !masterChefV3Address) return
+
       const { calldata, value } = MasterChefV3.batchHarvestCallParameters(
         tokenIds.map((tokenId) => ({ tokenId, to: account })),
       )
@@ -259,6 +273,7 @@ export function useFarmsV3BatchHarvest() {
   return {
     onHarvestAll,
     harvesting: loading,
+    onDismissHarvestAll,
   }
 }
 

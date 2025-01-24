@@ -83,7 +83,6 @@ const ConfirmAddLiquidityModal: React.FC<
 
   return (
     <TransactionConfirmationModal
-      minWidth={['100%', '', '420px']}
       title={title}
       onDismiss={onDismiss}
       customOnDismiss={customOnDismiss}

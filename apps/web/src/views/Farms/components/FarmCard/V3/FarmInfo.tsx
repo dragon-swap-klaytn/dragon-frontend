@@ -1,10 +1,10 @@
 import { Flex, ModalV2 } from '@pancakeswap/uikit'
-import { FarmWidget } from '@pancakeswap/widgets-internal'
 import { formatBigInt } from '@pancakeswap/utils/formatBalance'
+import { FarmWidget } from '@pancakeswap/widgets-internal'
 import { BigNumber } from 'bignumber.js'
 import { TokenPairImage } from 'components/TokenImage'
-import { useMemo, useState } from 'react'
 import { useCakePrice } from 'hooks/useCakePrice'
+import { useCallback, useMemo, useState } from 'react'
 import FarmV3CardList from 'views/Farms/components/FarmCard/V3/FarmV3CardList'
 import { V3Farm } from 'views/Farms/FarmsV3'
 import { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
@@ -51,7 +51,11 @@ const FarmInfo: React.FunctionComponent<React.PropsWithChildren<FarmInfoProps>> 
     [pendingCakeByTokenIds],
   )
 
-  const { harvesting, onHarvestAll } = useFarmsV3BatchHarvest()
+  const { harvesting, onHarvestAll, onDismissHarvestAll } = useFarmsV3BatchHarvest()
+  const handleDismiss = useCallback(() => {
+    onDismissHarvestAll()
+    setShow(false)
+  }, [onDismissHarvestAll])
 
   const earningsBusd = useMemo(
     () => new BigNumber(totalEarnings).times(cakePrice).toNumber(),
@@ -91,7 +95,7 @@ const FarmInfo: React.FunctionComponent<React.PropsWithChildren<FarmInfoProps>> 
           )}
         </>
       )}
-      <ModalV2 isOpen={show} onDismiss={() => setShow(false)} closeOnOverlayClick>
+      <ModalV2 isOpen={show} onDismiss={handleDismiss} closeOnOverlayClick>
         <ViewAllFarmModal
           title={lpSymbol}
           isReady={isReady}
@@ -111,10 +115,10 @@ const FarmInfo: React.FunctionComponent<React.PropsWithChildren<FarmInfoProps>> 
           }
           onHarvestAll={hasEarningTokenIds.length > 1 ? () => onHarvestAll(hasEarningTokenIds) : undefined}
           harvesting={harvesting}
-          onDismiss={() => setShow(false)}
+          onDismiss={handleDismiss}
         >
           <Flex flexDirection="column">
-            <FarmV3CardList farm={farm} onDismiss={() => setShow(false)} harvesting={harvesting} />
+            <FarmV3CardList farm={farm} onDismiss={handleDismiss} harvesting={harvesting} />
           </Flex>
         </ViewAllFarmModal>
       </ModalV2>

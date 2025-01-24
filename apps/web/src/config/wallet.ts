@@ -1,18 +1,9 @@
 import { WalletConfigV2 } from '@pancakeswap/ui-wallets'
+import { ConnectorId, ConnectorIds, DGSWAP_DOMAIN, WalletId, WalletIds } from '@pancakeswap/uikit'
+import { isMobile } from 'react-device-detect'
 import { Connector, PublicClient } from 'wagmi'
 import { ConnectArgs, ConnectResult } from 'wagmi/dist/actions'
 import { klipConnector, walletConnectNoQrCodeConnector } from '../utils/wagmi'
-
-export enum WalletIds {
-  kaiawallet = 'kaiawallet',
-  klip = 'klip',
-  metamask = 'metamask',
-  injected = 'injected',
-  walletconnect = 'walletconnect',
-  tokenpocket = 'tokenpocket',
-  okxwallet = 'okxwallet',
-}
-export type WalletId = `${WalletIds}`
 
 export const DEFAULT_WALLET_ICON = '/images/wallets/default.png'
 export function getWalletIcon(id: WalletId): string {
@@ -22,97 +13,18 @@ export function getWalletIcon(id: WalletId): string {
     metamask: '/images/wallets/metamask.png',
     tokenpocket: '/images/wallets/tokenpocket.png',
     walletconnect: '/images/wallets/walletconnect.png',
-    injected: DEFAULT_WALLET_ICON,
+    // injected: DEFAULT_WALLET_ICON,
     okxwallet: '/images/wallets/okxwallet.png',
   }
 
   return icon[id] || DEFAULT_WALLET_ICON
 }
 
-export type ConnectorId = 'kaiawallet' | 'klip' | 'metaMask' | 'injected' | 'walletConnect' | 'okxwallet'
-
-export const WALLET_MAP: {
-  [id in WalletId]: {
-    name: string
-    icon: string
-    connectorId?: ConnectorId
-  }
-} = {
-  kaiawallet: {
-    name: 'KaiaWallet',
-    icon: getWalletIcon('kaiawallet'),
-    connectorId: 'kaiawallet',
-  },
-  klip: {
-    name: 'Klip',
-    icon: getWalletIcon('klip'),
-    connectorId: 'klip',
-  },
-  metamask: {
-    name: 'MetaMask',
-    icon: getWalletIcon('metamask'),
-    connectorId: 'metaMask',
-  },
-  injected: {
-    name: 'Injected',
-    icon: getWalletIcon('injected'),
-    connectorId: 'injected',
-  },
-  walletconnect: {
-    name: 'WalletConnect',
-    icon: getWalletIcon('walletconnect'),
-    connectorId: 'walletConnect',
-  },
-  tokenpocket: {
-    name: 'TokenPocket',
-    icon: getWalletIcon('tokenpocket'),
-    connectorId: 'injected',
-  },
-  okxwallet: {
-    name: 'OKX Wallet',
-    icon: getWalletIcon('okxwallet'),
-    connectorId: 'okxwallet',
-  },
-}
-
-export function getConnectorId(id: WalletId): ConnectorId | undefined {
-  return WALLET_MAP[id].connectorId
-}
-
-export function getWalletIdByConnectorId(id: ConnectorId): WalletId {
-  return Object.keys(WALLET_MAP).find((key) => WALLET_MAP[key as WalletId].connectorId === id) as WalletId
-}
-
-export function getWalletIconByConnectorId(id: ConnectorId): string {
-  return getWalletIcon(getWalletIdByConnectorId(id))
-}
-
-const createQrCode =
-  (chainId: number, connect: (args?: Partial<ConnectArgs>) => Promise<ConnectResult<PublicClient>>) => async () => {
-    connect({ connector: walletConnectNoQrCodeConnector, chainId })
-
-    const r = await walletConnectNoQrCodeConnector.getProvider()
-    return new Promise<string>((resolve) => {
-      r.on('display_uri', (uri) => {
-        resolve(uri)
-      })
-    })
-  }
-
-const createQrCodeForA2A =
-  (chainId: number, connect: (args?: Partial<ConnectArgs>) => Promise<ConnectResult<PublicClient>>) => async () => {
-    connect({ connector: klipConnector as Connector<any, any>, chainId })
-
-    const r = await klipConnector.getProvider()
-
-    return new Promise<string>((resolve) => {
-      r.on('display_uri', (uri) => {
-        resolve(uri)
-      })
-    })
-  }
-
 const isMetamaskInstalled = () => {
+  if (isMobile) {
+    return true
+  }
+
   if (typeof window === 'undefined') {
     return false
   }
@@ -128,17 +40,136 @@ const isMetamaskInstalled = () => {
   return false
 }
 
-const isOkxInstalled = () => {
-  if (typeof window === 'undefined') {
-    return false
+export const WALLET_MAP: {
+  [id in WalletId]: {
+    title: string
+    icon: string
+    connectorId: ConnectorId
+    installed: boolean
+    cancelRequest?: (requestKey: string) => void
+    downloadLink?: string
+    deepLink?: string
   }
+} = {
+  [WalletIds.kaiawallet]: {
+    title: 'KaiaWallet',
+    icon: getWalletIcon('kaiawallet'),
+    connectorId: ConnectorIds.kaiawallet,
+    installed: Boolean(typeof window !== 'undefined' && (window.klaytn || window.caver)),
+    downloadLink: 'https://www.kaiawallet.io/',
+    deepLink: `https://app.kaikas.io/u/${DGSWAP_DOMAIN}`,
+  },
+  [WalletIds.klip]: {
+    title: 'Klip',
+    icon: getWalletIcon('klip'),
+    connectorId: ConnectorIds.klip,
+    installed: true,
+    cancelRequest: async (requestKey: string) => {
+      const provider = await klipConnector.getProvider()
 
-  if (window.okxwallet) {
-    return true
-  }
-
-  return false
+      if (provider) {
+        provider.cancel(requestKey)
+      }
+    },
+  },
+  [WalletIds.metamask]: {
+    title: 'MetaMask',
+    icon: getWalletIcon('metamask'),
+    connectorId: ConnectorIds.metamask,
+    installed: isMetamaskInstalled(),
+    downloadLink: 'https://metamask.app.link/dapp/dgswap.io',
+    deepLink: 'https://metamask.app.link/dapp/dgswap.io',
+  },
+  // injected: {
+  //   title: 'Injected',
+  //   icon: getWalletIcon('injected'),
+  //   connectorId: 'injected',
+  // },
+  [WalletIds.walletconnect]: {
+    title: 'WalletConnect',
+    icon: getWalletIcon('walletconnect'),
+    connectorId: ConnectorIds.walletconnect,
+    installed: Boolean(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID),
+  },
+  [WalletIds.tokenpocket]: {
+    title: 'TokenPocket',
+    icon: getWalletIcon('tokenpocket'),
+    connectorId: ConnectorIds.tokenpocket,
+    installed: true,
+    deepLink: `tpdapp://open?params=${encodeURIComponent(JSON.stringify({ url: DGSWAP_DOMAIN, chain: 'KAIA' }))}`,
+    downloadLink: isMobile
+      ? 'https://www.tokenpocket.pro/en/download/app'
+      : 'https://chromewebstore.google.com/detail/%ED%86%A0%ED%81%B0%ED%8F%AC%EC%BC%93-%EC%9B%B93-nostr-%EC%A7%80%EA%B0%91/mfgccjchihfkkindfppnaooecgfneiii',
+  },
+  [WalletIds.okxwallet]: {
+    title: 'OKX Wallet',
+    icon: getWalletIcon('okxwallet'),
+    connectorId: ConnectorIds.okxwallet,
+    installed: true,
+    downloadLink: 'https://chromewebstore.google.com/detail/okx-wallet/mcohilncbfahbmgdjkbpemcciiolgcge',
+    deepLink: `https://www.okx.com/download?deeplink=${encodeURIComponent(
+      `okx://wallet/dapp/url?dappUrl=${encodeURIComponent(DGSWAP_DOMAIN)}`,
+    )}`,
+  },
 }
+
+export function getConnectorId(id: WalletId): ConnectorId {
+  return WALLET_MAP[id].connectorId
+}
+
+export function getWalletIdByConnectorId(id: ConnectorId): WalletId {
+  return Object.keys(WALLET_MAP).find((key) => WALLET_MAP[key as WalletId].connectorId === id) as WalletId
+}
+
+export function getWalletIconByConnectorId(id: ConnectorId): string {
+  return getWalletIcon(getWalletIdByConnectorId(id))
+}
+
+const createQrCode =
+  (chainId: number, connect: (args?: Partial<ConnectArgs>) => Promise<ConnectResult<PublicClient>>) => async () => {
+    connect({ connector: walletConnectNoQrCodeConnector, chainId })
+      .then((res) => {
+        walletConnectNoQrCodeConnector.emit('connect', res)
+      })
+      .catch((e) => {
+        console.error('connect error', e)
+        walletConnectNoQrCodeConnector.emit('error', e)
+      })
+
+    const r = await walletConnectNoQrCodeConnector.getProvider()
+    return new Promise<string>((resolve) => {
+      r.on('display_uri', (uri) => {
+        resolve(uri)
+      })
+    })
+  }
+
+const createQrCodeForA2A =
+  (chainId: number, connect: (args?: Partial<ConnectArgs>) => Promise<ConnectResult<PublicClient>>) => async () => {
+    connect({ connector: klipConnector as Connector<any, any>, chainId }).catch((e) => {
+      console.error('connect error', e)
+    })
+
+    const r = await klipConnector.getProvider()
+
+    let requestKey = ''
+    let uri = ''
+
+    return new Promise<string[]>((resolve) => {
+      r.on('display_uri', (_uri) => {
+        uri = _uri
+        if (uri && requestKey) {
+          resolve([uri, requestKey])
+        }
+      })
+      r.on('requestKey', (_requestKey) => {
+        requestKey = _requestKey
+        if (uri && requestKey) {
+          resolve([uri, requestKey])
+        }
+      })
+    })
+  }
 
 function getQrCode(
   chainId: number,
@@ -148,6 +179,7 @@ function getQrCode(
   return {
     klip: createQrCodeForA2A(chainId, connect),
     tokenpocket: createQrCode(chainId, connect),
+    okxwallet: createQrCode(chainId, connect),
   }[id]
 }
 
@@ -157,130 +189,28 @@ const walletsConfig = ({
 }: {
   chainId: number
   connect: (args?: Partial<ConnectArgs>) => Promise<ConnectResult<PublicClient>>
-}): WalletConfigV2<WalletId>[] => {
-  // const qrCode = createQrCode(chainId, connect)
+}): WalletConfigV2[] => {
   return [
     ...Object.entries(WALLET_MAP)
-      .filter(([id]) => id !== 'injected' && id !== 'walletconnect')
-      .map(([id, { name, icon }]) => ({
+      .filter(
+        ([id]) =>
+          (id === 'walletconnect' && Boolean(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID)) || id !== 'walletconnect',
+      )
+      .map(([id, config]) => ({
+        ...config,
         id: id as WalletId,
-        title: name,
-        icon,
-        connectorId: getConnectorId(id as WalletId) as any,
-        ...(['klip', 'metamask', 'tokenpocket'].includes(id)
-          ? {
-              installed: {
-                klip: false,
-                metamask: isMetamaskInstalled(),
-                tokenpocket: typeof window !== 'undefined' && Boolean(window.ethereum?.isTokenPocket),
-                okx: isOkxInstalled(),
-              }[id],
-            }
-          : {}),
-        ...(['klip', 'tokenpocket'].includes(id) ? { qrCode: getQrCode(chainId, connect, id as WalletId) } : {}),
-        ...(['metamask'].includes(id)
-          ? {
-              downloadLink: 'https://metamask.app.link/dapp/dgswap.io',
-              deepLink: 'https://metamask.app.link/dapp/dgswap.io',
-            }
-          : {}),
-        ...(['okxwallet'].includes(id)
-          ? {
-              downloadLink: 'https://chromewebstore.google.com/detail/okx-wallet/mcohilncbfahbmgdjkbpemcciiolgcge',
-              deepLink: `https://www.okx.com/download?deeplink=${encodeURIComponent(
-                `okx://wallet/dapp/url?dappUrl=${encodeURIComponent('https://dgswap.io')}`,
-                // `okx://wallet/dapp/url?dappUrl=${encodeURIComponent('http://local.scnr.internal.blockswords:3000/')}`,
-                // `okx://wallet/dapp/url?dappUrl=${encodeURIComponent('http://172.30.1.2:3000/')}`,
-              )}`,
-            }
-          : {}),
+        qrCode: getQrCode(chainId, connect, id as WalletId),
       })),
-
-    ...(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID
-      ? [
-          {
-            id: WalletIds.walletconnect,
-            // title: 'WalletConnect',
-            title: WALLET_MAP[WalletIds.walletconnect].name,
-            icon: getWalletIcon('walletconnect'),
-            connectorId: WALLET_MAP[WalletIds.walletconnect].connectorId,
-          },
-        ]
-      : []),
   ]
-
-  // [
-  //   {
-  //     id: 'klip',
-  //     title: 'Klip',
-  //     icon: getWalletIcon('klip'),
-  //     connectorId: ConnectorNames.klip,
-  //     get installed() {
-  //       return false
-  //     },
-  //     qrCode: createQrCodeForA2A(chainId, connect, 'klip'),
-  //   },
-  //   {
-  //     id: 'Kaikas',
-  //     title: 'KaiaWallet',
-  //     icon: getWalletIcon('kaiawallet'),
-  //     connectorId: ConnectorNames.kaiawallet,
-  //   },
-  //   {
-  //     id: 'metamask',
-  //     title: 'Metamask',
-  //     icon: getWalletIcon('metamask'),
-  //     get installed() {
-  //       return isMetamaskInstalled()
-  //       // && metaMaskConnector.ready
-  //     },
-  //     connectorId: ConnectorNames.metamask,
-  //     downloadLink: 'https://metamask.app.link/dapp/dgswap.io',
-  //     deepLink: 'https://metamask.app.link/dapp/dgswap.io',
-  //   },
-  //   {
-  //     id: 'tokenpocket',
-  //     title: 'TokenPocket',
-  //     icon: getWalletIcon('tokenpocket'),
-  //     connectorId: ConnectorNames.injected,
-  //     get installed() {
-  //       return typeof window !== 'undefined' && Boolean(window.ethereum?.isTokenPocket)
-  //     },
-  //     qrCode,
-  //   },
-  // ...(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID
-  //   ? [
-  //       {
-  //         id: 'walletconnect',
-  //         title: 'WalletConnect',
-  //         icon: getWalletIcon('walletconnect'),
-  //         connectorId: ConnectorNames.walletconnect,
-  //       },
-  //     ]
-  //   : []),
-  // ]
 }
 
 export const createWallets = (
   chainId: number,
   connect: (args?: Partial<ConnectArgs>) => Promise<ConnectResult<PublicClient>>,
 ) => {
-  const hasInjected = typeof window !== 'undefined' && !window.ethereum
   const config = walletsConfig({ chainId, connect })
 
-  return hasInjected && config.some((c) => c.installed && c.id === 'injected')
-    ? config // add injected icon if none of injected type wallets installed
-    : [
-        ...config,
-        {
-          id: WalletIds.injected,
-          title: WALLET_MAP[WalletIds.injected].name,
-          icon: WALLET_MAP[WalletIds.injected].icon,
-          // icon: WalletFilledIcon,
-          connectorId: WALLET_MAP[WalletIds.injected].connectorId,
-          installed: typeof window !== 'undefined' && Boolean(window.ethereum),
-        },
-      ]
+  return config
 }
 
 export const getDocLink = (code: string) => {

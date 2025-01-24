@@ -83,6 +83,11 @@
       "types": "./dist/connectors/okxWallet.d.ts",
       "import": "./dist/connectors/okxWallet.mjs",
       "require": "./dist/connectors/okxWallet.js"
+    },
+    "./connectors/tokenPocket": {
+      "types": "./dist/connectors/tokenPocket.d.ts",
+      "import": "./dist/connectors/tokenPocket.mjs",
+      "require": "./dist/connectors/tokenPocket.js"
     }
   },
   "peerDependenciesMeta": {

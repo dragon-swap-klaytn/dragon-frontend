@@ -71,7 +71,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
   const { recipient } = useSwapState()
   const [wallchainStatus] = useWallchainStatus()
   const isBonus = useDebounce(wallchainStatus === 'found', 500)
-  const qrUri = useA2AConnectorQRUri()
+  const { qrUri, requestKey, cancelKlipRequest } = useA2AConnectorQRUri()
 
   const token: Token | undefined = wrappedCurrency(trade?.outputAmount?.currency, chainId)
   const tokenLogo = useTokenLogo(token)
@@ -81,7 +81,11 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
       customOnDismiss?.()
     }
     onDismiss?.()
-  }, [customOnDismiss, onDismiss])
+
+    if (requestKey) {
+      cancelKlipRequest()
+    }
+  }, [customOnDismiss, onDismiss, requestKey, cancelKlipRequest])
 
   const [title, setTitle] = useState<string>('')
   const topModal = useMemo(() => {

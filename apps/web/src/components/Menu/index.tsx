@@ -1,4 +1,5 @@
 import { List } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { DragonSwapLogo, DragonSwapTextLogo } from 'components/Vector'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -13,15 +14,15 @@ const MENU_ITEMS = [
   },
   {
     title: 'Pools',
+    href: '/pools',
+  },
+  {
+    title: 'Farms',
     href: '/farms',
   },
   {
     title: 'Dashboard',
     href: '/dashboard',
-  },
-  {
-    title: 'Point',
-    href: '/point',
   },
 ]
 
@@ -41,18 +42,22 @@ const Menu = () => {
     setUserMenuOpen(false)
   }, [globalSettingsOpen, setUserMenuOpen])
 
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+
   return (
     <>
-      <div className="fixed top-0 w-full z-50 left-0 bg-surface flex items-center p-5 md:p-8 justify-between">
+      <div className="fixed top-0 w-full z-50 left-0 bg-surface flex items-center px-3 py-5 xxs:p-5 md:p-8 justify-between">
         <div className="md:hidden flex items-center space-x-6">
           <Link href="/" className="hover:opacity-70">
             <DragonSwapLogo />
           </Link>
 
-          <List size={24} className="text-on-surface-subtle shrink-0" />
+          <button type="button" onClick={() => setShowMobileMenu(!showMobileMenu)} className="hover:opacity-70">
+            <List size={24} className="text-on-surface-subtle shrink-0" />
+          </button>
         </div>
 
-        <div className="hidden md:flex items-center space-x-10">
+        <div className="hidden md:flex items-center space-x-8">
           <Link href="/" className="hover:opacity-70">
             <DragonSwapTextLogo />
           </Link>
@@ -73,6 +78,22 @@ const Menu = () => {
             setGlobalSettingsOpen={setGlobalSettingsOpen}
           />
         </div>
+      </div>
+
+      <div
+        className={clsx(
+          'fixed bottom-0 w-full z-50 py-10 px-8 transition-all duration-300 ease-[cubic-bezier(0.33, 1, 0.68, 1)] flex flex-col space-y-10 bg-surface-raised',
+          {
+            'translate-y-0': showMobileMenu,
+            'translate-y-full': !showMobileMenu,
+          },
+        )}
+      >
+        {MENU_ITEMS.map((item) => (
+          <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface">
+            {item.title}
+          </Link>
+        ))}
       </div>
     </>
   )

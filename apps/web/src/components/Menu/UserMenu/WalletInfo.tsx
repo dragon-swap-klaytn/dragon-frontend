@@ -34,16 +34,11 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ onDismiss }) => {
 
   return (
     <>
-      {/* <p className="mt-4">{account && <CopyAddress tooltipMessage={t('Copied')} address={account} />}</p> */}
       {account && (
-        <div className="px-4 py-3 rounded-[20px] bg-neutral mt-4 justify-between relative">
-          <span className="text-sm text-on-surface overflow-x-auto pr-2">{account}</span>
+        <div className="px-4 py-3 rounded-[20px] bg-neutral mt-4 justify-between flex items-center space-x-2">
+          <span className="text-sm text-on-surface overflow-x-auto">{account}</span>
 
-          <CopyButton
-            className="text-on-surface shrink-0 absolute right-0 top-1/2 -translate-y-1/2 pl-2 pr-3 h-5"
-            text={account}
-            tooltipMessage={t('Copied')}
-          />
+          <CopyButton className="text-on-surface h-5" text={account} tooltipMessage={t('Copied')} />
         </div>
       )}
 

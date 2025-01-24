@@ -24,13 +24,9 @@ export default function V2FormView({
   addIsWarning,
   shouldShowApprovalGroup,
   approveACallback,
-  revokeACallback,
-  currentAllowanceA,
   approvalA,
   approvalB,
   approveBCallback,
-  revokeBCallback,
-  currentAllowanceB,
   showFieldBApproval,
   showFieldAApproval,
   currencies,
@@ -74,46 +70,26 @@ export default function V2FormView({
           showFieldBApproval={showFieldBApproval}
           approveACallback={approveACallback}
           approveBCallback={approveBCallback}
-          revokeACallback={revokeACallback}
-          revokeBCallback={revokeBCallback}
           currencies={currencies}
-          currentAllowanceA={currentAllowanceA}
-          currentAllowanceB={currentAllowanceB}
           shouldShowApprovalGroup={shouldShowApprovalGroup}
         />
         {isOneWeiAttack ? (
           <Notification variant="caution">
             <p>
               {t(
-                'Adding liquidity to this V2 pair is currently not available on PancakeSwap UI. Please follow the instructions to resolve it using blockchain explorer.',
+                'Adding liquidity to this V2 pair is currently not available on DargonSwap UI. Please follow the instructions to resolve it using blockchain explorer.',
               )}
             </p>
 
             <div className="flex flex-col items-start space-y-0.5 mt-2">
-              <ExternalLink href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-cant-i-add-liquidity-to-a-pair-i-just-created">
+              {/* <ExternalLink href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-cant-i-add-liquidity-to-a-pair-i-just-created">
                 {t('Learn more how to fix')}
-              </ExternalLink>
+              </ExternalLink> */}
 
               <ExternalLink href={pairExplorerLink || ''}>{t('View pool on explorer')}</ExternalLink>
             </div>
           </Notification>
         ) : null}
-
-        <Notification variant="caution">
-          <p>
-            {t(
-              'Adding liquidity to this V2 pair is currently not available on PancakeSwap UI. Please follow the instructions to resolve it using blockchain explorer.',
-            )}
-          </p>
-
-          <div className="flex flex-col items-start space-y-0.5 mt-2">
-            <ExternalLink href="https://docs.dgswap.io/products/pancakeswap-exchange/faq#why-cant-i-add-liquidity-to-a-pair-i-just-created">
-              {t('Learn more how to fix')}
-            </ExternalLink>
-
-            <ExternalLink href={pairExplorerLink || ''}>{t('View pool on explorer')}</ExternalLink>
-          </div>
-        </Notification>
 
         <CommitButton
           variant={buttonDisabled ? 'danger' : 'primary'}

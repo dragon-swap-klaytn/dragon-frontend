@@ -1,13 +1,13 @@
+import { WNATIVE } from '@pancakeswap/sdk'
 import { Token } from '@pancakeswap/swap-sdk-core'
 import { CAKE, unwrappedToken } from '@pancakeswap/tokens'
-import { WNATIVE } from '@pancakeswap/sdk'
 import { priceHelperTokens } from '../constants/common'
-import { FarmConfigV3, ComputedFarmConfigV3 } from './types'
+import { ComputedFarmConfigV3, FarmConfigV3 } from './types'
 
 function sortFarmLP(token0: Token, token1: Token) {
   const commonTokens = priceHelperTokens[token0.chainId as keyof typeof priceHelperTokens]
   if (commonTokens) {
-    if (commonTokens.chain !== 'klaytn') {
+    if (commonTokens.chain !== 'kaia') {
       const commonTokensList = [
         WNATIVE[token0.chainId as keyof typeof WNATIVE],
         ...commonTokens.list,
@@ -37,7 +37,7 @@ export function defineFarmV3Configs(farmConfig: FarmConfigV3[]): ComputedFarmCon
       ...config,
       token,
       quoteToken,
-      lpSymbol: `${unwrappedToken(token).symbol}-${unwrappedToken(quoteToken).symbol} LP`,
+      lpSymbol: `${unwrappedToken(token)?.symbol}-${unwrappedToken(quoteToken)?.symbol} LP`,
     }
   })
 }

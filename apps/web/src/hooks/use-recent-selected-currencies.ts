@@ -13,13 +13,15 @@ export default function useRecentSelectedCurrencies() {
 
   const currencies = useMemo(() => {
     if (!recentSelectedCurrencies || recentSelectedCurrencies.length === 0) return []
-    return recentSelectedCurrencies.map(
-      (c) => new ERC20Token(c.chainId, (c as Token).address, c.decimals, c.symbol, c.name),
-    )
+    return recentSelectedCurrencies
+      .filter((c) => (c as Token)?.address)
+      .map((c) => new ERC20Token(c.chainId, (c as Token).address, c.decimals, c.symbol, c.name))
   }, [recentSelectedCurrencies])
 
   const setRecentSelectedCurrency = useCallback(
     (currency: Token) => {
+      if (currency.isNative) return
+
       const newRecent =
         recentSelectedCurrencies?.filter(
           (c) => (c as Token).address.toLowerCase() !== currency.address.toLowerCase(),

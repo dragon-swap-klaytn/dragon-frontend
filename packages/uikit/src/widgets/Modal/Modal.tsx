@@ -32,7 +32,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
   const onDismiss = context?.onDismiss || onDismiss_;
 
   return (
-    <ModalWrapper onDismiss={onDismiss} maxWidth={maxWidth}>
+    <ModalWrapper maxWidth={maxWidth}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1">
           {onBack && (
@@ -61,7 +61,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
         </div>
       </div>
 
-      <div className="flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[90vh] mt-4">{children}</div>
+      <div className="flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[90vh] mt-8">{children}</div>
     </ModalWrapper>
   );
 };

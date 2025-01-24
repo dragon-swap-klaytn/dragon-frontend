@@ -1,7 +1,7 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
-import { ButtonV2, ExternalLink, InjectedModalProps, Modal, ModalProps } from '@pancakeswap/uikit'
+import { ExternalLink, InjectedModalProps, Modal, ModalProps } from '@pancakeswap/uikit'
 import { ConfirmationPendingContent, TransactionErrorContent } from '@pancakeswap/widgets-internal'
 import { ArrowCircleUp } from '@phosphor-icons/react'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
@@ -13,12 +13,10 @@ import { wrappedCurrency } from 'utils/wrappedCurrency'
 import AddToWalletButton, { AddToWalletTextOptions } from '../AddToWallet/AddToWalletButton'
 
 export function TransactionSubmittedContent({
-  onDismiss,
   chainId,
   hash,
   currencyToAdd,
 }: {
-  onDismiss: () => void
   hash: string | undefined
   chainId: ChainId
   currencyToAdd?: Currency | undefined
@@ -53,10 +51,6 @@ export function TransactionSubmittedContent({
             tokenLogo={tokenLogo}
           />
         )}
-
-        <ButtonV2 onClick={onDismiss} variant="subtle">
-          {t('Close')}
-        </ButtonV2>
       </div>
     </div>
   )
@@ -85,33 +79,32 @@ const TransactionConfirmationModal: React.FC<
   pendingText,
   content,
   currencyToAdd,
+  maxWidth = 'max-w-md',
   ...props
 }) => {
-  const qrUri = useA2AConnectorQRUri()
-
+  const { qrUri, requestKey, cancelKlipRequest } = useA2AConnectorQRUri()
   const { chainId } = useActiveChainId()
 
-  const handleDismiss = useCallback(() => {
+  const handleDismiss = useCallback(async () => {
     if (customOnDismiss) {
       customOnDismiss()
     }
 
     onDismiss?.()
-  }, [customOnDismiss, onDismiss])
+
+    if (requestKey) {
+      cancelKlipRequest()
+    }
+  }, [customOnDismiss, onDismiss, requestKey, cancelKlipRequest])
 
   if (!chainId) return null
 
   return (
-    <Modal title={title} {...props} onDismiss={handleDismiss} maxWidth="max-w-sm">
+    <Modal title={title} {...props} onDismiss={handleDismiss} maxWidth={maxWidth}>
       {attemptingTxn ? (
         <ConfirmationPendingContent qrUri={qrUri} pendingText={pendingText} />
       ) : hash ? (
-        <TransactionSubmittedContent
-          chainId={chainId}
-          hash={hash}
-          onDismiss={handleDismiss}
-          currencyToAdd={currencyToAdd}
-        />
+        <TransactionSubmittedContent chainId={chainId} hash={hash} currencyToAdd={currencyToAdd} />
       ) : errorMessage ? (
         <TransactionErrorContent message={errorMessage} onDismiss={handleDismiss} />
       ) : (

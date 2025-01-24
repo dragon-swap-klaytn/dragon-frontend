@@ -3,6 +3,20 @@ import { MouseEventHandler, PropsWithChildren } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "subtle" | "blank";
 type ButtonState = "loading" | "default";
+
+export const COMMON_BUTTON_STYLE =
+  "rounded-[20px] disabled:bg-surface-disable disabled:text-on-surface-subtlest disabled:cursor-not-allowed hover:opacity-70 disabled:hover:opacity-100";
+
+export const LOADING_BUTTON_STYLE = "bg-surface-disable text-on-surface-subtlest";
+export const PRIMARY_BUTTON_STYLE = "bg-brand text-on-surface-inverse";
+export const SECONDARY_BUTTON_STYLE = "bg-bold text-on-surface-inverse";
+export const SUBTLE_BUTTON_STYLE = "bg-neutral text-on-surface";
+export const BLANK_BUTTON_STYLE = "bg-transparent border-gray-700 border text-on-surface";
+
+export const XS_BUTTON_STYLE = "px-2 py-1 text-xs";
+export const SM_BUTTON_STYLE = "px-3 py-1.5 text-sm";
+export const MD_BUTTON_STYLE = "px-4 py-2.5 text-sm";
+
 export function ButtonV2({
   children,
   onClick,
@@ -26,24 +40,23 @@ export function ButtonV2({
       type="button"
       onClick={onClick}
       className={clsx(
-        "rounded-[20px] disabled:bg-surface-disable disabled:text-on-surface-subtlest disabled:cursor-not-allowed",
+        COMMON_BUTTON_STYLE,
         className,
         state && ["loading"].includes(state)
-          ? "bg-surface-disable text-on-surface-subtlest"
+          ? LOADING_BUTTON_STYLE
           : variant === "primary"
-          ? "bg-brand text-on-surface-inverse"
+          ? PRIMARY_BUTTON_STYLE
           : variant === "secondary"
-          ? "bg-bold text-on-surface-inverse"
+          ? SECONDARY_BUTTON_STYLE
           : variant === "subtle"
-          ? "bg-neutral text-on-surface"
+          ? SUBTLE_BUTTON_STYLE
           : variant === "blank"
-          ? "bg-transparent border-gray-700 border text-on-surface"
+          ? BLANK_BUTTON_STYLE
           : "",
         {
-          "hover:opacity-70": !disabled,
-          "px-2 py-1 text-xs": scale === "xs",
-          "px-3 py-1.5 text-sm": scale === "sm",
-          "px-4 py-2.5 text-sm": scale === "md",
+          [XS_BUTTON_STYLE]: scale === "xs",
+          [SM_BUTTON_STYLE]: scale === "sm",
+          [MD_BUTTON_STYLE]: scale === "md",
           "w-full": fullWidth,
         }
       )}

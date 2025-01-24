@@ -86,7 +86,10 @@ const ModalProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
             {React.isValidElement(modalNode) &&
               React.cloneElement(modalNode, {
                 // @ts-ignore
-                onDismiss: handleDismiss,
+                onDismiss: () => {
+                  handleDismiss();
+                  modalNode.props.onDismiss?.();
+                },
               })}
           </div>
         ),

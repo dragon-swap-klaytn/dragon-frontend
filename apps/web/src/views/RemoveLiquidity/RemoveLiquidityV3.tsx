@@ -251,7 +251,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
           <div className="pt-4 mt-4">
             <p className="text-sm text-on-surface">{t('You will also collect fees earned from this position.')}</p>
 
-            <h5 className="text-xs text-on-surface-subtle mt-4">{t('earned fees')}</h5>
+            <h5 className="text-xs text-on-surface-subtle mt-3">{t('earned fees')}</h5>
 
             <ContainerV2 className="mt-2">
               <CurrencyLogoWithAmount
@@ -459,13 +459,13 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
           ) : null}
 
           {!account ? (
-            <ConnectWalletButton className="mt-8" />
+            <ConnectWalletButton className="mt-6" />
           ) : (
             <ButtonV2
               disabled={attemptingTxn || removed || Boolean(error)}
               fullWidth
               onClick={onPresentRemoveLiquidityModal}
-              className="mt-8"
+              className="mt-6"
               variant="primary"
             >
               {removed ? t('Closed') : error ?? t('Remove')}

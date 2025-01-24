@@ -10,7 +10,7 @@ export const Toast: React.FC<React.PropsWithChildren<ToastProps>> = ({ toast, on
   return (
     <button
       type="button"
-      className="max-w-80 flex items-center space-x-3 bg-surface-overlay rounded-xl px-4 py-3"
+      className="max-w-80 min-w-20 flex items-center space-x-3 bg-surface-overlay rounded-xl px-4 py-3"
       onClick={handleRemove}
     >
       <div className="shrink-0 w-4 h-4">

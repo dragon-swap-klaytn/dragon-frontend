@@ -21,6 +21,11 @@ declare global {
     } & Ethereum
     okxwallet?: any
     tokenpocket?: any
+    klaytn?: any
+    caver?: any
+  }
+  interface Document {
+    webkitHidden?: boolean
   }
 }
 

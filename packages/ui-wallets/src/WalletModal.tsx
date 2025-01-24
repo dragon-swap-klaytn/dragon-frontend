@@ -1,12 +1,21 @@
 import { usePreloadImages } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { Image, Modal, ModalV2Props, SvgProps } from '@pancakeswap/uikit'
+import {
+  ConnectorId,
+  ConnectorIds,
+  Image,
+  Modal,
+  ModalV2Props,
+  SvgProps,
+  WalletId,
+  WalletIds,
+} from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { atom, useAtom } from 'jotai'
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
-export const KLIP_TIMEOUT = 5 * 60
+export const QR_TIMEOUT = 5 * 60
 
 const Qrcode = lazy(() => import('./components/QRCode'))
 
@@ -19,26 +28,28 @@ type DeviceLink = {
 
 type LinkOfDevice = string | DeviceLink
 
-export type WalletConfigV2<T = unknown> = {
-  id: T
+export type WalletConfigV2 = {
+  id: WalletId
   title: string
   icon: string | React.FC<React.PropsWithChildren<SvgProps>>
-  connectorId?: T
+  connectorId: ConnectorId
   deepLink?: string
-  installed?: boolean
+  installed: boolean
   guide?: LinkOfDevice
-  downloadLink?: LinkOfDevice
+  downloadLink?: string
   mobileOnly?: boolean
-  qrCode?: () => Promise<string>
+  qrCode?: () => Promise<string | string[]>
+  cancelRequest?: (requestKey: string) => void
   isNotExtension?: boolean
 }
 
-interface WalletModalV2Props<T = unknown> extends ModalV2Props {
-  wallets: WalletConfigV2<T>[]
-  login: (connectorId: T) => Promise<any>
+interface WalletModalV2Props extends ModalV2Props {
+  wallets: WalletConfigV2[]
+  login: (connectorId: ConnectorId) => Promise<any>
   docLink: string
   docText: string
   onWalletConnectCallBack?: (walletTitle?: string) => void
+  walletConnectNoQrCodeConnector: any
 }
 
 export class WalletConnectorNotFoundError extends Error {}
@@ -47,16 +58,16 @@ export class WalletSwitchChainError extends Error {}
 
 const errorAtom = atom<string>('')
 
-const selectedWalletAtom = atom<WalletConfigV2<unknown> | null>(null)
+const selectedWalletAtom = atom<WalletConfigV2 | null>(null)
 
-export function useSelectedWallet<T>() {
-  // @ts-ignore
-  return useAtom<WalletConfigV2<T> | null>(selectedWalletAtom)
+export function useSelectedWallet(): [WalletConfigV2 | null, Dispatch<SetStateAction<WalletConfigV2 | null>>] {
+  return useAtom(selectedWalletAtom)
 }
 
 const MOBILE_DEFAULT_DISPLAY_COUNT = 8
 
 export const walletLocalStorageKey = 'wallet'
+export const connectorLocalStorageKey = 'connector'
 export const addressLocalStorageKey = 'address'
 
 const lastUsedWalletNameAtom = atom<string>('')
@@ -68,10 +79,17 @@ lastUsedWalletNameAtom.onMount = (set) => {
   }
 }
 
-function sortWallets<T>(wallets: WalletConfigV2<T>[], lastUsedWalletName: string | null) {
+function sortWallets(wallets: WalletConfigV2[], lastUsedWalletName: string | null) {
   const sorted = [...wallets].sort((a, b) => {
-    if (a.installed === b.installed) return 0
-    return a.installed === true ? -1 : 1
+    if (!a.installed && b.installed) {
+      return 1
+    }
+
+    if ((!a.installed && !b.installed) || (a.installed && b.installed)) {
+      return a.title.localeCompare(b.title)
+    }
+
+    return -1
   })
 
   if (!lastUsedWalletName) {
@@ -82,14 +100,15 @@ function sortWallets<T>(wallets: WalletConfigV2<T>[], lastUsedWalletName: string
   return [foundLastUsedWallet, ...sorted.filter((w) => w.id !== foundLastUsedWallet.id)]
 }
 
-export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
-  const { wallets: _wallets, login, docLink, docText, onWalletConnectCallBack, isOpen, onDismiss } = props
-
+export function WalletModalV2(props: WalletModalV2Props) {
+  const { wallets: _wallets, login, onWalletConnectCallBack, onDismiss, walletConnectNoQrCodeConnector } = props
   const [lastUsedWalletName] = useAtom(lastUsedWalletNameAtom)
 
   const wallets = useMemo(() => sortWallets(_wallets, lastUsedWalletName), [_wallets, lastUsedWalletName])
-  const [, setSelected] = useSelectedWallet<T>()
-  const [, setError] = useAtom(errorAtom)
+  const [selected, setSelected] = useSelectedWallet()
+  const [error, setError] = useAtom(errorAtom)
+  const [qrCode, setQrCode] = useState<string | undefined>(undefined)
+  const requestKeyRef = useRef<string | undefined>(undefined)
   const { t } = useTranslation()
 
   const imageSources = useMemo(
@@ -97,26 +116,44 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
     [wallets],
   )
 
-  usePreloadImages(imageSources.slice(0, MOBILE_DEFAULT_DISPLAY_COUNT))
+  const init = useCallback(() => {
+    setQrCode(undefined)
+    setError('')
+    if (remainTimeIntervalIdRef.current) {
+      clearInterval(remainTimeIntervalIdRef.current)
+    }
+    setRemainTime(QR_TIMEOUT)
 
-  const [selected] = useSelectedWallet()
-  const [error] = useAtom(errorAtom)
-  const [qrCode, setQrCode] = useState<string | undefined>(undefined)
+    const klipWallet = wallets.find((w) => w.id === WalletIds.klip)
+    const requestKey = requestKeyRef.current
+    if (klipWallet && requestKey) {
+      klipWallet.cancelRequest?.(requestKey)
+    }
 
-  const remainTimeIntervalIdRef = useRef<NodeJS.Timeout | null>(null)
-  const [remainTime, setRemainTime] = useState(KLIP_TIMEOUT)
+    requestKeyRef.current = undefined
+  }, [setError, setQrCode, wallets])
 
   useEffect(() => {
-    if (!qrCode || !selected || selected.id !== 'klip') {
+    return () => {
+      init()
+    }
+  }, [init])
+
+  usePreloadImages(imageSources.slice(0, MOBILE_DEFAULT_DISPLAY_COUNT))
+
+  const remainTimeIntervalIdRef = useRef<NodeJS.Timeout | null>(null)
+  const [remainTime, setRemainTime] = useState(QR_TIMEOUT)
+
+  useEffect(() => {
+    if (!qrCode || !selected || !selected.qrCode) {
       if (remainTimeIntervalIdRef.current) {
         clearInterval(remainTimeIntervalIdRef.current)
       }
 
       return
     }
-    if (selected.id !== 'klip') return
 
-    let _timeout = KLIP_TIMEOUT
+    let _timeout = QR_TIMEOUT
 
     remainTimeIntervalIdRef.current = setInterval(() => {
       if (_timeout <= 0) {
@@ -129,59 +166,247 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
     }, 1_000)
   }, [qrCode, selected, setSelected, setRemainTime])
 
-  const connectWallet = (wallet: WalletConfigV2<T>) => {
-    if (!wallet.connectorId) return
+  const connectWithQrCode = useCallback(
+    (wallet: WalletConfigV2) => {
+      if (!wallet.qrCode) return
 
-    setSelected(wallet)
-    setError('')
+      setError('')
 
-    login(wallet.connectorId)
-      .then((v) => {
-        if (v) {
-          localStorage?.setItem(walletLocalStorageKey, wallet.title)
-          localStorage?.setItem(addressLocalStorageKey, v.account)
+      wallet.qrCode().then(
+        (uri) => {
+          setSelected(wallet)
+          setQrCode(uri as string)
 
-          try {
-            onWalletConnectCallBack?.(wallet.title)
-            onDismiss?.()
-          } catch (e) {
-            console.error(wallet.title, e)
-          } finally {
-            if (remainTimeIntervalIdRef.current) {
-              clearInterval(remainTimeIntervalIdRef.current)
+          if (walletConnectNoQrCodeConnector) {
+            const removeListeners = () => {
+              walletConnectNoQrCodeConnector.removeListener('connect')
+              walletConnectNoQrCodeConnector.removeListener('error')
             }
+
+            walletConnectNoQrCodeConnector.addListener('connect', (res: any) => {
+              const account = res?.account
+              if (!account) {
+                return
+              }
+
+              localStorage?.setItem(walletLocalStorageKey, wallet.id)
+              localStorage?.setItem(connectorLocalStorageKey, ConnectorIds.walletconnect)
+              localStorage?.setItem(addressLocalStorageKey, account)
+
+              setSelected(null)
+              removeListeners()
+            })
+            walletConnectNoQrCodeConnector.addListener('error', (e: any) => {
+              console.error('[walletConnectNoQrCodeConnector] connect error', e)
+              setSelected(null)
+              removeListeners()
+            })
+          }
+        },
+        () => {
+          // do nothing.
+        },
+      )
+    },
+    [walletConnectNoQrCodeConnector, setQrCode, setSelected, setError],
+  )
+
+  const connectWallet = useCallback(
+    (wallet: WalletConfigV2) => {
+      setSelected(wallet)
+      setError('')
+
+      login(wallet.connectorId)
+        .then((v) => {
+          requestKeyRef.current = undefined
+          if (v) {
+            localStorage?.setItem(walletLocalStorageKey, wallet.id)
+            localStorage?.setItem(connectorLocalStorageKey, wallet.connectorId)
+            localStorage?.setItem(addressLocalStorageKey, v.account)
+
+            try {
+              onWalletConnectCallBack?.(wallet.title)
+              onDismiss?.()
+            } catch (e) {
+              console.error(wallet.title, e)
+            } finally {
+              if (remainTimeIntervalIdRef.current) {
+                clearInterval(remainTimeIntervalIdRef.current)
+              }
+
+              setSelected(null)
+              setError('')
+            }
+          } else {
+            init()
+          }
+        })
+        .catch((err) => {
+          if (err instanceof WalletConnectorNotFoundError) {
+            setError(t('no provider found'))
+          } else if (err instanceof WalletSwitchChainError) {
+            setError(err.message)
+          } else {
+            setError(t('Error connecting, please authorize wallet to access.'))
+          }
+        })
+    },
+    [init, login, onDismiss, onWalletConnectCallBack, setError, setSelected, t],
+  )
+
+  const walletOnClick = useCallback(
+    (wallet: WalletConfigV2) => {
+      if (!isMobile && !wallet.installed && wallet.downloadLink) {
+        window.open(getDesktopLink(wallet.downloadLink))
+        return
+      }
+
+      if (isMobile) {
+        switch (wallet.id) {
+          case WalletIds.okxwallet: {
+            const ua = navigator.userAgent
+            const isOKApp = /OKApp/i.test(ua)
+
+            if (isOKApp) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.open(wallet.deepLink)
+            }
+
+            break
+          }
+          case WalletIds.tokenpocket: {
+            if (window.tokenpocket) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.location.href = wallet.deepLink ?? ''
+
+              const clearTimers = () => {
+                clearInterval(check)
+                clearTimeout(timer)
+              }
+
+              const isHideWeb = () => {
+                if (
+                  ('webkitHidden' in document && document.webkitHidden) ||
+                  ('hidden' in document && document.hidden)
+                ) {
+                  clearTimers()
+                }
+              }
+
+              const check = setInterval(isHideWeb, 10)
+              const redirectStore = () => {
+                // eslint-disable-next-line
+                if (window.confirm(t('Would you like to proceed to the app installation page?'))) {
+                  window.open(wallet.downloadLink || '')
+                }
+              }
+
+              const timer = setTimeout(redirectStore, 1_000)
+            }
+            break
+          }
+          case WalletIds.metamask: {
+            if (window.ethereum) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.open(wallet.deepLink)
+            }
+
+            break
+          }
+          case WalletIds.kaiawallet: {
+            if (window.klaytn || window.caver) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.open(wallet.deepLink)
+            }
+
+            break
+          }
+          default: {
+            connectWallet(wallet)
+            setQrCode(undefined)
           }
         }
-      })
-      .catch((err) => {
-        if (err instanceof WalletConnectorNotFoundError) {
-          setError(t('no provider found'))
-        } else if (err instanceof WalletSwitchChainError) {
-          setError(err.message)
-        } else {
-          setError(t('Error connecting, please authorize wallet to access.'))
+      } else {
+        switch (wallet.id) {
+          case WalletIds.tokenpocket: {
+            if (window.tokenpocket) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else if (wallet.qrCode) {
+              connectWithQrCode(wallet)
+            }
+
+            break
+          }
+          case WalletIds.okxwallet: {
+            if (window.okxwallet) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else if (wallet.qrCode) {
+              connectWithQrCode(wallet)
+            }
+
+            break
+          }
+          case WalletIds.klip: {
+            connectWallet(wallet)
+            setQrCode(undefined)
+
+            if (wallet.qrCode) {
+              wallet.qrCode().then(
+                ([uri, _requestKey]) => {
+                  setSelected(wallet)
+                  setQrCode(uri)
+                  requestKeyRef.current = _requestKey
+                },
+                () => {
+                  // do nothing.
+                },
+              )
+            }
+
+            break
+          }
+          default: {
+            connectWallet(wallet)
+            setQrCode(undefined)
+          }
         }
-      })
-  }
+      }
+    },
+    [connectWallet, setQrCode, setSelected, t, connectWithQrCode],
+  )
 
   return (
     <>
       <Modal title={t('Connect Wallet')} onDismiss={onDismiss}>
-        <p className="text-sm text-on-surface">
-          {t(
-            'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
-          )}
-        </p>
+        {!(qrCode && selected) && (
+          <>
+            <p className="text-sm text-on-surface">
+              {t(
+                'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
+              )}
+            </p>
 
-        <p className="text-sm text-on-surface mt-2">
-          By connecting a wallet, you agree to Dragonswap{' '}
-          <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
-            Terms of Service
-          </a>
-        </p>
+            <p className="text-sm text-on-surface mt-2">
+              By connecting a wallet, you agree to Dragonswap{' '}
+              <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
+                Terms of Service
+              </a>
+            </p>
+          </>
+        )}
 
         {qrCode && selected ? (
-          <div className="flex flex-col items-center mt-4 space-y-4">
+          <div className="flex flex-col items-center space-y-4">
             <div className="flex items-center justify-center">
               <Suspense>
                 <div className="w-72 h-72 rounded-xl overflow-hidden">
@@ -199,10 +424,7 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
             <button
               type="button"
               className="text-sm h-10 px-4 bg-neutral text-on-surface rounded-2xl self-end"
-              onClick={() => {
-                setQrCode(undefined)
-                setSelected(null)
-              }}
+              onClick={init}
             >
               {t('Cancel')}
             </button>
@@ -221,35 +443,7 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
                     'bg-brand': selected?.id === wallet.id,
                     'bg-neutral': selected?.id !== wallet.id,
                   })}
-                  onClick={() => {
-                    if (wallet.installed === false && wallet.downloadLink) {
-                      window.open(getDesktopLink(wallet.downloadLink))
-                      return
-                    }
-
-                    connectWallet(wallet)
-                    setQrCode(undefined)
-
-                    if (isMobile) {
-                      const ua = navigator.userAgent
-                      const isOKApp = /OKApp/i.test(ua)
-
-                      if (wallet.connectorId === 'okxwallet' && !isOKApp) {
-                        window.open(wallet.deepLink)
-                      } else if (wallet.deepLink && wallet.installed === false) {
-                        window.open(wallet.deepLink)
-                      }
-                    } else if (wallet.qrCode) {
-                      wallet.qrCode().then(
-                        (uri) => {
-                          setQrCode(uri)
-                        },
-                        () => {
-                          // do nothing.
-                        },
-                      )
-                    }
-                  }}
+                  onClick={() => walletOnClick(wallet)}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-dropdown rounded-lg overflow-hidden">
@@ -264,7 +458,9 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
                   </div>
 
                   {wallet.installed === false && wallet.downloadLink && (
-                    <div className="px-2 py-0.5 rounded-md bg-transparent border text-xs">{t('not installed')}</div>
+                    <div className="px-1.5 py-0.5 rounded-md bg-transparent border text-xs ml-1">
+                      {t('not installed')}
+                    </div>
                   )}
                 </button>
               )

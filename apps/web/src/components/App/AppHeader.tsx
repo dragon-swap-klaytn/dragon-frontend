@@ -59,38 +59,36 @@ const AppHeader: React.FC<React.PropsWithChildren<Props>> = ({
         ))}
 
       <div className="flex items-center space-x-3 w-full justify-between">
-        <div className="flex items-center space-x-2 w-full">
-          <div className="flex items-center gap-2 w-full justify-between flex-wrap">
-            <div className="flex flex-col items-start">
-              <div
-                className={clsx('flex items-center space-x-1', {
-                  'justify-center': shouldCenter,
-                })}
-              >
-                {typeof title === 'string' ? <h2 className="font-bold text-on-surface text-lg">{title}</h2> : title}
-                {helper && <QuestionHelper text={helper} ml="4px" placement="top" />}
-              </div>
-
-              {subtitle && <h4 className="text-sm text-on-surface-subtlest mt-0.5">{subtitle}</h4>}
+        <div className="flex items-center gap-2 w-full justify-between flex-wrap">
+          <div className="flex flex-col items-start">
+            <div
+              className={clsx('flex items-center space-x-1', {
+                'justify-center': shouldCenter,
+              })}
+            >
+              {typeof title === 'string' ? <h2 className="font-bold text-on-surface text-lg">{title}</h2> : title}
+              {helper && <QuestionHelper text={helper} ml="4px" placement="top" />}
             </div>
 
-            {!noConfig && (
-              <div className="flex items-center">
-                {IconSlot}
-                <NotificationDot show={expertMode}>
-                  <GlobalSettings mode={SettingsMode.SWAP_LIQUIDITY} />
-                </NotificationDot>
-              </div>
-            )}
-
-            {(noConfig && buttons) ||
-              (noConfig && IconSlot && (
-                <div className="flex items-center space-x-2">
-                  {noConfig && buttons && <div className="flex items-center space-x-2">{buttons}</div>}
-                  {noConfig && IconSlot && <div className="flex items-center space-x-2">{IconSlot}</div>}
-                </div>
-              ))}
+            {subtitle && <h4 className="text-sm text-on-surface-subtlest mt-0.5">{subtitle}</h4>}
           </div>
+
+          {!noConfig && (
+            <div className="flex items-center">
+              {IconSlot}
+              <NotificationDot show={expertMode}>
+                <GlobalSettings mode={SettingsMode.SWAP_LIQUIDITY} />
+              </NotificationDot>
+            </div>
+          )}
+
+          {(noConfig && buttons) ||
+            (noConfig && IconSlot && (
+              <div className="flex items-center space-x-2">
+                {noConfig && buttons && <div className="flex items-center space-x-2">{buttons}</div>}
+                {noConfig && IconSlot && <div className="flex items-center space-x-2">{IconSlot}</div>}
+              </div>
+            ))}
         </div>
       </div>
 

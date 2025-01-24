@@ -1,32 +1,18 @@
-import { defineFarmV3Configs } from '../src/defineFarmV3Configs'
+import { ChainId } from '@pancakeswap/chains'
 import { ERC20Token } from '@pancakeswap/sdk'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
-import { ChainId } from '@pancakeswap/chains'
 import { SerializedFarmConfig } from '..'
+import { defineFarmV3Configs } from '../src/defineFarmV3Configs'
 
 const testTokens = [
-  new ERC20Token(
-    ChainId.KLAYTN_TESTNET,
-    '0xedb250ee8163ac4cc2be7b1b8d16e4a2bf51eca8',
-    18,
-    'PAN1',
-    'PAN1',
-    '',
-  ),
-  new ERC20Token(
-    ChainId.KLAYTN_TESTNET,
-    '0x53412515689b6de2d6fb9a51c14b57c12bd268e0',
-    18,
-    'PAN2',
-    'PAN2',
-    '',
-  )
+  new ERC20Token(ChainId.KLAYTN_TESTNET, '0xeDb250eE8163ac4cC2BE7b1b8D16E4a2bf51eca8', 18, 'PAN1', 'PAN1', ''),
+  new ERC20Token(ChainId.KLAYTN_TESTNET, '0x53412515689B6de2D6Fb9A51c14B57c12bD268e0', 18, 'PAN2', 'PAN2', ''),
 ]
 
 export const farmsV3 = defineFarmV3Configs([
   {
     pid: 1,
-    lpAddress: '0xcc080051899032b92bffe806c1dd287d71ec8916',
+    lpAddress: '0xcc080051899032b92bfFE806C1dd287d71eC8916',
     token0: testTokens[1],
     token1: testTokens[0],
     feeAmount: FeeAmount.MEDIUM,
@@ -60,7 +46,7 @@ const farmsV2: SerializedFarmConfig[] = [
       'Wrapped KLAY',
     ).serialize,
     token: testTokens[0].serialize,
-  }
+  },
 ]
 
 export default farmsV2

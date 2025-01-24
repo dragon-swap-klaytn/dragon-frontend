@@ -96,6 +96,7 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
     <ButtonV2
       variant="primary"
       className={clsx('flex items-center space-x-2 justify-center text-sm', className)}
+      scale="sm"
       onClick={() => {
         const image = tokenLogo ? (BAD_SRCS[tokenLogo] ? undefined : tokenLogo) : undefined
         if (!tokenAddress || !tokenSymbol) return

@@ -15,7 +15,7 @@ const ConfirmSwapModalContainer: React.FC<PropsWithChildren<ConfirmSwapModalCont
   const { t } = useTranslation()
 
   return (
-    <Modal title={title || t('Confirm Swap')} onDismiss={handleDismiss}>
+    <Modal title={title || t('Confirm Swap')} onDismiss={handleDismiss} maxWidth="max-w-sm">
       {children}
     </Modal>
   )

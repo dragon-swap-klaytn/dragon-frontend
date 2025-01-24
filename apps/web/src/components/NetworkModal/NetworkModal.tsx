@@ -5,7 +5,7 @@ import { atom, useAtom } from 'jotai'
 import dynamic from 'next/dynamic'
 import { useMemo } from 'react'
 import { CHAIN_IDS } from 'utils/wagmi'
-import { useNetwork } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
 
 export const hideWrongNetworkModalAtom = atom(false)
 
@@ -25,12 +25,14 @@ export const NetworkModal = ({
   const { chainId, chain, isWrongNetwork } = useActiveWeb3React()
   const { chains } = useNetwork()
   const [dismissWrongNetwork, setDismissWrongNetwork] = useAtom(hideWrongNetworkModalAtom)
+  const { isConnected } = useAccount()
 
   const isPageNotSupported = useMemo(
     () => Boolean(pageSupportedChains.length) && !pageSupportedChains.includes(chainId),
     [chainId, pageSupportedChains],
   )
   if (pageSupportedChains?.length === 0) return null // open to all chains
+  if (!isConnected) return null
 
   if (isWrongNetwork && !dismissWrongNetwork && !isPageNotSupported) {
     const currentChain = chains.find((c) => c.id === chainId)

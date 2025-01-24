@@ -61,13 +61,9 @@ export interface LP2ChildrenProps {
   shouldShowApprovalGroup: boolean
   showFieldAApproval: boolean
   approveACallback: () => Promise<SendTransactionResult | undefined>
-  revokeACallback: () => Promise<SendTransactionResult | undefined>
-  currentAllowanceA: CurrencyAmount<Currency> | undefined
   approvalA: ApprovalState
   showFieldBApproval: boolean
   approveBCallback: () => Promise<SendTransactionResult | undefined>
-  revokeBCallback: () => Promise<SendTransactionResult | undefined>
-  currentAllowanceB: CurrencyAmount<Currency> | undefined
   approvalB: ApprovalState
   onAdd: () => Promise<void>
   onPresentAddLiquidityModal: () => void
@@ -163,14 +159,10 @@ export default function AddLiquidity({
   const {
     approvalState: approvalA,
     approveCallback: approveACallback,
-    revokeCallback: revokeACallback,
-    currentAllowance: currentAllowanceA,
   } = useApproveCallback(parsedAmounts[Field.CURRENCY_A], chainId ? V2_ROUTER_ADDRESS[chainId] : undefined)
   const {
     approvalState: approvalB,
     approveCallback: approveBCallback,
-    revokeCallback: revokeBCallback,
-    currentAllowance: currentAllowanceB,
   } = useApproveCallback(parsedAmounts[Field.CURRENCY_B], chainId && V2_ROUTER_ADDRESS[chainId])
 
   const addTransaction = useTransactionAdder()
@@ -361,13 +353,9 @@ export default function AddLiquidity({
     showFieldAApproval,
     approveACallback,
     approvalA,
-    revokeACallback,
-    currentAllowanceA,
     showFieldBApproval,
     approveBCallback,
     approvalB,
-    revokeBCallback,
-    currentAllowanceB,
     onAdd,
     onPresentAddLiquidityModal,
     buttonDisabled,

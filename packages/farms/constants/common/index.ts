@@ -13,7 +13,7 @@ export type PriceHelper = {
 // DEV_NOTE [체인설정]_6 : 기축통화 설정
 export const priceHelperTokens = {
   [ChainId.KLAYTN]: {
-    chain: 'klaytn',
+    chain: 'kaia',
     list: [],
   },
 } satisfies Record<number, PriceHelper>

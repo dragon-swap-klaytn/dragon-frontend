@@ -5,7 +5,8 @@ import { isPoolsSupported } from './isPoolsSupported'
 
 export function getContractAddress(addresses: ContractAddresses, chainId: ChainId) {
   if (!isPoolsSupported(chainId)) {
-    throw new Error(`Cannot get contract address. Unsupported chain ${chainId}`)
+    // throw new Error(`Cannot get contract address. Unsupported chain ${chainId}`)
+    return '0x'
   }
   return addresses[chainId]
 }

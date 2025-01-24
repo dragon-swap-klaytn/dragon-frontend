@@ -1,4 +1,5 @@
 import { ChainId, STABLESWAP_SUBGRAPHS } from '@pancakeswap/chains'
+import { DGSWAP_DOMAIN } from '@pancakeswap/uikit'
 import { BIT_QUERY, INFO_CLIENT, INFO_CLIENT_ETH, V3_SUBGRAPH_URLS } from 'config/constants/endpoints'
 import { GraphQLClient } from 'graphql-request'
 import { INFO_CLIENT_WITH_CHAIN } from '../config/constants/endpoints'
@@ -48,7 +49,7 @@ export const infoStableSwapClients = {}
 export const infoServerClient = new GraphQLClient(INFO_CLIENT, {
   timeout: 5000,
   headers: {
-    origin: 'https://dgswap.io',
+    origin: DGSWAP_DOMAIN,
   },
 })
 

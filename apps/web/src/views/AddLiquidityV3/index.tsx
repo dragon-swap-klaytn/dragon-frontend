@@ -282,7 +282,7 @@ export function UniversalAddLiquidity({
 
   return (
     <div
-      className={clsx('grid p-5 md:p-8 gap-4', {
+      className={clsx('grid p-5 md:p-8 gap-4 grid-cols-1', {
         'md:grid-cols-2': selectorType === SELECTOR_TYPE.V3 || selectorType === SELECTOR_TYPE.STABLE,
       })}
     >

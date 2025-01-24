@@ -62,10 +62,8 @@ export function useApproveCallback(
 
   const [onPresentApprovalConfirmModal, onDismissApprovalConfirmModal] = useModal(
     createElement(ApprovalConfirmationModal, {
-      minWidth: ['100%', null, '420px'],
       title: 'Confirm Approval',
       content: () => '',
-      hash: undefined,
       attemptingTxn: true,
     }),
 

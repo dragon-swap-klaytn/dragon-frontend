@@ -10,6 +10,7 @@ export default defineConfig({
     'connectors/kaiaWallet': 'connectors/kaiaWallet/index.ts',
     'connectors/klip': 'connectors/klip/index.ts',
     'connectors/okxWallet': 'connectors/okxWallet/index.ts',
+    'connectors/tokenPocket': 'connectors/tokenPocket/index.ts',
   },
   treeshake: true,
   splitting: true,

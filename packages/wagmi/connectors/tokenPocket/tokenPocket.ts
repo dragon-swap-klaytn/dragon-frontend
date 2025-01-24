@@ -15,9 +15,11 @@ import { type Chain } from 'viem/chains'
 import { Connector } from 'wagmi/connectors'
 import { InjectedProviders } from 'wagmi/window'
 
+const KAIA_CHAINS = [1001, 8217]
+
 declare global {
   interface Window {
-    okxwallet: any
+    tokenpocket: any
   }
 }
 
@@ -26,10 +28,10 @@ interface WindowProvider extends InjectedProviders, EIP1193Provider {
 }
 
 // @ts-ignore
-export class OKXWalletConnector extends Connector<WindowProvider | undefined, any> {
-  readonly id: string = 'okxwallet'
+export class TokenPocketConnector extends Connector<WindowProvider | undefined, any> {
+  readonly id: string = 'tokenpocket'
 
-  readonly name: string = 'OKX Wallet'
+  readonly name: string = 'TokenPocket'
 
   readonly ready: boolean
 
@@ -57,6 +59,14 @@ export class OKXWalletConnector extends Connector<WindowProvider | undefined, an
       let id = 0
 
       const provider = await this.getProvider()
+      const chainId = await this.getChainId()
+      if (!KAIA_CHAINS.includes(chainId)) {
+        const chain = await this.switchChain(8217)
+        if (!chain || !KAIA_CHAINS.includes(chainId)) {
+          throw new Error('Chain not supported')
+          // return { account: null, chain: { id: chainId, unsupported: true } }
+        }
+      }
 
       if (provider.on) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,8 +75,8 @@ export class OKXWalletConnector extends Connector<WindowProvider | undefined, an
         provider.on('disconnected', this.onAccountsChanged)
       }
 
-      if (typeof window.okxwallet !== 'undefined' && provider) {
-        // OKXWallet user detected. You can now use the provider.
+      if (typeof window?.tokenpocket !== 'undefined' && provider) {
+        // TokenPocket user detected. You can now use the provider.
         account = await provider.enable()
         id = +provider.networkVersion
       }
@@ -83,7 +93,7 @@ export class OKXWalletConnector extends Connector<WindowProvider | undefined, an
 
   // eslint-disable-next-line class-methods-use-this
   getProvider() {
-    return typeof window !== 'undefined' && window?.okxwallet
+    return typeof window !== 'undefined' && window?.tokenpocket?.ethereum
   }
 
   async disconnect() {
@@ -197,7 +207,7 @@ export class OKXWalletConnector extends Connector<WindowProvider | undefined, an
   }
 
   protected onDisconnect = async (error: Error) => {
-    if (error && (error as ProviderRpcError)?.code === 1013) {
+    if ((error as ProviderRpcError).code === 1013) {
       const provider = await this.getProvider()
       if (provider) {
         const isAuthorized = await this.getAccount()

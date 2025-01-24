@@ -225,18 +225,14 @@ export default function V3FormView({
 
   const nftPositionManagerAddress = useV3NFTPositionManagerContract()?.address
   // check whether the user has approved the router on the tokens
-  const {
-    approvalState: approvalA,
-    approveCallback: approveACallback,
-    revokeCallback: revokeACallback,
-    currentAllowance: currentAllowanceA,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_A], nftPositionManagerAddress)
-  const {
-    approvalState: approvalB,
-    approveCallback: approveBCallback,
-    revokeCallback: revokeBCallback,
-    currentAllowance: currentAllowanceB,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_B], nftPositionManagerAddress)
+  const { approvalState: approvalA, approveCallback: approveACallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_A],
+    nftPositionManagerAddress,
+  )
+  const { approvalState: approvalB, approveCallback: approveBCallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_B],
+    nftPositionManagerAddress,
+  )
 
   const [allowedSlippage] = useUserSlippage() // custom from users
 
@@ -327,6 +323,8 @@ export default function V3FormView({
       onFieldAInput('')
     }
     setTxHash('')
+    setTxnErrorMessage(undefined)
+    setAttemptingTxn(false)
   }, [onFieldAInput, txHash])
   const addIsUnsupported = useIsTransactionUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
 
@@ -376,7 +374,6 @@ export default function V3FormView({
 
   const [onPresentAddLiquidityModal] = useModal(
     <TransactionConfirmationModal
-      minWidth={['100%', null, '420px']}
       title={t('Add Liquidity')}
       customOnDismiss={handleDismissConfirmation}
       attemptingTxn={attemptingTxn}
@@ -428,13 +425,9 @@ export default function V3FormView({
       isValid={isValid}
       showApprovalA={showApprovalA}
       approveACallback={approveACallback}
-      currentAllowanceA={currentAllowanceA}
-      revokeACallback={revokeACallback}
       currencies={currencies}
       showApprovalB={showApprovalB}
       approveBCallback={approveBCallback}
-      currentAllowanceB={currentAllowanceB}
-      revokeBCallback={revokeBCallback}
       parsedAmounts={parsedAmounts}
       onClick={handleButtonSubmit}
       attemptingTxn={attemptingTxn}

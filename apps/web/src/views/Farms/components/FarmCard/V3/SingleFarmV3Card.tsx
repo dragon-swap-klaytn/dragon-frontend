@@ -142,7 +142,7 @@ const SingleFarmV3Card: React.FunctionComponent<
     updateStatus,
   ])
 
-  const { onStake, onUnstake, onHarvest, attemptingTxn } = useFarmV3Actions({
+  const { onStake, onUnstake, onHarvest, attemptingTxn, dismissFarmV3Action } = useFarmV3Actions({
     tokenId: tokenId.toString(),
     reward: pendingCakeByTokenIds[position.tokenId.toString()] || 0n,
     onDone,
@@ -151,17 +151,22 @@ const SingleFarmV3Card: React.FunctionComponent<
   const { farmCanBoost } = useBakeV3farmCanBoost(farm.pid)
 
   const unstakedModal = useModalV2()
+  const handleDismiss = useCallback(() => {
+    onDismiss?.()
+    dismissFarmV3Action()
+
+    unstakedModal.onDismiss()
+  }, [unstakedModal, onDismiss, dismissFarmV3Action])
 
   const showKlipQrCode = useKlipQrCondition()
 
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
     <ApprovalConfirmationModal
-      minWidth={['100%', null, '420px']}
       title="Confirm Transaction"
       content={() => ''}
       pendingText="wating confirm..."
-      hash={undefined}
       attemptingTxn
+      customOnDismiss={handleDismiss}
     />,
     true,
     true,
@@ -259,12 +264,8 @@ const SingleFarmV3Card: React.FunctionComponent<
             handleUnStake={unstakedModal.onOpen}
           />
 
-          <ModalV2 {...unstakedModal} closeOnOverlayClick>
-            <Modal
-              title={outOfRangeUnstaked ? t('Staking') : t('Unstaking')}
-              width={['100%', '100%', '420px']}
-              maxWidth={['100%', null, '420px']}
-            >
+          <ModalV2 {...unstakedModal} closeOnOverlayClick onDismiss={handleDismiss}>
+            <Modal title={outOfRangeUnstaked ? t('Staking') : t('Unstaking')}>
               <AutoColumn gap="16px">
                 <AtomBox
                   position="relative"
@@ -375,7 +376,7 @@ const SingleFarmV3Card: React.FunctionComponent<
                 earnings={totalEarnings}
                 earningsBusd={earningsBusd}
                 pendingTx={attemptingTxn || (harvesting ?? false)}
-                disabled={!pendingCakeByTokenIds?.[position.tokenId.toString()] ?? true}
+                disabled={!pendingCakeByTokenIds?.[position.tokenId.toString()]}
                 userDataReady
                 handleHarvest={handleHarvest}
               />

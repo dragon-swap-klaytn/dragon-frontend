@@ -20,15 +20,11 @@ interface V3SubmitButtonProps {
   isValid: boolean
   showApprovalA: boolean
   approveACallback: () => Promise<SendTransactionResult | undefined>
-  currentAllowanceA: CurrencyAmount<Currency> | undefined
-  revokeACallback: () => Promise<SendTransactionResult | undefined>
   currencies: {
     CURRENCY_A?: Currency
     CURRENCY_B?: Currency
   }
   approveBCallback: () => Promise<SendTransactionResult | undefined>
-  currentAllowanceB: CurrencyAmount<Currency> | undefined
-  revokeBCallback: () => Promise<SendTransactionResult | undefined>
   showApprovalB: boolean
   parsedAmounts: {
     CURRENCY_A?: CurrencyAmount<Currency>
@@ -53,12 +49,8 @@ export function V3SubmitButton({
   isValid,
   showApprovalA,
   approveACallback,
-  currentAllowanceA,
-  revokeACallback,
   currencies,
   approveBCallback,
-  currentAllowanceB,
-  revokeBCallback,
   showApprovalB,
   parsedAmounts,
   onClick,
@@ -102,11 +94,7 @@ export function V3SubmitButton({
           showFieldBApproval={showApprovalB}
           approveACallback={approveACallback}
           approveBCallback={approveBCallback}
-          revokeACallback={revokeACallback}
-          revokeBCallback={revokeBCallback}
           currencies={currencies}
-          currentAllowanceA={currentAllowanceA}
-          currentAllowanceB={currentAllowanceB}
           shouldShowApprovalGroup={shouldShowApprovalGroup}
         />
         <CommitButton

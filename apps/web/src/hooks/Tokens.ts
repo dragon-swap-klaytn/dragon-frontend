@@ -4,7 +4,7 @@ import { ERC20Token } from '@pancakeswap/sdk'
 import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
-import { ZERO_ADDRESS } from '@pancakeswap/uikit'
+import { SUPPORTED_CHAIN_IDS, ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { GELATO_NATIVE } from 'config/constants'
 import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
@@ -200,6 +200,7 @@ export function useToken(tokenAddress?: string): ERC20Token | undefined | null {
     if (!tokensFromSs) return null
     if (token) return token
     if (!chainId || !address) return undefined
+    if (!SUPPORTED_CHAIN_IDS.includes(chainId)) return undefined
     if (unsupportedTokens[address]) return undefined
 
     if (tokensFromSs[address]) {
