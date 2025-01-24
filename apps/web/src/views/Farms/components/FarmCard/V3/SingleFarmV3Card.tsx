@@ -29,7 +29,7 @@ import { useCakePrice } from 'hooks/useCakePrice'
 import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { lazy, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { styled, useTheme } from 'styled-components'
 import { logGTMClickStakeFarmEvent } from 'utils/customGTMEventTracking'
 import { V3Farm } from 'views/Farms/FarmsV3'
@@ -46,7 +46,6 @@ import { useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
 import FarmV3StakeAndUnStake, { FarmV3LPPosition, FarmV3LPPositionDetail, FarmV3LPTitle } from './FarmV3StakeAndUnStake'
 
 const { FarmV3HarvestAction } = FarmWidget.FarmV3Table
-const QRCodeSVG = lazy(() => import('qrcode.react').then((module) => ({ default: module.QRCodeSVG })))
 
 export const ActionContainer = styled(Flex)`
   width: 100%;
@@ -309,11 +308,7 @@ const SingleFarmV3Card: React.FunctionComponent<
                 </AtomBox>
                 <LightCard>
                   <AutoColumn gap="8px">
-                    {outOfRange && (
-                      <RangeTag outOfRange ml={0} style={{ alignItems: 'center', width: 'fit-content' }}>
-                        {t('Inactive')}
-                      </RangeTag>
-                    )}
+                    {outOfRange && <RangeTag outOfRange>{t('Inactive')}</RangeTag>}
                     <FarmV3LPTitle title={title} liquidityUrl={liquidityUrl} outOfRange={outOfRange} />
                     <FarmV3LPPosition token={token} quoteToken={quoteToken} position={position} />
                     <FarmV3LPPositionDetail
