@@ -10,7 +10,8 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useSwitchNetworkLocal } from 'hooks/useSwitchNetwork'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
 import WalletModal, { WalletView } from './WalletModal'
 
@@ -25,6 +26,17 @@ const UserMenu = ({
   const { address: account } = useAccount()
   const { isWrongNetwork } = useActiveChainId()
   const switchNetworkLocal = useSwitchNetworkLocal()
+
+  const pathname = usePathname()
+  const pathnameRef = useRef(pathname)
+  useEffect(() => {
+    if (!pathnameRef.current) return
+    if (pathnameRef.current !== pathname) {
+      setUserMenuOpen(false)
+    }
+
+    pathnameRef.current = pathname
+  }, [pathname, setUserMenuOpen])
 
   const { width } = useWindowSize()
   const accountEllipsis = useMemo(

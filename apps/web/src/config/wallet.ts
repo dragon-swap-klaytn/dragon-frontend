@@ -55,7 +55,7 @@ export const WALLET_MAP: {
     title: 'KaiaWallet',
     icon: getWalletIcon('kaiawallet'),
     connectorId: ConnectorIds.kaiawallet,
-    installed: Boolean(typeof window !== 'undefined' && (window.klaytn || window.caver)),
+    installed: true,
     downloadLink: 'https://www.kaiawallet.io/',
     deepLink: `https://app.kaikas.io/u/${DGSWAP_DOMAIN}`,
   },

@@ -4,7 +4,8 @@ import { Gear, Question } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import LanguageSettings from 'components/Menu/GlobalSettings/LanguageSettings'
 import { SettingModeType, SettingsMode } from 'components/Menu/GlobalSettings/types'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import SettingsModal from './SettingsModal'
 
 type Props = {
@@ -18,6 +19,17 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
   const [open, setOpen] = useState(false)
   const [activated, setActivated] = useState(true)
   const { t } = useTranslation()
+
+  const pathname = usePathname()
+  const pathnameRef = useRef(pathname)
+  useEffect(() => {
+    if (!pathnameRef.current) return
+    if (pathnameRef.current !== pathname) {
+      setGlobalSettingsOpen?.(false)
+    }
+
+    pathnameRef.current = pathname
+  }, [pathname, setGlobalSettingsOpen])
 
   return (
     <div className="relative">
