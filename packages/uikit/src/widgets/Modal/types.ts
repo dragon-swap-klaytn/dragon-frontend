@@ -13,6 +13,7 @@ export interface InjectedProps {
 }
 
 export interface ModalWrapperProps extends InjectedProps, Omit<BoxProps, "title" | "content"> {
+  maxWidth?: string;
   hideCloseButton?: boolean;
   className?: string;
 }
@@ -22,5 +23,5 @@ export interface ModalProps extends ModalWrapperProps {
   hideCloseButton?: boolean;
   onBack?: () => void;
   headerRightSlot?: React.ReactNode;
-  isModalOpen?: boolean;
+  contentMinHeight?: string;
 }

@@ -59,7 +59,7 @@ export function FarmV3ApyButton(props: FarmV3ApyButtonProps) {
 }
 
 function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, tokenId }: FarmV3ApyButtonProps) {
-  const { token: baseCurrency, quoteToken: quoteCurrency, feeAmount, lpAddress } = farm
+  const { token: baseCurrency, quoteToken: quoteCurrency, feeAmount } = farm
   const { t } = useTranslation()
   const roiModal = useModalV2()
 

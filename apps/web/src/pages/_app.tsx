@@ -1,10 +1,9 @@
-import { ExternalLink, ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
+import { ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { ErrorBoundary } from 'components/ErrorBoundary'
 import { PageMeta } from 'components/Layout/Page'
 import { NetworkModal } from 'components/NetworkModal'
 import { FixedSubgraphHealthIndicator } from 'components/SubgraphHealthIndicator/FixedSubgraphHealthIndicator'
-import TransactionsDetailModal from 'components/TransactionDetailModal'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
 // import useEagerConnectMP from 'hooks/useEagerConnect.bmp'
 import useLockedEndNotification from 'hooks/useLockedEndNotification'
@@ -20,10 +19,10 @@ import { Fragment } from 'react'
 import { PersistGate } from 'redux-persist/integration/react'
 
 // import { useDataDogRUM } from 'hooks/useDataDogRUM'
-import { Envelope, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from '@phosphor-icons/react'
+import { ChainId } from '@pancakeswap/chains'
+import Footer from 'components/Menu/Footer'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
-import Link from 'next/link'
 import { persistor, useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
 import { Blocklist, Updaters } from '..'
@@ -118,7 +117,7 @@ type NextPageWithLayout = NextPage & {
    * allow chain per page, empty array bypass chain block modal
    * @default [ChainId.Klaytn]
    * */
-  chains?: number[]
+  chains?: ChainId[]
   isShowScrollToTopButton?: true
   /**
    * Meta component for page, hacky solution for static build page to avoid `PersistGate` which blocks the page from rendering
@@ -131,34 +130,6 @@ type AppPropsWithLayout = AppProps & {
 }
 
 const ProductionErrorBoundary = process.env.NODE_ENV === 'production' ? ErrorBoundary : Fragment
-
-const FOOTER_OUTER_LINKS = [
-  {
-    id: 'twitter',
-    icon: <TwitterLogo size={24} weight="fill" className="text-on-surface" />,
-    href: 'https://twitter.com/dgswap',
-  },
-  {
-    id: 'github',
-    icon: <GithubLogo size={24} weight="fill" className="text-on-surface" />,
-    href: 'https://github.com/dragon-swap-klaytn',
-  },
-  {
-    id: 'telegram',
-    icon: <TelegramLogo size={24} weight="fill" className="text-on-surface" />,
-    href: 'https://t.me/DragonSwap_COMM',
-  },
-  {
-    id: 'support',
-    icon: <Envelope size={24} weight="fill" className="text-on-surface" />,
-    href: 'mailto:support@dgswap.io',
-  },
-  {
-    id: 'medium',
-    icon: <MediumLogo size={24} weight="fill" className="text-on-surface" />,
-    href: 'https://dgswap.medium.com/',
-  },
-]
 
 const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   if (Component.pure) {
@@ -181,49 +152,9 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
       <ToastListener />
       <FixedSubgraphHealthIndicator />
       <NetworkModal pageSupportedChains={Component.chains} />
-      <TransactionsDetailModal />
       {isShowScrollToTopButton && <ScrollToTopButtonV2 />}
     </ProductionErrorBoundary>
   )
 }
 
 export default MyApp
-
-function Footer() {
-  return (
-    <div className="px-4 md:px-[60px] py-10 bg-transparent w-full mt-52">
-      <div className="w-full flex flex-col space-y-10 md:space-y-2 md:flex-row md:items-start md:space-x-2 md:justify-between">
-        <div className="flex items-center space-x-6">
-          {FOOTER_OUTER_LINKS.map((link) => (
-            <ExternalLink key={`footer:${link.id}`} href={link.href} hideIcon>
-              {link.icon}
-            </ExternalLink>
-          ))}
-        </div>
-
-        <div className="flex items-start space-x-12">
-          <div className="flex flex-col items-start space-y-5">
-            <h4 className="font-bold text-on-surface">Ecosystem</h4>
-
-            <Link href="/swap" className="text-on-surface-subtlest">
-              Trade
-            </Link>
-
-            <Link href="/farms" className="text-on-surface-subtlest">
-              Earn
-            </Link>
-          </div>
-          <div className="flex flex-col items-start space-y-5">
-            <h4 className="font-bold text-on-surface">Support</h4>
-
-            <Link href="/swap" className="text-on-surface-subtlest">
-              Contact
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <p className="text-sm text-on-surface-subtlest py-4 border-t border-border mt-20">Ⓒ2025 - present Dragonswap</p>
-    </div>
-  )
-}

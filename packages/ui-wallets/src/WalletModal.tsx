@@ -46,8 +46,6 @@ export type WalletConfigV2 = {
 interface WalletModalV2Props extends ModalV2Props {
   wallets: WalletConfigV2[]
   login: (connectorId: ConnectorId) => Promise<any>
-  docLink: string
-  docText: string
   onWalletConnectCallBack?: (walletTitle?: string) => void
   walletConnectNoQrCodeConnector: any
 }
@@ -66,14 +64,16 @@ export function useSelectedWallet(): [WalletConfigV2 | null, Dispatch<SetStateAc
 
 const MOBILE_DEFAULT_DISPLAY_COUNT = 8
 
-export const walletLocalStorageKey = 'wallet'
-export const connectorLocalStorageKey = 'connector'
-export const addressLocalStorageKey = 'address'
+export enum WalletStorageKey {
+  WALLET = 'wallet',
+  CONNECTOR = 'connector',
+  ADDRESS = 'address',
+}
 
 const lastUsedWalletNameAtom = atom<string>('')
 
 lastUsedWalletNameAtom.onMount = (set) => {
-  const preferred = localStorage?.getItem(walletLocalStorageKey)
+  const preferred = localStorage?.getItem(WalletStorageKey.WALLET)
   if (preferred) {
     set(preferred)
   }
@@ -101,7 +101,14 @@ function sortWallets(wallets: WalletConfigV2[], lastUsedWalletName: string | nul
 }
 
 export function WalletModalV2(props: WalletModalV2Props) {
-  const { wallets: _wallets, login, onWalletConnectCallBack, onDismiss, walletConnectNoQrCodeConnector } = props
+  const {
+    wallets: _wallets,
+    login,
+    onWalletConnectCallBack,
+    onDismiss,
+    walletConnectNoQrCodeConnector,
+    ...rest
+  } = props
   const [lastUsedWalletName] = useAtom(lastUsedWalletNameAtom)
 
   const wallets = useMemo(() => sortWallets(_wallets, lastUsedWalletName), [_wallets, lastUsedWalletName])
@@ -117,6 +124,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
   )
 
   const init = useCallback(() => {
+    setSelected(null)
     setQrCode(undefined)
     setError('')
     if (remainTimeIntervalIdRef.current) {
@@ -131,7 +139,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
     }
 
     requestKeyRef.current = undefined
-  }, [setError, setQrCode, wallets])
+  }, [setError, setQrCode, wallets, setSelected])
 
   useEffect(() => {
     return () => {
@@ -189,9 +197,9 @@ export function WalletModalV2(props: WalletModalV2Props) {
                 return
               }
 
-              localStorage?.setItem(walletLocalStorageKey, wallet.id)
-              localStorage?.setItem(connectorLocalStorageKey, ConnectorIds.walletconnect)
-              localStorage?.setItem(addressLocalStorageKey, account)
+              localStorage?.setItem(WalletStorageKey.WALLET, wallet.id)
+              localStorage?.setItem(WalletStorageKey.CONNECTOR, ConnectorIds.walletconnect)
+              localStorage?.setItem(WalletStorageKey.ADDRESS, account)
 
               setSelected(null)
               removeListeners()
@@ -213,16 +221,13 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
   const connectWallet = useCallback(
     (wallet: WalletConfigV2) => {
-      setSelected(wallet)
-      setError('')
-
       login(wallet.connectorId)
         .then((v) => {
           requestKeyRef.current = undefined
           if (v) {
-            localStorage?.setItem(walletLocalStorageKey, wallet.id)
-            localStorage?.setItem(connectorLocalStorageKey, wallet.connectorId)
-            localStorage?.setItem(addressLocalStorageKey, v.account)
+            localStorage?.setItem(WalletStorageKey.WALLET, wallet.id)
+            localStorage?.setItem(WalletStorageKey.CONNECTOR, wallet.connectorId)
+            localStorage?.setItem(WalletStorageKey.ADDRESS, v.account)
 
             try {
               onWalletConnectCallBack?.(wallet.title)
@@ -256,6 +261,9 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
   const walletOnClick = useCallback(
     (wallet: WalletConfigV2) => {
+      setSelected(wallet)
+      setError('')
+
       if (!isMobile && !wallet.installed && wallet.downloadLink) {
         window.open(getDesktopLink(wallet.downloadLink))
         return
@@ -363,7 +371,6 @@ export function WalletModalV2(props: WalletModalV2Props) {
             if (wallet.qrCode) {
               wallet.qrCode().then(
                 ([uri, _requestKey]) => {
-                  setSelected(wallet)
                   setQrCode(uri)
                   requestKeyRef.current = _requestKey
                 },
@@ -382,95 +389,93 @@ export function WalletModalV2(props: WalletModalV2Props) {
         }
       }
     },
-    [connectWallet, setQrCode, setSelected, t, connectWithQrCode],
+    [connectWallet, setQrCode, setSelected, t, connectWithQrCode, setError],
   )
 
   return (
-    <>
-      <Modal title={t('Connect Wallet')} onDismiss={onDismiss}>
-        {!(qrCode && selected) && (
-          <>
-            <p className="text-sm text-on-surface">
-              {t(
-                'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
-              )}
-            </p>
+    <Modal title={t('Connect Wallet')} onDismiss={onDismiss} {...rest}>
+      {!(qrCode && selected) && (
+        <p className="text-sm text-on-surface">
+          {t(
+            'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
+          )}
+        </p>
+      )}
 
-            <p className="text-sm text-on-surface mt-2">
-              By connecting a wallet, you agree to Dragonswap{' '}
-              <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
-                Terms of Service
-              </a>
-            </p>
-          </>
-        )}
-
-        {qrCode && selected ? (
-          <div className="flex flex-col items-center space-y-4">
-            <div className="flex items-center justify-center">
-              <Suspense>
-                <div className="w-72 h-72 rounded-xl overflow-hidden">
-                  <Qrcode url={qrCode} image={typeof selected.icon === 'string' ? selected.icon : undefined} />
-                </div>
-              </Suspense>
-            </div>
-
-            {remainTime > 7 && (
-              <p className="text-sm text-on-surface-brand text-center">{`${Math.floor(remainTime / 60)}:${String(
-                remainTime % 60,
-              ).padStart(2, '0')}`}</p>
-            )}
-
-            <button
-              type="button"
-              className="text-sm h-10 px-4 bg-neutral text-on-surface rounded-2xl self-end"
-              onClick={init}
-            >
-              {t('Cancel')}
-            </button>
+      {qrCode && selected ? (
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex items-center justify-center">
+            <Suspense>
+              <div className="w-72 h-72 rounded-xl overflow-hidden">
+                <Qrcode url={qrCode} image={typeof selected.icon === 'string' ? selected.icon : undefined} />
+              </div>
+            </Suspense>
           </div>
-        ) : (
-          <div className="mt-4 flex flex-col space-y-1">
-            {wallets.map((wallet) => {
-              const isImage = typeof wallet.icon === 'string'
-              const Icon = wallet.icon
 
-              return (
-                <button
-                  key={wallet.title}
-                  type="button"
-                  className={clsx('p-3 flex items-center justify-between rounded-xl text-on-surface hover:opacity-70', {
-                    'bg-brand': selected?.id === wallet.id,
-                    'bg-neutral': selected?.id !== wallet.id,
-                  })}
-                  onClick={() => walletOnClick(wallet)}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-dropdown rounded-lg overflow-hidden">
-                      {isImage ? (
-                        <Image src={Icon as string} width={50} height={50} />
-                      ) : (
-                        <Icon width={24} height={24} color="textSubtle" />
-                      )}
-                    </div>
+          {remainTime > 7 && (
+            <p className="text-sm text-on-surface-brand text-center">{`${Math.floor(remainTime / 60)}:${String(
+              remainTime % 60,
+            ).padStart(2, '0')}`}</p>
+          )}
 
-                    <span>{wallet.title}</span>
+          <button
+            type="button"
+            className="text-sm h-10 px-4 bg-neutral text-on-surface rounded-2xl self-end"
+            onClick={init}
+          >
+            {t('Cancel')}
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-col space-y-1 max-h-[300px] md:max-h-[80vh] overflow-y-auto">
+          {wallets.map((wallet) => {
+            const isImage = typeof wallet.icon === 'string'
+            const Icon = wallet.icon
+
+            return (
+              <button
+                key={wallet.title}
+                type="button"
+                className={clsx('p-3 flex items-center justify-between rounded-xl text-on-surface hover:opacity-70', {
+                  'bg-brand': selected?.id === wallet.id,
+                  'bg-neutral': selected?.id !== wallet.id,
+                })}
+                onClick={() => walletOnClick(wallet)}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-dropdown rounded-lg overflow-hidden">
+                    {isImage ? (
+                      <Image src={Icon as string} width={50} height={50} />
+                    ) : (
+                      <Icon width={24} height={24} color="textSubtle" />
+                    )}
                   </div>
 
-                  {wallet.installed === false && wallet.downloadLink && (
-                    <div className="px-1.5 py-0.5 rounded-md bg-transparent border text-xs ml-1">
-                      {t('not installed')}
-                    </div>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        )}
+                  <span>{wallet.title}</span>
+                </div>
 
-        {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
-      </Modal>
-    </>
+                {wallet.installed === false && wallet.downloadLink && (
+                  <div className="px-1.5 py-0.5 rounded-md bg-transparent border text-xs ml-1">
+                    {t('not installed')}
+                  </div>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {!(qrCode && selected) && (
+        <p className="text-sm text-on-surface mt-4">
+          By connecting a wallet, you agree to Dragonswap{' '}
+          <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
+            Terms of Service
+          </a>
+        </p>
+      )}
+
+      {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
+    </Modal>
   )
 }
 

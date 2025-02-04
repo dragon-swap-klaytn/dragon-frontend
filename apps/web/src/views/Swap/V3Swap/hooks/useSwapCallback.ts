@@ -10,7 +10,9 @@ import { INITIAL_ALLOWED_SLIPPAGE } from 'config/constants'
 import { useSwapState } from 'state/swap/hooks'
 import { basisPointsToPercent } from 'utils/exchange'
 
+import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { getAddress } from 'viem'
 import { SendTransactionResult } from 'wagmi/actions'
 import useSendSwapTransaction from './useSendSwapTransaction'
 import { useSwapCallArguments } from './useSwapCallArguments'
@@ -57,12 +59,18 @@ export function useSwapCallback({
   const [allowedSlippageRaw] = useUserSlippage() || [INITIAL_ALLOWED_SLIPPAGE]
   const allowedSlippage = useMemo(() => basisPointsToPercent(allowedSlippageRaw), [allowedSlippageRaw])
   const { recipient: recipientAddress } = useSwapState()
-  const recipient = recipientAddress === null ? account : recipientAddress
+  const recipient = useMemo(() => {
+    const _account = recipientAddress === null ? account : recipientAddress
+    if (!_account) return null
+    if (!VALID_ADDRESS_REGEX.test(_account)) return null
+
+    return getAddress(_account)
+  }, [recipientAddress, account])
 
   const swapCalls = useSwapCallArguments(
     trade,
     allowedSlippage,
-    recipientAddress,
+    recipient,
     // signatureData,
     deadline,
     feeOptions,

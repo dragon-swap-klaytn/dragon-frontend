@@ -78,9 +78,9 @@ const ModalProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   return (
     <Context.Provider value={providerValue}>
-      {createPortal(
-        isOpen && (
-          <div className="flex flex-col justify-center items-center fixed inset-0 z-50">
+      {isOpen &&
+        createPortal(
+          <div className="flex flex-col justify-center items-center fixed inset-0 z-overlay">
             <Overlay onClick={handleOverlayDismiss} />
 
             {React.isValidElement(modalNode) &&
@@ -91,10 +91,9 @@ const ModalProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
                   modalNode.props.onDismiss?.();
                 },
               })}
-          </div>
-        ),
-        portal
-      )}
+          </div>,
+          portal
+        )}
 
       {children}
     </Context.Provider>

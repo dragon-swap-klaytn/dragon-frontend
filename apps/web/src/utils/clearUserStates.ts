@@ -1,11 +1,12 @@
-import { configureScope } from '@sentry/nextjs'
+import { ChainId } from '@pancakeswap/chains'
 import { Dispatch } from '@reduxjs/toolkit'
-import { resetUserState, toggleFarmTransactionModal } from 'state/global/actions'
+import { configureScope } from '@sentry/nextjs'
 import { PREDICTION_TOOLTIP_DISMISS_KEY } from 'config/constants'
 import { deleteCookie } from 'cookies-next'
 import { AFFILIATE_SID } from 'pages/api/affiliates-program/affiliate-login'
-import { LS_ORDERS } from './localStorageOrders'
+import { resetUserState, toggleFarmTransactionModal } from 'state/global/actions'
 import getLocalStorageItemKeys from './getLocalStorageItemKeys'
+import { LS_ORDERS } from './localStorageOrders'
 
 export const clearUserStates = (
   dispatch: Dispatch<any>,
@@ -13,7 +14,7 @@ export const clearUserStates = (
     chainId,
     newChainId,
   }: {
-    chainId?: number
+    chainId?: ChainId
     newChainId?: number
   },
 ) => {

@@ -11,8 +11,6 @@ import { getMulticallAddress, getZapAddress } from 'utils/addressHelpers'
 import {
   getBCakeFarmBoosterContract,
   getBCakeFarmBoosterProxyFactoryContract,
-  getBCakeFarmBoosterV3Contract,
-  getBCakeFarmBoosterVeCakeContract,
   getBCakeProxyContract,
   getCakeFlexibleSideVaultV2Contract,
   getCakeVaultV2Contract,
@@ -220,18 +218,6 @@ export function useZapContract() {
 export function useBCakeFarmBoosterContract() {
   const { data: signer } = useWalletClient()
   return useMemo(() => getBCakeFarmBoosterContract(signer ?? undefined), [signer])
-}
-
-export function useBCakeFarmBoosterV3Contract() {
-  const { chainId } = useActiveChainId()
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getBCakeFarmBoosterV3Contract(signer ?? undefined, chainId), [signer, chainId])
-}
-
-export function useBCakeFarmBoosterVeCakeContract() {
-  const { chainId } = useActiveChainId()
-  const { data: signer } = useWalletClient()
-  return useMemo(() => getBCakeFarmBoosterVeCakeContract(signer ?? undefined, chainId), [signer, chainId])
 }
 
 export function usePositionManagerWrapperContract(address: Address) {

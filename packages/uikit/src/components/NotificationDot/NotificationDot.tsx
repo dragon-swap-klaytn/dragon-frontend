@@ -20,7 +20,7 @@ const Dot = styled("span").withConfig({
   pointer-events: none;
   border: 2px solid ${({ theme }) => theme.colors.invertedContrast};
   border-radius: 50%;
-  background-color: ${({ theme, color }) => theme.colors[color]};
+  background-color: #dc2626;
 `;
 
 const NotificationDot: React.FC<React.PropsWithChildren<NotificationDotProps>> = ({

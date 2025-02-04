@@ -11,7 +11,6 @@ import {
   supportedChainIdV3,
 } from '@pancakeswap/farms'
 import { farmsV3ConfigChainMap, farmsV3FinishedConfigChainMap } from '@pancakeswap/farms/constants/v3'
-import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterVeCake'
 import { TvlMap, fetchTokenUSDValues } from '@pancakeswap/farms/src/fetchFarmsV3'
 import { usePreviousValue } from '@pancakeswap/hooks'
 import { deserializeToken } from '@pancakeswap/token-lists'
@@ -20,7 +19,7 @@ import { FAST_INTERVAL } from 'config/constants'
 import { gql } from 'graphql-request'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
-import { useBCakeFarmBoosterVeCakeContract, useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
+import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useV3PositionsFromTokenIds, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import toLower from 'lodash/toLower'
 import { useRouter } from 'next/router'
@@ -395,16 +394,14 @@ export function useFarmsV3WithPositionsAndBooster(
   updateFarmsV3WithPositionsAndBooster: () => void
 } {
   const { data, error: _error, isLoading, updateFarmsV3 } = useFarmsV3(options)
-  const { data: boosterWhitelist, updateV3BoostedFarm } = useV3BoostedFarm(data?.farmsWithPrice?.map((f) => f.pid))
 
   const updateFarmsV3WithPositionsAndBooster = useCallback(() => {
     updateFarmsV3()
-    updateV3BoostedFarm()
-  }, [updateFarmsV3, updateV3BoostedFarm])
+  }, [updateFarmsV3])
 
   return {
     ...usePositionsByUserFarms(
-      data.farmsWithPrice?.map((d, index) => ({ ...d, boosted: boosterWhitelist?.[index]?.boosted })),
+      data.farmsWithPrice?.map((d) => ({ ...d, boosted: false })),
       isFinished,
     ),
     poolLength: data.poolLength,
@@ -412,51 +409,4 @@ export function useFarmsV3WithPositionsAndBooster(
     isLoading,
     updateFarmsV3WithPositionsAndBooster,
   }
-}
-
-const useV3BoostedFarm = (pids?: number[]) => {
-  const { chainId } = useActiveChainId()
-  const farmBoosterVeCakeContract = useBCakeFarmBoosterVeCakeContract()
-
-  const { data, refetch } = useQuery(
-    ['v3/boostedFarm', chainId, pids?.join('-')],
-    () =>
-      getV3FarmBoosterWhiteList({
-        farmBoosterContract: farmBoosterVeCakeContract,
-        chainId: chainId ?? -1,
-        pids: pids ?? [],
-      }),
-    {
-      // enabled: Boolean(chainId && pids && pids.length > 0 && bCakeSupportedChainId.includes(chainId)),
-      enabled: false,
-      retry: 3,
-      retryDelay: 3000,
-    },
-  )
-  return { data, updateV3BoostedFarm: refetch }
-}
-
-export async function getV3FarmBoosterWhiteList({
-  farmBoosterContract,
-  chainId,
-  pids,
-}: {
-  farmBoosterContract: ReturnType<typeof useBCakeFarmBoosterVeCakeContract>
-  chainId: ChainId
-  pids: number[]
-}): Promise<{ pid: number; boosted: boolean }[]> {
-  const contracts = pids?.map((pid) => {
-    return {
-      address: farmBoosterContract.address,
-      functionName: 'whiteList',
-      abi: bCakeFarmBoosterVeCakeABI,
-      args: [BigInt(pid)],
-    } as const
-  })
-  const whiteList = await publicClient({ chainId }).multicall({
-    contracts,
-  })
-
-  if (!whiteList || whiteList?.length !== pids?.length) return []
-  return pids?.map((d, index) => ({ pid: d, boosted: whiteList[index].result ?? false }))
 }

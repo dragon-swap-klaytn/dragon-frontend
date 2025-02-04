@@ -38,6 +38,7 @@ const fetchFarmPublicDataPkg = async ({
     isTestnet: chain.testnet,
     farms: farmsCanFetch.concat(priceHelperLpsConfig),
   })
+
   return [farmsWithPrice, poolLength, regularCakePerBlock, totalRegularAllocPoint]
 }
 
@@ -62,15 +63,16 @@ export const fetchInitialFarmsData = createAsyncThunk<
 >('farms/fetchInitialFarmsData', async ({ chainId }) => {
   return getFarmConfig(chainId).then((farmDataList) => {
     return {
-      data: farmDataList.map((farm) => ({
-        ...farm,
-        userData: {
-          allowance: '0',
-          tokenBalance: '0',
-          stakedBalance: '0',
-          earnings: '0',
-        },
-      })),
+      data:
+        farmDataList?.map((farm) => ({
+          ...farm,
+          userData: {
+            allowance: '0',
+            tokenBalance: '0',
+            stakedBalance: '0',
+            earnings: '0',
+          },
+        })) ?? [],
       chainId,
     }
   })

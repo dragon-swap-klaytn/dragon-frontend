@@ -1,16 +1,16 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { connectorLocalStorageKey, walletLocalStorageKey } from '@pancakeswap/ui-wallets'
-import { useModal, WalletId } from '@pancakeswap/uikit'
+import { WalletStorageKey } from '@pancakeswap/ui-wallets'
+import { useMatchBreakpoints, useModal, WalletId } from '@pancakeswap/uikit'
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { getWalletIcon } from 'config/wallet'
+import { DEFAULT_WALLET_ICON, getWalletIcon } from 'config/wallet'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useSwitchNetworkLocal } from 'hooks/useSwitchNetwork'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { useAccount } from 'wagmi'
 import WalletModal, { WalletView } from './WalletModal'
 
@@ -27,7 +27,10 @@ const UserMenu = ({
   const switchNetworkLocal = useSwitchNetworkLocal()
 
   const { width } = useWindowSize()
-  const accountEllipsis = account ? `${account.substring(0, 4)}...${account.substring(account.length - 4)}` : null
+  const accountEllipsis = useMemo(
+    () => (account ? `${account.substring(0, 4)}...${account.substring(account.length - 4)}` : null),
+    [account],
+  )
   const { connector } = useAccount()
   const { logout } = useAuth()
 
@@ -53,12 +56,12 @@ const UserMenu = ({
 
     let safeCount = 0
     const intervalId = setInterval(() => {
-      const recentConnectorId = localStorage.getItem(connectorLocalStorageKey)
+      const recentConnectorId = localStorage.getItem(WalletStorageKey.CONNECTOR)
 
       if (!connector || !recentConnectorId || connector.id !== recentConnectorId) {
         setConnectedWalletId(null)
       } else {
-        const recentWalletId = localStorage.getItem(walletLocalStorageKey)
+        const recentWalletId = localStorage.getItem(WalletStorageKey.WALLET)
         if (recentWalletId) {
           setConnectedWalletId(recentWalletId as WalletId)
           clearInterval(intervalId)
@@ -71,24 +74,23 @@ const UserMenu = ({
       }
     }, 10)
   }, [connector])
+  const { isMobile } = useMatchBreakpoints()
 
   if (account) {
     return (
-      <div className="relative mr-3">
+      <div className="relative mr-2">
         <button
           type="button"
-          className="flex items-center space-x-2 hover:opacity-70 text-on-surface-inverse pl-1.5 pr-2 py-1.5 bg-brand rounded-3xl"
+          className="flex items-center space-x-2 hover:opacity-70 text-on-surface-inverse pl-1 pr-1.5 py-1 md:pl-1.5 md:pr-2 md:py-2 bg-brand rounded-3xl"
           onClick={() => setUserMenuOpen((prev) => !prev)}
         >
-          {connectedWalletId && (
-            <div className="w-6 h-6 shrink-0 rounded-full overflow-hidden">
-              <img
-                src={getWalletIcon(connectedWalletId as WalletId)}
-                alt={`${connectedWalletId} icon`}
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
-          )}
+          <div className="w-6 h-6 shrink-0 rounded-full overflow-hidden">
+            <img
+              src={connectedWalletId ? getWalletIcon(connectedWalletId as WalletId) : DEFAULT_WALLET_ICON}
+              alt={`${connectedWalletId || 'wallet'} icon`}
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
 
           <span className="text-sm">{accountEllipsis}</span>
           <CaretDown size={16} className="inline-block" />
@@ -145,7 +147,7 @@ const UserMenu = ({
   }
 
   return (
-    <ConnectWalletButton>
+    <ConnectWalletButton scale={isMobile ? 'sm' : 'md'}>
       <span className="text-sm">{width < 768 ? t('Connect') : t('Connect Wallet')}</span>
     </ConnectWalletButton>
   )

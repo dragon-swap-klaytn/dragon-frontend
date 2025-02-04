@@ -125,15 +125,8 @@ export const AssetCard = memo(function AssetCard({
     <div>
       {header}
 
-      {/* <Card isActive={isActive} style={{ overflowX: "auto" }}> */}
       <div className="rounded-2xl border">
         <table className="w-full">
-          {/* <colgroup>
-            <col />
-            {showPrice && <col width="30%" />}
-            <col />
-            <col />
-          </colgroup> */}
           <thead>
             <tr>
               <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Asset")}</th>
@@ -195,8 +188,6 @@ export const AssetRow = memo(function AssetRow({
     }
   }, []);
 
-  const textColor = priceChanged ? "primary" : "textSubtle";
-
   return (
     <tr>
       <td className="px-3 pb-3">{name}</td>
@@ -223,7 +214,7 @@ export const AssetRow = memo(function AssetRow({
           </div>
         </td>
       )}
-      <td className="px-3">{amount && <span className="text-sm text-on-surface">{formatAmount(+amount)}</span>}</td>
+      <td className="px-3 text-sm text-on-surface">{amount && <span>{formatAmount(+amount)}</span>}</td>
       <td className="px-3">
         <span className="text-sm text-on-surface">${formatAmount(+value)}</span>
       </td>

@@ -2,7 +2,6 @@ import { useTranslation } from '@pancakeswap/localization'
 import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { useCallback, useState } from 'react'
-import { useAccount, useBalance } from 'wagmi'
 import WalletInfo from './WalletInfo'
 import WalletTransactions from './WalletTransactions'
 import WalletWrongNetwork from './WalletWrongNetwork'
@@ -26,28 +25,20 @@ const TabsComponent: React.FC<React.PropsWithChildren<TabsComponentProps>> = ({ 
   const { t } = useTranslation()
 
   return (
-    <div className="grid grid-cols-2 rounded-[20px] overflow-hidden text-sm">
-      <button
-        type="button"
-        className={clsx('hover:opacity-70 py-2', {
-          'bg-brand': view === 0,
-          'bg-neutral text-on-surface-subtlest': view !== 0,
-        })}
-        onClick={() => handleClick(0)}
-      >
-        {t('Wallet')}
-      </button>
-
-      <button
-        type="button"
-        className={clsx('hover:opacity-70 py-2', {
-          'bg-brand': view === 1,
-          'bg-neutral text-on-surface-subtlest': view !== 1,
-        })}
-        onClick={() => handleClick(1)}
-      >
-        {t('Transactions')}
-      </button>
+    <div className="grid grid-cols-2 text-sm bg-neutral rounded-[20px] overflow-hidden">
+      {Array.from({ length: 2 }).map((_, index) => (
+        <button
+          key={`wallet-modal-tab:${index === 0 ? 'Wallet' : 'Transactions'}`}
+          type="button"
+          className={clsx('hover:opacity-70 py-2 rounded-[20px] text-on-surface', {
+            'bg-neutral-pressed': view === index,
+            'bg-transparent': view !== index,
+          })}
+          onClick={() => handleClick(index)}
+        >
+          {index === 0 ? t('Wallet') : t('Transactions')}
+        </button>
+      ))}
     </div>
   )
 }
@@ -58,15 +49,13 @@ const WalletModal: React.FC<React.PropsWithChildren<WalletModalProps>> = ({
 }) => {
   const [view, setView] = useState(initialView)
   const { t } = useTranslation()
-  const { address: account } = useAccount()
-  const { data, isFetched } = useBalance({ address: account })
 
   const handleClick = useCallback((newIndex: number) => {
     setView(newIndex)
   }, [])
 
   return (
-    <Modal title={t('Your Wallet')} onDismiss={onDismiss} maxWidth="max-w-lg">
+    <Modal title={t('Your Wallet')} onDismiss={onDismiss} maxWidth="max-w-lg" contentMinHeight="min-h-[245px]">
       {view !== WalletView.WRONG_NETWORK && <TabsComponent view={view} handleClick={handleClick} />}
 
       {view === WalletView.WALLET_INFO && <WalletInfo switchView={handleClick} onDismiss={onDismiss} />}

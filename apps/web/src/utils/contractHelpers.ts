@@ -2,8 +2,6 @@
 import {
   getBCakeFarmBoosterAddress,
   getBCakeFarmBoosterProxyFactoryAddress,
-  getBCakeFarmBoosterV3Address,
-  getBCakeFarmBoosterVeCakeAddress,
   getCakeFlexibleSideVaultAddress,
   getCrossFarmingReceiverAddress,
   getCrossFarmingSenderAddress,
@@ -29,8 +27,6 @@ import { predictionsV2ABI, predictionsV3ABI } from '@pancakeswap/prediction'
 import { crossFarmingProxyABI } from 'config/abi/crossFarmingProxy'
 
 import { ChainId } from '@pancakeswap/chains'
-import { bCakeFarmBoosterV3ABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterV3'
-import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterVeCake'
 import { cakeFlexibleSideVaultV2ABI, cakeVaultV2ABI, getCakeVaultAddress } from '@pancakeswap/pools'
 import { positionManagerAdapterABI, positionManagerWrapperABI } from '@pancakeswap/position-managers'
 import { CAKE } from '@pancakeswap/tokens'
@@ -143,19 +139,6 @@ export const getPotteryVaultContract = (address: Address, walletClient?: WalletC
 
 export const getBCakeFarmBoosterContract = (signer?: WalletClient) => {
   return getContract({ abi: bCakeFarmBoosterABI, address: getBCakeFarmBoosterAddress(), signer })
-}
-
-export const getBCakeFarmBoosterV3Contract = (signer?: WalletClient, chainId?: number) => {
-  return getContract({ abi: bCakeFarmBoosterV3ABI, address: getBCakeFarmBoosterV3Address(chainId), signer, chainId })
-}
-
-export const getBCakeFarmBoosterVeCakeContract = (signer?: WalletClient, chainId?: number) => {
-  return getContract({
-    abi: bCakeFarmBoosterVeCakeABI,
-    address: getBCakeFarmBoosterVeCakeAddress(chainId),
-    signer,
-    chainId,
-  })
 }
 
 export const getPositionManagerWrapperContract = (address: `0x${string}`, signer?: WalletClient, chainId?: number) => {

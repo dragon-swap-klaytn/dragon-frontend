@@ -17,6 +17,7 @@ export const XS_BUTTON_STYLE = "px-2 py-1 text-xs";
 export const SM_BUTTON_STYLE = "px-3 py-1.5 text-sm";
 export const MD_BUTTON_STYLE = "px-4 py-2.5 text-sm";
 
+export type ButtonV2Scale = "xs" | "sm" | "md";
 export function ButtonV2({
   children,
   onClick,
@@ -31,7 +32,7 @@ export function ButtonV2({
   className?: string;
   disabled?: boolean;
   variant: ButtonVariant;
-  scale?: "xs" | "sm" | "md";
+  scale?: ButtonV2Scale;
   fullWidth?: boolean;
   state?: ButtonState;
 }>) {

@@ -8,11 +8,11 @@ import { Chain, useNetwork } from 'wagmi'
 import Dots from '../Loader/Dots'
 
 // Where page network is not equal to wallet network
-export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain: Chain; onDismiss: () => void }) {
+export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain?: Chain; onDismiss: () => void }) {
   const { switchNetworkAsync, isLoading, canSwitch } = useSwitchNetwork()
   const { chain } = useNetwork()
   const { logout } = useAuth()
-  const chainId = currentChain.id || DEFAULT_CHAIN_ID
+  const chainId = currentChain?.id || DEFAULT_CHAIN_ID
   const { t } = useTranslation()
 
   // const switchText = t('Switch to %network%', { network: currentChain.name })

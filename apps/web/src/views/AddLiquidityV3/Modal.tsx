@@ -84,6 +84,7 @@ export function AddLiquidityV3Modal({
         <LiquidityFormProvider onAddLiquidityCallback={onAddLiquidityCallback}>
           <Modal
             title={t('Add Liquidity')}
+            onDismiss={dismiss}
             headerRightSlot={
               <div className="flex items-center space-x-3">
                 <AprCalculator
@@ -97,12 +98,15 @@ export function AddLiquidityV3Modal({
             }
             maxWidth="max-w-4xl"
           >
-            <UniversalAddLiquidity
-              currencyIdA={currencyIdA}
-              currencyIdB={currencyIdB}
-              preferredSelectType={preferredSelectType}
-              preferredFeeAmount={feeAmount}
-            />
+            {!!(currencyIdA && currencyIdB) && (
+              <UniversalAddLiquidity
+                currencyIdA={currencyIdA}
+                currencyIdB={currencyIdB}
+                preferredSelectType={preferredSelectType}
+                preferredFeeAmount={feeAmount}
+                isModal
+              />
+            )}
           </Modal>
         </LiquidityFormProvider>
       </AddLiquidityV2FormProvider>

@@ -1,15 +1,14 @@
-import { useEffect, useMemo } from 'react'
-import { ExtendEthereum } from 'global'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
-import { ConnectorData, useAccount } from 'wagmi'
 import { CHAIN_QUERY_NAME } from 'config/chains'
+import { ExtendEthereum } from 'global'
+import { useEffect, useMemo } from 'react'
+import { ConnectorData, useAccount } from 'wagmi'
 import { useAppDispatch } from '../state'
 import { clearUserStates } from '../utils/clearUserStates'
-import { useSessionChainId } from './useSessionChainId'
 import { useActiveChainId } from './useActiveChainId'
+import { useSessionChainId } from './useSessionChainId'
 
 export const useAccountEventListener = () => {
-  // const { account, chainId, connector } = useActiveWeb3React()
   const { chainId } = useActiveChainId()
   const { connector, address } = useAccount()
   const [, setSessionChainId] = useSessionChainId()

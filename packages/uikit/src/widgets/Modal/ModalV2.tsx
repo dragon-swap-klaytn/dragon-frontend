@@ -51,10 +51,10 @@ export function ModalV2({ isOpen, onDismiss, closeOnOverlayClick, children }: Mo
   return createPortal(
     <ModalV2Context.Provider value={{ onDismiss }}>
       {isOpen && (
-        <div className="flex flex-col justify-center items-center fixed inset-0 z-50">
+        <>
           <Overlay onClick={handleOverlayDismiss} />
           {children}
-        </div>
+        </>
       )}
     </ModalV2Context.Provider>,
     portal

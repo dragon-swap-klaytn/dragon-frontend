@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAccount, useConfig, useConnect } from 'wagmi'
 
-import { addressLocalStorageKey, connectorLocalStorageKey, walletLocalStorageKey } from '@pancakeswap/ui-wallets'
+import { WalletStorageKey } from '@pancakeswap/ui-wallets'
 import { WalletIds } from '@pancakeswap/uikit'
 import { CHAINS } from 'config/chains'
 import { getConnectorId } from 'config/wallet'
@@ -29,21 +29,21 @@ const useEagerConnect = () => {
       return
     }
 
-    if (config.storage.getItem(walletLocalStorageKey) === WalletIds.klip) {
-      const prevAccount = localStorage.getItem(addressLocalStorageKey) ?? ''
+    if (config.storage.getItem(WalletStorageKey.WALLET) === WalletIds.klip) {
+      const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
 
       if (prevAccount !== '') {
         login(getConnectorId(WalletIds.klip)).catch(() => {
-          localStorage.removeItem(walletLocalStorageKey)
-          localStorage.removeItem(connectorLocalStorageKey)
-          localStorage.removeItem(addressLocalStorageKey)
+          localStorage.removeItem(WalletStorageKey.WALLET)
+          localStorage.removeItem(WalletStorageKey.CONNECTOR)
+          localStorage.removeItem(WalletStorageKey.ADDRESS)
         })
       }
 
       return
     }
 
-    const prevAccount = localStorage.getItem(addressLocalStorageKey) ?? ''
+    const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
     if (!prevAccount) {
       return
     }

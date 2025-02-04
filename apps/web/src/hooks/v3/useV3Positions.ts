@@ -48,7 +48,7 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
         positions
           .filter((p) => p.status === 'success')
           .map((p) => {
-            const r = p.result
+            const r = p.result as any
             return {
               nonce: r[0],
               operator: r[1],
@@ -72,7 +72,7 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
                 }
               : null,
           )
-          .filter(Boolean),
+          .filter(Boolean) as PositionDetails[],
       [inputs, positions],
     ),
   }
@@ -94,21 +94,23 @@ export function useV3TokenIdsByAccount(
   contractAddress?: Address,
   account?: Address | null | undefined,
 ): { tokenIds: bigint[]; loading: boolean } {
-  if (!contractAddress || contractAddress === '0x') {
-    return { tokenIds: [], loading: false }
-  }
+  const { chainId, isWrongNetwork } = useActiveChainId()
 
-  const { chainId } = useActiveChainId()
+  const enabled = useMemo(
+    () => !!account && !!contractAddress && contractAddress !== '0x' && !isWrongNetwork,
+    [account, contractAddress, isWrongNetwork],
+  )
+
   const {
     isLoading: balanceLoading,
     data: accountBalance,
     refetch: refetchBalance,
   } = useContractRead({
     abi: masterChefV3ABI,
-    address: contractAddress as `0x${string}`,
-    args: [account ?? undefined],
+    address: contractAddress as Address,
+    args: [account || '0x'],
     functionName: 'balanceOf',
-    enabled: !!account && !!contractAddress,
+    enabled,
     watch: true,
     chainId,
   })
@@ -125,7 +127,7 @@ export function useV3TokenIdsByAccount(
       for (let i = 0; i < accountBalance; i++) {
         tokenRequests.push({
           abi: masterChefV3ABI,
-          address: contractAddress as `0x${string}`,
+          address: contractAddress as Address,
           functionName: 'tokenOfOwnerByIndex',
           args: [account, i],
           chainId,
@@ -159,10 +161,11 @@ export function useV3TokenIdsByAccount(
 
   return {
     tokenIds: useMemo(
-      () => tokenIds.map((r) => (r.status === 'success' ? r.result : null)).filter(Boolean) as bigint[],
-      [tokenIds],
+      () =>
+        !enabled ? [] : (tokenIds.map((r) => (r.status === 'success' ? r.result : null)).filter(Boolean) as bigint[]),
+      [tokenIds, enabled],
     ),
-    loading: someTokenIdsLoading || balanceLoading,
+    loading: !enabled ? false : someTokenIdsLoading || balanceLoading,
   }
 }
 

@@ -1,6 +1,6 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { ContainerV2 } from '@pancakeswap/uikit'
+import { ContainerV2, ExternalLink } from '@pancakeswap/uikit'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCallback, useMemo } from 'react'
 import { safeGetAddress } from 'utils'
@@ -37,16 +37,11 @@ export default function AddressInputPanel({
         <h4 className="text-[13px] text-on-surface-brand">{t('Recipient')}</h4>
 
         {address && chainId && (
-          <a
-            href={getBlockExploreLink(address, 'address', chainId)}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs underline hover:opacity-70 underline-offset-2 text-on-surface-subtle"
-          >
+          <ExternalLink href={getBlockExploreLink(address, 'address', chainId)} textSize="text-xs">
             {t('View on %site%', {
               site: getBlockExploreName(chainId),
             })}
-          </a>
+          </ExternalLink>
         )}
 
         {error && <span className="text-xs text-red-400">{t('Invalid address')}</span>}

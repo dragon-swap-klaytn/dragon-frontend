@@ -1,8 +1,8 @@
-import { Transition } from '@headlessui/react'
-import { languageList, useTranslation } from '@pancakeswap/localization'
+import { useTranslation } from '@pancakeswap/localization'
 import { MenuIconButton, ToggleSwitch, useModal } from '@pancakeswap/uikit'
-import { CaretRight, Gear, Question } from '@phosphor-icons/react'
+import { Gear, Question } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import LanguageSettings from 'components/Menu/GlobalSettings/LanguageSettings'
 import { SettingModeType, SettingsMode } from 'components/Menu/GlobalSettings/types'
 import { Dispatch, SetStateAction, useState } from 'react'
 import SettingsModal from './SettingsModal'
@@ -16,11 +16,8 @@ type Props = {
 const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Props) => {
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={mode} />)
   const [open, setOpen] = useState(false)
-  const [showLanguage, setShowLanguage] = useState(false)
-
   const [activated, setActivated] = useState(true)
-
-  const { currentLanguage, setLanguage, t } = useTranslation()
+  const { t } = useTranslation()
 
   return (
     <div className="relative">
@@ -63,62 +60,12 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
             />
           </div>
 
-          <div className="flex items-start justify-between w-full">
-            <h4 className="text-sm">{t('Language')}</h4>
-
-            <div className="flex flex-col items-end">
-              <div className="flex items-center space-x-1">
-                <button
-                  type="button"
-                  className="text-sm text-on-surface-subtlest"
-                  onClick={() => {
-                    setShowLanguage((prev) => !prev)
-                  }}
-                >
-                  {currentLanguage.language}
-                </button>
-
-                <CaretRight
-                  height={16}
-                  width={16}
-                  className={clsx('text-on-surface-subtlest', {
-                    'transform rotate-90': showLanguage,
-                  })}
-                />
-              </div>
-
-              <Transition
-                show={showLanguage}
-                enter="transition-opacity duration-100"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition-opacity duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div className="flex items-center space-x-2 mt-6">
-                  {languageList.map((lang) => (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      onClick={() => {
-                        setLanguage(lang)
-                        setShowLanguage(false)
-                        setOpen(false)
-                        setGlobalSettingsOpen?.(false)
-                      }}
-                      className={clsx('rounded-[20px] p-2 text-sm hover:opacity-70 px-4 h-10 whitespace-nowrap', {
-                        'bg-brand': lang.code === currentLanguage.code,
-                        'bg-surface-disable': lang.code !== currentLanguage.code,
-                      })}
-                    >
-                      {lang.language}
-                    </button>
-                  ))}
-                </div>
-              </Transition>
-            </div>
-          </div>
+          <LanguageSettings
+            onClickLanguage={() => {
+              setOpen(false)
+              setGlobalSettingsOpen?.(false)
+            }}
+          />
         </div>
       </div>
     </div>

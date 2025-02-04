@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { InjectedModalProps, Modal, ModalV2, QuestionHelper, ToggleSwitch } from '@pancakeswap/uikit'
+import { InjectedModalProps, Modal, QuestionHelper, ToggleSwitch, useModal } from '@pancakeswap/uikit'
 import { useExpertMode, useUserExpertModeAcknowledgement, useUserSingleHopOnly } from '@pancakeswap/utils/user'
 import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
@@ -96,21 +96,23 @@ const SettingsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> = ({ 
 export default SettingsModal
 
 export function RoutingSettingsButton({ showRedDot = true }: { showRedDot?: boolean }) {
-  const [show, setShow] = useState(false)
   const { t } = useTranslation()
   const [isRoutingSettingChange] = useRoutingSettingChanged()
+
+  const [onPresentRoutingSettings] = useModal(<RoutingSettings />)
+
   return (
     <SettingWrapper>
       <button
         type="button"
         className="flex items-center justify-between w-full hover:opacity-70"
-        onClick={() => setShow(true)}
+        onClick={onPresentRoutingSettings}
       >
         <div className="relative">
           <SettingTitle title={t('Customize Routing')} />
 
           <div
-            className={clsx('absolute -top-0.5 -right-2 w-2 h-2 bg-red-400 rounded-full', {
+            className={clsx('absolute -top-0.5 -right-2 w-2 h-2 bg-red-600 rounded-full', {
               hidden: !isRoutingSettingChange || !showRedDot,
             })}
           />
@@ -118,15 +120,11 @@ export function RoutingSettingsButton({ showRedDot = true }: { showRedDot?: bool
 
         <CaretRight size={20} className="text-on-surface" />
       </button>
-
-      <ModalV2 isOpen={show} onDismiss={() => setShow(false)} closeOnOverlayClick>
-        <RoutingSettings />
-      </ModalV2>
     </SettingWrapper>
   )
 }
 
-export function RoutingSettings() {
+export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }) {
   const { t } = useTranslation()
 
   // const [isStableSwapByDefault, setIsStableSwapByDefault] = useUserStableSwapEnable()
@@ -138,6 +136,8 @@ export function RoutingSettings() {
   const onlyOneAMMSourceEnabled = useOnlyOneAMMSourceEnabled()
   const [isRoutingSettingChange, reset] = useRoutingSettingChanged()
 
+  const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)
+
   return (
     <Modal
       title={t('Customize Routing')}
@@ -148,6 +148,7 @@ export function RoutingSettings() {
           </button>
         )
       }
+      onBack={!hideOnback ? onPresentSettingsModal : undefined}
     >
       <h3 className="text-on-surface-brand text-xs">{t('Liquidity source')}</h3>
 
@@ -248,7 +249,7 @@ export function RoutingSettings() {
 }
 
 export function SettingWrapper({ children }: PropsWithChildren) {
-  return <div className="flex items-center justify-between py-2">{children}</div>
+  return <div className="flex items-center justify-between py-3">{children}</div>
 }
 
 export function SettingTitle({ title, questionHelperText }: { title: string; questionHelperText?: ReactNode }) {

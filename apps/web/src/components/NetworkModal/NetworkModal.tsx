@@ -1,9 +1,9 @@
 import { ChainId } from '@pancakeswap/chains'
-import { ModalV2 } from '@pancakeswap/uikit'
+import { useModal } from '@pancakeswap/uikit'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { atom, useAtom } from 'jotai'
 import dynamic from 'next/dynamic'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { CHAIN_IDS } from 'utils/wagmi'
 import { useAccount, useNetwork } from 'wagmi'
 
@@ -28,29 +28,50 @@ export const NetworkModal = ({
   const { isConnected } = useAccount()
 
   const isPageNotSupported = useMemo(
-    () => Boolean(pageSupportedChains.length) && !pageSupportedChains.includes(chainId),
+    () => pageSupportedChains.length > 0 && !pageSupportedChains.includes(chainId),
     [chainId, pageSupportedChains],
   )
-  if (pageSupportedChains?.length === 0) return null // open to all chains
-  if (!isConnected) return null
 
-  if (isWrongNetwork && !dismissWrongNetwork && !isPageNotSupported) {
-    const currentChain = chains.find((c) => c.id === chainId)
-    if (!currentChain) return null
-    return (
-      <ModalV2 isOpen={isWrongNetwork} closeOnOverlayClick onDismiss={() => setDismissWrongNetwork(true)}>
-        <WrongNetworkModal currentChain={currentChain} onDismiss={() => setDismissWrongNetwork(true)} />
-      </ModalV2>
-    )
-  }
+  const currentChain = useMemo(() => chains.find((c) => c.id === chainId), [chains, chainId])
+  const [onPresentWrongNetworkModal, onDismissWrongNetworkModal] = useModal(
+    <WrongNetworkModal currentChain={currentChain} onDismiss={() => setDismissWrongNetwork(true)} />,
+    true,
+    false,
+    'wrongNetworkModal',
+  )
+  const [onPresentUnsupportedNetworkModal, onDismissUnsupportedNetworkModal] = useModal(
+    <UnsupportedNetworkModal pageSupportedChains={pageSupportedChains?.length ? pageSupportedChains : CHAIN_IDS} />,
+    true,
+    false,
+    'unsupportedNetworkModal',
+  )
 
-  if ((chain?.unsupported ?? false) || isPageNotSupported) {
-    return (
-      <ModalV2 isOpen closeOnOverlayClick={false}>
-        <UnsupportedNetworkModal pageSupportedChains={pageSupportedChains?.length ? pageSupportedChains : CHAIN_IDS} />
-      </ModalV2>
-    )
-  }
+  useEffect(() => {
+    if (!isConnected || !isWrongNetwork) {
+      onDismissWrongNetworkModal()
+      onDismissUnsupportedNetworkModal()
+      return
+    }
+
+    if (isWrongNetwork && !dismissWrongNetwork && !isPageNotSupported) {
+      onPresentWrongNetworkModal()
+      return
+    }
+
+    if ((chain?.unsupported ?? false) || isPageNotSupported) {
+      onPresentUnsupportedNetworkModal()
+    }
+  }, [
+    isWrongNetwork,
+    dismissWrongNetwork,
+    isPageNotSupported,
+    onPresentWrongNetworkModal,
+    isConnected,
+    chain,
+    onPresentUnsupportedNetworkModal,
+    onDismissWrongNetworkModal,
+    onDismissUnsupportedNetworkModal,
+  ])
 
   return null
 }

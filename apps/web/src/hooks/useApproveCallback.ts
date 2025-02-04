@@ -66,7 +66,6 @@ export function useApproveCallback(
       content: () => '',
       attemptingTxn: true,
     }),
-
     true,
     true,
     'ApprovalConfirmationModal',

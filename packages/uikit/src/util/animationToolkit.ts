@@ -2,14 +2,14 @@ import { Variants } from "framer-motion";
 import { keyframes } from "styled-components";
 
 export const appearAnimation = keyframes`
-  from { opacity:0 }
-  to { opacity:1 }
-`;
+  from { opacity: 0 }
+  to { opacity: 1 }
+  `;
 
 export const disappearAnimation = keyframes`
-  from { opacity:1 }
-  to { opacity:0 }
-`;
+  from { opacity: 1 }
+  to { opacity: 0 }
+  `;
 
 export const animationHandler = (element: HTMLElement | null) => {
   if (!element) return;
@@ -23,9 +23,9 @@ export const animationHandler = (element: HTMLElement | null) => {
 };
 
 export const animationVariants: Variants = {
-  initial: { transform: "translateX(0px)" },
-  animate: { transform: "translateX(0px)" },
-  exit: { transform: "translateX(0px)" },
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+  exit: { opacity: 0, y: 20, transition: { duration: 0.3, ease: "easeIn" } },
 };
 
 export const animationMap = {

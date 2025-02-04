@@ -108,7 +108,7 @@ export const FarmV3LPPosition = ({
         <Box>
           <Text bold fontSize="12px" ellipsis>
             {t('Min %minAmount%', {
-              minAmount: formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale),
+              minAmount: formatTickPrice(priceLower || undefined, tickAtLimit, Bound.LOWER, locale),
             })}
           </Text>
         </Box>
@@ -116,15 +116,15 @@ export const FarmV3LPPosition = ({
         <Box maxWidth="250px">
           <Text bold fontSize="12px" ellipsis>
             {t('Max %maxAmount%', {
-              maxAmount: formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale),
+              maxAmount: formatTickPrice(priceUpper || undefined, tickAtLimit, Bound.UPPER, locale),
             })}
           </Text>
         </Box>
         <Box>
           <Text bold fontSize="12px">
             {t('%assetA% per %assetB%', {
-              assetA: inverted ? unwrappedToken(quoteToken).symbol : unwrappedToken(token).symbol,
-              assetB: inverted ? unwrappedToken(token).symbol : unwrappedToken(quoteToken).symbol,
+              assetA: inverted ? unwrappedToken(quoteToken)?.symbol : unwrappedToken(token)?.symbol,
+              assetB: inverted ? unwrappedToken(token)?.symbol : unwrappedToken(quoteToken)?.symbol,
             })}
           </Text>
         </Box>
@@ -185,13 +185,13 @@ export function FarmV3LPPositionDetail({
           />
         </AutoRow>
       )}
-      <Balance fontSize="12px" color="textSubtle" decimals={2} value={estimatedUSD} unit=" USD" prefix="~" />
+      <Balance fontSize="12px" color="textSubtle" decimals={2} value={estimatedUSD ?? 0} unit=" USD" prefix="~" />
       <AutoRow columnGap="8px">
         <Balance
           fontSize="12px"
           color="textSubtle"
           decimals={2}
-          value={position ? +amountA.toSignificant(6) : 0}
+          value={position && amountA ? +amountA.toSignificant(6) : 0}
           unit={` ${token.symbol}`}
           startFromValue
         />
@@ -199,7 +199,7 @@ export function FarmV3LPPositionDetail({
           fontSize="12px"
           color="textSubtle"
           decimals={2}
-          value={position ? +amountB.toSignificant(6) : 0}
+          value={position && amountB ? +amountB.toSignificant(6) : 0}
           unit={` ${quoteToken.symbol}`}
           startFromValue
         />

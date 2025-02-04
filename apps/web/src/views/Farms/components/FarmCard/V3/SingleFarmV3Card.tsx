@@ -34,14 +34,7 @@ import { styled, useTheme } from 'styled-components'
 import { logGTMClickStakeFarmEvent } from 'utils/customGTMEventTracking'
 import { V3Farm } from 'views/Farms/FarmsV3'
 import useFarmV3Actions from 'views/Farms/hooks/v3/useFarmV3Actions'
-import { BCakeV3CardView } from '../../YieldBooster/components/bCakeV3/CardView'
-import {
-  useBakeV3farmCanBoost,
-  useIsBoostedPool,
-  useUserBoostedPoolsTokenId,
-  useUserPositionInfo,
-  useVeCakeUserMultiplierBeforeBoosted,
-} from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
+import { useIsBoostedPool, useUserPositionInfo } from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
 import FarmV3StakeAndUnStake, { FarmV3LPPosition, FarmV3LPPositionDetail, FarmV3LPTitle } from './FarmV3StakeAndUnStake'
 
@@ -121,33 +114,21 @@ const SingleFarmV3Card: React.FunctionComponent<
   const title = `${lpSymbol} (#${tokenId.toString()})`
   const liquidityUrl = `/liquidity/${tokenId.toString()}?chain=${CHAIN_QUERY_NAME[chainId ?? -1] ?? ''}`
 
-  const { updatedUserMultiplierBeforeBoosted } = useVeCakeUserMultiplierBeforeBoosted()
   const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenId.toString())
   const { updateUserPositionInfo } = useUserPositionInfo(tokenId.toString())
-  const { updateBoostedPoolsTokenId } = useUserBoostedPoolsTokenId()
   const { updateStatus } = useBoostStatus(farm.pid, tokenId.toString())
 
   const onDone = useCallback(() => {
     updateIsBoostedPool()
     updateUserPositionInfo()
-    updateBoostedPoolsTokenId()
-    updatedUserMultiplierBeforeBoosted()
     updateStatus()
-  }, [
-    updateIsBoostedPool,
-    updateUserPositionInfo,
-    updateBoostedPoolsTokenId,
-    updatedUserMultiplierBeforeBoosted,
-    updateStatus,
-  ])
+  }, [updateIsBoostedPool, updateUserPositionInfo, updateStatus])
 
   const { onStake, onUnstake, onHarvest, attemptingTxn, dismissFarmV3Action } = useFarmV3Actions({
     tokenId: tokenId.toString(),
     reward: pendingCakeByTokenIds[position.tokenId.toString()] || 0n,
     onDone,
   })
-
-  const { farmCanBoost } = useBakeV3farmCanBoost(farm.pid)
 
   const unstakedModal = useModalV2()
   const handleDismiss = useCallback(() => {
@@ -264,7 +245,7 @@ const SingleFarmV3Card: React.FunctionComponent<
           />
 
           <ModalV2 {...unstakedModal} closeOnOverlayClick onDismiss={handleDismiss}>
-            <Modal title={outOfRangeUnstaked ? t('Staking') : t('Unstaking')}>
+            <Modal title={outOfRangeUnstaked ? t('Staking') : t('Unstaking')} onDismiss={handleDismiss}>
               <AutoColumn gap="16px">
                 <AtomBox
                   position="relative"
@@ -374,24 +355,6 @@ const SingleFarmV3Card: React.FunctionComponent<
                 disabled={!pendingCakeByTokenIds?.[position.tokenId.toString()]}
                 userDataReady
                 handleHarvest={handleHarvest}
-              />
-            </RowBetween>
-          </>
-        )}
-        {farmCanBoost && (
-          <>
-            <AtomBox
-              width={{
-                xs: '100%',
-                md: 'auto',
-              }}
-              style={{ borderLeft: dividerBorderStyle, borderTop: dividerBorderStyle }}
-            />
-            <RowBetween flexDirection="column" alignItems="flex-start" flex={1} width="100%">
-              <BCakeV3CardView
-                tokenId={position.tokenId.toString()}
-                pid={farm.pid}
-                isFarmStaking={positionType === 'staked'}
               />
             </RowBetween>
           </>

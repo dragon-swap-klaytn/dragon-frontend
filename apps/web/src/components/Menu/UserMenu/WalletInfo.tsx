@@ -43,42 +43,49 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ onDismiss }) => {
       )}
 
       <div className="mt-4 flex flex-col space-y-2">
-        {account && (
-          <div className="flex w-full justify-end">
-            <ExternalLink href={getBlockExploreLink(account, 'address', chainId)} className="text-sm text-on-surface">
-              KaiaScope
-            </ExternalLink>
-          </div>
-        )}
+        <div className="flex items-center space-x-2 justify-between text-[13px]">
+          <span className="font-bold text-[13px] text-on-surface-subtlest">KAIA</span>
+          {account && (
+            <div className="flex w-full justify-end">
+              <ExternalLink href={getBlockExploreLink(account, 'address', chainId)} className="text-on-surface">
+                KaiaScope
+              </ExternalLink>
+            </div>
+          )}
+        </div>
 
-        <div className="flex items-center space-x-2 justify-between text-on-surface text-sm">
-          <h4>
+        <div className="flex items-center space-x-2 justify-between text-[13px]">
+          <h4 className="text-on-surface-subtlest">
             {native.symbol} {t('Balance')}
           </h4>
 
           {!nativeBalance.isFetched ? (
             <Skeleton height="22px" width="60px" />
           ) : (
-            <span>{formatBigInt(nativeBalance?.data?.value ?? 0n, 6)}</span>
+            <span className="text-on-surface">{formatBigInt(nativeBalance?.data?.value ?? 0n, 6)}</span>
           )}
         </div>
 
         {wNativeBalance && wNativeBalance.gt(0) && (
-          <div className="flex items-center space-x-2 justify-between text-on-surface text-sm">
-            <h4>
+          <div className="flex items-center space-x-2 justify-between text-[13px]">
+            <h4 className="text-on-surface-subtlest">
               {wNativeToken.symbol} {t('Balance')}
             </h4>
 
             {wNativeFetchStatus !== FetchStatus.Fetched ? (
               <Skeleton height="22px" width="60px" />
             ) : (
-              wNativeToken?.decimals && <span>{getFullDisplayBalance(wNativeBalance, wNativeToken?.decimals, 6)}</span>
+              wNativeToken?.decimals && (
+                <span className="text-on-surface">
+                  {getFullDisplayBalance(wNativeBalance, wNativeToken?.decimals, 6)}
+                </span>
+              )
             )}
           </div>
         )}
       </div>
 
-      <ButtonV2 variant="primary" fullWidth onClick={handleLogout} className="mt-6">
+      <ButtonV2 variant="subtle" fullWidth onClick={handleLogout} className="mt-4">
         {t('Disconnect Wallet')}
       </ButtonV2>
     </>

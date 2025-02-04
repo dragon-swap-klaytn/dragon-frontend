@@ -58,7 +58,7 @@ export function useTokenBalancesWithLoadingIndicator(
   tokens?: (Token | undefined)[],
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const validatedTokens: Token[] = useMemo(
-    () => tokens?.filter((t?: Token): t is Token => t && isAddress(t.address)) ?? [],
+    () => tokens?.filter((t?: Token): t is Token => !!t && isAddress(t.address)) ?? [],
     [tokens],
   )
 

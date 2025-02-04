@@ -18,12 +18,3 @@ export const farmsV3FinishedConfigChainMap: Record<number, ComputedFarmConfigV3[
 export type Addresses = {
   [chainId in ChainId]?: Address
 }
-
-export const bCakeFarmBoosterV3Address: Addresses = {
-  [ChainId.KLAYTN]: '0x',
-  [ChainId.KLAYTN_TESTNET]: '0x',
-}
-export const bCakeFarmBoosterVeCakeAddress: Addresses = {
-  [ChainId.KLAYTN]: '0x',
-  [ChainId.KLAYTN_TESTNET]: '0x',
-}

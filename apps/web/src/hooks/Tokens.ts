@@ -4,16 +4,17 @@ import { ERC20Token } from '@pancakeswap/sdk'
 import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
-import { SUPPORTED_CHAIN_IDS, ZERO_ADDRESS } from '@pancakeswap/uikit'
+import { SUPPORTED_CHAIN_IDS } from '@pancakeswap/uikit'
 import { GELATO_NATIVE } from 'config/constants'
 import { useAtomValue } from 'jotai'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import {
   combinedTokenMapFromActiveUrlsAtom,
   combinedTokenMapFromOfficialsUrlsAtom,
   useUnsupportedTokenList,
   useWarningTokenList,
 } from 'state/lists/hooks'
+import useSWR from 'swr'
 import { safeGetAddress } from 'utils'
 import { useToken as useToken_ } from 'wagmi'
 import useUserAddedTokens from '../state/user/hooks/useUserAddedTokens'
@@ -68,46 +69,20 @@ export function useAllTokens(): { [address: string]: ERC20Token } {
  * Returns all tokens that are from active urls and user added tokens
  */
 export function useTokensFromSs(): { [address: string]: ERC20Token } | null {
-  const [tokensFromSs, setTokensFromSs] = useState<{ [address: string]: ERC20Token } | null>(null)
+  const { data } = useSWR(
+    '/api/tokens',
+    async () => {
+      const res = await fetch('/api/tokens')
+      const parsed = (await res.json()) as { [address: string]: ERC20Token }
 
-  useEffect(() => {
-    fetch('https://api.swapscanner.io/v0/tokens')
-      .then(
-        (res) =>
-          res.json() as Promise<{
-            [address: string]: {
-              address: string
-              symbol: string
-              name: string
-              decimals: number
-            }
-          }>,
-      )
-      .then((t) => {
-        const parsedTokens = Object.values(t).reduce((acc, token) => {
-          if (token.address === ZERO_ADDRESS) return acc
+      return parsed
+    },
+    {
+      refreshInterval: 1000 * 60 * 10, // 10 minutes
+    },
+  )
 
-          acc[token.address] = {
-            chainId: ChainId.KLAYTN,
-            address: token.address as `0x${string}`,
-            decimals: +token.decimals,
-            symbol: token.symbol,
-            name: token.name,
-          } as ERC20Token
-
-          return acc
-        }, {} as { [address: string]: ERC20Token })
-
-        setTokensFromSs(parsedTokens)
-      })
-      .catch((e) => {
-        console.error('failed to fetch tokens from Ss', e)
-        // set tokensFromSs to empty object
-        setTokensFromSs({})
-      })
-  }, [])
-
-  return tokensFromSs
+  return data || {}
 }
 
 /**

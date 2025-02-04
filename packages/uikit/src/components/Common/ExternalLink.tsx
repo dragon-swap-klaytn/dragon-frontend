@@ -19,11 +19,11 @@ export function ExternalLink({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className={clsx("underline underline-offset-2 hover:opacity-70 inline-block", textSize, className)}
+      className={clsx("hover:opacity-70 inline-block text-on-surface-link", textSize, className)}
     >
       {children}
 
-      {!hideIcon && <ArrowSquareOut size={16} className="inline-block ml-1 shrink-0 mb-1 text-on-surface-link" />}
+      {!hideIcon && <ArrowSquareOut size={16} className="inline-block ml-1 shrink-0 mb-1" />}
     </a>
   );
 }

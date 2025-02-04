@@ -1,23 +1,23 @@
-import BigNumber from "bignumber.js";
-import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "@pancakeswap/localization";
-import { getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
-import { trimTrailZero } from "@pancakeswap/utils/trimTrailZero";
-import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
 import {
-  Button,
   AutoRenewIcon,
+  Box,
+  Button,
   Message,
   MessageText,
-  Box,
   Modal,
-  ModalBody,
   ModalActions,
+  ModalBody,
   ModalInput,
 } from "@pancakeswap/uikit";
+import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
+import { getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
+import { trimTrailZero } from "@pancakeswap/utils/trimTrailZero";
+import BigNumber from "bignumber.js";
+import { useCallback, useMemo, useState } from "react";
 
 interface WithdrawModalProps {
-  max: BigNumber;
+  max?: BigNumber;
   lpPrice?: BigNumber;
   onConfirm: (amount: string) => void;
   onDismiss?: () => void;
@@ -30,7 +30,7 @@ interface WithdrawModalProps {
 const WithdrawModal: React.FC<React.PropsWithChildren<WithdrawModalProps>> = ({
   onConfirm,
   onDismiss,
-  max,
+  max = BIG_ZERO,
   lpPrice = BIG_ZERO,
   tokenName = "",
   showActiveBooster,

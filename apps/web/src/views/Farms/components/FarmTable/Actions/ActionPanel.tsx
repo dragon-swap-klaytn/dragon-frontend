@@ -1,10 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
+  ExternalLink,
   Flex,
-  LinkExternal,
   Message,
   MessageText,
-  ScanLink,
   Skeleton,
   Text,
   VerifiedIcon,
@@ -13,10 +12,7 @@ import {
 } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { CHAIN_QUERY_NAME } from 'config/chains'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import { FC, useContext, useMemo } from 'react'
-import { ChainLinkSupportChains, multiChainPaths } from 'state/info/constant'
 import { css, keyframes, styled } from 'styled-components'
 import { getBlockExploreLink } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -80,7 +76,9 @@ const collapseAnimation = keyframes`
   }
 `
 
-const Container = styled.div<{ expanded; isLastFarm }>`
+const Container = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'expanded' && prop !== 'isLastFarm',
+})<{ expanded: boolean; isLastFarm: boolean }>`
   animation: ${({ expanded }) =>
     expanded
       ? css`
@@ -103,14 +101,6 @@ const Container = styled.div<{ expanded; isLastFarm }>`
     padding: 16px 24px;
   }
   ${({ isLastFarm }) => isLastFarm && `border-radius: 0 0 32px 32px;`}
-`
-
-const StyledLinkExternal = styled(LinkExternal)`
-  font-weight: 400;
-`
-
-const StyledScanLink = styled(ScanLink)`
-  font-weight: 400;
 `
 
 const ActionContainer = styled.div`
@@ -205,22 +195,11 @@ export const ActionPanelV3: FC<ActionPanelV3Props> = ({
 }) => {
   const { isDesktop } = useMatchBreakpoints()
   const { t } = useTranslation()
-  const { chainId } = useActiveChainId()
   const { address: account } = useAccount()
   const { merklLink } = farm_
   const farm = details
   const isActive = farm.multiplier !== '0X'
   const lpLabel = useMemo(() => farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, ''), [farm.lpSymbol])
-  const bsc = useMemo(
-    () => getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId),
-    [farm.lpAddress, farm.token.chainId],
-  )
-
-  const infoUrl = useMemo(() => {
-    return `/info/v3${multiChainPaths[farm.token.chainId]}/pairs/${farm.lpAddress}?chain=${
-      CHAIN_QUERY_NAME[farm.token.chainId]
-    }`
-  }, [farm.lpAddress, farm.token.chainId])
 
   const hasNoPosition = useMemo(
     () => userDataReady && farm.stakedPositions.length === 0 && farm.unstakedPositions.length === 0,
@@ -275,18 +254,10 @@ export const ActionPanelV3: FC<ActionPanelV3Props> = ({
                 </StyledText>
               </Flex>
             )}
-            {/*
             <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-              <StyledLinkExternal href={infoUrl}>{t('See Pair Info')}</StyledLinkExternal>
-            </Flex>
-            */}
-            <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-              <StyledScanLink
-                useBscCoinFallback={typeof chainId !== 'undefined' && ChainLinkSupportChains.includes(chainId)}
-                href={bsc}
-              >
+              <ExternalLink href={getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId)}>
                 {t('View Contract')}
-              </StyledScanLink>
+              </ExternalLink>
             </Flex>
           </>
         }
@@ -321,11 +292,8 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
   isLastFarm,
   alignLinksToRight = true,
 }) => {
-  const { chainId } = useActiveChainId()
   const { proxyFarm, shouldUseProxyFarm } = useContext(YieldBoosterStateContext)
-
   const farm = details
-
   const { isDesktop } = useMatchBreakpoints()
 
   const {
@@ -334,18 +302,6 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
   } = useTranslation()
   const isActive = farm.multiplier !== '0X'
   const lpLabel = useMemo(() => farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, ''), [farm.lpSymbol])
-  const bsc = useMemo(
-    () => getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId),
-    [farm.lpAddress, farm.token.chainId],
-  )
-
-  const infoUrl = useMemo(() => {
-    if (!chainId) return ''
-    if (farm.isStable) {
-      return `/info${multiChainPaths[chainId]}/pairs/${farm.stableSwapAddress}?type=stableSwap&chain=${CHAIN_QUERY_NAME[chainId]}`
-    }
-    return `/info${multiChainPaths[chainId]}/pairs/${farm.lpAddress}?chain=${CHAIN_QUERY_NAME[chainId]}`
-  }, [chainId, farm.isStable, farm.lpAddress, farm.stableSwapAddress])
 
   const addLiquidityModal = useModalV2()
 
@@ -413,12 +369,9 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
             </Flex>
             */}
             <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-              <StyledScanLink
-                useBscCoinFallback={typeof chainId !== 'undefined' && ChainLinkSupportChains.includes(chainId)}
-                href={bsc}
-              >
+              <ExternalLink href={getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId)}>
                 {t('View Contract')}
-              </StyledScanLink>
+              </ExternalLink>
             </Flex>
           </>
         }

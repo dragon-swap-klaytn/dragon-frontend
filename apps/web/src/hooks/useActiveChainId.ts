@@ -49,7 +49,7 @@ export const useActiveChainId = () => {
 
   // DEV_NOTE : ChainId 기본값 설정
   const { chain } = useNetwork()
-  const chainId = localChainId ?? chain?.id ?? (queryChainId >= 0 ? ChainId.KLAYTN : undefined)  ?? ChainId.KLAYTN
+  const chainId = localChainId ?? chain?.id ?? (queryChainId >= 0 ? ChainId.KLAYTN : undefined) ?? ChainId.KLAYTN
 
   const isNotMatched = useDeferredValue(chain && localChainId && chain.id !== localChainId)
 

@@ -1,15 +1,12 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
-  addressLocalStorageKey,
-  connectorLocalStorageKey,
   useSelectedWallet,
   WalletConnectorNotFoundError,
-  walletLocalStorageKey,
+  WalletStorageKey,
   WalletSwitchChainError,
 } from '@pancakeswap/ui-wallets'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
 import { CHAIN_QUERY_NAME } from 'config/chains'
-// import { ConnectorNames } from 'config/wallet'
 import { useCallback, useRef } from 'react'
 import { useAppDispatch } from 'state'
 import { ConnectorNotFoundError, SwitchChainNotSupportedError, useConnect, useDisconnect, useNetwork } from 'wagmi'
@@ -69,9 +66,9 @@ const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      localStorage.removeItem(walletLocalStorageKey)
-      localStorage.removeItem(connectorLocalStorageKey)
-      localStorage.removeItem(addressLocalStorageKey)
+      localStorage.removeItem(WalletStorageKey.WALLET)
+      localStorage.removeItem(WalletStorageKey.CONNECTOR)
+      localStorage.removeItem(WalletStorageKey.ADDRESS)
 
       await disconnectAsync()
       setSelected(null)

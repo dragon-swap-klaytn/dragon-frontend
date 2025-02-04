@@ -22,8 +22,9 @@ import { formatNumber, getDecimalAmount, getFullDisplayBalance } from "@pancakes
 import removeTrailingZeros from "@pancakeswap/utils/removeTrailingZeros";
 import BigNumber from "bignumber.js";
 import { useCallback, useEffect, useState } from "react";
-import { styled, useTheme } from "styled-components";
+import { styled } from "styled-components";
 
+import { Address } from "viem";
 import PercentageButton from "./PercentageButton";
 
 const StyledLink = styled(Link)`
@@ -63,7 +64,7 @@ interface StakeModalProps {
   setAmount?: (value: string) => void;
   onDismiss?: () => void;
   handleEnableApprove?: () => void;
-  account: string;
+  account: Address;
   handleConfirmClick: any;
   pendingTx: boolean;
   imageUrl?: string;
@@ -96,7 +97,6 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
   warning,
 }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const [stakeAmount, setStakeAmount] = useState("");
   const [hasReachedStakeLimit, setHasReachedStakedLimit] = useState(false);
   const [percent, setPercent] = useState(0);

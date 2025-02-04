@@ -18,16 +18,16 @@ export const EditableAssets = memo(function EditableAssets({ title, onReset, ...
   }, []);
 
   return (
-    <div className="rounded-2xl bg-neutral w-full">
+    <div className="rounded-2xl w-full">
       <div className="w-full flex items-center space-x-2 justify-between mb-2.5">
         <SectionTitle>{title}</SectionTitle>
 
         <div className="flex items-center space-x-2">
-          <ButtonV2 variant="blank" scale="xs" onClick={onEdit}>
+          <ButtonV2 variant="subtle" scale="xs" onClick={onEdit}>
             {t("Edit")}
           </ButtonV2>
 
-          <ButtonV2 variant="blank" scale="xs" onClick={() => onReset?.()}>
+          <ButtonV2 variant="subtle" scale="xs" onClick={() => onReset?.()}>
             {t("Reset")}
           </ButtonV2>
         </div>

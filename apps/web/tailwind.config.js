@@ -80,34 +80,6 @@ module.exports = {
           overlay: '#1c1c1e',
           disable: '#3f3f46',
         },
-
-        // surface: {
-        //   background: '#09090b',
-        //   container: '#18181b',
-        //   'container-high': '#1c1c1e',
-        //   'container-highest': '#27272a',
-        //   disable: '#3f3f46',
-        //   overlay: '#f973161a',
-        //   orange: '#f97316',
-        //   'orange-overlay': '#f973161a',
-        // },
-        // 'on-surface': {
-        //   primary: '#fff',
-        //   secondary: '#d4d4d8',
-        //   tertiary: '#a1a1aa',
-        //   accent: '#f97316',
-        //   accentSubtle: '#fb923c',
-        //   link: '#0ea5e9',
-        //   orange: '#09090b',
-        //   'orange-on-overlay': '#f97316',
-        //   brand: '#f97316',
-        // },
-        // overlay: {
-        //   'background-dim': '#000000b2',
-        //   'surface-hover-light': '#ffffff1a',
-        //   'surface-hover-dark': '#0000001a',
-        // },
-        // stroke: '#3f3f46',
       },
     },
     keyframes: {
@@ -123,6 +95,11 @@ module.exports = {
     animation: {
       'spin-fast': 'spin 1s linear infinite',
       spin: 'spin 2s linear infinite',
+    },
+    zIndex: {
+      header: 100,
+      overlay: 105,
+      modal: 110,
     },
   },
   plugins: [],

@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
-import { Skeleton, useModal, useToast } from '@pancakeswap/uikit'
+import { Skeleton, useToast } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
@@ -16,7 +16,6 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
 import { useCallback } from 'react'
-import MultiChainHarvestModal from 'views/Farms/components/MultiChainHarvestModal'
 import { useUnwrapReward } from 'views/Farms/hooks/useUnwrapReward'
 import { SendTransactionResult } from 'wagmi/actions'
 import useHarvestFarm from '../../../hooks/useHarvestFarm'
@@ -55,14 +54,9 @@ export const HarvestActionContainer = ({ children, ...props }) => {
 }
 
 export const HarvestAction: React.FunctionComponent<React.PropsWithChildren<HarvestActionProps>> = ({
-  pid,
-  token,
-  quoteToken,
-  vaultPid,
   userData,
   userDataReady,
   proxyCakeBalance,
-  lpSymbol,
   onReward,
   onDone,
 }) => {
@@ -107,17 +101,6 @@ export const HarvestAction: React.FunctionComponent<React.PropsWithChildren<Harv
       onDone?.()
     }
   }
-
-  const [onPresentNonBscHarvestModal] = useModal(
-    <MultiChainHarvestModal
-      pid={pid}
-      token={token}
-      lpSymbol={lpSymbol}
-      quoteToken={quoteToken}
-      earningsBigNumber={earningsBigNumber}
-      earningsBusd={earningsBusd}
-    />,
-  )
 
   return (
     <FarmTableHarvestAction

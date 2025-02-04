@@ -21,16 +21,6 @@ import useRoiCalculatorReducer, {
   EditingCurrency,
 } from "./useRoiCalculatorReducer";
 
-// const StyledModal = styled(Modal)`
-//   & > :nth-child(2) {
-//     padding: 0;
-//   }
-
-//   ${({ theme }) => theme.mediaQueries.md} {
-//     width: 380px;
-//   }
-// `;
-
 export const ScrollableContainer = styled.div`
   max-height: 500px;
   overflow-x: hidden;
@@ -51,7 +41,7 @@ const FullWidthButtonMenu = styled(ButtonMenu)<{ disabled?: boolean }>`
 `;
 
 export interface RoiCalculatorModalProps {
-  account: string;
+  account?: `0x${string}`;
   pid?: number;
   earningTokenPrice: number;
   apr?: number;

@@ -3,12 +3,12 @@ import { Percent, TradeType } from '@pancakeswap/sdk'
 import { SMART_ROUTER_ADDRESSES, SmartRouterTrade, SwapRouter } from '@pancakeswap/smart-router/evm'
 import { FeeOptions } from '@pancakeswap/v3-sdk'
 import { useMemo } from 'react'
-import { safeGetAddress } from 'utils'
 
 import { useGetENSAddressByName } from 'hooks/useGetENSAddressByName'
 
+import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
-import { Address, Hex, isAddress } from 'viem'
+import { Address, getAddress, Hex, isAddress } from 'viem'
 
 interface SwapCall {
   address: Address
@@ -32,10 +32,16 @@ export function useSwapCallArguments(
   feeOptions: FeeOptions | undefined,
 ): SwapCall[] {
   const { account, chainId } = useAccountActiveChain()
+  const checkSummedAccount = useMemo(() => {
+    if (!account || !VALID_ADDRESS_REGEX.test(account)) return undefined
+
+    return getAddress(account)
+  }, [account])
+
   const recipientENSAddress = useGetENSAddressByName(recipientAddressOrName)
   const recipient = (
     recipientAddressOrName === null || recipientAddressOrName === undefined
-      ? account
+      ? checkSummedAccount
       : isAddress(recipientAddressOrName)
       ? recipientAddressOrName
       : isAddress(recipientENSAddress)
@@ -44,7 +50,7 @@ export function useSwapCallArguments(
   ) as Address | null
 
   return useMemo(() => {
-    if (!trade || !recipient || !account || !chainId) return []
+    if (!trade || !recipient || !checkSummedAccount || !chainId) return []
 
     const swapRouterAddress = chainId ? SMART_ROUTER_ADDRESSES[chainId] : undefined
     if (!swapRouterAddress) return []
@@ -103,7 +109,7 @@ export function useSwapCallArguments(
       },
     ]
   }, [
-    account,
+    checkSummedAccount,
     allowedSlippage,
     // argentWalletContract,
     chainId,

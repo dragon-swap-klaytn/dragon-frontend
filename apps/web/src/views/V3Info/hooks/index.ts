@@ -346,7 +346,6 @@ export const useTopPoolsData = ():
       [address: string]: PoolData
     }
   | undefined => {
-  const beforeBlocks = useBeforeBlockPerDayUnits()
   const chainName = useChainNameByQuery()
   const chainId = multiChainId[chainName]
   const [t24, t48, t7d] = getDeltaTimestamps()
@@ -358,10 +357,10 @@ export const useTopPoolsData = ():
       fetchTopPools(
         v3InfoClients[chainId],
         chainId,
-        (blocks ?? beforeBlocks).filter((d) => d.number >= SUBGRAPH_START_BLOCK[chainId]),
+        blocks?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[chainId]),
       ),
     {
-      enabled: true,
+      enabled: Boolean(chainId && blocks && blocks?.length > 0),
       ...QUERY_SETTINGS_IMMUTABLE,
     },
   )

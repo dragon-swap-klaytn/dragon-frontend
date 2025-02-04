@@ -9,8 +9,10 @@ import { SendTransactionResult, WaitForTransactionResult } from 'wagmi/actions'
 import { usePublicNodeWaitForTransaction } from './usePublicNodeWaitForTransaction'
 
 export type CatchTxErrorReturn = {
-  fetchWithCatchTxError: (fn: () => Promise<SendTransactionResult | Hash>) => Promise<WaitForTransactionResult | null>
-  fetchTxResponse: (fn: () => Promise<SendTransactionResult | Hash>) => Promise<SendTransactionResult | null>
+  fetchWithCatchTxError: (
+    fn: () => Promise<SendTransactionResult | Hash | null>,
+  ) => Promise<WaitForTransactionResult | null>
+  fetchTxResponse: (fn: () => Promise<SendTransactionResult | Hash | null>) => Promise<SendTransactionResult | null>
   loading: boolean
   setLoading: Dispatch<SetStateAction<boolean>>
   txResponseLoading: boolean
@@ -70,7 +72,7 @@ export default function useCatchTxError(params?: Params): CatchTxErrorReturn {
   )
 
   const fetchWithCatchTxError = useCallback(
-    async (callTx: () => Promise<SendTransactionResult | Hash>): Promise<WaitForTransactionResult | null> => {
+    async (callTx: () => Promise<SendTransactionResult | Hash | null>): Promise<WaitForTransactionResult | null> => {
       let tx: SendTransactionResult | Hash | null = null
 
       try {
@@ -82,6 +84,8 @@ export default function useCatchTxError(params?: Params): CatchTxErrorReturn {
          * wait for useSWRMutation finished, so we could apply SWR in case manually trigger tx call
          */
         tx = await callTx()
+        if (!tx) return null
+
         const hash = typeof tx === 'string' ? tx : tx.hash
         toastSuccess(`${t('Transaction Submitted')}!`, <ToastDescriptionWithTx txHash={hash} />)
 
@@ -122,7 +126,7 @@ export default function useCatchTxError(params?: Params): CatchTxErrorReturn {
   )
 
   const fetchTxResponse = useCallback(
-    async (callTx: () => Promise<SendTransactionResult | Hash>): Promise<SendTransactionResult | null> => {
+    async (callTx: () => Promise<SendTransactionResult | Hash | null>): Promise<SendTransactionResult | null> => {
       let tx: SendTransactionResult | Hash | null = null
 
       try {
@@ -134,6 +138,7 @@ export default function useCatchTxError(params?: Params): CatchTxErrorReturn {
          * wait for useSWRMutation finished, so we could apply SWR in case manually trigger tx call
          */
         tx = await callTx()
+        if (!tx) return null
 
         const hash = typeof tx === 'string' ? tx : tx.hash
 

@@ -159,15 +159,6 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     txHash: undefined,
   })
 
-  // Handlers
-  const handleConfirmDismiss = useCallback(() => {
-    setSwapState({ tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
-    // if there was a tx hash, we want to clear the input
-    if (txHash) {
-      onUserInput(Field.INPUT, '')
-    }
-  }, [attemptingTxn, onUserInput, swapErrorMessage, tradeToConfirm, txHash, setSwapState])
-
   const handleSwap = useCallback(async () => {
     if (
       priceImpactWithoutFee &&
@@ -213,6 +204,29 @@ export const SwapCommitButton = memo(function SwapCommitButton({
       })
   }, [priceImpactWithoutFee, t, swapCallback, tradeToConfirm, revertReason])
 
+  const { confirmModalState, pendingModalSteps, startSwapFlow, resetSwapFlow } = useConfirmModalState({
+    txHash,
+    chainId,
+    approval: approvalState,
+    approvalToken: trade?.inputAmount?.currency,
+    isPendingError,
+    isExpertMode,
+    currentAllowance,
+    approveCallback,
+    revokeCallback,
+    onConfirm: handleSwap,
+  })
+
+  // Handlers
+  const handleConfirmDismiss = useCallback(() => {
+    setSwapState({ tradeToConfirm: undefined, attemptingTxn: false, swapErrorMessage: undefined, txHash: undefined })
+    resetSwapFlow()
+    // if there was a tx hash, we want to clear the input
+    if (txHash) {
+      onUserInput(Field.INPUT, '')
+    }
+  }, [onUserInput, txHash, setSwapState, resetSwapFlow])
+
   const handleAcceptChanges = useCallback(() => {
     setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn })
   }, [attemptingTxn, swapErrorMessage, trade, txHash, setSwapState])
@@ -239,19 +253,6 @@ export const SwapCommitButton = memo(function SwapCommitButton({
       mode={SettingsMode.SWAP_LIQUIDITY}
     />,
   )
-
-  const { confirmModalState, pendingModalSteps, startSwapFlow, resetSwapFlow } = useConfirmModalState({
-    txHash,
-    chainId,
-    approval: approvalState,
-    approvalToken: trade?.inputAmount?.currency,
-    isPendingError,
-    isExpertMode,
-    currentAllowance,
-    approveCallback,
-    revokeCallback,
-    onConfirm: handleSwap,
-  })
 
   const [onPresentConfirmModal] = useModal(
     <ConfirmSwapModal
@@ -290,7 +291,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     }
     onPresentConfirmModal()
     logGTMClickSwapEvent()
-  }, [trade, onPresentConfirmModal, isExpertMode, startSwapFlow, resetSwapFlow])
+  }, [trade, onPresentConfirmModal, resetSwapFlow, isExpertMode, startSwapFlow])
 
   // useEffect
   useEffect(() => {
@@ -316,7 +317,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     }
   }, [approvalState, approvalSubmitted])
 
-  const [show, setShow] = useState(false)
+  // const [onPresentRoutingSettings] = useModal(<RoutingSettings />)
+
+  const [open, setOpen] = useState(false)
   const isValid = !swapInputError && !tradeLoading
 
   if (swapIsUnsupported) {
@@ -348,8 +351,6 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   if (noRoute && userHasSpecifiedInputOutput && !tradeLoading) {
     return (
       <div className="flex flex-col space-y-4">
-        <Notification variant="warning">{t('Insufficient liquidity for this trade.')}</Notification>
-
         <div className="p-4 rounded-[20px] bg-surface-disable">
           <p className="text-sm text-center text-gray-400">{t('Insufficient liquidity for this trade.')}</p>
         </div>
@@ -362,7 +363,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
               <div className="flex items-center space-x-2 mt-4">
                 <button
                   type="button"
-                  onClick={() => setShow(true)}
+                  onClick={() => setOpen(true)}
                   className="hover:opacity-70 px-2 py-1 border rounded-md text-gray-100 border-gray-100 text-xs"
                 >
                   {t('Check your settings')}
@@ -379,8 +380,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
                 </button>
               </div>
 
-              <ModalV2 isOpen={show} onDismiss={() => setShow(false)} closeOnOverlayClick>
-                <RoutingSettings />
+              {/* <RoutingSettings open={open} onDismiss={() => setOpen(false)} /> */}
+              <ModalV2 isOpen={open} onDismiss={() => setOpen(false)} closeOnOverlayClick>
+                <RoutingSettings hideOnback />
               </ModalV2>
             </div>
           </Notification>

@@ -1,3 +1,3 @@
+export { useAmountsByUsdValue, useRoi } from "./hooks";
 export * from "./RoiCalculator";
-export { RoiCalculatorModal as RoiCalculatorModalV2 } from "./RoiCalculatorModal";
-export { useRoi, useAmountsByUsdValue } from "./hooks";
+export { RoiCalculatorModalV2 } from "./RoiCalculatorModalV2";

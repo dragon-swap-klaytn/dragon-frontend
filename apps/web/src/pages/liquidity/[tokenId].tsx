@@ -81,12 +81,7 @@ import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import currencyId from 'utils/currencyId'
 import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import {
-  useIsBoostedPool,
-  useUserBoostedPoolsTokenId,
-  useUserPositionInfo,
-  useVeCakeUserMultiplierBeforeBoosted,
-} from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
+import { useIsBoostedPool, useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
 import useFarmV3Actions, { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
@@ -510,25 +505,19 @@ export default function PoolPage() {
     )
   }, [pendingCake, cake])
 
-  const { updatedUserMultiplierBeforeBoosted } = useVeCakeUserMultiplierBeforeBoosted()
   const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenIdStr)
   const { updateUserPositionInfo } = useUserPositionInfo(tokenIdStr)
-  const { updateBoostedPoolsTokenId } = useUserBoostedPoolsTokenId()
   const { updateStatus } = useBoostStatus(farm?.pid || 0, tokenIdStr)
 
   const onDone = useCallback(() => {
     updateIsBoostedPool()
     updateUserPositionInfo()
-    updateBoostedPoolsTokenId()
-    updatedUserMultiplierBeforeBoosted()
     updateStatus()
     updateFarmsV3WithPositionsAndBooster()
     setNumberedPendingCake(0)
   }, [
     updateIsBoostedPool,
     updateUserPositionInfo,
-    updateBoostedPoolsTokenId,
-    updatedUserMultiplierBeforeBoosted,
     updateStatus,
     updateFarmsV3WithPositionsAndBooster,
     setNumberedPendingCake,

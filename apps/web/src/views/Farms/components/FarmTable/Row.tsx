@@ -8,13 +8,11 @@ import { styled } from 'styled-components'
 
 import { V2Farm, V3Farm } from 'views/Farms/FarmsV3'
 import { FarmV3ApyButton } from '../FarmCard/V3/FarmV3ApyButton'
-import { useUserBoostedPoolsTokenId } from '../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { useIsSomePositionBoosted } from '../YieldBooster/hooks/bCakeV3/useIsSomePositionBoosted'
 import { ActionPanelV2, ActionPanelV3 } from './Actions/ActionPanel'
 import Apr, { AprProps } from './Apr'
 import { FarmCell } from './Farm'
 
-const { FarmAuctionTag, BoostedTag, StableFarmTag, V2Tag, V3FeeTag } = FarmWidget.Tags
+const { FarmAuctionTag, StableFarmTag, V2Tag, V3FeeTag } = FarmWidget.Tags
 const { CellLayout, Details, Multiplier, Liquidity, Earned, LpAmount, StakedLiquidity } = FarmWidget.FarmTable
 const { DesktopColumnSchema, MobileColumnSchema, V3DesktopColumnSchema } = FarmWidget
 
@@ -110,10 +108,8 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
   const hasStakedAmount = farm.isStaking || false
   const [actionPanelExpanded, setActionPanelExpanded] = useState(hasStakedAmount)
   const shouldRenderChild = useDelayedUnmount(actionPanelExpanded, 300)
-  const { t } = useTranslation()
 
-  const { tokenIds } = useUserBoostedPoolsTokenId()
-  const { isBoosted } = useIsSomePositionBoosted(props.type === 'v3' ? props?.details?.stakedPositions : [], tokenIds)
+  const { t } = useTranslation()
 
   const toggleActionPanel = useCallback(() => {
     setActionPanelExpanded(!actionPanelExpanded)
@@ -162,7 +158,6 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
                         )
                       ) : null}
                       {props.type === 'v3' && <V3FeeTag feeAmount={props.details.feeAmount} scale="sm" />}
-                      {isBoosted ? <BoostedTag scale="sm" /> : null}
                     </CellInner>
                   </td>
                 )
@@ -259,7 +254,6 @@ const Row: React.FunctionComponent<React.PropsWithChildren<RowPropsWithLoading>>
                   ) : null}
                   {props.type === 'v3' && <V3FeeTag feeAmount={props.details.feeAmount} scale="sm" />}
                   {props.type === 'community' || props?.farm?.isCommunity ? <FarmAuctionTag scale="sm" /> : null}
-                  {isBoosted ? <BoostedTag style={{ background: 'none', verticalAlign: 'bottom' }} scale="sm" /> : null}
                 </Flex>
               </Flex>
             </FarmMobileCell>
