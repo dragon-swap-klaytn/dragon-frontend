@@ -133,7 +133,7 @@ const getV3TokensDatailedData = async () => {
   const timestamps = [now - 7 * DAY, now - DAY, now]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
-  const tokensPromise = getV2Tokens({ blockNumber: blockNumbers[2] })
+  const tokensPromise = getV3Tokens({ blockNumber: blockNumbers[2] })
   const [tokens7D, tokens24H, tokens] = await Promise.all([
     getV3TokensAccData(blockNumbers[0]),
     getV3TokensAccData(blockNumbers[1]),
