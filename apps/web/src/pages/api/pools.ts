@@ -8,17 +8,20 @@ import { z } from 'zod'
 type PoolParsed = ReturnType<typeof parseV2Pool> | ReturnType<typeof parseV3Pool>
 
 const poolsSchema = z.object({
-  types: z
-    .array(z.enum(['v2', 'v3']))
-    .min(1)
-    .default(['v2', 'v3']),
-  onlyPoolIds: z.array(z.string().regex(VALID_ADDRESS_REGEX)).optional(),
+  types: z.preprocess(
+    (v) => (typeof v === 'string' && v.length > 0 ? v.split(',') : ['v2', 'v3']),
+    z.enum(['v2', 'v3']).array().nonempty(),
+  ),
+  onlyPoolIds: z.preprocess(
+    (v) => (typeof v === 'string' && v.length > 0 ? v.split(',') : []),
+    z.string().regex(VALID_ADDRESS_REGEX).array(),
+  ),
   // TODO: boosted only option ? (using MasterChef contract)
   sortBy: z.enum(['apr24H', 'apr7D', 'volume24H', 'volume7D', 'tvl']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
 
-  skip: z.number().optional().default(0),
-  limit: z.number().max(100).optional().default(10),
+  skip: z.coerce.number().optional().default(0),
+  limit: z.coerce.number().max(100).optional().default(10),
 })
 
 const handler: NextApiHandler = async (req, res) => {
@@ -31,7 +34,7 @@ const handler: NextApiHandler = async (req, res) => {
 
   const pools: PoolParsed[] = []
 
-  if (onlyPoolIds) {
+  if (onlyPoolIds.length > 0) {
     const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => id.toLowerCase())
     pools.push(
       ...v2PoolsParsed.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),

@@ -6,8 +6,8 @@ const tokensSchema = z.object({
   sortBy: z.enum(['volume24H', 'volume7D', 'tvl', 'priceChange24H', 'priceChange7D']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
 
-  skip: z.number().optional().default(0),
-  limit: z.number().max(100).optional().default(10),
+  skip: z.coerce.number().optional().default(0),
+  limit: z.coerce.number().max(100).optional().default(10),
 })
 
 const handler: NextApiHandler = async (req, res) => {
