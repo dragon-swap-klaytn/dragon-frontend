@@ -38,3 +38,23 @@ export type PoolV3AccData = PoolAccDataBase & {
 }
 
 export type PoolV3Raw = PoolV3Base & PoolV3AccData
+
+export type TokenBase = {
+  id: string
+  symbol: string
+  name: string
+  decimals: number
+
+  tvl: number
+  tvlUSD: number
+}
+
+export type TokenAccData = {
+  id: string
+  priceUSD: number
+  volume: number
+  volumeUSD: number
+  txCount: number
+}
+
+export type TokenRaw = TokenBase & TokenAccData

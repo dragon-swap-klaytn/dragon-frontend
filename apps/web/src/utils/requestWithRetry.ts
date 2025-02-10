@@ -2,7 +2,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export const requestWithRetry = async <T>(
   requestPromise: Promise<T>,
-  { retries = 3, initialDelay = 1000, exponentialBackoff = true } = {},
+  { retries = 3, initialDelay = 1000, exponentialBackoff = true, logPrefix = '' } = {},
 ): Promise<T> => {
   let delay = initialDelay
 
@@ -11,6 +11,7 @@ export const requestWithRetry = async <T>(
       return requestPromise
     } catch (error) {
       if (i === retries - 1) {
+        console.error(`${logPrefix} requestWithRetry: failed after ${retries} retries`, error)
         throw error
       }
 

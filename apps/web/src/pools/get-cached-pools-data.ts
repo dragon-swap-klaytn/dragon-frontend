@@ -14,14 +14,16 @@ const DAY = 24 * HOUR
 const POOL_LIQUIDITY_USD_THRESHOLD = 10
 
 const getV2PoolsAccData = async (blockNumber: number) => {
-  // check lru caache
+  // check lru cache
   if (v2PoolsAccDataCache.get(blockNumber.toString())) {
     return v2PoolsAccDataCache.get(blockNumber.toString())!
   }
 
   // fetch data
   const poolsPromise = getV2Pools({ blockNumber, accOnly: true })
-  const pools = await requestWithRetry(poolsPromise)
+  const pools = await requestWithRetry(poolsPromise, {
+    logPrefix: `getV2PoolsAccData(${blockNumber})`,
+  })
 
   // cache data
   const poolsMap = Object.fromEntries(pools.map(({ id, ...pool }) => [id, pool]))
@@ -32,14 +34,16 @@ const getV2PoolsAccData = async (blockNumber: number) => {
 }
 
 const getV3PoolsAccData = async (blockNumber: number) => {
-  // check lru caache
+  // check lru cache
   if (v3PoolsAccDataCache.get(blockNumber.toString())) {
     return v3PoolsAccDataCache.get(blockNumber.toString())!
   }
 
   // fetch data
   const poolsPromise = getV3Pools({ blockNumber, accOnly: true })
-  const pools = await requestWithRetry(poolsPromise)
+  const pools = await requestWithRetry(poolsPromise, {
+    logPrefix: `getV3PoolsAccData(${blockNumber})`,
+  })
 
   // cache data
   const poolsMap = Object.fromEntries(pools.map(({ id, ...pool }) => [id, pool]))
@@ -62,7 +66,7 @@ export type PoolV2Detailed = PoolV2Base & {
   }
 }
 
-const getV2PoolsComparedToAccData = async ({
+const getV2PoolsDetailedData = async ({
   blockNumber7D,
   blockNumber24H,
   blockNumberNow,
@@ -76,10 +80,12 @@ const getV2PoolsComparedToAccData = async ({
   const [pools7D, pools24H, pools] = await Promise.all([
     getV2PoolsAccData(blockNumber7D),
     getV2PoolsAccData(blockNumber24H),
-    requestWithRetry(poolsPromise),
+    requestWithRetry(poolsPromise, {
+      logPrefix: `getV2PoolsDetailedData`,
+    }),
   ])
 
-  const poolsWithAccData = pools
+  const poolsDetails = pools
     .filter(({ tvlUSD }) => tvlUSD > POOL_LIQUIDITY_USD_THRESHOLD)
     .map(
       ({ volumeUSD, txCount, ...pool }) =>
@@ -99,7 +105,7 @@ const getV2PoolsComparedToAccData = async ({
     )
     .sort((a, b) => b.volumeUSD['24H'] - a.volumeUSD['24H'])
 
-  return poolsWithAccData
+  return poolsDetails
 }
 
 export type PoolV3Detailed = PoolV3Base & {
@@ -130,7 +136,7 @@ export type PoolV3Detailed = PoolV3Base & {
   }
 }
 
-const getV3PoolsCompairedToAccData = async ({
+const getV3PoolsDetailedData = async ({
   blockNumber7D,
   blockNumber24H,
   blockNumberNow,
@@ -144,13 +150,16 @@ const getV3PoolsCompairedToAccData = async ({
   const [pools7D, pools24H, pools] = await Promise.all([
     getV3PoolsAccData(blockNumber7D),
     getV3PoolsAccData(blockNumber24H),
-    requestWithRetry(poolsPromise),
+    requestWithRetry(poolsPromise, {
+      // logPrefix: `getV3PoolsDetailedData(${blockNumberNow})`,
+      logPrefix: `getV3PoolsDetailedData`,
+    }),
   ])
 
-  const poolsWithAccData = pools
+  const poolsDetails = pools
     .filter(({ tvlUSD }) => tvlUSD > POOL_LIQUIDITY_USD_THRESHOLD)
     .map(
-      ({ volumeUSD, feeUSD, txCount, liquidityProviderCount, ...pool }) =>
+      ({ volumeUSD, feeUSD, protocolFeeUSD, txCount, liquidityProviderCount, ...pool }) =>
         ({
           ...pool,
           volumeUSD: {
@@ -164,9 +173,9 @@ const getV3PoolsCompairedToAccData = async ({
             '24H': feeUSD - (pools24H[pool.id]?.feeUSD ?? 0),
           },
           protocolFeeUSD: {
-            total: pool.protocolFeeUSD,
-            '7D': pool.protocolFeeUSD - (pools7D[pool.id]?.protocolFeeUSD ?? 0),
-            '24H': pool.protocolFeeUSD - (pools24H[pool.id]?.protocolFeeUSD ?? 0),
+            total: protocolFeeUSD,
+            '7D': protocolFeeUSD - (pools7D[pool.id]?.protocolFeeUSD ?? 0),
+            '24H': protocolFeeUSD - (pools24H[pool.id]?.protocolFeeUSD ?? 0),
           },
           txCount: {
             total: txCount,
@@ -182,7 +191,7 @@ const getV3PoolsCompairedToAccData = async ({
     )
     .sort((a, b) => b.volumeUSD['24H'] - a.volumeUSD['24H'])
 
-  return poolsWithAccData
+  return poolsDetails
 }
 
 export const getCachedPoolsData = localCachedV2(
@@ -197,10 +206,7 @@ export const getCachedPoolsData = localCachedV2(
       blockNumberNow: blockNumbers[2],
     }
 
-    const [v2Pools, v3Pools] = await Promise.all([
-      getV2PoolsComparedToAccData(blocks),
-      getV3PoolsCompairedToAccData(blocks),
-    ])
+    const [v2Pools, v3Pools] = await Promise.all([getV2PoolsDetailedData(blocks), getV3PoolsDetailedData(blocks)])
 
     return { v2Pools, v3Pools }
   },

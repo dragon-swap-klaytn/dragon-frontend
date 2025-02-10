@@ -1,3 +1,4 @@
+import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { NextApiHandler } from 'next'
 
 import { getCachedPoolsData } from 'pools/get-cached-pools-data'
@@ -6,14 +7,12 @@ import { z } from 'zod'
 
 type PoolParsed = ReturnType<typeof parseV2Pool> | ReturnType<typeof parseV3Pool>
 
-const validAddress = z.string().regex(/^0x[0-9a-fA-F]{40}$/)
-
 const poolsSchema = z.object({
   types: z
     .array(z.enum(['v2', 'v3']))
     .min(1)
     .default(['v2', 'v3']),
-  onlyPoolIds: z.array(validAddress).optional(),
+  onlyPoolIds: z.array(z.string().regex(VALID_ADDRESS_REGEX)).optional(),
   // TODO: boosted only option ? (using MasterChef contract)
   sortBy: z.enum(['apr24H', 'apr7D', 'volume24H', 'volume7D', 'tvl']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
@@ -33,9 +32,10 @@ const handler: NextApiHandler = async (req, res) => {
   const pools: PoolParsed[] = []
 
   if (onlyPoolIds) {
+    const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => id.toLowerCase())
     pools.push(
-      ...v2PoolsParsed.filter((pool) => onlyPoolIds.includes(pool.id)),
-      ...v3PoolsParsed.filter((pool) => onlyPoolIds.includes(pool.id)),
+      ...v2PoolsParsed.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),
+      ...v3PoolsParsed.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),
     )
   } else {
     if (types.includes('v2')) {
