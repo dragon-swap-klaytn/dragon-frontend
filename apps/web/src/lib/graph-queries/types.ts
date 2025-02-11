@@ -58,3 +58,31 @@ export type TokenAccData = {
 }
 
 export type TokenRaw = TokenBase & TokenAccData
+
+export type PancakeDayDataV2 = {
+  timestamp: number
+  volumeUSD: number
+  tvlUSD: number
+  txCount: number
+}
+
+export type PancakeDayDataV3 = {
+  timestamp: number
+  volumeUSD: number
+  tvlUSD: number
+  txCount: number
+  feeUSD: number
+  protocolFeeUSD: number
+}
+
+export type TransactionEvent = {
+  timestamp: number
+  txHash: string
+  pool: string
+  token0: string
+  token1: string
+  account: string
+  amount0: number
+  amount1: number
+  amountUSD: number
+}
