@@ -28,8 +28,18 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
             accOnly
               ? ''
               : `
-            token0 { id }
-            token1 { id }
+            token0 {
+              id
+              symbol
+              name
+              decimals
+            }
+            token1 {
+              id
+              symbol
+              name
+              decimals
+            }
             feeTier
             feeProtocol
             liquidity
@@ -72,8 +82,8 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
         (pool) =>
           ({
             id: pool.id,
-            token0: pool.token0.id,
-            token1: pool.token1.id,
+            token0: pool.token0,
+            token1: pool.token1,
             feeTier: pool.feeTier,
             feeProtocol: pool.feeProtocol,
             reserve0: +pool.totalValueLockedToken0,

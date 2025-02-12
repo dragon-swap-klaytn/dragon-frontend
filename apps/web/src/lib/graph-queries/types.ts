@@ -1,7 +1,14 @@
+type TokenSimple = {
+  id: string
+  symbol: string
+  name: string
+  decimals: number
+}
+
 type PoolBase = {
   id: string
-  token0: string
-  token1: string
+  token0: TokenSimple
+  token1: TokenSimple
   reserve0: number
   reserve1: number
   tvlUSD: number
@@ -39,12 +46,7 @@ export type PoolV3AccData = PoolAccDataBase & {
 
 export type PoolV3Raw = PoolV3Base & PoolV3AccData
 
-export type TokenBase = {
-  id: string
-  symbol: string
-  name: string
-  decimals: number
-
+export type TokenBase = TokenSimple & {
   tvl: number
   tvlUSD: number
 }

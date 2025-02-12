@@ -25,8 +25,18 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
           accOnly
             ? ''
             : `
-          token0 { id }
-          token1 { id }
+          token0 {
+            id
+            symbol
+            name
+            decimals
+          }
+          token1 {
+            id
+            symbol
+            name
+            decimals
+          }
           reserve0
           reserve1
           reserveUSD
@@ -66,8 +76,6 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
         (pair) =>
           ({
             ...pair,
-            token0: pair.token0.id,
-            token1: pair.token1.id,
             reserve0: +pair.reserve0,
             reserve1: +pair.reserve1,
             tvlUSD: +pair.reserveUSD,
