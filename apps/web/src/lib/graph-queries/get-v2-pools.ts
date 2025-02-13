@@ -1,5 +1,5 @@
 import { gql, request } from 'graphql-request'
-import { BATCH_SIZE, subgraphUrls } from 'lib/graph-queries/const'
+import { BATCH_SIZE, subgraphUrls, tokensToBeOverridden } from 'lib/graph-queries/const'
 import { PoolV2AccData, PoolV2Raw } from 'lib/graph-queries/types'
 
 export const getV2Pools = async <AccOnly extends boolean = false>({
@@ -76,6 +76,8 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
         (pair) =>
           ({
             ...pair,
+            token0: tokensToBeOverridden[pair.token0.id] ?? pair.token0,
+            token1: tokensToBeOverridden[pair.token1.id] ?? pair.token1,
             reserve0: +pair.reserve0,
             reserve1: +pair.reserve1,
             tvlUSD: +pair.reserveUSD,

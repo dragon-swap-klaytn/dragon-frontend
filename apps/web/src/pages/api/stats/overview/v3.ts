@@ -4,11 +4,13 @@ import { NextApiHandler } from 'next'
 import { localCachedV2 } from 'utils/localCachedV2'
 
 const getCachedV3PancakeDayData = localCachedV2(() => getV3PancakeDayData({ length: 30 }), {
+  staleWhileRevalidate: true,
   ttl: 1000 * 60 * 10,
   ttlOnCatch: 5 * 1000,
 }).cachedFetcher
 
 const getCachedV3TransactionEvents = localCachedV2(() => getV3LatestTransactions({ length: 100 }), {
+  staleWhileRevalidate: true,
   ttl: 1000 * 60 * 10,
   ttlOnCatch: 5 * 1000,
 }).cachedFetcher

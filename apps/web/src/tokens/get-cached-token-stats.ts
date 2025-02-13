@@ -1,4 +1,4 @@
-import { getCachedBlockNumbers } from 'lib/getCachedBlockNumbers'
+import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Tokens } from 'lib/graph-queries/get-v2-tokens'
 import { getV3Tokens } from 'lib/graph-queries/get-v3-tokens'
 import { TokenBase } from 'lib/graph-queries/types'
@@ -124,6 +124,7 @@ const getV2TokensDatailedData = async () => {
 }
 
 export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
+  staleWhileRevalidate: true,
   ttl: 10 * MINUTE,
   ttlOnCatch: 5_000,
 }).cachedFetcher
@@ -176,6 +177,7 @@ const getV3TokensDatailedData = async () => {
 }
 
 export const getCachedV3TokenStats = localCachedV2(getV3TokensDatailedData, {
+  staleWhileRevalidate: true,
   ttl: 10 * MINUTE,
   ttlOnCatch: 5_000,
 }).cachedFetcher

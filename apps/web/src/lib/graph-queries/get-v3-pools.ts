@@ -1,5 +1,5 @@
 import { gql, request } from 'graphql-request'
-import { BATCH_SIZE, subgraphUrls } from 'lib/graph-queries/const'
+import { BATCH_SIZE, subgraphUrls, tokensToBeOverridden } from 'lib/graph-queries/const'
 import { PoolV3AccData, PoolV3Raw } from 'lib/graph-queries/types'
 
 export const getV3Pools = async <AccOnly extends boolean = false>({
@@ -82,8 +82,8 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
         (pool) =>
           ({
             id: pool.id,
-            token0: pool.token0,
-            token1: pool.token1,
+            token0: tokensToBeOverridden[pool.token0.id] ?? pool.token0,
+            token1: tokensToBeOverridden[pool.token1.id] ?? pool.token1,
             feeTier: pool.feeTier,
             feeProtocol: pool.feeProtocol,
             reserve0: +pool.totalValueLockedToken0,

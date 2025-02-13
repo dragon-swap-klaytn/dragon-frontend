@@ -1,5 +1,5 @@
 import { gql, request } from 'graphql-request'
-import { BATCH_SIZE, subgraphUrls } from 'lib/graph-queries/const'
+import { BATCH_SIZE, subgraphUrls, tokensToBeOverridden } from 'lib/graph-queries/const'
 import { TokenAccData, TokenRaw } from 'lib/graph-queries/types'
 
 export const getV2Tokens = async <AccOnly extends boolean = false>({
@@ -78,6 +78,7 @@ export const getV2Tokens = async <AccOnly extends boolean = false>({
           volume: +token.tradeVolume,
           volumeUSD: +token.tradeVolumeUSD,
           txCount: +token.totalTransactions,
+          ...tokensToBeOverridden[token.id],
         } as TokenRaw
       })
 }

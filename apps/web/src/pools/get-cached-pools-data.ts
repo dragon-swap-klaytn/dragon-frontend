@@ -1,4 +1,4 @@
-import { getCachedBlockNumbers } from 'lib/getCachedBlockNumbers'
+import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Pools } from 'lib/graph-queries/get-v2-pools'
 import { getV3Pools } from 'lib/graph-queries/get-v3-pools'
 import { PoolV2Base, PoolV3Base } from 'lib/graph-queries/types'
@@ -211,6 +211,7 @@ export const getCachedPoolsData = localCachedV2(
     return { v2Pools, v3Pools }
   },
   {
+    staleWhileRevalidate: true,
     ttl: 10 * MINUTE,
     ttlOnCatch: 5_000,
   },

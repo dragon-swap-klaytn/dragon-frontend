@@ -81,8 +81,8 @@ export type TransactionEvent = {
   timestamp: number
   txHash: string
   pool: string
-  token0: string
-  token1: string
+  token0: TokenSimple
+  token1: TokenSimple
   account: string
   amount0: number
   amount1: number
