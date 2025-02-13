@@ -116,6 +116,11 @@ export const localCachedV2 = <T = any>(
 
     // Enqueue the mutation to serialize cache updates.
     mutationPromise = mutationPromise.then(async () => {
+      // Re-check expiration inside the queued mutation.
+      // If not forced and the cache is still valid, skip this mutation.
+      if (!force && Date.now() < expiresAt) {
+        return
+      }
       try {
         // Wait for the fresh data.
         const resolvedData = await freshData
