@@ -22,7 +22,7 @@ const computeNextTTL = async <T = any>(
     if (typeof nextTTL !== 'number') {
       throw new Error(`ttl function must return a number, got: ${typeof nextTTL} - ${nextTTL}`)
     }
-    if (nextTTL < 0) {
+    if (nextTTL <= 0) {
       throw new Error(`ttl must be a positive number, got: ${nextTTL}`)
     }
     return nextTTL
@@ -32,7 +32,7 @@ const computeNextTTL = async <T = any>(
   if (typeof ttl !== 'number') {
     throw new Error(`ttl should be a number, got: ${typeof ttl} - ${ttl}`)
   }
-  if (ttl < 0) {
+  if (ttl <= 0) {
     throw new Error(`ttl must be a positive number, got: ${ttl}`)
   }
   return ttl
@@ -103,7 +103,7 @@ export const localCachedV2 = <T = any>(
       return Promise.resolve(cached)
     }
     // If not forced and a fetch is already in flight, return that promise.
-    if (inFlightRequest !== null) {
+    if (!force && inFlightRequest !== null) {
       return inFlightRequest
     }
 
@@ -115,32 +115,37 @@ export const localCachedV2 = <T = any>(
     inFlightRequest = freshData
 
     // Enqueue the mutation to serialize cache updates.
-    mutationPromise = mutationPromise.then(async () => {
-      // Re-check expiration inside the queued mutation.
-      // If not forced and the cache is still valid, skip this mutation.
-      if (!force && Date.now() < expiresAt) {
-        return
-      }
-      try {
-        // Wait for the fresh data.
-        const resolvedData = await freshData
-        // Compute the TTL based on the resolved data.
-        const ttlValue = await computeNextTTL(ttl, resolvedData)
-        // Update the cache expiration.
-        expiresAt = Date.now() + ttlValue
-        // Save the new value in the cache.
-        cached = resolvedData
-      } catch (err) {
-        // On error, compute a TTL using ttlOnCatch.
-        const ttlCatch = await computeNextTTL(ttlOnCatch, err)
-        expiresAt = Date.now() + ttlCatch
-        console.error('Error during mutate:', err)
-        throw err
-      } finally {
-        // Clear the in-flight request marker.
-        inFlightRequest = null
-      }
-    })
+    mutationPromise = mutationPromise
+      .then(async () => {
+        // Re-check expiration inside the queued mutation.
+        // If not forced and the cache is still valid, skip this mutation.
+        if (!force && Date.now() < expiresAt) {
+          return
+        }
+        try {
+          // Wait for the fresh data.
+          const resolvedData = await freshData
+          // Compute the TTL based on the resolved data.
+          const ttlValue = await computeNextTTL(ttl, resolvedData)
+          // Update the cache expiration.
+          expiresAt = Date.now() + ttlValue
+          // Save the new value in the cache.
+          cached = resolvedData
+        } catch (err) {
+          // On error, compute a TTL using ttlOnCatch.
+          const ttlCatch = await computeNextTTL(ttlOnCatch, err)
+          expiresAt = Date.now() + ttlCatch
+          console.error('Error during mutate:', err)
+          throw err
+        } finally {
+          // Clear the in-flight request marker.
+          inFlightRequest = null
+        }
+      })
+      .catch((err) => {
+        console.error('Error during mutationPromise, recovered to continue further operations.')
+        // Recover the chain by returning a resolved promise.
+      })
 
     // Return the promise for the fresh data so that callers may await it.
     return freshData
@@ -181,7 +186,7 @@ export const localCachedV2 = <T = any>(
     }
 
     // Otherwise, fetch fresh data.
-    return invalidate()
+    return mutate()
   }
 
   // Return the caching API.
