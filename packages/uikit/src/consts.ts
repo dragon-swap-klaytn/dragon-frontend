@@ -28,4 +28,7 @@ export enum ConnectorIds {
 export type ConnectorId = `${ConnectorIds}`;
 export enum WindowSize {
   mobile = 768,
+  xxs = 360,
+  xs = 480,
+  sm = 640,
 }

@@ -2,9 +2,9 @@ import { FAST_INTERVAL, SLOW_INTERVAL } from 'config/constants'
 // eslint-disable-next-line camelcase
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { Block } from 'state/info/types'
 import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
 import { viemClients } from 'utils/viem'
+import { Block } from 'views/Dashboard/types'
 import { useBlockNumber, usePublicClient } from 'wagmi'
 
 const REFRESH_BLOCK_INTERVAL = 6000

@@ -97,9 +97,9 @@ module.exports = {
       spin: 'spin 2s linear infinite',
     },
     zIndex: {
-      header: 100,
-      overlay: 105,
-      modal: 110,
+      header: 110,
+      overlay: 115,
+      modal: 120,
     },
   },
   plugins: [],

@@ -255,9 +255,7 @@ export const ActionPanelV3: FC<ActionPanelV3Props> = ({
               </Flex>
             )}
             <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-              <ExternalLink href={getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId)}>
-                {t('View Contract')}
-              </ExternalLink>
+              <ExternalLink href={getBlockExploreLink(farm.lpAddress, 'address')}>{t('View Contract')}</ExternalLink>
             </Flex>
           </>
         }
@@ -369,9 +367,7 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
             </Flex>
             */}
             <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-              <ExternalLink href={getBlockExploreLink(farm.lpAddress, 'address', farm.token.chainId)}>
-                {t('View Contract')}
-              </ExternalLink>
+              <ExternalLink href={getBlockExploreLink(farm.lpAddress, 'address')}>{t('View Contract')}</ExternalLink>
             </Flex>
           </>
         }

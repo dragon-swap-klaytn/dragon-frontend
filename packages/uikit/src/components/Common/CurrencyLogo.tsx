@@ -1,7 +1,7 @@
 import { Currency } from "@pancakeswap/swap-sdk-core";
 import { useMemo } from "react";
 
-import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
+import getTokenIconSrc from "@pancakeswap/utils/getTokenIconSrc";
 import { ZERO_ADDRESS } from "../../tokens";
 import { TokenLogo } from "../TokenLogo";
 
@@ -18,11 +18,11 @@ export function CurrencyLogo({
 }) {
   const srcs: string[] = useMemo(() => {
     if (currency?.isNative) {
-      return [getTokenIconSrcFromSs(ZERO_ADDRESS) || `/images/chains/${currency.chainId}.png`];
+      return [getTokenIconSrc(ZERO_ADDRESS) || `/images/chains/${currency.chainId}.png`];
     }
 
     if (address) {
-      const logoFromSs = getTokenIconSrcFromSs(address);
+      const logoFromSs = getTokenIconSrc(address);
 
       if (logoFromSs) {
         return [logoFromSs];
@@ -30,7 +30,7 @@ export function CurrencyLogo({
     }
 
     if (currency?.isToken) {
-      const logoFromSs = getTokenIconSrcFromSs(currency?.wrapped?.address);
+      const logoFromSs = getTokenIconSrc(currency?.wrapped?.address);
       if (logoFromSs) {
         return [logoFromSs];
       }

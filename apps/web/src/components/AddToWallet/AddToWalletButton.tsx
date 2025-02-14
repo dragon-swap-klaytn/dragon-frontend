@@ -9,8 +9,10 @@ import {
   TokenPocketIcon,
   TrustWalletIcon,
 } from '@pancakeswap/uikit'
+import getTokenIconSrc from '@pancakeswap/utils/getTokenIconSrc'
 import clsx from 'clsx'
 import KaikasIcon from 'components/Svg/KaiaWalletIcon'
+import { useMemo } from 'react'
 import { useAccount } from 'wagmi'
 import { canRegisterToken } from '../../utils/wallet'
 import { BAD_SRCS } from '../Logo/constants'
@@ -80,13 +82,13 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
   tokenAddress,
   tokenSymbol,
   tokenDecimals,
-  tokenLogo,
   textOptions = AddToWalletTextOptions.NO_TEXT,
   className,
 }) => {
   const { t } = useTranslation()
   const { connector, isConnected } = useAccount()
   const isCanRegisterToken = canRegisterToken()
+  const tokenLogo = useMemo(() => getTokenIconSrc(tokenAddress), [tokenAddress])
 
   if (connector && connector.name === 'Binance') return null
   if (!(connector && connector.watchAsset && isConnected)) return null

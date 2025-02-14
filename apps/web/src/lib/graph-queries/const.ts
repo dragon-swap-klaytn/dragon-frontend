@@ -16,7 +16,7 @@ const WKLAY_ADDRESS = '0x19aac5f612f524b754ca7e7c41cbfa2e981a4432'
 
 export const tokensToBeOverridden = {
   [WKLAY_ADDRESS]: {
-    decimals: '18',
+    decimals: 18,
     id: WKLAY_ADDRESS,
     symbol: 'WKAIA',
     name: 'Wrapped Kaia',

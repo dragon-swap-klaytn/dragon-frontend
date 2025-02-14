@@ -3,9 +3,10 @@ import { NextApiHandler } from 'next'
 
 import { getCachedPoolsData } from 'pools/get-cached-pools-data'
 import { parseV2Pool, parseV3Pool } from 'pools/parse-pool'
+import { Simplify } from 'type-fest'
 import { z } from 'zod'
 
-type PoolParsed = ReturnType<typeof parseV2Pool> | ReturnType<typeof parseV3Pool>
+export type PoolParsed = Simplify<ReturnType<typeof parseV2Pool> | ReturnType<typeof parseV3Pool>>
 
 const poolsSchema = z.object({
   types: z.preprocess(
@@ -16,37 +17,75 @@ const poolsSchema = z.object({
     (v) => (typeof v === 'string' && v.length > 0 ? v.split(',') : []),
     z.string().regex(VALID_ADDRESS_REGEX).array(),
   ),
+  tokenAddress: z.string().regex(VALID_ADDRESS_REGEX).optional(),
+  searchKey: z.string().optional(),
   // TODO: boosted only option ? (using MasterChef contract)
-  sortBy: z.enum(['apr24H', 'apr7D', 'volume24H', 'volume7D', 'tvl']).optional().default('volume24H'),
+  sortBy: z.enum(['apy24H', 'apy7D', 'volume24H', 'volume7D', 'tvl']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
 
   skip: z.coerce.number().optional().default(0),
   limit: z.coerce.number().max(100).optional().default(10),
 })
 
+function filteredByTokenAddress(pools: PoolParsed[], tokenAddress?: string) {
+  if (!tokenAddress) {
+    return pools
+  }
+
+  return pools.filter(
+    (pool) =>
+      pool.token0.id.toLowerCase() === tokenAddress.toLowerCase() ||
+      pool.token1.id.toLowerCase() === tokenAddress.toLowerCase(),
+  )
+}
+
+function filteredBySearchKey(pool: PoolParsed, searchKey?: string) {
+  if (!searchKey) {
+    return true
+  }
+
+  return (
+    pool.token0.symbol.toLowerCase().includes(searchKey.toLowerCase()) ||
+    pool.token1.symbol.toLowerCase().includes(searchKey.toLowerCase()) ||
+    pool.token0.name.toLowerCase().includes(searchKey.toLowerCase()) ||
+    pool.token1.name.toLowerCase().includes(searchKey.toLowerCase()) ||
+    pool.id.toLowerCase().includes(searchKey.toLowerCase()) ||
+    pool.token0.id.toLowerCase().includes(searchKey.toLowerCase()) ||
+    pool.token1.id.toLowerCase().includes(searchKey.toLowerCase())
+  )
+}
+
 const handler: NextApiHandler = async (req, res) => {
-  const { types, onlyPoolIds, sortBy, sortDirection, skip, limit } = await poolsSchema.parseAsync(req.query)
+  const { types, onlyPoolIds, tokenAddress, searchKey, sortBy, sortDirection, skip, limit } =
+    await poolsSchema.parseAsync(req.query)
 
   const { v2Pools, v3Pools } = await getCachedPoolsData()
 
   const v2PoolsParsed = v2Pools.map(parseV2Pool)
   const v3PoolsParsed = v3Pools.map(parseV3Pool)
 
+  const filteredV2Pools = filteredByTokenAddress(v2PoolsParsed, tokenAddress).filter((pool) =>
+    filteredBySearchKey(pool, searchKey),
+  )
+  const filteredV3Pools = filteredByTokenAddress(v3PoolsParsed, tokenAddress).filter((pool) =>
+    filteredBySearchKey(pool, searchKey),
+  )
+
   const pools: PoolParsed[] = []
 
   if (onlyPoolIds.length > 0) {
     const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => id.toLowerCase())
     pools.push(
-      ...v2PoolsParsed.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),
-      ...v3PoolsParsed.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),
+      ...filteredV2Pools.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),
+      ...filteredV3Pools.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),
     )
   } else {
     if (types.includes('v2')) {
-      pools.push(...v2PoolsParsed)
+      pools.push(...filteredV2Pools)
     }
 
     if (types.includes('v3')) {
-      pools.push(...v3PoolsParsed)
+      pools.push(...filteredV3Pools)
     }
   }
 
@@ -61,12 +100,16 @@ const handler: NextApiHandler = async (req, res) => {
       pools.sort((a, b) => useDesc * (a.volumeUSD['7D'] - b.volumeUSD['7D']))
       break
     }
-    case 'apr24H': {
+    case 'apy24H': {
       pools.sort((a, b) => useDesc * (a.apy['24H'] - b.apy['24H']))
       break
     }
-    case 'apr7D': {
+    case 'apy7D': {
       pools.sort((a, b) => useDesc * (a.apy['7D'] - b.apy['7D']))
+      break
+    }
+    case 'tvl': {
+      pools.sort((a, b) => useDesc * (a.tvlUSD - b.tvlUSD))
       break
     }
     default: {
@@ -74,7 +117,7 @@ const handler: NextApiHandler = async (req, res) => {
     }
   }
 
-  res.status(200).json({ pools: pools.slice(skip, skip + limit) })
+  res.status(200).json({ pools: pools.slice(skip, skip + limit), totalPage: Math.ceil(pools.length / limit) })
 }
 
 export default handler

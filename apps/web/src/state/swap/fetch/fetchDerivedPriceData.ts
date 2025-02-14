@@ -4,10 +4,9 @@ import dayjs from 'dayjs'
 import request from 'graphql-request'
 import mapValues from 'lodash/mapValues'
 import orderBy from 'lodash/orderBy'
-import { multiChainName } from 'state/info/constant'
-import { Block } from 'state/info/types'
 import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
-import { multiQuery } from 'views/Info/utils/infoQueryHelpers'
+import { Block } from 'views/Dashboard/types'
+import multiQuery from 'views/Dashboard/utils/multiQuery'
 import { getDerivedPrices, getDerivedPricesQueryConstructor, getTVL } from '../queries/getDerivedPrices'
 import { PairDataTimeWindowEnum } from '../types'
 
@@ -145,7 +144,7 @@ const fetchDerivedPriceData = async (
   }
 
   try {
-    const blocks = await getBlocksFromTimestamps(timestamps, 'asc', 500, multiChainName[chainId])
+    const blocks = await getBlocksFromTimestamps(timestamps, 'asc', 500)
     if (!blocks || blocks.length === 0) {
       console.error('Error fetching blocks for timestamps', timestamps)
       return null

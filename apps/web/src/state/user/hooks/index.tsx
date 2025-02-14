@@ -2,7 +2,7 @@ import { getFarmConfig } from '@pancakeswap/farms/constants'
 import { ERC20Token, Pair } from '@pancakeswap/sdk'
 import { deserializeToken } from '@pancakeswap/token-lists'
 import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'config/constants/exchange'
-import { useOfficialsAndUserAddedTokens } from 'hooks/Tokens'
+import { useTokenMap } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useFeatureFlagEvaluation } from 'hooks/useDataDogRUM'
 import flatMap from 'lodash/flatMap'
@@ -369,7 +369,9 @@ export function toV2LiquidityToken([tokenA, tokenB]: [ERC20Token, ERC20Token]): 
  */
 export function useTrackedTokenPairs(): [ERC20Token, ERC20Token][] {
   const { chainId } = useActiveChainId()
-  const tokens = useOfficialsAndUserAddedTokens()
+  // const tokens = useOfficialsAndUserAddedTokens()
+  const { tokenMap } = useTokenMap({ poolOnly: true })
+  const tokens = useMemo(() => (tokenMap ? Object.keys(tokenMap) : []), [tokenMap])
 
   // pinned pairs
   const pinnedPairs = useMemo(() => (chainId ? PINNED_PAIRS[chainId] ?? [] : []), [chainId])

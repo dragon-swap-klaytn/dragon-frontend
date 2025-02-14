@@ -10,11 +10,10 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import { formatBigInt, getFullDisplayBalance } from '@pancakeswap/utils/formatBalance'
 
 import { useCallback } from 'react'
-import { getBlockExploreLink } from 'utils'
+import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { Address, useBalance } from 'wagmi'
 
 interface WalletInfoProps {
-  switchView: (newIndex: number) => void
   onDismiss: InjectedModalProps['onDismiss']
 }
 
@@ -35,20 +34,25 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ onDismiss }) => {
   return (
     <>
       {account && (
-        <div className="px-4 py-3 rounded-[20px] bg-neutral mt-4 justify-between flex items-center space-x-2">
-          <span className="text-sm text-on-surface overflow-x-auto">{account}</span>
+        <>
+          <h4 className="text-xs text-on-surface-brand-subtle font-bold mt-5">{t('Your Address')}</h4>
+          <div className="px-4 py-3 rounded-[20px] bg-neutral mt-4 justify-between flex items-center space-x-2">
+            <span className="text-sm text-on-surface overflow-x-auto">{account}</span>
 
-          <CopyButton className="text-on-surface h-5" text={account} tooltipMessage={t('Copied')} />
-        </div>
+            <CopyButton className="text-on-surface h-5" text={account} tooltipMessage={t('Copied')} />
+          </div>
+        </>
       )}
 
-      <div className="mt-4 flex flex-col space-y-2">
+      <hr className="border border-border my-4" />
+
+      <div className="flex flex-col space-y-2">
         <div className="flex items-center space-x-2 justify-between text-[13px]">
           <span className="font-bold text-[13px] text-on-surface-subtlest">KAIA</span>
           {account && (
             <div className="flex w-full justify-end">
-              <ExternalLink href={getBlockExploreLink(account, 'address', chainId)} className="text-on-surface">
-                KaiaScope
+              <ExternalLink href={getBlockExploreLink(account, 'address')} className="text-on-surface">
+                {getBlockExploreName()}
               </ExternalLink>
             </div>
           )}

@@ -102,7 +102,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
                       </div>
                     </div>
 
-                    <ExternalLink href={getBlockExploreLink(token.address, 'address', token.chainId)} />
+                    <ExternalLink href={getBlockExploreLink(token.address, 'address')} />
                   </div>
                 </div>
               )}

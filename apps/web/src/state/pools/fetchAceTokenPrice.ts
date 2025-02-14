@@ -1,19 +1,17 @@
-import { ChainId } from '@pancakeswap/chains'
+import { ChainId, SUBGRAPH_START_BLOCK } from '@pancakeswap/chains'
 import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
 import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
-import { v3InfoClients } from 'utils/graphql'
-import { SUBGRAPH_START_BLOCK } from 'views/V3Info/constants'
-import { fetchedTokenDatas } from 'views/V3Info/data/token/tokenData'
+import fetchV3TokenDataByAddresses from 'views/Dashboard/data/v3/token/tokenDataByAddresses'
 
 export const fetchAceTokenPrice = async (tokenAddress: string) => {
   const [t24, t48, t7d] = getDeltaTimestamps()
   const timestampsString = JSON.stringify([t24, t48, t7d])
   const timestampsArray = JSON.parse(timestampsString)
 
-  const blocks = await getBlocksFromTimestamps(timestampsArray, 'desc', 1000, 'KLAYTN')
+  const blocks = await getBlocksFromTimestamps(timestampsArray, 'desc', 1000)
 
-  const result = await fetchedTokenDatas(
-    v3InfoClients[ChainId.KLAYTN],
+  // const result = await fetchedTokenDatas(
+  const result = await fetchV3TokenDataByAddresses(
     [tokenAddress.toLowerCase()],
     blocks?.filter((d) => d.number >= SUBGRAPH_START_BLOCK[ChainId.KLAYTN]),
   )

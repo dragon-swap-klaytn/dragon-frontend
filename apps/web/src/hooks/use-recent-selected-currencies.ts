@@ -1,4 +1,3 @@
-import { ERC20Token } from '@pancakeswap/sdk'
 import { Currency, Token } from '@pancakeswap/swap-sdk-core'
 import { DEFAULT_LOCAL_STORAGE_DATA, LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
 
@@ -15,7 +14,7 @@ export default function useRecentSelectedCurrencies() {
     if (!recentSelectedCurrencies || recentSelectedCurrencies.length === 0) return []
     return recentSelectedCurrencies
       .filter((c) => (c as Token)?.address)
-      .map((c) => new ERC20Token(c.chainId, (c as Token).address, c.decimals, c.symbol, c.name))
+      .map((c) => new Token(c.chainId, (c as Token).address, c.decimals, c.symbol, c.name))
   }, [recentSelectedCurrencies])
 
   const setRecentSelectedCurrency = useCallback(

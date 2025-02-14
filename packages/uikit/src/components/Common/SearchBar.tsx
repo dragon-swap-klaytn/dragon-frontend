@@ -6,13 +6,23 @@ type SearchBarProps = Omit<InputHTMLAttributes<HTMLInputElement>, "className" | 
   Required<Pick<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">> & {
     fullWidth?: boolean;
     onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+    width?: string;
+    minWidth?: string;
+    className?: string;
   };
 
 export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
-  const { fullWidth, value, onChange, ...rest } = props;
+  const { fullWidth, value, onChange, width, minWidth, className, ...rest } = props;
 
   return (
-    <div className={clsx("px-3 py-2 flex items-center rounded-full bg-neutral", fullWidth ? "w-full" : "w-60")}>
+    <div
+      className={clsx(
+        "px-3 py-2 flex items-center rounded-full bg-neutral",
+        className,
+        fullWidth ? "w-full" : width || "w-60",
+        minWidth
+      )}
+    >
       <div>
         <MagnifyingGlass className="pointer-events-none size-4 text-on-surface" aria-hidden="true" />
       </div>

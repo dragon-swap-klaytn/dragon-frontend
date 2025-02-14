@@ -1,21 +1,14 @@
 /* eslint-disable no-param-reassign */
-import { ChainId } from '@pancakeswap/chains'
-import { ERC20Token } from '@pancakeswap/sdk'
+import { ChainId, ERC20Token, Token } from '@pancakeswap/sdk'
 import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
-import { SUPPORTED_CHAIN_IDS } from '@pancakeswap/uikit'
-import { GELATO_NATIVE } from 'config/constants'
-import { useAtomValue } from 'jotai'
+import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { useMemo } from 'react'
-import {
-  combinedTokenMapFromActiveUrlsAtom,
-  combinedTokenMapFromOfficialsUrlsAtom,
-  useUnsupportedTokenList,
-  useWarningTokenList,
-} from 'state/lists/hooks'
+import { useUnsupportedTokenList, useWarningTokenList } from 'state/lists/hooks'
 import useSWR from 'swr'
 import { safeGetAddress } from 'utils'
+import { Address } from 'viem'
 import { useToken as useToken_ } from 'wagmi'
 import useUserAddedTokens from '../state/user/hooks/useUserAddedTokens'
 import { useActiveChainId } from './useActiveChainId'
@@ -34,85 +27,49 @@ const mapWithoutUrls = (tokenMap?: TokenAddressMap<ChainId>, chainId?: number) =
   }, {})
 }
 
-/**
- * Returns all tokens that are from active urls and user added tokens
- */
-export function useAllTokens(): { [address: string]: ERC20Token } {
-  const { chainId } = useActiveChainId()
-  const tokenMap = useAtomValue(combinedTokenMapFromActiveUrlsAtom)
+export function useTokenMap({ skip = false, poolOnly = false }: { skip?: boolean; poolOnly?: boolean } = {}) {
   const userAddedTokens = useUserAddedTokens()
-  const tokens = useMemo(
-    () =>
-      userAddedTokens
-        // reduce into all ALL_TOKENS filtered by the current chain
-        .reduce<{ [address: string]: ERC20Token }>(
-          (tokenMap_, token) => {
-            const checksummedAddress = safeGetAddress(token.address)
 
-            if (checksummedAddress) {
-              tokenMap_[checksummedAddress] = token
-            }
-
-            return tokenMap_
-          },
-          // must make a copy because reduce modifies the map, and we do not
-          // want to make a copy in every iteration
-          mapWithoutUrls(tokenMap, chainId),
-        ),
-    [userAddedTokens, tokenMap, chainId],
-  )
-
-  return tokens
-}
-
-/**
- * Returns all tokens that are from active urls and user added tokens
- */
-export function useTokensFromSs(): { [address: string]: ERC20Token } | null {
-  const { data } = useSWR(
-    '/api/tokens',
+  const { data: fetchedTokenMap, error } = useSWR(
+    !skip ? `/api/tokens/${poolOnly}` : null,
     async () => {
-      const res = await fetch('/api/tokens')
-      const parsed = (await res.json()) as { [address: string]: ERC20Token }
+      const params = new URLSearchParams()
+      params.append('poolOnly', String(poolOnly))
 
-      return parsed
+      const res = await fetch(`/api/tokens?${params.toString()}`)
+      const parsed = (await res.json()) as { [address: Address]: Token }
+
+      return Object.values(parsed).reduce(
+        (acc, token) => ({
+          ...acc,
+          [token.address]: new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
+        }),
+        {} as { [address: Address]: Token },
+      )
     },
     {
-      refreshInterval: 1000 * 60 * 10, // 10 minutes
+      refreshInterval: 1_000 * 60 * 10, // 10 minutes
     },
   )
 
-  return data || {}
-}
+  const tokenMap = useMemo(() => {
+    if (!fetchedTokenMap) return undefined
 
-/**
- * Returns all tokens that are from officials token list and user added tokens
- */
-export function useOfficialsAndUserAddedTokens(): { [address: string]: ERC20Token } {
-  const { chainId } = useActiveChainId()
-  const tokenMap = useAtomValue(combinedTokenMapFromOfficialsUrlsAtom)
+    return userAddedTokens
+      .filter((token) => !fetchedTokenMap[token.address.toLowerCase()])
+      .reduce<{ [address: Address]: Token }>(
+        (tokenMap_, token) => ({
+          ...tokenMap_,
+          [token.address]: new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
+        }),
+        fetchedTokenMap,
+      )
+  }, [userAddedTokens, fetchedTokenMap])
 
-  const userAddedTokens = useUserAddedTokens()
-  return useMemo(() => {
-    return (
-      userAddedTokens
-        // reduce into all ALL_TOKENS filtered by the current chain
-        .reduce<{ [address: string]: ERC20Token }>(
-          (tokenMap_, token) => {
-            const checksummedAddress = safeGetAddress(token.address)
-
-            if (checksummedAddress) {
-              tokenMap_[checksummedAddress] = token
-            }
-
-            return tokenMap_
-          },
-          // must make a copy because reduce modifies the map, and we do not
-          // want to make a copy in every iteration
-          mapWithoutUrls(tokenMap, chainId),
-        )
-    )
-  }, [userAddedTokens, tokenMap, chainId])
+  return {
+    tokenMap,
+    tokenMapLoading: !tokenMap && !error,
+  }
 }
 
 export function useUnsupportedTokens(): { [address: string]: ERC20Token } {
@@ -127,16 +84,19 @@ export function useWarningTokens(): { [address: string]: ERC20Token } {
   return useMemo(() => mapWithoutUrls(warningTokensMap, chainId), [warningTokensMap, chainId])
 }
 
-export function useIsTokenActive(token: ERC20Token | undefined | null): boolean {
-  const activeTokens = useAllTokens()
+export function useIsTokenActive(token: Currency | ERC20Token | undefined | null): boolean {
+  const { tokenMap: onlyPoolTokenMap } = useTokenMap({ poolOnly: true })
 
-  if (!activeTokens || !token) {
+  if (!onlyPoolTokenMap || !token) {
     return false
   }
 
-  const tokenAddress = safeGetAddress(token.address)
+  if (token.isNative) {
+    return true
+  }
 
-  return Boolean(tokenAddress && !!activeTokens[tokenAddress])
+  // @ts-ignore
+  return Boolean(onlyPoolTokenMap[token.address])
 }
 
 // Check if currency is included in custom list from user storage
@@ -150,134 +110,71 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
   return !!userAddedTokens.find((token) => currency?.equals(token))
 }
 
-// undefined if invalid or does not exist
-// null if loading
-// otherwise returns the token
-export function useToken(tokenAddress?: string): ERC20Token | undefined | null {
+export function useTokens(searchKey?: string) {
   const { chainId } = useActiveChainId()
-  const unsupportedTokens = useUnsupportedTokens()
-  const tokens = useAllTokens()
-
-  const address = safeGetAddress(tokenAddress)
-
-  const token: ERC20Token | undefined = address ? tokens[address] : undefined
+  const { tokenMap, tokenMapLoading } = useTokenMap()
+  // const address = safeGetAddress(searchKey)
+  const isAddress = useMemo(() => searchKey && VALID_ADDRESS_REGEX.test(searchKey), [searchKey])
+  const token = useMemo(() => (searchKey && tokenMap ? tokenMap[searchKey] : undefined), [searchKey, tokenMap])
 
   const { data, isLoading } = useToken_({
-    address: address || undefined,
+    address: (searchKey as Address) || undefined,
     chainId,
-    enabled: Boolean(!!address && !token),
+    enabled: Boolean(!!searchKey && isAddress && !token && !tokenMapLoading),
     // consider longer stale time
   })
 
-  const tokensFromSs = useTokensFromSs()
-
   return useMemo(() => {
-    if (!tokensFromSs) return null
-    if (token) return token
-    if (!chainId || !address) return undefined
-    if (!SUPPORTED_CHAIN_IDS.includes(chainId)) return undefined
-    if (unsupportedTokens[address]) return undefined
+    if (!searchKey) return undefined
 
-    if (tokensFromSs[address]) {
-      return new ERC20Token(
-        chainId,
-        tokensFromSs[address].address,
-        tokensFromSs[address].decimals,
-        tokensFromSs[address].symbol,
-        tokensFromSs[address].name,
-      )
-    }
-
-    if (isLoading) return null
-    if (data) {
-      return new ERC20Token(
-        chainId,
-        data.address,
-        data.decimals,
-        data.symbol ?? 'UNKNOWN',
-        data.name ?? 'Unknown Token',
-      )
-    }
-
-    return undefined
-  }, [token, chainId, address, isLoading, data, unsupportedTokens, tokensFromSs])
-}
-
-export function useTokens(key?: string): ERC20Token[] | undefined | null {
-  const { chainId } = useActiveChainId()
-  const unsupportedTokens = useUnsupportedTokens()
-  const tokens = useAllTokens()
-
-  const address = safeGetAddress(key)
-
-  const token: ERC20Token | undefined = address ? tokens[address] : undefined
-
-  const { data, isLoading } = useToken_({
-    address: address || undefined,
-    chainId,
-    enabled: Boolean(!!address && !token),
-    // consider longer stale time
-  })
-
-  const tokensFromSs = useTokensFromSs()
-
-  return useMemo(() => {
-    if (!tokensFromSs) return null
+    if (!tokenMap) return null
     if (token) return [token]
     if (!chainId) return undefined
 
-    if (key) {
-      const filteredByAddress = Object.values(tokensFromSs).filter((t) =>
-        t.address.toLowerCase().includes(key.toLowerCase()),
+    if (searchKey) {
+      const filteredByAddress = Object.values(tokenMap).filter((t) =>
+        t.address.toLowerCase().includes(searchKey.toLowerCase()),
       )
       if (filteredByAddress.length > 0) {
-        return filteredByAddress.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
+        return filteredByAddress.map((t) => new Token(chainId, t.address, t.decimals, t.symbol, t.name))
       }
 
-      const filteredBySymbol = Object.values(tokensFromSs).filter((t) =>
-        t.symbol.toLowerCase().includes(key.toLowerCase()),
+      const filteredBySymbol = Object.values(tokenMap).filter((t) =>
+        t.symbol.toLowerCase().includes(searchKey.toLowerCase()),
       )
       if (filteredBySymbol.length > 0) {
-        return filteredBySymbol.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
+        return filteredBySymbol.map((t) => new Token(chainId, t.address, t.decimals, t.symbol, t.name))
       }
 
-      const filteredByName = Object.values(tokensFromSs).filter((t) =>
-        t.name?.toLowerCase().includes(key.toLowerCase()),
+      const filteredByName = Object.values(tokenMap).filter((t) =>
+        t.name?.toLowerCase().includes(searchKey.toLowerCase()),
       )
       if (filteredByName.length > 0) {
-        return filteredByName.map((t) => new ERC20Token(chainId, t.address, t.decimals, t.symbol, t.name))
+        return filteredByName.map((t) => new Token(chainId, t.address, t.decimals, t.symbol, t.name))
       }
     }
 
-    if (!address) return undefined
-    if (unsupportedTokens[address]) return undefined
-
-    if (tokensFromSs[address]) {
-      return [
-        new ERC20Token(
-          chainId,
-          tokensFromSs[address].address,
-          tokensFromSs[address].decimals,
-          tokensFromSs[address].symbol,
-          tokensFromSs[address].name,
-        ),
-      ]
+    if (isAddress && tokenMap[searchKey]) {
+      return [tokenMap[searchKey]]
     }
 
     if (isLoading) return null
     if (data) {
-      return [
-        new ERC20Token(chainId, data.address, data.decimals, data.symbol ?? 'UNKNOWN', data.name ?? 'Unknown Token'),
-      ]
+      return [new Token(chainId, data.address, data.decimals, data.symbol ?? 'UNKNOWN', data.name ?? 'Unknown Token')]
     }
+
     return undefined
-  }, [token, chainId, address, isLoading, data, unsupportedTokens, tokensFromSs, key])
+  }, [token, chainId, isAddress, isLoading, data, tokenMap, searchKey])
+}
+
+export function useToken(searchKey?: string): ERC20Token | undefined | null {
+  const tokens = useTokens(searchKey)
+  return tokens?.[0]
 }
 
 export function useCurrency(currencyId: string | undefined): Currency | ERC20Token | null | undefined {
   const native = useNativeCurrency()
-  const isNative =
-    currencyId?.toUpperCase() === native.symbol?.toUpperCase() || currencyId?.toLowerCase() === GELATO_NATIVE
+  const isNative = useMemo(() => currencyId?.toLowerCase() === native.symbol?.toLowerCase(), [currencyId, native])
   const token = useToken(isNative ? undefined : currencyId)
   return isNative ? native : token
 }

@@ -448,19 +448,6 @@ export function getBestSwapRouteBy(
     estimatedGasUsedUSD = estimatedGasUsedUSD.add(gasCostL1USD)
   }
 
-  // console.log(
-  //   {
-  //     estimatedGasUsedUSD: estimatedGasUsedUSD.toExact(),
-  //     normalizedUsdToken: usdToken,
-  //     routeUSDGasEstimates: _.map(
-  //       bestSwap,
-  //       (b) => `${b.percent}% ${routeToString(b.route)} ${b.gasCostInUSD.toExact()}`,
-  //     ),
-  //     flatL1GasCostUSD: gasCostL1USD.toExact(),
-  //   },
-  //   'USD gas estimates of best route',
-  // )
-
   const estimatedGasUsedQuoteToken = sumFn(
     bestSwap.map((routeWithValidQuote) => routeWithValidQuote.gasCostInToken),
   ).add(gasCostL1QuoteToken)

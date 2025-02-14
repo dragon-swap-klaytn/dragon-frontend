@@ -55,10 +55,7 @@ export function withCurrencyLogo<T extends BaseCurrency>(
             <span className="text-gray-400 text-xs">{token.name}</span>
           </div>
         </div>
-
         {!isAdded && <Plus size={16} className="text-gray-200" />}
-
-        {/* {children && children} */}
       </button>
     );
   };

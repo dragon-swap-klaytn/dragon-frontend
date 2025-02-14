@@ -5,6 +5,7 @@ import { useMatchBreakpoints, useModal, WalletId } from '@pancakeswap/uikit'
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import WalletModal from 'components/Menu/UserMenu/WalletModal'
 import { DEFAULT_WALLET_ICON, getWalletIcon } from 'config/wallet'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
@@ -13,7 +14,6 @@ import { useWindowSize } from 'hooks/useWindowSize'
 import { usePathname } from 'next/navigation'
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
-import WalletModal, { WalletView } from './WalletModal'
 
 const UserMenu = ({
   userMenuOpen,
@@ -46,19 +46,13 @@ const UserMenu = ({
   const { connector } = useAccount()
   const { logout } = useAuth()
 
-  const [onPresentWalletModal] = useModal(<WalletModal initialView={WalletView.WALLET_INFO} />)
-  const [onPresentTransactionModal] = useModal(<WalletModal initialView={WalletView.TRANSACTIONS} />)
-  const [onPresentWrongNetworkModal] = useModal(<WalletModal initialView={WalletView.WRONG_NETWORK} />)
+  const [onPresentWalletModal] = useModal(<WalletModal initialView="Wallet" />)
+  const [onPresentTransactionModal] = useModal(<WalletModal initialView="Transactions" />)
 
   const onClickWalletMenu = useCallback((): void => {
-    if (isWrongNetwork) {
-      onPresentWrongNetworkModal()
-    } else {
-      onPresentWalletModal()
-    }
-
+    onPresentWalletModal()
     setUserMenuOpen(false)
-  }, [isWrongNetwork, onPresentWalletModal, onPresentWrongNetworkModal, setUserMenuOpen])
+  }, [onPresentWalletModal, setUserMenuOpen])
 
   const [connectedWalletId, setConnectedWalletId] = useState<WalletId | null>(null)
   useEffect(() => {

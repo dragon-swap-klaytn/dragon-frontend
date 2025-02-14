@@ -38,12 +38,7 @@ export const UnsupportedModal: React.FC<React.PropsWithChildren<Props>> = ({ cur
                   <Text>{token.symbol}</Text>
                 </AutoRow>
                 {chainId && (
-                  <Link
-                    external
-                    small
-                    color="primaryDark"
-                    href={getBlockExploreLink(token.address, 'address', chainId)}
-                  >
+                  <Link external small color="primaryDark" href={getBlockExploreLink(token.address, 'address')}>
                     {token.address}
                   </Link>
                 )}

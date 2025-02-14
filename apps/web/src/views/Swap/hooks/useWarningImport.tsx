@@ -2,17 +2,16 @@ import { Token } from '@pancakeswap/sdk'
 import { useModal } from '@pancakeswap/uikit'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import shouldShowSwapWarning from 'utils/shouldShowSwapWarning'
 
 import ImportTokenWarningModal from 'components/ImportTokenWarningModal'
-import { useAllTokens, useCurrency } from 'hooks/Tokens'
+import { useCurrency, useTokenMap } from 'hooks/Tokens'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
-import { safeGetAddress } from 'utils'
 
+import useUserAddedTokens from 'state/user/hooks/useUserAddedTokens'
 import SwapWarningModal from '../components/SwapWarningModal'
 
 export default function useWarningImport() {
@@ -34,24 +33,25 @@ export default function useWarningImport() {
     [loadedInputCurrency, loadedOutputCurrency],
   )
 
-  const defaultTokens = useAllTokens()
+  const { tokenMap: poolOnlyTokenMap } = useTokenMap({ poolOnly: true })
+  const userAddedTokens = useUserAddedTokens()
 
-  const { data: loadedTokenList } = useQuery<any>(['token-list'])
-
-  const importTokensNotInDefault = useMemo(() => {
-    return !isWrongNetwork && urlLoadedTokens && !!loadedTokenList
+  const needToImportTokens = useMemo(() => {
+    return poolOnlyTokenMap && !isWrongNetwork && userAddedTokens
       ? urlLoadedTokens.filter((token: Token) => {
-          const checksummedAddress = safeGetAddress(token.address) || ''
-
-          return !(checksummedAddress in defaultTokens) && token.chainId === chainId
+          return (
+            !poolOnlyTokenMap[token.address] &&
+            !userAddedTokens.find((t) => t.equals(token)) &&
+            token.chainId === chainId
+          )
         })
       : []
-  }, [chainId, defaultTokens, isWrongNetwork, loadedTokenList, urlLoadedTokens])
+  }, [chainId, poolOnlyTokenMap, isWrongNetwork, userAddedTokens, urlLoadedTokens])
 
   const [onPresentSwapWarningModal] = useModal(<SwapWarningModal swapCurrency={swapWarningCurrency} />, false)
   const [onPresentImportTokenWarningModal] = useModal(
     <ImportTokenWarningModal
-      tokens={importTokensNotInDefault}
+      tokens={needToImportTokens}
       onCancel={() => router.push('/swap')}
       customOnDismiss={() => router.push('/swap')}
     />,
@@ -77,11 +77,11 @@ export default function useWarningImport() {
   )
 
   useEffect(() => {
-    if (importTokensNotInDefault.length > 0) {
+    if (needToImportTokens.length > 0) {
       onPresentImportTokenWarningModal()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [importTokensNotInDefault.length])
+  }, [needToImportTokens.length])
 
   return swapWarningHandler
 }

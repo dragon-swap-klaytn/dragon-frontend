@@ -27,7 +27,7 @@ const WalletTransactions: React.FC<React.PropsWithChildren> = () => {
     >
       {hasTransactions && (
         <div className="flex items-center space-x-2 px-2 w-full justify-between">
-          <h4 className="text-sm text-on-surface font-bold">{t('Recent Transactions')}</h4>
+          <h4 className="text-xs text-on-surface-brand-subtle font-bold">{t('Recent Transactions')}</h4>
 
           <ButtonV2 scale="sm" onClick={handleClearAll} variant="subtle">
             {t('Clear all')}
@@ -44,13 +44,9 @@ const WalletTransactions: React.FC<React.PropsWithChildren> = () => {
             )
 
             const confirmed = groupedTransactions.true ?? []
-            // const pending = groupedTransactions.false ?? []
 
             return (
-              <div key={`wallet:transactions#${chainIdNumber}`}>
-                {/* {renderTransactions(pending, chainIdNumber)} */}
-                {renderTransactions(confirmed, chainIdNumber)}
-              </div>
+              <div key={`wallet:transactions#${chainIdNumber}`}>{renderTransactions(confirmed, chainIdNumber)}</div>
             )
           })}
         </div>

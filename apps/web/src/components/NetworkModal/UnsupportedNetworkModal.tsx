@@ -1,34 +1,20 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { ButtonV2, Modal } from '@pancakeswap/uikit'
-import { useMenuItems } from 'components/Menu/hooks/useMenuItems'
-import { getActiveMenuItem, getActiveSubMenuItem } from 'components/Menu/utils'
 import { useLocalNetworkChain } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
-import { useSwitchNetwork, useSwitchNetworkLocal } from 'hooks/useSwitchNetwork'
-import { useRouter } from 'next/router'
+import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
 import { useMemo } from 'react'
-import { useAccount, useNetwork } from 'wagmi'
+import { useNetwork } from 'wagmi'
 import Dots from '../Loader/Dots'
 
 // Where chain is not supported or page not supported
 export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupportedChains: number[] }) {
   const { switchNetworkAsync, isLoading, canSwitch } = useSwitchNetwork()
-  const switchNetworkLocal = useSwitchNetworkLocal()
   const { chains } = useNetwork()
   const chainId = useLocalNetworkChain() || DEFAULT_CHAIN_ID
-  const { isConnected } = useAccount()
   const { logout } = useAuth()
   const { t } = useTranslation()
-  const menuItems = useMenuItems()
-  const { pathname } = useRouter()
-
-  const title = useMemo(() => {
-    const activeMenuItem = getActiveMenuItem({ menuConfig: menuItems, pathname })
-    const activeSubMenuItem = getActiveSubMenuItem({ menuItem: activeMenuItem, pathname })
-
-    return activeSubMenuItem?.label || activeMenuItem?.label
-  }, [menuItems, pathname])
 
   const supportedMainnetChains = useMemo(
     () => chains.filter((chain) => !chain.testnet && pageSupportedChains?.includes(chain.id)),
@@ -39,7 +25,8 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
     <Modal title={t('Check your network')} hideCloseButton>
       <div className="w-full">
         <p className="break-keep text-center text-on-surface">
-          {t('Currently %feature% only supported in', { feature: typeof title === 'string' ? title : 'this page' })}{' '}
+          {/* {t('Currently %feature% only supported in', { feature: typeof title === 'string' ? title : 'this page' })}{' '} */}
+          {t('Currently %feature% only supported in', { feature: 'this page' })}{' '}
           {/* {supportedMainnetChains?.map((c) => c.name).join(', ')} */}
           Kaia Network
         </p>

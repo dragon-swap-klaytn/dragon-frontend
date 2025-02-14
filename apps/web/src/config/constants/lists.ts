@@ -1,6 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
 
-export const SWAP_TOKEN_EXTENDED = 'https://tokens.pancakeswap.finance/pancakeswap-extended.json'
 const SWAP_TOKENS_KLAYTN_DEFAULT = `/data/tokens.json`
 
 const KLAYTN_URLS = [SWAP_TOKENS_KLAYTN_DEFAULT]

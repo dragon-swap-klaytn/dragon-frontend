@@ -59,16 +59,10 @@ export const VaultLinks = memo(function VaultLinks({
     <LinkContainer flexDirection={layout} {...props}>
       <StyledScanLink href={managerInfoUrl}>{t('Manager Info')}</StyledScanLink>
       <StyledScanLink href={strategyInfoUrl}>{t('Strategy Info')}</StyledScanLink>
-      <StyledScanLink
-        href={getBlockExploreLink(managerAddress, 'address', chainId)}
-        useBscCoinFallback={useBscCoinFallback}
-      >
+      <StyledScanLink href={getBlockExploreLink(managerAddress, 'address')} useBscCoinFallback={useBscCoinFallback}>
         {t('View Manager Address')}
       </StyledScanLink>
-      <StyledScanLink
-        href={getBlockExploreLink(vaultAddress, 'address', chainId)}
-        useBscCoinFallback={useBscCoinFallback}
-      >
+      <StyledScanLink href={getBlockExploreLink(vaultAddress, 'address')} useBscCoinFallback={useBscCoinFallback}>
         {t('View Vault Contract')}
       </StyledScanLink>
       {/* {projectVaultUrl && managerInfo && (

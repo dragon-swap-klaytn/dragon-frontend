@@ -34,14 +34,25 @@ export const v3Clients = {
 }
 
 export const v3InfoClients = { ...v3Clients }
-
 export const infoClientETH = new GraphQLClient(INFO_CLIENT_ETH)
 
 export const v2Clients = {
-  ...(INFO_CLIENT_WITH_CHAIN[ChainId.KLAYTN]
-    ? { [ChainId.KLAYTN]: new GraphQLClient(INFO_CLIENT_WITH_CHAIN[ChainId.KLAYTN]) }
-    : {}),
+  [ChainId.KLAYTN]: new GraphQLClient(INFO_CLIENT_WITH_CHAIN[ChainId.KLAYTN]),
   [ChainId.KLAYTN_TESTNET]: new GraphQLClient(INFO_CLIENT_WITH_CHAIN[ChainId.KLAYTN_TESTNET]),
+}
+export const v2InfoClients = { ...v2Clients }
+export function getGraphClient({
+  chainId = ChainId.KLAYTN,
+  poolType = 'v3',
+}: {
+  chainId?: ChainId
+  poolType?: 'v2' | 'v3'
+} = {}): GraphQLClient {
+  if (poolType === 'v2') {
+    return v2InfoClients[chainId]
+  }
+
+  return v3InfoClients[chainId]
 }
 
 export const infoStableSwapClients = {}

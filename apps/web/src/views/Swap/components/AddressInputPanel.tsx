@@ -37,9 +37,9 @@ export default function AddressInputPanel({
         <h4 className="text-[13px] text-on-surface-brand">{t('Recipient')}</h4>
 
         {address && chainId && (
-          <ExternalLink href={getBlockExploreLink(address, 'address', chainId)} textSize="text-xs">
+          <ExternalLink href={getBlockExploreLink(address, 'address')} textSize="text-xs">
             {t('View on %site%', {
-              site: getBlockExploreName(chainId),
+              site: getBlockExploreName(),
             })}
           </ExternalLink>
         )}

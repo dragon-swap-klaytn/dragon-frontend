@@ -1,4 +1,4 @@
-import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
+import getTokenIconSrc from "@pancakeswap/utils/getTokenIconSrc";
 import clsx from "clsx";
 import { useState } from "react";
 
@@ -16,11 +16,11 @@ export interface TokenLogoProps extends React.ImgHTMLAttributes<HTMLImageElement
 const TokenLogo: React.FC<React.PropsWithChildren<TokenLogoProps>> = ({ srcs, alt, size, className }) => {
   const [, refresh] = useState<number>(0);
 
-  const src = srcs.find((s) => !BAD_SRCS[s]) || (getTokenIconSrcFromSs("0x") as string);
+  const src = srcs.find((s) => !BAD_SRCS[s]) || (getTokenIconSrc("0x") as string);
 
   return (
     <div
-      className={clsx("rounded-full overflow-hidden", className)}
+      className={clsx("rounded-full overflow-hidden shrink-0", className)}
       style={{
         width: `${size}px`,
         height: `${size}px`,

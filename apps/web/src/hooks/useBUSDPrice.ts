@@ -32,7 +32,6 @@ export function useStablecoinPrice(
   const cakePrice = useCakePrice()
   const stableCoin = chainId && chainId in ChainId ? STABLE_COIN[chainId as ChainId] : undefined
   const isCake = chainId && currency && CAKE[chainId] && currency.wrapped.equals(CAKE[chainId])
-
   const isStableCoin = currency && stableCoin && currency.wrapped.equals(stableCoin)
 
   const shouldEnabled = Boolean(

@@ -6,7 +6,6 @@ import { ConfirmationPendingContent, TransactionErrorContent } from '@pancakeswa
 import { ArrowCircleUp } from '@phosphor-icons/react'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useTokenLogo } from 'hooks/useTokenLogo'
 import { useCallback } from 'react'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
@@ -24,7 +23,6 @@ export function TransactionSubmittedContent({
   const { t } = useTranslation()
 
   const token: Token | undefined = wrappedCurrency(currencyToAdd, chainId)
-  const tokenLogo = useTokenLogo(token)
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -33,9 +31,9 @@ export function TransactionSubmittedContent({
       <div className="flex flex-col items-center space-y-3 mt-6">
         <p className="text-on-surface">{t('Transaction Submitted')}</p>
         {chainId && hash && (
-          <ExternalLink href={getBlockExploreLink(hash, 'transaction', chainId)} className="text-on-surface-subtle">
+          <ExternalLink href={getBlockExploreLink(hash, 'transaction')} className="text-on-surface-subtle">
             {t('View on %site%', {
-              site: getBlockExploreName(chainId),
+              site: getBlockExploreName(),
             })}
           </ExternalLink>
         )}
@@ -48,7 +46,6 @@ export function TransactionSubmittedContent({
             tokenAddress={token?.address}
             tokenSymbol={currencyToAdd.symbol}
             tokenDecimals={token?.decimals}
-            tokenLogo={tokenLogo}
           />
         )}
       </div>

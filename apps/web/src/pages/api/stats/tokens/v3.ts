@@ -1,8 +1,11 @@
 import { NextApiHandler } from 'next'
 import { getCachedV3TokenStats } from 'tokens/get-cached-token-stats'
+import filteringTokensByKey from 'utils/filteringTokensByKey'
 import { z } from 'zod'
 
 const tokensSchema = z.object({
+  searchKey: z.string().optional(),
+
   sortBy: z.enum(['volume24H', 'volume7D', 'tvl', 'priceChange24H', 'priceChange7D']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
 
@@ -11,31 +14,32 @@ const tokensSchema = z.object({
 })
 
 const handler: NextApiHandler = async (req, res) => {
-  const { sortBy, sortDirection, skip, limit } = await tokensSchema.parseAsync(req.query)
+  const { searchKey, sortBy, sortDirection, skip, limit } = await tokensSchema.parseAsync(req.query)
 
   const tokens = await getCachedV3TokenStats()
+  const filteredTokens = searchKey ? filteringTokensByKey(tokens, searchKey) : tokens
 
   const useDesc = sortDirection === 'desc' ? -1 : 1
 
   switch (sortBy) {
     case 'volume24H': {
-      tokens.sort((a, b) => useDesc * (a.volumeUSD['24H'] - b.volumeUSD['24H']))
+      filteredTokens.sort((a, b) => useDesc * (a.volumeUSD['24H'] - b.volumeUSD['24H']))
       break
     }
     case 'volume7D': {
-      tokens.sort((a, b) => useDesc * (a.volumeUSD['7D'] - b.volumeUSD['7D']))
+      filteredTokens.sort((a, b) => useDesc * (a.volumeUSD['7D'] - b.volumeUSD['7D']))
       break
     }
     case 'tvl': {
-      tokens.sort((a, b) => useDesc * (a.tvlUSD - b.tvlUSD))
+      filteredTokens.sort((a, b) => useDesc * (a.tvlUSD - b.tvlUSD))
       break
     }
     case 'priceChange24H': {
-      tokens.sort((a, b) => useDesc * (a.priceUSD['24H'] - b.priceUSD['24H']))
+      filteredTokens.sort((a, b) => useDesc * (a.priceUSD['24H'] - b.priceUSD['24H']))
       break
     }
     case 'priceChange7D': {
-      tokens.sort((a, b) => useDesc * (a.priceUSD['7D'] - b.priceUSD['7D']))
+      filteredTokens.sort((a, b) => useDesc * (a.priceUSD['7D'] - b.priceUSD['7D']))
       break
     }
     default: {
@@ -43,7 +47,7 @@ const handler: NextApiHandler = async (req, res) => {
     }
   }
 
-  res.json({ tokens: tokens.slice(skip, skip + limit) })
+  res.json({ tokens: filteredTokens.slice(skip, skip + limit), totalPage: Math.ceil(filteredTokens.length / limit) })
 }
 
 export default handler

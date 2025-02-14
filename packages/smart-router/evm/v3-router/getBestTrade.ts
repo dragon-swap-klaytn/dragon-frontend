@@ -2,8 +2,8 @@ import { ChainId } from '@pancakeswap/chains'
 import { BigintIsh, Currency, CurrencyAmount, TradeType, ZERO } from '@pancakeswap/sdk'
 import filter from 'lodash/filter'
 
-import { ROUTE_CONFIG_BY_CHAIN } from './constants'
 import disabledTokens from '../constants/disabled'
+import { ROUTE_CONFIG_BY_CHAIN } from './constants'
 import { computeAllRoutes, getBestRouteCombinationByQuotes } from './functions'
 import { createGasModel } from './gasModel'
 import { getRoutesWithValidQuote } from './getRoutesWithValidQuote'
@@ -76,7 +76,7 @@ async function getBestRoutes(
     protocols: allowedPoolTypes,
     signal,
   })
-  const availableCandidatePools = filter(candidatePools, pool => {
+  const availableCandidatePools = filter(candidatePools, (pool) => {
     // v3
     if (pool.type === 1) {
       // @ts-ignore
@@ -86,7 +86,10 @@ async function getBestRoutes(
     // v2
     if (pool.type === 0) {
       // @ts-ignore
-      return !disabledTokens[chainId].has(pool.reserve0.currency.address) && !disabledTokens[chainId].has(pool.reserve1.currency.address)
+      return (
+        !disabledTokens[chainId].has(pool.reserve0.currency.address) &&
+        !disabledTokens[chainId].has(pool.reserve1.currency.address)
+      )
     }
 
     return true
@@ -118,18 +121,5 @@ async function getBestRoutes(
     signal,
   })
 
-  // routesWithValidQuote.forEach(({ percent, path, amount: a, quote }) => {
-  //   const pathStr = path.map((t) => t.symbol).join('->')
-  //   console.log(
-  //     `${percent}% Swap`,
-  //     a.toExact(),
-  //     a.currency.symbol,
-  //     'through',
-  //     pathStr,
-  //     ':',
-  //     quote.toExact(),
-  //     quote.currency.symbol,
-  //   )
-  // })
   return getBestRouteCombinationByQuotes(amount, currency, routesWithValidQuote, tradeType, { maxSplits })
 }

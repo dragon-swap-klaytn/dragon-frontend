@@ -61,6 +61,7 @@ const combineTokenMaps = (lists: ListsState['byUrl'], urls?: string[]): any => {
       .sort(sortByListPriority)
       .reduce((allTokens, currentUrl) => {
         const current = lists[currentUrl]?.current
+
         if (!current) return allTokens
         try {
           const newTokens = Object.assign(listToTokenMap(current, 'address'))

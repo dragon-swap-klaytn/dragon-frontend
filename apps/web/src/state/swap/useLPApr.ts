@@ -3,11 +3,11 @@ import { Pair } from '@pancakeswap/sdk'
 import { useQuery } from '@tanstack/react-query'
 import { SLOW_INTERVAL } from 'config/constants'
 import { LP_HOLDERS_FEE, WEEKS_IN_YEAR } from 'config/constants/info'
-import { gql } from 'graphql-request'
+import request, { gql } from 'graphql-request'
+import { subgraphUrls } from 'lib/graph-queries/const'
 import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
 import { getChangeForPeriod } from 'utils/getChangeForPeriod'
 import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
-import { getMultiChainQueryEndPointWithStableSwap, MultiChainName, multiChainQueryMainToken } from '../info/constant'
 
 interface PoolReserveVolume {
   reserveUSD: string
@@ -55,33 +55,29 @@ export const useLPApr = (pair?: Pair | null) => {
 
   return poolData
 }
-const fetchPoolVolumeAndReserveData = async (
-  block7d: number,
-  poolAddress: string,
-  chainName: 'KLAYTN' | 'KLAYTN_TESTNET' = 'KLAYTN',
-) => {
+const fetchPoolVolumeAndReserveData = async (block7d: number, poolAddress: string) => {
   try {
     const query = gql`
       query pools {
-        now: ${POOL_AT_BLOCK(chainName, null, poolAddress)}
-        oneWeekAgo: ${POOL_AT_BLOCK(chainName, block7d, poolAddress)}
+        now: ${POOL_AT_BLOCK(null, poolAddress)}
+        oneWeekAgo: ${POOL_AT_BLOCK(block7d, poolAddress)}
       }
     `
 
-    const data = await getMultiChainQueryEndPointWithStableSwap(chainName).request<PoolReserveVolumeResponse>(query)
+    const data = await request(subgraphUrls.v3Exchange, query)
     return { data, error: false }
   } catch (error) {
     console.error('Failed to fetch pool data', error)
     return { error: true }
   }
 }
-const POOL_AT_BLOCK = (chainName: MultiChainName, block: number | null, pool: string) => {
+const POOL_AT_BLOCK = (block: number | null, pool: string) => {
   const addressesString = `["${pool}"]`
   const blockString = block ? `block: {number: ${block}}` : ``
   return `pairs(
     where: { id_in: ${addressesString} }
     ${blockString}
-    orderBy: trackedReserve${multiChainQueryMainToken[chainName]}
+    orderBy: trackedReserveETH
     orderDirection: desc
   ) {
     reserveUSD

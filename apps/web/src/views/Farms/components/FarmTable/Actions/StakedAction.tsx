@@ -6,7 +6,7 @@ import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { useModal, useToast } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import WalletModal, { WalletView } from 'components/Menu/UserMenu/WalletModal'
+import WalletModal from 'components/Menu/UserMenu/WalletModal'
 import { ToastDescriptionWithTx } from 'components/Toast'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useCakePrice } from 'hooks/useCakePrice'
@@ -270,7 +270,7 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
     />,
   )
 
-  const [onPresentTransactionModal] = useModal(<WalletModal initialView={WalletView.TRANSACTIONS} />)
+  const [onPresentTransactionModal] = useModal(<WalletModal initialView="Transactions" />)
 
   const onClickLoadingIcon = () => {
     const { length } = pendingFarm

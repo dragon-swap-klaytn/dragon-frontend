@@ -1,7 +1,6 @@
 import { BaseCurrency, Currency, Token } from '@pancakeswap/swap-sdk-core'
-import { Address } from 'viem'
 import invariant from 'tiny-invariant'
-import { validateAndParseAddress } from '../utils'
+import { Address } from 'viem'
 
 export interface SerializedToken {
   chainId: number
@@ -24,7 +23,8 @@ export class ERC20Token extends Token {
     name?: string,
     projectLink?: string
   ) {
-    super(chainId, validateAndParseAddress(address), decimals, symbol, name, projectLink)
+    // super(chainId, validateAndParseAddress(address), decimals, symbol, name, projectLink)
+    super(chainId, address as Address, decimals, symbol, name, projectLink)
   }
 }
 

@@ -1,4 +1,4 @@
-import { Flex, LinkExternal, ScanLink, Skeleton, Text } from '@pancakeswap/uikit'
+import { ExternalLink, Flex, LinkExternal, Skeleton, Text } from '@pancakeswap/uikit'
 import { Pool } from '@pancakeswap/widgets-internal'
 
 import { useTranslation } from '@pancakeswap/localization'
@@ -7,14 +7,13 @@ import { Token } from '@pancakeswap/sdk'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWallet/AddToWalletButton'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useTokenLogo } from 'hooks/useTokenLogo'
 import { memo, useMemo } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
-import { getTokenInfoPath } from 'state/info/utils'
 import { useVaultPoolByKey } from 'state/pools/hooks'
 import { VaultKey } from 'state/types'
 import { getBlockExploreLink } from 'utils'
 import { getVaultPoolAddress } from 'utils/addressHelpers'
+import getTokenInfoPath from 'views/Dashboard/utils/getTokenInfoPath'
 import { getPoolBlockInfo } from 'views/Pools/helpers'
 import MaxStakeRow from './MaxStakeRow'
 import { AprInfo, DurationAvg, TotalLocked } from './Stat'
@@ -69,7 +68,6 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
     () => (chainId ? getTokenInfoPath(chainId, earningToken.address) : ''),
     [chainId, earningToken.address],
   )
-  const tokenLogo = useTokenLogo(earningToken)
 
   return (
     <>
@@ -141,17 +139,11 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
       )}
       {poolContractAddress && (
         <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
-          <ScanLink
-            href={getBlockExploreLink(
-              (vaultKey ? cakeVaultContractAddress : poolContractAddress) ?? '',
-              'address',
-              chainId,
-            )}
-            bold={false}
-            small
+          <ExternalLink
+            href={getBlockExploreLink((vaultKey ? cakeVaultContractAddress : poolContractAddress) ?? '', 'address')}
           >
             {t('View Contract')}
-          </ScanLink>
+          </ExternalLink>
         </Flex>
       )}
       {account && tokenAddress && (
@@ -161,7 +153,6 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
             tokenAddress={tokenAddress}
             tokenSymbol={earningToken.symbol}
             tokenDecimals={earningToken.decimals}
-            tokenLogo={tokenLogo}
           />
         </Flex>
       )}

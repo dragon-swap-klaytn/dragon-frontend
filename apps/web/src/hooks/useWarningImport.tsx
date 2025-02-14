@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import shouldShowSwapWarning from 'utils/shouldShowSwapWarning'
 
 import ImportTokenWarningModal from 'components/ImportTokenWarningModal'
-import { useAllTokens, useCurrency } from 'hooks/Tokens'
+import { useCurrency, useTokenMap } from 'hooks/Tokens'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
@@ -33,7 +33,7 @@ export default function useWarningImport() {
     [loadedInputCurrency, loadedOutputCurrency],
   )
 
-  const defaultTokens = useAllTokens()
+  const defaultTokens = useTokenMap()
 
   const { data: loadedTokenList } = useQuery<any>(['token-list'])
 

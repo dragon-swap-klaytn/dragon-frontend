@@ -3,9 +3,7 @@ import { ChainId } from './chainId'
 const DGSWAP_GATEWAY = process.env.NEXT_PUBLIC_DGSWAP_GATEWAY || 'https://gateway.graph.dgswap.io'
 
 export const V3_SUBGRAPHS = getV3Subgraphs()
-
 export const V2_SUBGRAPHS = getV2Subgraphs()
-
 export const BLOCKS_SUBGRAPHS = getBlocksSubgraphs()
 
 export const STABLESWAP_SUBGRAPHS = {
@@ -33,4 +31,9 @@ export function getBlocksSubgraphs() {
     [ChainId.KLAYTN]: `${DGSWAP_GATEWAY}/dgswap-blocks-kaia`,
     [ChainId.KLAYTN_TESTNET]: '',
   }
+}
+
+export const SUBGRAPH_START_BLOCK = {
+  [ChainId.KLAYTN]: 145315220,
+  [ChainId.KLAYTN_TESTNET]: 144998615,
 }

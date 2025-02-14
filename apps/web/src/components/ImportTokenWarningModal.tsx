@@ -41,6 +41,7 @@ const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({
         onCancel()
       }}
     >
+      <span className="text-on-surface">asasdfasdf</span>
       <ImportToken tokens={tokens} handleCurrencySelect={onDismiss} />
     </Modal>
   )

@@ -83,7 +83,7 @@ function RecentTokenButton({
       disabled={selected}
     >
       <CurrencyLogo currency={currency} address={address} />
-      <span className="text-[13px] text-on-surface">{symbol}</span>
+      <span className="text-[13px] text-on-surface whitespace-nowrap">{symbol}</span>
     </button>
   )
 }

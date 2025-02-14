@@ -19,7 +19,6 @@ import AddToWalletButton, { AddToWalletTextOptions } from 'components/AddToWalle
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { ApprovalState } from 'hooks/useApproveCallback'
-import { useTokenLogo } from 'hooks/useTokenLogo'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
@@ -74,7 +73,6 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
   const { qrUri, requestKey, cancelKlipRequest } = useA2AConnectorQRUri()
 
   const token: Token | undefined = wrappedCurrency(trade?.outputAmount?.currency, chainId)
-  const tokenLogo = useTokenLogo(token)
 
   const handleDismiss = useCallback(() => {
     if (customOnDismiss) {
@@ -151,7 +149,6 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
             tokenAddress={token?.address}
             tokenSymbol={currencyB?.symbol}
             tokenDecimals={token?.decimals}
-            tokenLogo={tokenLogo}
           />
         </SwapPendingModalContent>
       )
@@ -164,8 +161,8 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
         <SwapTransactionReceiptModalContent>
           <div className="flex flex-col space-y-3">
             {chainId && (
-              <ExternalLink href={getBlockExploreLink(txHash, 'transaction', chainId)} className="text-on-surface">
-                {t('View on %site%', { site: getBlockExploreName(chainId) })}: {truncateHash(txHash, 8, 0)}
+              <ExternalLink href={getBlockExploreLink(txHash, 'transaction')} className="text-on-surface">
+                {t('View on %site%', { site: getBlockExploreName() })}: {truncateHash(txHash, 8, 0)}
               </ExternalLink>
             )}
 
@@ -174,7 +171,6 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
               tokenAddress={token?.address}
               tokenSymbol={currencyB?.symbol}
               tokenDecimals={token?.decimals}
-              tokenLogo={tokenLogo}
             />
           </div>
         </SwapTransactionReceiptModalContent>
@@ -195,7 +191,6 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
     )
   }, [
     isBonus,
-    tokenLogo,
     trade,
     txHash,
     originalTrade,

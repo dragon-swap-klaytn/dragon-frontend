@@ -1,9 +1,8 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { ERC20Token, Token } from '@pancakeswap/sdk'
-import { ButtonV2, SearchBar } from '@pancakeswap/uikit'
+import { ButtonV2, CurrencyLogoWithSymbol, SearchBar } from '@pancakeswap/uikit'
 import { TrashSimple } from '@phosphor-icons/react'
-import { CurrencyLogo } from 'components/Logo'
 import ImportRow from 'components/SearchModal/ImportRow'
 import { useTokens } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -37,7 +36,7 @@ export default function ManageTokens({
   }, [])
 
   // all tokens for local list
-  const userAddedTokens: Token[] = useUserAddedTokens()
+  const userAddedTokens = useUserAddedTokens()
   const removeToken = useRemoveUserAddedToken()
 
   const handleRemoveAll = useCallback(() => {
@@ -90,8 +89,7 @@ export default function ManageTokens({
                 onClick={() => removeToken(chainId, token.address)}
               >
                 <div className="flex items-center space-x-2">
-                  <CurrencyLogo currency={token as any} size={20} />
-                  <span className="text-sm text-on-surface">{token.symbol}</span>
+                  <CurrencyLogoWithSymbol addressA={token.address} symbol={token.symbol} />
                   <span className="text-gray-400 text-xs">{token.name}</span>
                 </div>
 

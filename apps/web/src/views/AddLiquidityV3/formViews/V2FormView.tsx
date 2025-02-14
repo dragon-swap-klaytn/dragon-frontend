@@ -8,7 +8,6 @@ import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { CommonBasesType } from 'components/SearchModal/types'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { Field } from 'state/mint/actions'
 import { getBlockExploreLink } from 'utils'
@@ -40,13 +39,12 @@ export default function V2FormView({
   isOneWeiAttack,
   pair,
 }: LP2ChildrenProps) {
-  const { chainId } = useActiveChainId()
   const { account, isWrongNetwork } = useActiveWeb3React()
   const { t } = useTranslation()
   const expertMode = useIsExpertMode()
   const pairExplorerLink = useMemo(
-    () => pair && getBlockExploreLink(Pair.getAddress(pair.token0, pair.token1), 'address', chainId),
-    [pair, chainId],
+    () => pair && getBlockExploreLink(Pair.getAddress(pair.token0, pair.token1), 'address'),
+    [pair],
   )
 
   let buttons: ReactNode = null

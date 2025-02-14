@@ -1,66 +1,50 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
-import clsx from 'clsx'
+import { InjectedModalProps, Modal, SegmentedControl } from '@pancakeswap/uikit'
 import { useCallback, useState } from 'react'
 import WalletInfo from './WalletInfo'
 import WalletTransactions from './WalletTransactions'
-import WalletWrongNetwork from './WalletWrongNetwork'
 
-export enum WalletView {
-  WALLET_INFO,
-  TRANSACTIONS,
-  WRONG_NETWORK,
-}
+export const WalletModalTabs = ['Wallet', 'Transactions'] as const
+export type WalletModalTab = (typeof WalletModalTabs)[number]
 
 interface WalletModalProps extends InjectedModalProps {
-  initialView?: WalletView
+  initialView?: WalletModalTab
 }
 
 interface TabsComponentProps {
-  view: WalletView
-  handleClick: (newIndex: number) => void
+  view: WalletModalTab
+  handleClick: (newView: WalletModalTab) => void
 }
 
 const TabsComponent: React.FC<React.PropsWithChildren<TabsComponentProps>> = ({ view, handleClick }) => {
-  const { t } = useTranslation()
-
   return (
-    <div className="grid grid-cols-2 text-sm bg-neutral rounded-[20px] overflow-hidden">
-      {Array.from({ length: 2 }).map((_, index) => (
-        <button
-          key={`wallet-modal-tab:${index === 0 ? 'Wallet' : 'Transactions'}`}
-          type="button"
-          className={clsx('hover:opacity-70 py-2 rounded-[20px] text-on-surface', {
-            'bg-neutral-pressed': view === index,
-            'bg-transparent': view !== index,
-          })}
-          onClick={() => handleClick(index)}
-        >
-          {index === 0 ? t('Wallet') : t('Transactions')}
-        </button>
-      ))}
-    </div>
+    <SegmentedControl
+      options={WalletModalTabs as unknown as WalletModalTab[]}
+      value={view}
+      onChange={handleClick}
+      fullWidth
+      useTranslationOption
+    />
   )
 }
 
 const WalletModal: React.FC<React.PropsWithChildren<WalletModalProps>> = ({
-  initialView = WalletView.WALLET_INFO,
+  initialView = WalletModalTabs[0],
   onDismiss,
 }) => {
   const [view, setView] = useState(initialView)
   const { t } = useTranslation()
 
-  const handleClick = useCallback((newIndex: number) => {
-    setView(newIndex)
+  const handleClick = useCallback((newView: WalletModalTab) => {
+    setView(newView)
   }, [])
 
   return (
-    <Modal title={t('Your Wallet')} onDismiss={onDismiss} maxWidth="max-w-lg" contentMinHeight="min-h-[245px]">
-      {view !== WalletView.WRONG_NETWORK && <TabsComponent view={view} handleClick={handleClick} />}
+    <Modal title={t('Your Wallet')} onDismiss={onDismiss} maxWidth="max-w-lg" contentMinHeight="min-h-[300px]">
+      <TabsComponent view={view} handleClick={handleClick} />
 
-      {view === WalletView.WALLET_INFO && <WalletInfo switchView={handleClick} onDismiss={onDismiss} />}
-      {view === WalletView.TRANSACTIONS && <WalletTransactions />}
-      {view === WalletView.WRONG_NETWORK && <WalletWrongNetwork onDismiss={onDismiss} />}
+      {view === 'Wallet' && <WalletInfo onDismiss={onDismiss} />}
+      {view === 'Transactions' && <WalletTransactions />}
     </Modal>
   )
 }

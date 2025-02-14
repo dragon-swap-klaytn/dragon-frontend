@@ -26,20 +26,26 @@ export const NATVIE_TOKEN = new ERC20Token(
 )
 
 export const USDC = {
-  [ChainId.KLAYTN]: new ERC20Token(8217, '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A', 6, 'USDC', 'USD Coin'),
+  [ChainId.KLAYTN]: new ERC20Token(
+    8217,
+    '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A'.toLowerCase() as `0x${string}`,
+    6,
+    'USDC',
+    'USD Coin',
+  ),
 }
 
 export const USDT = {
   [ChainId.KLAYTN]: new ERC20Token(
     ChainId.KLAYTN,
-    '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2',
+    '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'.toLowerCase() as `0x${string}`,
     6,
     'USDT',
     'Tether USD',
   ),
   [ChainId.KLAYTN_TESTNET]: new ERC20Token(
     ChainId.KLAYTN_TESTNET,
-    '0x37f5A4788b767B9677690D7D454b85ee50d19262',
+    '0x37f5A4788b767B9677690D7D454b85ee50d19262'.toLowerCase() as `0x${string}`,
     6,
     'oUSDT',
     'Orbit Bridge Klaytn USD Tether',

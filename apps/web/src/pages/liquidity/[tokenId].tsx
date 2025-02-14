@@ -1057,7 +1057,7 @@ function PositionHistoryRow({
       <tr className="border-b border-border">
         <td className="p-3">
           <ExternalLink
-            href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+            href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction')}
             className="text-on-surface col-span-1"
           >
             {mobileDate} {mobileTime}
@@ -1107,7 +1107,7 @@ function PositionHistoryRow({
     <tr className="border-b border-border">
       <td className="p-3">
         <ExternalLink
-          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction')}
           className="text-on-surface"
         >
           {desktopDate}

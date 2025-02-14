@@ -13,7 +13,7 @@ import Transaction from './Transaction'
 
 export function renderTransactions(transactions: TransactionDetails[], chainId: number) {
   return (
-    <div className="flex flex-col space-y-3 max-h-80 overflow-y-auto">
+    <div className="flex flex-col space-y-5 max-h-80 overflow-y-auto">
       {transactions.map((tx) => {
         return <Transaction key={tx.hash + tx.addedTime} tx={tx} chainId={chainId} />
       })}
@@ -48,14 +48,8 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
                   )
 
                   const confirmed = groupedTransactions.true ?? []
-                  // const pending = groupedTransactions.false ?? []
 
-                  return (
-                    <div key={`transactions#${chainIdNumber}`}>
-                      {/* {renderTransactions(pending, chainIdNumber)} */}
-                      {renderTransactions(confirmed, chainIdNumber)}
-                    </div>
-                  )
+                  return <div key={`transactions#${chainIdNumber}`}>{renderTransactions(confirmed, chainIdNumber)}</div>
                 })}
               </div>
 

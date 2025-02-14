@@ -2,7 +2,7 @@ import request, { gql } from 'graphql-request'
 import { subgraphUrls } from 'lib/graph-queries/const'
 import { PancakeDayDataV2 } from 'lib/graph-queries/types'
 
-export const getV2PancakeDayData = async ({ length = 30 } = {}) => {
+export const getV2PancakeDayData = async ({ length = 30 } = {}): Promise<PancakeDayDataV2[]> => {
   const document = gql`
     query ($first: Int) {
       pancakeDayDatas(first: $first, orderBy: date, orderDirection: desc) {
@@ -16,13 +16,12 @@ export const getV2PancakeDayData = async ({ length = 30 } = {}) => {
 
   const { pancakeDayDatas } = await request(subgraphUrls.v2Exchange, document, { first: length })
 
-  return pancakeDayDatas.map(
-    ({ date, dailyVolumeUSD, totalLiquidityUSD, totalTransactions }) =>
-      ({
-        timestamp: date * 1000,
-        volumeUSD: +dailyVolumeUSD,
-        tvlUSD: +totalLiquidityUSD,
-        txCount: +totalTransactions,
-      } as PancakeDayDataV2),
-  )
+  return pancakeDayDatas
+    .map(({ date, dailyVolumeUSD, totalLiquidityUSD, totalTransactions }) => ({
+      timestamp: date * 1000,
+      volumeUSD: +dailyVolumeUSD,
+      tvlUSD: +totalLiquidityUSD,
+      txCount: +totalTransactions,
+    }))
+    .sort((a, b) => a.timestamp - b.timestamp)
 }

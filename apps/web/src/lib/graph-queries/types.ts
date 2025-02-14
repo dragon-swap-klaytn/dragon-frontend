@@ -1,12 +1,15 @@
+import { Address } from 'viem'
+import { TransactionType } from 'views/Dashboard/types'
+
 type TokenSimple = {
-  id: string
+  id: Address
   symbol: string
   name: string
   decimals: number
 }
 
 type PoolBase = {
-  id: string
+  id: Address
   token0: TokenSimple
   token1: TokenSimple
   reserve0: number
@@ -15,7 +18,7 @@ type PoolBase = {
 }
 
 type PoolAccDataBase = {
-  id: string
+  id: Address
   volumeUSD: number
   txCount: number
 }
@@ -52,7 +55,7 @@ export type TokenBase = TokenSimple & {
 }
 
 export type TokenAccData = {
-  id: string
+  id: Address
   priceUSD: number
   volume: number
   volumeUSD: number
@@ -94,3 +97,7 @@ export type TransactionEvent = {
   amount1: number
   amountUSD: number
 }
+
+export type TransactionEventWithType = {
+  type: TransactionType
+} & TransactionEvent

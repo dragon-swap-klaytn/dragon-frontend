@@ -68,7 +68,6 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
   const handleCurrencySelect = useCallback(
     (newCurrency: Currency, field: Field, currentInputCurrencyId?: string, currentOutputCurrencyId?: string) => {
       onCurrencySelection(field, newCurrency)
-
       warningSwapHandler(newCurrency)
 
       const isInput = field === Field.INPUT

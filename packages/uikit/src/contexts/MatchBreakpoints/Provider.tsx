@@ -67,11 +67,23 @@ export const MatchBreakpointsContext = createContext<BreakpointChecks>({
 });
 
 export const getBreakpointChecks = (state: State): BreakpointChecks => {
+  //   {
+  //     "xxs": "(min-width: 0px) and (max-width: 359px)",
+  //     "xs": "(min-width: 360px) and (max-width: 479px)",
+  //     "s": "(min-width: 480px) and (max-width: 639px)",
+  //     "sm": "(min-width: 640px) and (max-width: 767px)",
+  //     "md": "(min-width: 768px) and (max-width: 1023px)",
+  //     "lg": "(min-width: 1024px) and (max-width: 1279px)",
+  //     "xl": "(min-width: 1280px) and (max-width: 1535px)",
+  //     "xxl": "(min-width: 1536px)"
+  // }
   return {
     ...state,
-    isMobile: state.isXs || state.isSm,
-    isTablet: state.isMd || state.isLg,
-    isDesktop: state.isXl || state.isXxl,
+    isBelowS: state.isXxs || state.isXs,
+    isBelowSm: state.isXxs || state.isXs || state.isS,
+    isMobile: state.isXxs || state.isXs || state.isS || state.isSm,
+    isTablet: state.isMd,
+    isDesktop: state.isLg || state.isXl || state.isXxl,
   };
 };
 
