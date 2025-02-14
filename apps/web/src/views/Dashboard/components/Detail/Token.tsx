@@ -357,8 +357,8 @@ export default function TokenDetail({ poolType, address }: TokenDetailProps) {
                     <LineChart
                       data={formattedTvlData}
                       color="#9A6AFF"
-                      minHeight="min-h-[340px]"
-                      height="h-[300px]"
+                      minHeightClassName="min-h-[340px]"
+                      heightClassName="h-[300px]"
                       onMouseHover={mouseHoverHandler}
                       onMouseLeave={mouseLeaveHandler}
                     />
@@ -366,7 +366,7 @@ export default function TokenDetail({ poolType, address }: TokenDetailProps) {
                     <BarChart
                       data={formattedVolumeData}
                       color="#1FC7D4"
-                      minHeight="min-h-[340px]"
+                      minHeightClassName="min-h-[340px]"
                       onMouseHover={mouseHoverHandler}
                       onMouseLeave={mouseLeaveHandler}
                     />

@@ -8,19 +8,25 @@ import { VolumeWindow } from '../../types'
 
 dayjs.extend(utc)
 
-export type LineChartProps = {
+export type BarChartProps = {
   data: any[]
   color?: string
-  height?: string
-  minHeight?: string
-  onMouseHover: (value: number, label: string) => void
-  onMouseLeave: () => void
+  heightClassName?: string
+  minHeightClassName?: string
+  onMouseHover?: (value: number, label: string) => void
+  onMouseLeave?: () => void
   label?: string
   activeWindow?: VolumeWindow
   topLeft?: ReactNode
   topRight?: ReactNode
   bottomLeft?: ReactNode
   bottomRight?: ReactNode
+  margin?: {
+    top?: number
+    right?: number
+    left?: number
+    bottom?: number
+  }
 } & React.HTMLAttributes<HTMLDivElement>
 
 const CustomBar = ({
@@ -54,13 +60,14 @@ const Chart = ({
   topRight,
   bottomLeft,
   bottomRight,
-  minHeight = 'min-h-[300px]',
-  height,
-}: LineChartProps) => {
+  minHeightClassName,
+  heightClassName,
+  margin,
+}: BarChartProps) => {
   const now = dayjs()
 
   return (
-    <div className={clsx('w-full flex bg-transparent flex-col', minHeight, height)}>
+    <div className={clsx('w-full h-full flex bg-transparent flex-col', minHeightClassName, heightClassName)}>
       <div className="w-full flex items-start space-x-2 justify-between">
         {topLeft ?? null}
         {topRight ?? null}
@@ -71,18 +78,7 @@ const Chart = ({
         </div>
       ) : (
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            width={500}
-            height={300}
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-            onMouseLeave={onMouseLeave}
-          >
+          <BarChart data={data} margin={margin} onMouseLeave={onMouseLeave}>
             <XAxis
               dataKey="time"
               axisLine={false}
@@ -116,7 +112,7 @@ const Chart = ({
                   }
                 }
 
-                onMouseHover(props.payload.value, _time)
+                if (onMouseHover) onMouseHover(props.payload.value, _time)
 
                 return [v, n]
               }}

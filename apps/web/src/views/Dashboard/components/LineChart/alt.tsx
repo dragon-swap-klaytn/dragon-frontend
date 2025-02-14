@@ -13,14 +13,20 @@ dayjs.extend(utc)
 export type LineChartProps = {
   data: any[]
   color?: string
-  height?: string
-  minHeight?: string
-  onMouseHover: (value: number, label: string) => void
-  onMouseLeave: () => void
+  heightClassName?: string
+  minHeightClassName?: string
+  onMouseHover?: (value: number, label: string) => void
+  onMouseLeave?: () => void
   topLeft?: ReactNode
   topRight?: ReactNode
   bottomLeft?: ReactNode
   bottomRight?: ReactNode
+  margin?: {
+    top?: number
+    right?: number
+    left?: number
+    bottom?: number
+  }
 } & React.HTMLAttributes<HTMLDivElement>
 
 const Chart = ({
@@ -32,14 +38,15 @@ const Chart = ({
   topRight,
   bottomLeft,
   bottomRight,
-  minHeight = 'min-h-[300px]',
-  height,
+  minHeightClassName,
+  heightClassName,
+  margin,
 }: LineChartProps) => {
   const { theme } = useTheme()
 
   return (
-    <div className={clsx('w-full flex bg-transparent flex-col', minHeight, height)}>
-      <div className="flex items-center space-x-2 justify-between w-full">
+    <div className={clsx('w-full h-full flex bg-transparent flex-col', minHeightClassName, heightClassName)}>
+      <div className="flex items-start space-x-2 justify-between w-full">
         {topLeft ?? null}
         {topRight ?? null}
       </div>
@@ -49,18 +56,7 @@ const Chart = ({
         </div>
       ) : (
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            width={500}
-            height={300}
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-            onMouseLeave={onMouseLeave}
-          >
+          <AreaChart data={data} margin={margin} onMouseLeave={onMouseLeave}>
             <defs>
               <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={darken(0.36, color)} stopOpacity={0.5} />
@@ -78,7 +74,7 @@ const Chart = ({
               cursor={{ stroke: theme.colors.backgroundAlt2 }}
               contentStyle={{ display: 'none' }}
               formatter={(v, n, props) => {
-                onMouseHover(props.payload.value, dayjs(props.payload.time).format('MMM D, YYYY'))
+                if (onMouseHover) onMouseHover(props.payload.value, dayjs(props.payload.time).format('MMM D, YYYY'))
 
                 return [v, n]
               }}

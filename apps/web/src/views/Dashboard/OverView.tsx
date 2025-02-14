@@ -161,8 +161,8 @@ export default function Overview({ poolType = 'v3' }: { poolType?: DashboardPool
         <div className="rounded-xl p-6 bg-neutral w-full">
           <LineChart
             data={formattedTvlData}
-            height="h-[220px]"
-            minHeight="min-h-[332px]"
+            heightClassName="h-[220px]"
+            minHeightClassName="min-h-[332px]"
             onMouseHover={tvlChartHoverHandler}
             onMouseLeave={tvlChartLeaveHandler}
             topLeft={
@@ -172,8 +172,8 @@ export default function Overview({ poolType = 'v3' }: { poolType?: DashboardPool
         </div>
         <div className="rounded-xl p-6 bg-neutral w-full">
           <BarChart
-            height="h-[200px]"
-            minHeight="h-[332px]"
+            heightClassName="h-[200px]"
+            minHeightClassName="h-[332px]"
             data={
               volumeWindow === VolumeWindow.monthly
                 ? monthlyVolumeData

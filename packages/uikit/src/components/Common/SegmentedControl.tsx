@@ -33,7 +33,7 @@ export function SegmentedControl<T extends string>({
           key={option}
           type="button"
           onClick={() => onChange(option)}
-          className={clsx("py-2 text-sm focus:outline-none rounded-full w-full text-on-surface", paddingX, {
+          className={clsx("py-2 text-sm focus:outline-none rounded-full w-full text-on-surface capitalize", paddingX, {
             "bg-neutral-pressed": value === option,
             "bg-transparent": value !== option,
           })}
