@@ -1,3 +1,4 @@
+import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { NextApiHandler } from 'next'
 import { getCachedV3TokenStats } from 'tokens/get-cached-token-stats'
 import filteringTokensByKey from 'utils/filteringTokensByKey'
@@ -5,6 +6,11 @@ import { z } from 'zod'
 
 const tokensSchema = z.object({
   searchKey: z.string().optional(),
+
+  onlyTokenAddresses: z.preprocess(
+    (v) => (typeof v === 'string' && v.length > 0 ? v.split(',') : []),
+    z.string().regex(VALID_ADDRESS_REGEX).array(),
+  ),
 
   sortBy: z.enum(['volume24H', 'volume7D', 'tvl', 'priceChange24H', 'priceChange7D']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
@@ -14,10 +20,15 @@ const tokensSchema = z.object({
 })
 
 const handler: NextApiHandler = async (req, res) => {
-  const { searchKey, sortBy, sortDirection, skip, limit } = await tokensSchema.parseAsync(req.query)
+  const { searchKey, onlyTokenAddresses, sortBy, sortDirection, skip, limit } = await tokensSchema.parseAsync(req.query)
 
   const tokens = await getCachedV3TokenStats()
-  const filteredTokens = searchKey ? filteringTokensByKey(tokens, searchKey) : tokens
+  let filteredTokens = searchKey ? filteringTokensByKey(tokens, searchKey) : tokens
+
+  if (onlyTokenAddresses.length > 0) {
+    const onlyTokenAddressesLowerCased = onlyTokenAddresses.map((address) => address.toLowerCase())
+    filteredTokens = filteredTokens.filter((token) => onlyTokenAddressesLowerCased.includes(token.id.toLowerCase()))
+  }
 
   const useDesc = sortDirection === 'desc' ? -1 : 1
 
