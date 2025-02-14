@@ -4,7 +4,7 @@ import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
 import { Address } from 'viem'
 import TokenDetail from 'views/Dashboard/components/Detail/Token'
 
-const TokenPage = ({ poolType, address }: { poolType: DashboardPoolType; address: Address }) => {
+const TokenDetailPage = ({ poolType, address }: { poolType: DashboardPoolType; address: Address }) => {
   if (!address || !poolType) {
     return null
   }
@@ -12,10 +12,10 @@ const TokenPage = ({ poolType, address }: { poolType: DashboardPoolType; address
   return <TokenDetail poolType={poolType} address={address} />
 }
 
-TokenPage.Layout = ({ children }) => <>{children}</>
-TokenPage.chains = [] // set all
+TokenDetailPage.Layout = ({ children }) => <>{children}</>
+TokenDetailPage.chains = [] // set all
 
-export default TokenPage
+export default TokenDetailPage
 
 export const getStaticPaths: GetStaticPaths = getTokenStaticPaths()
 export const getStaticProps: GetStaticProps = getTokenStaticProps()

@@ -47,7 +47,7 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
 
       <div
         className={clsx(
-          'absolute top-[50px] right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50 w-64 xxs:w-80 md:w-[340px]',
+          'absolute top-[50px] right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50 w-64 xs:w-80 md:w-[340px]',
           {
             'opacity-100': setGlobalSettingsOpen ? globalSettingsOpen : open,
             'opacity-0 pointer-events-none': setGlobalSettingsOpen ? !globalSettingsOpen : !open,

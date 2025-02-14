@@ -22,7 +22,7 @@ const HEADERS: {
 }[] = [
   { id: 'name', title: 'Name' },
   { id: 'price', title: 'Price' },
-  { id: 'priceChange24H', title: 'Price Change' },
+  { id: 'priceChange24H', title: 'Price Change', sortBy: 'priceChange24H' },
   {
     id: 'priceChange7D',
     title: (
@@ -30,6 +30,7 @@ const HEADERS: {
         Price <span className="inline-block whitespace-nowrap">Change 7D</span>
       </span>
     ),
+    sortBy: 'priceChange7D',
   },
   { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H' },
   { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D' },
@@ -57,8 +58,6 @@ export default function TokenTable({
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   // pagination
-  // const [skip, setSkip] = useState(0)
-  // const page = useMemo(() => Math.floor(skip / SHOW_TOKENS_COUNT) + 1, [skip])
   const [page, setPage] = useState(1)
   const skip = (page - 1) * SHOW_TOKENS_COUNT
   const [_totalPage, setTotalPage] = useState(1)
@@ -130,18 +129,22 @@ export default function TokenTable({
           <tr className="text-on-surface-subtle bg-neutral text-xs">
             {headers.map(({ title, sortBy: s }, index) => (
               <th
-                key={`tokenTable:${title}`}
+                key={`tokenTable:header:${title}`}
                 className={clsx('py-3 text-left', {
-                  'px-4 xs:px-6': index === 0,
+                  'px-4 s:px-6': index === 0,
                   'px-4': index !== 0,
                 })}
               >
-                <SortHeaderButton
-                  title={title}
-                  onClick={() => handleSort(s as TokensSortBy)}
-                  isSelected={sortBy === s}
-                  sortDirection={sortDirection}
-                />
+                {s ? (
+                  <SortHeaderButton
+                    title={title}
+                    onClick={() => handleSort(s)}
+                    isSelected={sortBy === s}
+                    sortDirection={sortDirection}
+                  />
+                ) : (
+                  <>{title}</>
+                )}
               </th>
             ))}
           </tr>
@@ -149,7 +152,7 @@ export default function TokenTable({
         <tbody>
           {isFirstRender ? (
             <tr>
-              <td colSpan={headers.length} className="h-[250px] md:h-[300px] text-center">
+              <td colSpan={headers.length} className="h-[250px] md:h-[300px] text-center s">
                 <div className="flex items-center justify-center w-full">
                   <Spinner />
                 </div>
@@ -168,9 +171,6 @@ export default function TokenTable({
                 key={`tokenTable:${tokenData.id}`}
                 tokenData={tokenData}
                 isLastIndex={index === tokensData.length - 1}
-                isMobile={isMobile}
-                isBelowS={isBelowS}
-                isBelowSm={isBelowSm}
               />
             ))
           ) : (

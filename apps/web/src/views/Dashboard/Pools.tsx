@@ -14,7 +14,7 @@ export default function Pools({ poolType = 'v3' }: { poolType: DashboardPoolType
 
   return (
     <div className="w-full flex flex-col items-start space-y-5">
-      <div className="flex flex-col xxs:flex-row xxs:items-center space-y-2 xxs:space-y-0 xxs:space-x-2 justify-between w-full">
+      <div className="flex flex-col xs:flex-row xs:items-center space-y-2 xs:space-y-0 xs:space-x-2 justify-between w-full">
         <Header title={t('All Pairs')} />
 
         <SearchBar

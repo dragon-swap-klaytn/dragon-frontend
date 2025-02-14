@@ -14,10 +14,7 @@ export default function Tokens({ poolType = 'v3' }: { poolType?: DashboardPoolTy
 
   return (
     <>
-      {/* {!showAll && <TopTokenMovers tokens={tokens} />} */}
-      {/* <TopTokenMovers tokens={tokens} /> */}
-
-      <div className="flex flex-col xxs:flex-row xxs:items-center space-y-2 xxs:space-y-0 xxs:space-x-2 justify-between w-full">
+      <div className="flex flex-col xs:flex-row xs:items-center space-y-2 xs:space-y-0 xs:space-x-2 justify-between w-full">
         <Header title={t('All Tokens')} />
 
         <SearchBar

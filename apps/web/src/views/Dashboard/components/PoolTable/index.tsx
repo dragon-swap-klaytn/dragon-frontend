@@ -24,8 +24,8 @@ const HEADERS: {
   { id: 'pair', title: 'Pair' },
   { id: 'tvl', title: 'TVL', sortBy: 'tvl' },
   { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H' },
-  { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H' },
   { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D' },
+  { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H' },
   { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D' },
 ]
 
@@ -98,8 +98,8 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
           <col width="*" />
           <col width="110px" />
           <col width="110px" />
-          {!isBelowSm && <col width="100px" />}
           {!isMobile && <col width="110px" />}
+          {!isBelowSm && <col width="100px" />}
           {!isMobile && <col width="100px" />}
         </colgroup>
         <thead>
@@ -108,7 +108,7 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
               <th
                 key={`poolTable:${s}`}
                 className={clsx('py-3 text-left', {
-                  'px-4 xs:px-6': index === 0,
+                  'px-4 s:px-6': index === 0,
                   'px-4': index !== 0,
                 })}
               >
@@ -145,8 +145,6 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
                 key={`poolTable:${poolData.id}`}
                 poolData={poolData}
                 isLastIndex={index === poolsData.length - 1}
-                isBelowSm={isBelowSm}
-                isMobile={isMobile}
               />
             ))
           ) : (

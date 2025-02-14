@@ -16,8 +16,8 @@ module.exports = {
         'space-grotesk': ['Space Grotesk', 'sans-serif'],
       },
       screens: {
-        xxs: '360px',
-        xs: '480px',
+        xs: '360px',
+        s: '480px',
       },
       colors: {
         gray: {

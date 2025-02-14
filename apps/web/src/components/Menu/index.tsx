@@ -46,7 +46,7 @@ const Menu = () => {
 
   return (
     <>
-      <div className="fixed top-0 w-full z-header left-0 bg-surface flex items-center pl-5 pr-3 py-5 xxs:pl-7 xxs:pr-5 xxs:py-5 md:p-8 justify-between">
+      <div className="fixed top-0 w-full z-header left-0 bg-surface flex items-center pl-5 pr-3 py-5 xs:pl-7 xs:pr-5 xs:py-5 md:p-8 justify-between">
         <div className="md:hidden flex items-center space-x-4">
           <Link href="/" className="hover:opacity-70">
             <DragonSwapLogo />

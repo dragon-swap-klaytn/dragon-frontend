@@ -42,7 +42,7 @@ const DataRow = ({
         'border-b border-border': !isLastIndex,
       })}
     >
-      <td className="text-on-surface pl-4 xs:pl-6 py-6 text-left text-xs">
+      <td className="text-on-surface pl-4 s:pl-6 py-6 text-left text-xs">
         <ExternalLink href={getBlockExploreLink(transaction.txHash, 'transaction')}>
           {transaction.type === TransactionType.MINT
             ? `Add ${token0Symbol} and ${token1Symbol}`
@@ -182,7 +182,7 @@ export default function TransactionTable({
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
-            <th className="pl-4 xs:pl-6 py-3 text-left" />
+            <th className="pl-4 s:pl-6 py-3 text-left" />
             {headers.map(({ title, TxsSortBy: s }) => (
               <th key={`txTable:${title}`} className="px-4 py-3 text-left">
                 <SortHeaderButton

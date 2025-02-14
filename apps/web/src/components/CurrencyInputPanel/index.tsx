@@ -115,7 +115,7 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
 
   return (
     <div className={clsx('relative rounded-2xl w-full', className)}>
-      <div className="flex flex-col space-y-1 items-start xxs:flex-row xxs:space-y-0 xxs:space-x-2 xxs:items-center xxs:justify-between mb-2">
+      <div className="flex flex-col space-y-1 items-start xs:flex-row xs:space-y-0 xs:space-x-2 xs:items-center xs:justify-between mb-2">
         {title}
         <div className="flex items-center space-x-2">
           {beforeButton}
@@ -165,7 +165,7 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
         {account && !hideBalanceComp && (
           <button
             type="button"
-            className={clsx('text-xs text-on-surface-subtle mr-2 self-end xxs:self-auto', {
+            className={clsx('text-xs text-on-surface-subtle mr-2 self-end xs:self-auto', {
               'hover:opacity-70': !disabled && !isToInput,
               'cursor-default': disabled || isToInput,
             })}
