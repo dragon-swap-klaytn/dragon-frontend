@@ -2,7 +2,7 @@ import request, { gql } from 'graphql-request'
 import { subgraphUrls } from 'lib/graph-queries/const'
 import { PoolDayDataV2 } from 'lib/graph-queries/types'
 
-export const getV2PoolDayData = async (poolAddress: string, { length = 30 } = {}): Promise<PoolDayDataV2> => {
+export const getV2PoolDayData = async (poolAddress: string, { length = 30 } = {}): Promise<PoolDayDataV2[]> => {
   const document = gql`
     query ($first: Int, $address: Bytes!) {
       pairDayDatas(first: $first, where: { pairAddress: $address }, orderBy: date, orderDirection: desc) {
