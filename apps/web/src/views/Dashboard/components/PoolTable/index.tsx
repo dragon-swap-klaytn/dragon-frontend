@@ -1,17 +1,14 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CurrencyLogoWithSymbol, Spinner, TagV2, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 
-import { PoolParsed } from 'pages/api/pools'
 import { DashboardPoolType } from 'pages/dashboard'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import getPercentage from 'utils/getPercentage'
 import Pagination from 'views/Dashboard/components/Pagination'
+import { PoolDataRow, PoolDataRowSkeleton } from 'views/Dashboard/components/PoolTable/PoolDataRow'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import usePools, { PoolsSortBy } from 'views/Dashboard/hooks/usePools'
 import { SortDirection } from 'views/Dashboard/types'
-import { feeTierPercent } from 'views/Dashboard/utils'
-import { formatDollarAmount } from '../../utils/numbers'
 
 const HEADER_IDS = ['pair', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
 type HeaderId = (typeof HEADER_IDS)[number]
@@ -36,52 +33,6 @@ const bSmeaders: Partial<HeaderId>[] = ['pair', 'tvl', 'volume24H']
 const smHeaders: Partial<HeaderId>[] = [...bSmeaders, 'apy24H']
 const mdHeaders: Partial<HeaderId>[] = [...smHeaders, 'apy7D', 'volume7D']
 
-const DataRow = ({
-  poolData,
-  isLastIndex,
-  isBelowSm,
-  isMobile,
-}: {
-  poolData: PoolParsed
-  isLastIndex: boolean
-  isBelowSm: boolean
-  isMobile: boolean
-}) => {
-  return (
-    <tr
-      className={clsx('bg-surface-raised text-sm', {
-        'border-b border-border': !isLastIndex,
-      })}
-    >
-      <td className="text-on-surface px-4 xs:px-6 py-6 text-left">
-        <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 sm">
-          <CurrencyLogoWithSymbol
-            addressA={poolData.token0.id}
-            addressB={poolData.token1.id}
-            symbol={`${poolData.token0.symbol}/${poolData.token1.symbol}`}
-            spaceX="gap-2"
-            flex="flex flex-col items-start gap-2 xs:flex-row xs:items-center"
-          />
-
-          {'feeTier' in poolData && <TagV2 color="default">{feeTierPercent(poolData.feeTier)}</TagV2>}
-        </div>
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <span>{formatDollarAmount(poolData.tvlUSD)}</span>
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <span>{formatDollarAmount(poolData.volumeUSD['24H'])}</span>
-      </td>
-      {!isBelowSm && <td className="text-on-surface px-4 py-6 text-left">{getPercentage(poolData.apy['24H'])}</td>}
-
-      {!isMobile && (
-        <td className="text-on-surface px-4 py-6 text-left">{formatDollarAmount(poolData.volumeUSD['7D'])}</td>
-      )}
-      {!isMobile && <td className="text-on-surface px-4 py-6 text-left">{getPercentage(poolData.apy['7D'])}</td>}
-    </tr>
-  )
-}
-
 const SHOW_POOL_COUNT = 10
 
 export default function PoolTable({ poolType, searchInput }: { poolType: DashboardPoolType; searchInput?: string }) {
@@ -92,12 +43,11 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   // pagination
-  const [skip, setSkip] = useState(0)
-  const page = useMemo(() => Math.floor(skip / SHOW_POOL_COUNT) + 1, [skip])
-  const handlePagination = useCallback((newPage: number) => setSkip((newPage - 1) * SHOW_POOL_COUNT), [])
+  const [page, setPage] = useState(1)
+  const skip = (page - 1) * SHOW_POOL_COUNT
   const [_totalPage, setTotalPage] = useState(1)
 
-  const [poolList, setPoolList] = useState<PoolParsed[] | null>(null)
+  const [isFirstRender, setIsFirstRender] = useState(true)
 
   const { poolsData, totalPage } = usePools({
     poolTypes: [poolType],
@@ -106,11 +56,13 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
     sortBy,
     sortDirection,
   })
-  useEffect(() => {
-    if (!poolsData) return
 
-    setPoolList(poolsData)
+  useEffect(() => {
+    if (poolsData && poolsData.length > 0) {
+      setIsFirstRender(false)
+    }
   }, [poolsData])
+
   useEffect(() => {
     if (totalPage === undefined) return
 
@@ -118,14 +70,14 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
   }, [totalPage])
 
   useEffect(() => {
-    setSkip(0)
-  }, [searchInput])
+    setPage(1)
+  }, [searchInput, poolType])
 
   const handleSort = useCallback(
     (newField: PoolsSortBy) => {
       setSortBy(newField)
       setSortDirection(sortBy !== newField ? 'desc' : sortDirection === 'desc' ? 'asc' : 'desc')
-      setSkip(0)
+      setPage(1)
     },
     [sortDirection, sortBy],
   )
@@ -175,7 +127,7 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
           </tr>
         </thead>
         <tbody>
-          {!poolList ? (
+          {isFirstRender ? (
             <tr>
               <td colSpan={headers.length} className="h-[250px] md:h-[300px] text-center">
                 <div className="flex items-center justify-center w-full">
@@ -183,12 +135,16 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
                 </div>
               </td>
             </tr>
-          ) : poolList.length > 0 ? (
-            poolList.map((poolData, index) => (
-              <DataRow
-                key={`tokenTable:${poolData.id}`}
+          ) : !poolsData ? (
+            Array.from({ length: SHOW_POOL_COUNT }).map((_, index) => (
+              <PoolDataRowSkeleton key={`poolTableSkeleton:${index + 1}`} isLastIndex={index === SHOW_POOL_COUNT - 1} />
+            ))
+          ) : poolsData.length > 0 ? (
+            poolsData.map((poolData, index) => (
+              <PoolDataRow
+                key={`poolTable:${poolData.id}`}
                 poolData={poolData}
-                isLastIndex={index === poolList.length - 1}
+                isLastIndex={index === poolsData.length - 1}
                 isBelowSm={isBelowSm}
                 isMobile={isMobile}
               />
@@ -205,7 +161,7 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
         </tbody>
       </table>
 
-      <Pagination page={page} setPage={handlePagination} totalPage={_totalPage} />
+      <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
     </>
   )
 }

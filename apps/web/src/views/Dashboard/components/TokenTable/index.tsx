@@ -1,61 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { CurrencyLogoWithSymbol, Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { DashboardPoolType } from 'pages/dashboard'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import Pagination from 'views/Dashboard/components/Pagination'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
+import { TokenDataRow, TokenDataRowSkeleton } from 'views/Dashboard/components/TokenTable/TokenDataRow'
 import useTokensData, { TokensSortBy } from 'views/Dashboard/hooks/useTokensData'
 import { SortDirection } from 'views/Dashboard/types'
-import { formatDollarAmount } from '../../utils/numbers'
-import Percent from '../Percent'
-
-const DataRow = ({
-  tokenData,
-  isLastIndex,
-  isMobile,
-  isBelowSm,
-  isBelowS,
-}: {
-  tokenData: TokenDetailed
-  isLastIndex: boolean
-  isMobile: boolean
-  isBelowSm: boolean
-  isBelowS: boolean
-}) => {
-  return (
-    <tr
-      className={clsx('bg-surface-raised text-sm', {
-        'border-b border-border': !isLastIndex,
-      })}
-    >
-      <td className="text-on-surface px-4 xs:px-6 py-6 text-left">
-        <div className="flex items-center space-x-2">
-          <CurrencyLogoWithSymbol addressA={tokenData.id} symbol={tokenData.symbol} />
-
-          <span className="text-on-surface-subtlest hidden md:block line-clamp-1">{tokenData.name}</span>
-        </div>
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">{formatDollarAmount(tokenData.priceUSD.current)}</td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <Percent value={(tokenData.priceUSD['24H'] / tokenData.priceUSD.current) * 100} />
-      </td>
-      {!isMobile && (
-        <td className="text-on-surface px-4 py-6 text-left">
-          <Percent value={(tokenData.priceUSD['7D'] / tokenData.priceUSD.current) * 100} />
-        </td>
-      )}
-      {!isBelowS && (
-        <td className="text-on-surface px-4 py-6 text-left">{formatDollarAmount(tokenData.volumeUSD['24H'])}</td>
-      )}
-      {!isMobile && (
-        <td className="text-on-surface px-4 py-6 text-left">{formatDollarAmount(tokenData.volumeUSD['7D'])}</td>
-      )}
-      {!isBelowSm && <td className="text-on-surface px-4 py-6 text-left">{formatDollarAmount(tokenData.tvlUSD)}</td>}
-    </tr>
-  )
-}
 
 const HEADER_IDS = ['name', 'price', 'priceChange24H', 'priceChange7D', 'volume24H', 'volume7D', 'tvl'] as const
 type HeaderId = (typeof HEADER_IDS)[number]
@@ -105,33 +57,43 @@ export default function TokenTable({
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   // pagination
-  const [skip, setSkip] = useState(0)
-  const page = useMemo(() => Math.floor(skip / SHOW_TOKENS_COUNT) + 1, [skip])
-  const handlePagination = useCallback((newPage: number) => setSkip((newPage - 1) * SHOW_TOKENS_COUNT), [])
+  // const [skip, setSkip] = useState(0)
+  // const page = useMemo(() => Math.floor(skip / SHOW_TOKENS_COUNT) + 1, [skip])
+  const [page, setPage] = useState(1)
+  const skip = (page - 1) * SHOW_TOKENS_COUNT
   const [_totalPage, setTotalPage] = useState(1)
 
-  const [tokenList, setTokenList] = useState<TokenDetailed[] | null>(null)
+  const [isFirstRender, setIsFirstRender] = useState(true)
 
-  const { tokensData, totalPage } = useTokensData({ poolType, skip, sortBy, sortDirection, searchKey: searchInput })
+  const { tokensData, totalPage } = useTokensData({
+    poolType,
+    skip,
+    sortBy,
+    sortDirection,
+    searchKey: searchInput,
+  })
+
   useEffect(() => {
-    if (!tokensData) return
-
-    setTokenList(tokensData)
+    if (tokensData && tokensData.length > 0) {
+      setIsFirstRender(false)
+    }
   }, [tokensData])
+
   useEffect(() => {
     if (totalPage === undefined) return
 
     setTotalPage(totalPage)
   }, [totalPage])
+
   useEffect(() => {
-    setSkip(0)
-  }, [searchInput])
+    setPage(1)
+  }, [searchInput, poolType])
 
   const handleSort = useCallback(
     (newField: TokensSortBy) => {
       setSortBy(newField)
       setSortDirection(sortBy !== newField ? 'desc' : sortDirection === 'desc' ? 'asc' : 'desc')
-      setSkip(0)
+      setPage(1)
     },
     [sortDirection, sortBy],
   )
@@ -185,7 +147,7 @@ export default function TokenTable({
           </tr>
         </thead>
         <tbody>
-          {!tokenList ? (
+          {isFirstRender ? (
             <tr>
               <td colSpan={headers.length} className="h-[250px] md:h-[300px] text-center">
                 <div className="flex items-center justify-center w-full">
@@ -193,12 +155,19 @@ export default function TokenTable({
                 </div>
               </td>
             </tr>
-          ) : tokenList.length > 0 ? (
-            tokenList.map((tokenData, index) => (
-              <DataRow
+          ) : !tokensData ? (
+            Array.from({ length: SHOW_TOKENS_COUNT }).map((_, index) => (
+              <TokenDataRowSkeleton
+                key={`tokenTable:skeleton:${index + 1}`}
+                isLastIndex={index === SHOW_TOKENS_COUNT - 1}
+              />
+            ))
+          ) : tokensData.length > 0 ? (
+            tokensData.map((tokenData, index) => (
+              <TokenDataRow
                 key={`tokenTable:${tokenData.id}`}
                 tokenData={tokenData}
-                isLastIndex={index === tokenList.length - 1}
+                isLastIndex={index === tokensData.length - 1}
                 isMobile={isMobile}
                 isBelowS={isBelowS}
                 isBelowSm={isBelowSm}
@@ -216,7 +185,7 @@ export default function TokenTable({
         </tbody>
       </table>
 
-      <Pagination page={page} setPage={handlePagination} totalPage={_totalPage} />
+      <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
     </>
   )
 }

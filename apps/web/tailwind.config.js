@@ -81,25 +81,25 @@ module.exports = {
           disable: '#3f3f46',
         },
       },
-    },
-    keyframes: {
-      spin: {
-        '0%': {
-          transform: 'rotate(0deg)',
-        },
-        '100%': {
-          transform: 'rotate(360deg)',
+      keyframes: {
+        spin: {
+          '0%': {
+            transform: 'rotate(0deg)',
+          },
+          '100%': {
+            transform: 'rotate(360deg)',
+          },
         },
       },
-    },
-    animation: {
-      'spin-fast': 'spin 1s linear infinite',
-      spin: 'spin 2s linear infinite',
-    },
-    zIndex: {
-      header: 110,
-      overlay: 115,
-      modal: 120,
+      animation: {
+        'spin-fast': 'spin 1s linear infinite',
+        spin: 'spin 2s linear infinite',
+      },
+      zIndex: {
+        header: 110,
+        overlay: 115,
+        modal: 120,
+      },
     },
   },
   plugins: [],

@@ -1,5 +1,4 @@
 import { DashboardPoolType } from 'pages/dashboard'
-import { useMemo } from 'react'
 
 import useSWR from 'swr'
 import { TokenDetailed } from 'tokens/get-cached-token-stats'
@@ -59,7 +58,11 @@ export default function useTokensData({
 }: UseTokensDataParams) {
   const params = buildSearchParams({ addresses, skip, searchKey, sortBy, sortDirection })
 
-  const { data: v3Stats, error: v3StatsError } = useSWR(
+  const {
+    data: v3Stats,
+    error: v3StatsError,
+    isLoading,
+  } = useSWR(
     poolType === 'v3' ? `dashboard/stats/tokens/v3?${params}` : null,
     async () => {
       const res = await fetch(`/api/stats/tokens/v3?${params}`)
@@ -85,12 +88,19 @@ export default function useTokensData({
     },
   )
 
-  return useMemo(
-    () => ({
-      tokensData: poolType === 'v3' ? v3Stats?.tokens : v2Stats?.tokens,
-      totalPage: poolType === 'v3' ? v3Stats?.totalPage : v2Stats?.totalPage,
-      tokensDataLoading: poolType === 'v3' ? !v3Stats && !v3StatsError : !v2Stats && !v2StatsError,
-    }),
-    [poolType, v3Stats, v2Stats, v3StatsError, v2StatsError],
-  )
+  if (poolType === 'v3') {
+    return {
+      tokensData: v3Stats?.tokens,
+      totalPage: v3Stats?.totalPage,
+      tokensDataLoading: !v3Stats && !v3StatsError,
+      isLoading,
+    }
+  }
+
+  return {
+    tokensData: v2Stats?.tokens,
+    totalPage: v2Stats?.totalPage,
+    tokensDataLoading: !v2Stats && !v2StatsError,
+    isLoading,
+  }
 }
