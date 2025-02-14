@@ -14,11 +14,11 @@ type PoolBase = {
   token1: TokenSimple
   reserve0: number
   reserve1: number
-  tvlUSD: number
 }
 
 type PoolAccDataBase = {
   id: Address
+  tvlUSD: number
   volumeUSD: number
   txCount: number
 }
@@ -49,14 +49,13 @@ export type PoolV3AccData = PoolAccDataBase & {
 
 export type PoolV3Raw = PoolV3Base & PoolV3AccData
 
-export type TokenBase = TokenSimple & {
-  tvl: number
-  tvlUSD: number
-}
+export type TokenBase = TokenSimple
 
 export type TokenAccData = {
   id: Address
   priceUSD: number
+  tvl: number
+  tvlUSD: number
   volume: number
   volumeUSD: number
   txCount: number

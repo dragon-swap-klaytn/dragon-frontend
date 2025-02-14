@@ -17,13 +17,13 @@ type WithAPY<T> = T & {
 export const parseV2Pool = (pool: PoolV2Detailed): WithAPY<PoolV2Detailed> => {
   const apy24H = calculateAPY({
     interest: pool.volumeUSD['24H'] * LP_HOLDERS_FEE,
-    principal: pool.tvlUSD,
+    principal: pool.tvlUSD.current,
     duration: DAY,
   })
 
   const apy7D = calculateAPY({
     interest: pool.volumeUSD['7D'] * LP_HOLDERS_FEE,
-    principal: pool.tvlUSD,
+    principal: pool.tvlUSD.current,
     duration: WEEK,
   })
 
@@ -40,13 +40,13 @@ export const parseV2Pool = (pool: PoolV2Detailed): WithAPY<PoolV2Detailed> => {
 export const parseV3Pool = (pool: PoolV3Detailed): WithAPY<PoolV3Detailed> => {
   const apy24H = calculateAPY({
     interest: pool.feeUSD['24H'],
-    principal: pool.tvlUSD,
+    principal: pool.tvlUSD.current,
     duration: DAY,
   })
 
   const apy7D = calculateAPY({
     interest: pool.feeUSD['7D'],
-    principal: pool.tvlUSD,
+    principal: pool.tvlUSD.current,
     duration: WEEK,
   })
 

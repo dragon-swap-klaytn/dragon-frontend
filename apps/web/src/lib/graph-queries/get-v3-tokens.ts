@@ -20,6 +20,8 @@ export const getV3Tokens = async <AccOnly extends boolean = false>({
           ) {
             id
             derivedUSD
+            totalValueLocked
+            totalValueLockedUSD
             volume
             volumeUSD
             txCount
@@ -30,8 +32,6 @@ export const getV3Tokens = async <AccOnly extends boolean = false>({
               symbol
               name
               decimals
-              totalValueLocked
-              totalValueLockedUSD
             `
             }
           }
@@ -59,6 +59,8 @@ export const getV3Tokens = async <AccOnly extends boolean = false>({
           ({
             id: token.id,
             priceUSD: +token.derivedUSD,
+            tvl: +token.totalValueLocked,
+            tvlUSD: +token.totalValueLockedUSD,
             volume: +token.volume,
             volumeUSD: +token.volumeUSD,
             txCount: +token.txCount,

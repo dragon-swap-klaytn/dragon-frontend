@@ -19,6 +19,7 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
         ${blockNumber !== undefined ? 'block: { number: $blockNumber }' : ''}
       ) {
         id
+        reserveUSD
         volumeUSD
         totalTransactions
         ${
@@ -39,7 +40,6 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
           }
           reserve0
           reserve1
-          reserveUSD
           volumeUSD
           totalTransactions
         `
@@ -68,6 +68,7 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
         (pair) =>
           ({
             id: pair.id,
+            tvlUSD: +pair.reserveUSD,
             volumeUSD: +pair.volumeUSD,
             txCount: +pair.totalTransactions,
           } as PoolV2AccData),
@@ -75,7 +76,7 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
     : pairs.map(
         (pair) =>
           ({
-            ...pair,
+            id: pair.id,
             token0: tokensToBeOverridden[pair.token0.id] ?? pair.token0,
             token1: tokensToBeOverridden[pair.token1.id] ?? pair.token1,
             reserve0: +pair.reserve0,

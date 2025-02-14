@@ -54,6 +54,11 @@ const getV3PoolsAccData = async (blockNumber: number) => {
 }
 
 export type PoolV2Detailed = PoolV2Base & {
+  tvlUSD: {
+    current: number
+    '7D': number
+    '24H': number
+  }
   volumeUSD: {
     total: number
     '7D': number
@@ -88,9 +93,14 @@ const getV2PoolsDetailedData = async ({
   const poolsDetails = pools
     .filter(({ tvlUSD }) => tvlUSD > POOL_LIQUIDITY_USD_THRESHOLD)
     .map(
-      ({ volumeUSD, txCount, ...pool }) =>
+      ({ tvlUSD, volumeUSD, txCount, ...pool }) =>
         ({
           ...pool,
+          tvlUSD: {
+            current: tvlUSD,
+            '7D': tvlUSD - (pools7D[pool.id]?.tvlUSD ?? 0),
+            '24H': tvlUSD - (pools24H[pool.id]?.tvlUSD ?? 0),
+          },
           volumeUSD: {
             total: volumeUSD,
             '7D': volumeUSD - (pools7D[pool.id]?.volumeUSD ?? 0),
@@ -109,6 +119,11 @@ const getV2PoolsDetailedData = async ({
 }
 
 export type PoolV3Detailed = PoolV3Base & {
+  tvlUSD: {
+    current: number
+    '7D': number
+    '24H': number
+  }
   volumeUSD: {
     total: number
     '7D': number
@@ -130,7 +145,7 @@ export type PoolV3Detailed = PoolV3Base & {
     '24H': number
   }
   liquidityProviderCount: {
-    now: number
+    current: number
     '7D': number
     '24H': number
   }
@@ -159,9 +174,14 @@ const getV3PoolsDetailedData = async ({
   const poolsDetails = pools
     .filter(({ tvlUSD }) => tvlUSD > POOL_LIQUIDITY_USD_THRESHOLD)
     .map(
-      ({ volumeUSD, feeUSD, protocolFeeUSD, txCount, liquidityProviderCount, ...pool }) =>
+      ({ tvlUSD, volumeUSD, feeUSD, protocolFeeUSD, txCount, liquidityProviderCount, ...pool }) =>
         ({
           ...pool,
+          tvlUSD: {
+            current: tvlUSD,
+            '7D': tvlUSD - (pools7D[pool.id]?.tvlUSD ?? 0),
+            '24H': tvlUSD - (pools24H[pool.id]?.tvlUSD ?? 0),
+          },
           volumeUSD: {
             total: volumeUSD,
             '7D': volumeUSD - (pools7D[pool.id]?.volumeUSD ?? 0),
@@ -183,7 +203,7 @@ const getV3PoolsDetailedData = async ({
             '24H': txCount - (pools24H[pool.id]?.txCount ?? 0),
           },
           liquidityProviderCount: {
-            now: liquidityProviderCount,
+            current: liquidityProviderCount,
             '7D': liquidityProviderCount - (pools7D[pool.id]?.liquidityProviderCount ?? 0),
             '24H': liquidityProviderCount - (pools24H[pool.id]?.liquidityProviderCount ?? 0),
           },

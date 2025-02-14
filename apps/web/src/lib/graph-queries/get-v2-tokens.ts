@@ -20,6 +20,7 @@ export const getV2Tokens = async <AccOnly extends boolean = false>({
           ) {
             id
             derivedUSD
+            totalLiquidity
             tradeVolume
             tradeVolumeUSD
             totalTransactions
@@ -30,7 +31,6 @@ export const getV2Tokens = async <AccOnly extends boolean = false>({
               symbol
               name
               decimals
-              totalLiquidity
             `
             }
           }
@@ -53,26 +53,32 @@ export const getV2Tokens = async <AccOnly extends boolean = false>({
   }
 
   return accOnly
-    ? tokens.map(
-        (token) =>
-          ({
-            id: token.id,
-            priceUSD: +token.derivedUSD,
-            volume: +token.tradeVolume,
-            volumeUSD: +token.tradeVolumeUSD,
-            txCount: +token.totalTransactions,
-          } as TokenAccData),
-      )
+    ? tokens.map((token) => {
+        const tvl = +token.totalLiquidity
+        const priceUSD = +token.derivedUSD
+        const tvlUSD = tvl * priceUSD
+
+        return {
+          id: token.id,
+          priceUSD,
+          tvl,
+          tvlUSD,
+          volume: +token.tradeVolume,
+          volumeUSD: +token.tradeVolumeUSD,
+          txCount: +token.totalTransactions,
+        } as TokenAccData
+      })
     : tokens.map((token) => {
         const tvl = +token.totalLiquidity
-        const tvlUSD = tvl * +token.derivedUSD
+        const priceUSD = +token.derivedUSD
+        const tvlUSD = tvl * priceUSD
 
         return {
           id: token.id,
           symbol: token.symbol,
           name: token.name,
           decimals: +token.decimals,
-          priceUSD: +token.derivedUSD,
+          priceUSD,
           tvl,
           tvlUSD,
           volume: +token.tradeVolume,

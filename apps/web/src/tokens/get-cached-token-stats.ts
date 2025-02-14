@@ -59,6 +59,16 @@ export type TokenDetailed = TokenBase & {
     '7D': number
     '24H': number
   }
+  tvl: {
+    current: number
+    '7D': number
+    '24H': number
+  }
+  tvlUSD: {
+    current: number
+    '7D': number
+    '24H': number
+  }
   volume: {
     total: number
     '7D': number
@@ -93,13 +103,23 @@ const getV2TokensDatailedData = async () => {
   const tokensDetailed = tokens
     .filter(({ tvlUSD }) => tvlUSD > TOKEN_LIQUIDITY_USD_THRESHOLD)
     .map(
-      ({ priceUSD, volume, volumeUSD, txCount, ...token }) =>
+      ({ priceUSD, tvl, tvlUSD, volume, volumeUSD, txCount, ...token }) =>
         ({
           ...token,
           priceUSD: {
             current: priceUSD,
             '7D': priceUSD - (tokens7D[token.id]?.priceUSD ?? 0),
             '24H': priceUSD - (tokens24H[token.id]?.priceUSD ?? 0),
+          },
+          tvl: {
+            current: tvl,
+            '7D': tvl - (tokens7D[token.id]?.tvl ?? 0),
+            '24H': tvl - (tokens24H[token.id]?.tvl ?? 0),
+          },
+          tvlUSD: {
+            current: tvlUSD,
+            '7D': tvlUSD - (tokens7D[token.id]?.tvlUSD ?? 0),
+            '24H': tvlUSD - (tokens24H[token.id]?.tvlUSD ?? 0),
           },
           volume: {
             total: volume,
@@ -146,13 +166,23 @@ const getV3TokensDatailedData = async () => {
   const tokensDetailed = tokens
     .filter(({ tvlUSD }) => tvlUSD > TOKEN_LIQUIDITY_USD_THRESHOLD)
     .map(
-      ({ priceUSD, volume, volumeUSD, txCount, ...token }) =>
+      ({ priceUSD, tvl, tvlUSD, volume, volumeUSD, txCount, ...token }) =>
         ({
           ...token,
           priceUSD: {
             current: priceUSD,
             '7D': priceUSD - (tokens7D[token.id]?.priceUSD ?? 0),
             '24H': priceUSD - (tokens24H[token.id]?.priceUSD ?? 0),
+          },
+          tvl: {
+            current: tvl,
+            '7D': tvl - (tokens7D[token.id]?.tvl ?? 0),
+            '24H': tvl - (tokens24H[token.id]?.tvl ?? 0),
+          },
+          tvlUSD: {
+            current: tvlUSD,
+            '7D': tvlUSD - (tokens7D[token.id]?.tvlUSD ?? 0),
+            '24H': tvlUSD - (tokens24H[token.id]?.tvlUSD ?? 0),
           },
           volume: {
             total: volume,

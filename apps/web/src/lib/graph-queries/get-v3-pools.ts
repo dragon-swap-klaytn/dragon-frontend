@@ -19,6 +19,7 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
           ${blockNumber !== undefined ? 'block: { number: $blockNumber }' : ''}
         ) {
           id
+          totalValueLockedUSD
           volumeUSD
           feesUSD
           protocolFeesUSD
@@ -45,7 +46,6 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
             liquidity
             totalValueLockedToken0
             totalValueLockedToken1
-            totalValueLockedUSD
           `
           }
         }
@@ -71,6 +71,7 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
         (pool) =>
           ({
             id: pool.id,
+            tvlUSD: +pool.totalValueLockedUSD,
             volumeUSD: +pool.volumeUSD,
             feeUSD: +pool.feesUSD,
             protocolFeeUSD: +pool.protocolFeesUSD,

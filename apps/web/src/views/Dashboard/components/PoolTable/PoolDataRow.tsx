@@ -58,7 +58,7 @@ export const PoolDataRow = ({ poolData, isLastIndex }: { poolData: PoolParsed; i
         </div>
       </td>
       <td className="text-on-surface px-4 py-6 text-left">
-        <span>{formatDollarAmount(poolData.tvlUSD)}</span>
+        <span>{formatDollarAmount(poolData.tvlUSD.current)}</span>
       </td>
       <td className="text-on-surface px-4 py-6 text-left">
         <span>{formatDollarAmount(poolData.volumeUSD['24H'])}</span>

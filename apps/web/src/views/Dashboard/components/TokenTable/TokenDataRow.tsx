@@ -67,7 +67,7 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
         {formatDollarAmount(tokenData.volumeUSD['7D'])}
       </td>
       <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
-        {formatDollarAmount(tokenData.tvlUSD)}
+        {formatDollarAmount(tokenData.tvlUSD.current)}
       </td>
     </tr>
   )

@@ -109,7 +109,7 @@ const handler: NextApiHandler = async (req, res) => {
       break
     }
     case 'tvl': {
-      pools.sort((a, b) => useDesc * (a.tvlUSD - b.tvlUSD))
+      pools.sort((a, b) => useDesc * (a.tvlUSD.current - b.tvlUSD.current))
       break
     }
     default: {
