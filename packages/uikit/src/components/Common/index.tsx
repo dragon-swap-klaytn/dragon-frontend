@@ -1,3 +1,4 @@
+export * from "./BreadscrumbsV2";
 export * from "./ButtonV2";
 export * from "./CheckboxV2";
 export * from "./Chip";
