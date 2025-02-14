@@ -48,11 +48,6 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
       txData.push({ time, value: txCount })
     })
 
-    setTooltipContent({
-      label: formatDollarAmount(volumeData[volumeData.length - 1].value),
-      date: `${dayjs(volumeData[volumeData.length - 1].time).format('MMM D, YYYY')} (UTC)`,
-    })
-
     return {
       volume: volumeData,
       TVL: TVLData,
@@ -63,9 +58,12 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
   const resetTooltip = useCallback(() => {
     if (!data) return
 
+    const item = data[chartType][data[chartType].length - 1]
+    const formattedValue = chartType === 'tx' ? item.value.toLocaleString() : formatDollarAmount(item.value)
+
     setTooltipContent({
-      label: formatDollarAmount(data[chartType][data[chartType].length - 1].value),
-      date: `${dayjs(data[chartType][data[chartType].length - 1].time).format('MMM D, YYYY')} (UTC)`,
+      label: formattedValue,
+      date: `${dayjs(item.time).format('MMM D, YYYY')} (UTC)`,
     })
   }, [data, chartType])
 
@@ -75,10 +73,10 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
 
   const onMouseHover = useCallback(
     (value: number, label: string) => {
-      const formatedValue = chartType === 'tx' ? value.toLocaleString() : formatDollarAmount(value)
+      const formattedValue = chartType === 'tx' ? value.toLocaleString() : formatDollarAmount(value)
 
       setTooltipContent({
-        label: formatedValue,
+        label: formattedValue,
         date: label,
       })
     },
