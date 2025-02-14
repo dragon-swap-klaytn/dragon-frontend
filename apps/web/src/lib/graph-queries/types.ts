@@ -61,14 +61,17 @@ export type TokenAccData = {
 
 export type TokenRaw = TokenBase & TokenAccData
 
-export type PancakeDayDataV2 = {
+export type DayDataV2 = {
   timestamp: number
   volumeUSD: number
   tvlUSD: number
   txCount: number
 }
 
-export type PancakeDayDataV3 = {
+export type PancakeDayDataV2 = DayDataV2
+export type PoolDayDataV2 = DayDataV2
+
+export type DayDataV3 = {
   timestamp: number
   volumeUSD: number
   tvlUSD: number
@@ -76,6 +79,9 @@ export type PancakeDayDataV3 = {
   feeUSD: number
   protocolFeeUSD: number
 }
+
+export type PancakeDayDataV3 = DayDataV3
+export type PoolDayDataV3 = DayDataV3
 
 export type TransactionEvent = {
   timestamp: number
