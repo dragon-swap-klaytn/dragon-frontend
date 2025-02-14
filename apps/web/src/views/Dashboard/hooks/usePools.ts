@@ -60,29 +60,21 @@ type UsePoolsParams = {
   sortBy?: PoolsSortBy
   sortDirection?: SortDirection
 }
-export default function usePools({
-  poolTypes = ['v3'],
-  skip,
-  addresses,
-  tokenAddress,
-  searchKey,
-  sortBy,
-  sortDirection,
-}: UsePoolsParams) {
+type UsePoolsOptions = {
+  paused?: boolean
+}
+export default function usePools(
+  { poolTypes = ['v3'], skip, addresses, tokenAddress, searchKey, sortBy, sortDirection }: UsePoolsParams,
+  { paused = false }: UsePoolsOptions = {},
+) {
   const params = buildSearchParams({ poolTypes, skip, addresses, tokenAddress, searchKey, sortBy, sortDirection })
 
-  const { data, error } = useSWR(
-    ['dashboard/pools', params],
-    async () => {
-      const res = await fetch(`/api/pools?${params}`)
-      const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number }
+  const { data, error } = useSWR(paused ? null : ['dashboard/pools', params], async () => {
+    const res = await fetch(`/api/pools?${params}`)
+    const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number }
 
-      return parsed
-    },
-    {
-      refreshInterval: 1_000 * 60,
-    },
-  )
+    return parsed
+  })
 
   return useMemo(
     () => ({

@@ -48,14 +48,14 @@ type UseTokensDataParams = {
   sortDirection?: SortDirection
 }
 
-export default function useTokensData({
-  poolType = 'v3',
-  searchKey,
-  addresses,
-  skip,
-  sortBy,
-  sortDirection,
-}: UseTokensDataParams) {
+type UseTokensDataOptions = {
+  paused?: boolean
+}
+
+export default function useTokensData(
+  { poolType = 'v3', searchKey, addresses, skip, sortBy, sortDirection }: UseTokensDataParams,
+  { paused = false }: UseTokensDataOptions = {},
+) {
   const params = buildSearchParams({ addresses, skip, searchKey, sortBy, sortDirection })
 
   const {
@@ -63,7 +63,7 @@ export default function useTokensData({
     error: v3StatsError,
     isLoading,
   } = useSWR(
-    poolType === 'v3' ? `dashboard/stats/tokens/v3?${params}` : null,
+    !paused && poolType === 'v3' ? `dashboard/stats/tokens/v3?${params}` : null,
     async () => {
       const res = await fetch(`/api/stats/tokens/v3?${params}`)
       const parsed = (await res.json()) as { tokens: TokenDetailed[]; totalPage: number }
@@ -76,7 +76,7 @@ export default function useTokensData({
   )
 
   const { data: v2Stats, error: v2StatsError } = useSWR(
-    poolType === 'v2' ? `dashboard/stats/tokens/v2?${params}` : null,
+    !paused && poolType === 'v2' ? `dashboard/stats/tokens/v2?${params}` : null,
     async () => {
       const res = await fetch(`/api/stats/tokens/v2?${params}`)
       const parsed = (await res.json()) as { tokens: TokenDetailed[]; totalPage: number }
