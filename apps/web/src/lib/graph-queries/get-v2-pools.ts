@@ -81,6 +81,7 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
             token1: tokensToBeOverridden[pair.token1.id] ?? pair.token1,
             reserve0: +pair.reserve0,
             reserve1: +pair.reserve1,
+            price: +pair.reserve1 / +pair.reserve0,
             tvlUSD: +pair.reserveUSD,
             volumeUSD: +pair.volumeUSD,
             txCount: +pair.totalTransactions,

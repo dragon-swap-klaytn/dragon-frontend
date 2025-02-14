@@ -42,7 +42,7 @@ const handler: NextApiHandler = async (req, res) => {
       break
     }
     case 'tvl': {
-      filteredTokens.sort((a, b) => useDesc * (a.tvlUSD - b.tvlUSD))
+      filteredTokens.sort((a, b) => useDesc * (a.tvlUSD.current - b.tvlUSD.current))
       break
     }
     case 'priceChange24H': {

@@ -14,6 +14,7 @@ type PoolBase = {
   token1: TokenSimple
   reserve0: number
   reserve1: number
+  price: number
 }
 
 type PoolAccDataBase = {

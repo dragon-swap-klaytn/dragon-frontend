@@ -2,6 +2,8 @@ import { gql, request } from 'graphql-request'
 import { BATCH_SIZE, subgraphUrls, tokensToBeOverridden } from 'lib/graph-queries/const'
 import { PoolV3AccData, PoolV3Raw } from 'lib/graph-queries/types'
 
+const FLOAT64_Q96 = 2 ** 96
+
 export const getV3Pools = async <AccOnly extends boolean = false>({
   blockNumber,
   accOnly,
@@ -41,6 +43,7 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
               name
               decimals
             }
+            sqrtPrice
             feeTier
             feeProtocol
             liquidity
@@ -89,6 +92,7 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
             feeProtocol: pool.feeProtocol,
             reserve0: +pool.totalValueLockedToken0,
             reserve1: +pool.totalValueLockedToken1,
+            price: (+pool.sqrtPrice / FLOAT64_Q96) ** 2,
             tvlUSD: +pool.totalValueLockedUSD,
             volumeUSD: +pool.volumeUSD,
             feeUSD: +pool.feesUSD,
