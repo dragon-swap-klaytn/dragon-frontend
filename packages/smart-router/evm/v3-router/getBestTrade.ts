@@ -85,9 +85,10 @@ async function getBestRoutes(
 
     // v2
     if (pool.type === 0) {
-      // @ts-ignore
       return (
+        // @ts-ignore
         !disabledTokens[chainId].has(pool.reserve0.currency.address) &&
+        // @ts-ignore
         !disabledTokens[chainId].has(pool.reserve1.currency.address)
       )
     }
