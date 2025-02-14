@@ -16,10 +16,12 @@ export const getV2PoolDayData = async (poolAddress: string, { length = 30 } = {}
 
   const { pairDayDatas } = await request(subgraphUrls.v2Exchange, document, { first: length, address: poolAddress })
 
-  return pairDayDatas.map(({ date, dailyVolumeUSD, reserveUSD, dailyTxns }) => ({
-    timestamp: date * 1000,
-    volumeUSD: +dailyVolumeUSD,
-    tvlUSD: +reserveUSD,
-    txCount: +dailyTxns,
-  }))
+  return pairDayDatas
+    .map(({ date, dailyVolumeUSD, reserveUSD, dailyTxns }) => ({
+      timestamp: date * 1000,
+      volumeUSD: +dailyVolumeUSD,
+      tvlUSD: +reserveUSD,
+      txCount: +dailyTxns,
+    }))
+    .sort((a, b) => a.timestamp - b.timestamp)
 }

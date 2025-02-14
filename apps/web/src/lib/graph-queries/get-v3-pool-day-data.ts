@@ -18,12 +18,14 @@ export const getV3PoolDayData = async (poolAddress: string, { length = 30 } = {}
 
   const { poolDayDatas } = await request(subgraphUrls.v3Exchange, document, { first: length, address: poolAddress })
 
-  return poolDayDatas.map(({ date, volumeUSD, tvlUSD, txCount, feesUSD, protocolFeesUSD }) => ({
-    timestamp: date * 1000,
-    volumeUSD: +volumeUSD,
-    tvlUSD: +tvlUSD,
-    txCount: +txCount,
-    feeUSD: +feesUSD,
-    protocolFeeUSD: +protocolFeesUSD,
-  }))
+  return poolDayDatas
+    .map(({ date, volumeUSD, tvlUSD, txCount, feesUSD, protocolFeesUSD }) => ({
+      timestamp: date * 1000,
+      volumeUSD: +volumeUSD,
+      tvlUSD: +tvlUSD,
+      txCount: +txCount,
+      feeUSD: +feesUSD,
+      protocolFeeUSD: +protocolFeesUSD,
+    }))
+    .sort((a, b) => a.timestamp - b.timestamp)
 }
