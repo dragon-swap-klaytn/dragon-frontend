@@ -3,7 +3,7 @@ import { getV2PancakeDayData } from 'lib/graph-queries/get-v2-pancake-day-data'
 import { NextApiHandler } from 'next'
 import { localCachedV2 } from 'utils/localCachedV2'
 
-const getCachedV2PancakeDayData = localCachedV2(() => getV2PancakeDayData({ length: 30 }), {
+const getCachedV2PancakeDayData = localCachedV2(() => getV2PancakeDayData({ length: 60 }), {
   staleWhileRevalidate: true,
   ttl: 1000 * 60 * 10,
   ttlOnCatch: 5 * 1000,
