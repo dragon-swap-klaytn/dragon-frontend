@@ -1,6 +1,7 @@
 import { getV3LatestTransactions } from 'lib/graph-queries/get-v3-latest-transactions'
 import { getV3PancakeDayData } from 'lib/graph-queries/get-v3-pancake-day-data'
 import { NextApiHandler } from 'next'
+import { getCachedV3ProtocolData } from 'protocol-data/get-cached-protocol-data'
 import { localCachedV2 } from 'utils/localCachedV2'
 
 const getCachedV3PancakeDayData = localCachedV2(() => getV3PancakeDayData({ length: 60 }), {
@@ -16,9 +17,13 @@ const getCachedV3TransactionEvents = localCachedV2(() => getV3LatestTransactions
 }).cachedFetcher
 
 const handler: NextApiHandler = async (req, res) => {
-  const [chartData, transactions] = await Promise.all([getCachedV3PancakeDayData(), getCachedV3TransactionEvents()])
+  const [protocolData, chartData, transactions] = await Promise.all([
+    getCachedV3ProtocolData(),
+    getCachedV3PancakeDayData(),
+    getCachedV3TransactionEvents(),
+  ])
 
-  res.json({ chartData, transactions })
+  res.json({ protocolData, chartData, transactions })
 }
 
 export default handler

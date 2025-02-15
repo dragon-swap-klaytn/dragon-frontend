@@ -107,3 +107,16 @@ export type TransactionEvent = {
 export type TransactionEventWithType = {
   type: TransactionType
 } & TransactionEvent
+
+type FactoryDataBase = {
+  poolCount: number
+  txCount: number
+  volumeUSD: number
+  tvlUSD: number
+}
+
+export type FactoryDataV2Raw = FactoryDataBase
+export type FactoryDataV3Raw = FactoryDataBase & {
+  feeUSD: number
+  protocolFeeUSD: number
+}

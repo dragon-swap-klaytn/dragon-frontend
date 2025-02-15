@@ -3,24 +3,23 @@ import { SegmentedControl } from '@pancakeswap/uikit'
 import { ArrowDown, ArrowUp } from '@phosphor-icons/react'
 import dayjs from 'dayjs'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { ProtocolV3Data } from 'protocol-data/get-cached-protocol-data'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PoolType } from 'types'
 import Header from 'views/Dashboard/components/Header'
 import useOverviewData from 'views/Dashboard/hooks/useOverviewData'
-import useProtocolData from 'views/Dashboard/hooks/useProtocolData'
 import useTransformedVolumeData from 'views/Dashboard/hooks/useTransformedVolumeData'
 import Pools from 'views/Dashboard/Pools'
 import Tokens from 'views/Dashboard/Tokens'
 import Transactions from 'views/Dashboard/Transactions'
 import BarChart from './components/BarChart/alt'
 import LineChart from './components/LineChart/alt'
-import { V2ProtocolData, V3ProtocolData, VolumeWindow } from './types'
+import { VolumeWindow } from './types'
 import { getPercentChange } from './utils/data'
 import { timestampToDate } from './utils/date'
 import { formatDollarAmount } from './utils/numbers'
 
-export default function Overview({ poolType = 'v3' }: { poolType?: PoolType }) {
-  const protocolData = useProtocolData(poolType)
+export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: { poolType?: T }) {
   const { chainId } = useActiveChainId()
   const { t } = useTranslation()
 
@@ -30,7 +29,7 @@ export default function Overview({ poolType = 'v3' }: { poolType?: PoolType }) {
   const [rightLabel, setRightLabel] = useState<string | undefined>()
   const now = dayjs()
 
-  const { chartData: overviewChartData } = useOverviewData(poolType)
+  const { protocolData, chartData: overviewChartData } = useOverviewData(poolType)
 
   useEffect(() => {
     setLiquidityHover(undefined)
@@ -38,29 +37,11 @@ export default function Overview({ poolType = 'v3' }: { poolType?: PoolType }) {
   }, [chainId, poolType])
 
   // const prevPoolTypeRef = useRef<PoolType>(poolType)
-  const tvlUSD = useMemo(() => {
-    if (!protocolData) {
-      return undefined
-    }
-
-    if (poolType === 'v3') {
-      return (protocolData as V3ProtocolData).tvlUSD
-    }
-
-    return (protocolData as V2ProtocolData).liquidityUSD
-  }, [protocolData, poolType])
-
-  const tvlUSDChange = useMemo(() => {
-    if (!protocolData) {
-      return undefined
-    }
-
-    if (poolType === 'v3') {
-      return (protocolData as V3ProtocolData).tvlUSDChange
-    }
-
-    return (protocolData as V2ProtocolData).liquidityUSDChange
-  }, [protocolData, poolType])
+  const tvlUSD = protocolData?.tvlUSD.current
+  const tvlUSDChangeRate24H = getPercentChange(
+    protocolData?.tvlUSD.current.toString(),
+    protocolData?.tvlUSD['24H'].toString(),
+  )
 
   useEffect(() => {
     if (!tvlUSD) return
@@ -136,24 +117,35 @@ export default function Overview({ poolType = 'v3' }: { poolType?: PoolType }) {
         <Header title={t('DragonSwap Info & Analytics')} />
 
         <div className="flex flex-wrap items-center gap-3">
-          <OverviewData
-            title={t('Volume 24H')}
-            value={formatDollarAmount(formattedVolumeData[formattedVolumeData.length - 1]?.value)}
-            diff={getPercentChange(
-              formattedVolumeData[formattedVolumeData.length - 1]?.value.toString(),
-              formattedVolumeData[formattedVolumeData.length - 2]?.value.toString(),
-            )}
-          />
-
-          {Boolean(poolType === 'v3' && protocolData) && (
+          {!!protocolData && (
             <OverviewData
-              title={t('Fees 24H')}
-              value={formatDollarAmount((protocolData as V3ProtocolData).feesUSD)}
-              diff={(protocolData as V3ProtocolData).feeChange}
+              title={t('Volume 24H')}
+              value={formatDollarAmount(protocolData.volumeUSD.total - protocolData.volumeUSD['24H'])}
+              diff={getPercentChange(
+                (protocolData.volumeUSD.total - protocolData.volumeUSD['24H']).toString(),
+                (protocolData.volumeUSD['24H'] - protocolData.volumeUSD['48H']).toString(),
+              )}
             />
           )}
 
-          <OverviewData title={t('TVL')} value={formatDollarAmount(tvlUSD)} diff={tvlUSDChange} />
+          {poolType === 'v3' && protocolData && (
+            <OverviewData
+              title={t('Fees 24H')}
+              value={formatDollarAmount(
+                (protocolData as ProtocolV3Data).feeUSD.total - (protocolData as ProtocolV3Data).feeUSD['24H'],
+              )}
+              diff={getPercentChange(
+                (
+                  (protocolData as ProtocolV3Data).feeUSD.total - (protocolData as ProtocolV3Data).feeUSD['24H']
+                ).toString(),
+                (
+                  (protocolData as ProtocolV3Data).feeUSD['24H'] - (protocolData as ProtocolV3Data).feeUSD['48H']
+                ).toString(),
+              )}
+            />
+          )}
+
+          <OverviewData title={t('TVL')} value={formatDollarAmount(tvlUSD)} diff={tvlUSDChangeRate24H} />
         </div>
       </div>
 
