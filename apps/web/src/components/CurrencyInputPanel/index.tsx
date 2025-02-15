@@ -12,7 +12,7 @@ import { StablePair } from 'views/AddLiquidity/AddStableLiquidity/hooks/useStabl
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { ButtonOnClickType } from 'types'
+import { ValueOf } from 'type-fest'
 import { useAccount } from 'wagmi'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 
@@ -254,7 +254,7 @@ function PercentageButton({
   children,
   onClick,
 }: PropsWithChildren<{
-  onClick: ButtonOnClickType
+  onClick: ValueOf<Pick<JSX.IntrinsicElements['button'], 'onClick'>>
 }>) {
   return (
     <button
