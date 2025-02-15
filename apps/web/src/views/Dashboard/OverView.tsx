@@ -3,8 +3,8 @@ import { SegmentedControl } from '@pancakeswap/uikit'
 import { ArrowDown, ArrowUp } from '@phosphor-icons/react'
 import dayjs from 'dayjs'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { DashboardPoolType } from 'pages/dashboard'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { PoolType } from 'types'
 import Header from 'views/Dashboard/components/Header'
 import useOverviewData from 'views/Dashboard/hooks/useOverviewData'
 import useProtocolData from 'views/Dashboard/hooks/useProtocolData'
@@ -19,7 +19,7 @@ import { getPercentChange } from './utils/data'
 import { timestampToDate } from './utils/date'
 import { formatDollarAmount } from './utils/numbers'
 
-export default function Overview({ poolType = 'v3' }: { poolType?: DashboardPoolType }) {
+export default function Overview({ poolType = 'v3' }: { poolType?: PoolType }) {
   const protocolData = useProtocolData(poolType)
   const { chainId } = useActiveChainId()
   const { t } = useTranslation()
@@ -37,7 +37,7 @@ export default function Overview({ poolType = 'v3' }: { poolType?: DashboardPool
     setVolumeHover(undefined)
   }, [chainId, poolType])
 
-  // const prevPoolTypeRef = useRef<DashboardPoolType>(poolType)
+  // const prevPoolTypeRef = useRef<PoolType>(poolType)
   const tvlUSD = useMemo(() => {
     if (!protocolData) {
       return undefined

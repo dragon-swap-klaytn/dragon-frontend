@@ -1,12 +1,12 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { SearchBar } from '@pancakeswap/uikit'
-import { DashboardPoolType } from 'pages/dashboard'
 import { useState } from 'react'
+import { PoolType } from 'types'
 import Header from 'views/Dashboard/components/Header'
 import PoolTable from './components/PoolTable'
 
-export default function Pools({ poolType = 'v3' }: { poolType: DashboardPoolType }) {
+export default function Pools({ poolType = 'v3' }: { poolType: PoolType }) {
   const { t } = useTranslation()
 
   const [searchInput, setSearchInput] = useState('')

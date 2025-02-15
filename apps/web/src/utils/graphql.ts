@@ -2,6 +2,7 @@ import { ChainId, STABLESWAP_SUBGRAPHS } from '@pancakeswap/chains'
 import { DGSWAP_DOMAIN } from '@pancakeswap/uikit'
 import { BIT_QUERY, INFO_CLIENT, INFO_CLIENT_ETH, V3_SUBGRAPH_URLS } from 'config/constants/endpoints'
 import { GraphQLClient } from 'graphql-request'
+import { PoolType } from 'types'
 import { INFO_CLIENT_WITH_CHAIN } from '../config/constants/endpoints'
 
 // Extra headers
@@ -46,7 +47,7 @@ export function getGraphClient({
   poolType = 'v3',
 }: {
   chainId?: ChainId
-  poolType?: 'v2' | 'v3'
+  poolType?: PoolType
 } = {}): GraphQLClient {
   if (poolType === 'v2') {
     return v2InfoClients[chainId]

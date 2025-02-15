@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { DashboardPoolType } from 'pages/dashboard'
+import { PoolType } from 'types'
 import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
 import { fetchProtocolData as fetchProtocolV2Data } from 'views/Dashboard/data/v2/protocol/overview'
 
@@ -7,7 +7,7 @@ import { fetchProtocolData as fetchProtocolV3Data } from 'views/Dashboard/data/v
 import { QUERY_SETTINGS_IMMUTABLE, QUERY_SETTINGS_WITHOUT_INTERVAL_REFETCH } from 'views/Dashboard/hooks/consts'
 import { useBlockFromTimeStampQuery } from 'views/Dashboard/hooks/useBlocksFromTimestamps'
 
-export default function useProtocolData(poolType: DashboardPoolType = 'v3') {
+export default function useProtocolData(poolType: PoolType = 'v3') {
   const [t24, t48] = getDeltaTimestamps()
   const { blocks } = useBlockFromTimeStampQuery([t24, t48])
   const [block24, block48] = blocks ?? []

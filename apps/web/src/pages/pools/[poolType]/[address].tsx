@@ -3,7 +3,7 @@ import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner
 import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { DashboardPoolType } from 'pages/dashboard'
+import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
@@ -14,7 +14,7 @@ import { TokenRate } from 'views/Dashboard/components/TokenRate'
 import usePools from 'views/Dashboard/hooks/usePools'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
-const PoolDetailsPage = ({ poolType, address }: { poolType: DashboardPoolType; address: string }) => {
+const PoolDetailsPage = ({ poolType, address }: { poolType: PoolType; address: string }) => {
   const { t } = useTranslation()
   const { poolsData } = usePools({ poolTypes: [poolType], addresses: [address] }, { paused: !poolType || !address })
 

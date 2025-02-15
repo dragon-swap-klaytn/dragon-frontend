@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { DashboardPoolType } from 'pages/dashboard'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { PoolType } from 'types'
 import Pagination from 'views/Dashboard/components/Pagination'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import { TokenDataRow, TokenDataRowSkeleton } from 'views/Dashboard/components/TokenTable/TokenDataRow'
@@ -47,7 +47,7 @@ export default function TokenTable({
   poolType,
   searchInput,
 }: {
-  poolType: DashboardPoolType
+  poolType: PoolType
   maxItems?: number
   searchInput?: string
 }) {

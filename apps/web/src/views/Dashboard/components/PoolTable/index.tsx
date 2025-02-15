@@ -2,8 +2,8 @@ import { useTranslation } from '@pancakeswap/localization'
 import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 
-import { DashboardPoolType } from 'pages/dashboard'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { PoolType } from 'types'
 import Pagination from 'views/Dashboard/components/Pagination'
 import { PoolDataRow, PoolDataRowSkeleton } from 'views/Dashboard/components/PoolTable/PoolDataRow'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
@@ -40,7 +40,7 @@ export default function PoolTable({
   searchInput,
   tokenAddress,
 }: {
-  poolType: DashboardPoolType
+  poolType: PoolType
   searchInput?: string
   tokenAddress?: string
 }) {

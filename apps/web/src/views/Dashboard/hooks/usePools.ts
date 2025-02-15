@@ -1,7 +1,7 @@
 import { PoolParsed } from 'pages/api/pools'
-import { DashboardPoolType } from 'pages/dashboard'
 import { useMemo } from 'react'
 import useSWR from 'swr'
+import { PoolType } from 'types'
 import { SortDirection } from 'views/Dashboard/types'
 
 function buildSearchParams({
@@ -52,7 +52,7 @@ export const POOLS_SORT_BY_LIST = ['apy24H', 'apy7D', 'volume24H', 'volume7D', '
 export type PoolsSortBy = (typeof POOLS_SORT_BY_LIST)[number]
 
 type UsePoolsParams = {
-  poolTypes?: DashboardPoolType[]
+  poolTypes?: PoolType[]
   skip?: number
   addresses?: string[]
   tokenAddress?: string

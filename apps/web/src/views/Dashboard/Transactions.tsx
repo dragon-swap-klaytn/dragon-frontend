@@ -1,10 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { DashboardPoolType } from 'pages/dashboard'
+import { PoolType } from 'types'
 import Header from 'views/Dashboard/components/Header'
 import TransactionTable from 'views/Dashboard/components/TransactionsTable'
 import useOverviewData from 'views/Dashboard/hooks/useOverviewData'
 
-export default function Transactions({ poolType = 'v3' }: { poolType: DashboardPoolType }) {
+export default function Transactions({ poolType = 'v3' }: { poolType: PoolType }) {
   const { t } = useTranslation()
 
   // const transactions = useProtocolTransactions(poolType)
