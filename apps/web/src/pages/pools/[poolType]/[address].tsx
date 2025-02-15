@@ -68,42 +68,42 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: DashboardPoolType; a
           </div>
         ) : (
           <div className="w-full">
-            <div>
-              <CurrencyLogoWithSymbol
-                addressA={poolData.token0.id}
-                addressB={poolData.token1.id}
-                symbol={`${poolData.token0.symbol} / ${poolData.token1.symbol}`}
-                symbolClassName="text-2xl font-bold"
-              />
-            </div>
+            <div className="flex flex-col md:flex-row justify-between items-start">
+              <div>
+                <CurrencyLogoWithSymbol
+                  addressA={poolData.token0.id}
+                  addressB={poolData.token1.id}
+                  symbol={`${poolData.token0.symbol} / ${poolData.token1.symbol}`}
+                  symbolClassName="text-2xl font-bold"
+                />
 
-            <div className="mt-4 flex flex-col md:flex-row">
-              <div className="flex flex-1 flex-col s:flex-row space-y-2 s:space-y-0 s:space-x-4">
-                <div className="flex space-x-1 items-center">
-                  <CurrencyLogoWithSymbol
-                    addressA={poolData.token0.id}
-                    symbol={`1 ${poolData.token0.symbol} =`}
-                    symbolClassName="text-sm font-normal"
-                  />
-                  <TokenRate
-                    rate={poolData.price}
-                    className="text-sm font-normal leading-none"
-                    hiddenDigitClassName="text-[9px] font-normal leading-none"
-                  />
-                  <span className="text-sm">{poolData.token1.symbol}</span>
-                </div>
-                <div className="flex space-x-1 items-center">
-                  <CurrencyLogoWithSymbol
-                    addressA={poolData.token1.id}
-                    symbol={`1 ${poolData.token1.symbol} =`}
-                    symbolClassName="text-sm font-normal"
-                  />
-                  <TokenRate
-                    rate={1 / poolData.price}
-                    className="text-sm font-normal leading-none"
-                    hiddenDigitClassName="text-[9px] font-normal leading-none"
-                  />
-                  <span className="text-sm">{poolData.token0.symbol}</span>
+                <div className="mt-4 flex flex-1 flex-col s:flex-row space-y-2 s:space-y-0 s:space-x-4">
+                  <div className="flex space-x-1 items-center">
+                    <CurrencyLogoWithSymbol
+                      addressA={poolData.token0.id}
+                      symbol={`1 ${poolData.token0.symbol} =`}
+                      symbolClassName="text-sm font-normal"
+                    />
+                    <TokenRate
+                      rate={poolData.price}
+                      className="text-sm font-normal leading-none"
+                      hiddenDigitClassName="text-[9px] font-normal leading-none"
+                    />
+                    <span className="text-sm">{poolData.token1.symbol}</span>
+                  </div>
+                  <div className="flex space-x-1 items-center">
+                    <CurrencyLogoWithSymbol
+                      addressA={poolData.token1.id}
+                      symbol={`1 ${poolData.token1.symbol} =`}
+                      symbolClassName="text-sm font-normal"
+                    />
+                    <TokenRate
+                      rate={1 / poolData.price}
+                      className="text-sm font-normal leading-none"
+                      hiddenDigitClassName="text-[9px] font-normal leading-none"
+                    />
+                    <span className="text-sm">{poolData.token0.symbol}</span>
+                  </div>
                 </div>
               </div>
 
@@ -128,7 +128,7 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: DashboardPoolType; a
             </div>
 
             <div className="mt-6 space-y-6 md:space-y-0 md:flex md:space-x-3">
-              <div className="rounded-xl bg-neutral w-full md:max-w-72 p-6 sm:min-h-[400px] space-y-6">
+              <div className="rounded-xl bg-neutral w-full md:w-auto md:min-w-72 p-6 sm:min-h-[400px] space-y-6">
                 <div className="space-y-1.5">
                   <h4 className="text-xs">Liquidity</h4>
                   <p className="text-xl font-medium">$ {formatDollarAmount(poolData.tvlUSD.current)}</p>
@@ -167,7 +167,7 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: DashboardPoolType; a
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between space-x-4">
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">Volume 24H</h4>
                     <p className="text-xl font-medium">$ {formatDollarAmount(poolData.volumeUSD['24H'])}</p>

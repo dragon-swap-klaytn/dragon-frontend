@@ -4,7 +4,7 @@ import { TokenDayDataV2, TokenDayDataV3 } from 'lib/graph-queries/types'
 import useSWR from 'swr'
 import { PoolType } from 'types'
 
-function fetcher<T extends PoolType>(
+async function fetcher<T extends PoolType>(
   type: T,
   address: string,
   length?: number,
@@ -31,10 +31,7 @@ type UseTokenChartDataOptions = {
 export default function useTokenChartData<T extends PoolType>(
   { type, address }: UseTokenChartDataParams<T>,
   { length = 60 }: UseTokenChartDataOptions = {},
-): {
-  chartData?: T extends 'v2' ? TokenDayDataV2[] : TokenDayDataV3[]
-  error?: Error
-} {
+) {
   const { data, error } = useSWR(
     type && address ? `tokens/${type}/${address}` : null,
     () => fetcher(type, address, length),

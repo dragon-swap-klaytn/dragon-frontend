@@ -35,7 +35,15 @@ const mdHeaders: Partial<HeaderId>[] = [...smHeaders, 'apy7D', 'volume7D']
 
 const SHOW_POOL_COUNT = 10
 
-export default function PoolTable({ poolType, searchInput }: { poolType: DashboardPoolType; searchInput?: string }) {
+export default function PoolTable({
+  poolType,
+  searchInput,
+  tokenAddress,
+}: {
+  poolType: DashboardPoolType
+  searchInput?: string
+  tokenAddress?: string
+}) {
   const { t } = useTranslation()
 
   // for sorting
@@ -52,6 +60,7 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
   const { poolsData, totalPage } = usePools({
     poolTypes: [poolType],
     skip,
+    tokenAddress,
     searchKey: searchInput,
     sortBy,
     sortDirection,
@@ -92,7 +101,7 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
   )
 
   return (
-    <>
+    <div className="w-full">
       <table className="w-full rounded-xl overflow-hidden">
         <colgroup>
           <col width="*" />
@@ -159,7 +168,11 @@ export default function PoolTable({ poolType, searchInput }: { poolType: Dashboa
         </tbody>
       </table>
 
-      <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
-    </>
+      {_totalPage > 1 && (
+        <div className="mt-5">
+          <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
+        </div>
+      )}
+    </div>
   )
 }

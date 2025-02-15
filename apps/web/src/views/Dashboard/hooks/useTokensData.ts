@@ -58,49 +58,20 @@ export default function useTokensData(
 ) {
   const params = buildSearchParams({ addresses, skip, searchKey, sortBy, sortDirection })
 
-  const {
-    data: v3Stats,
-    error: v3StatsError,
-    isLoading,
-  } = useSWR(
-    !paused && poolType === 'v3' ? `dashboard/stats/tokens/v3?${params}` : null,
+  const { data, error, isLoading } = useSWR(
+    !paused ? `dashboard/stats/tokens/${poolType}?${params}` : null,
     async () => {
-      const res = await fetch(`/api/stats/tokens/v3?${params}`)
+      const res = await fetch(`/api/stats/tokens/${poolType}?${params}`)
       const parsed = (await res.json()) as { tokens: TokenDetailed[]; totalPage: number }
 
       return parsed
     },
-    {
-      refreshInterval: 1_000 * 60,
-    },
   )
-
-  const { data: v2Stats, error: v2StatsError } = useSWR(
-    !paused && poolType === 'v2' ? `dashboard/stats/tokens/v2?${params}` : null,
-    async () => {
-      const res = await fetch(`/api/stats/tokens/v2?${params}`)
-      const parsed = (await res.json()) as { tokens: TokenDetailed[]; totalPage: number }
-
-      return parsed
-    },
-    {
-      refreshInterval: 1_000 * 60,
-    },
-  )
-
-  if (poolType === 'v3') {
-    return {
-      tokensData: v3Stats?.tokens,
-      totalPage: v3Stats?.totalPage,
-      tokensDataLoading: !v3Stats && !v3StatsError,
-      isLoading,
-    }
-  }
 
   return {
-    tokensData: v2Stats?.tokens,
-    totalPage: v2Stats?.totalPage,
-    tokensDataLoading: !v2Stats && !v2StatsError,
+    tokensData: data?.tokens,
+    totalPage: data?.totalPage,
+    error,
     isLoading,
   }
 }
