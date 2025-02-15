@@ -17,7 +17,7 @@ function buildSearchParams({
   const params = new URLSearchParams()
 
   if (addresses) {
-    params.set('addresses', addresses.join(','))
+    params.set('onlyTokenAddresses', addresses.join(','))
   }
 
   if (sortBy) {

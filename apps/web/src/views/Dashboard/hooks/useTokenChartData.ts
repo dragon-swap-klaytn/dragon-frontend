@@ -1,21 +1,50 @@
-import { useQuery } from '@tanstack/react-query'
-import { DashboardPoolType } from 'pages/dashboard'
-import fetchV2TokenChartData from 'views/Dashboard/data/v2/token/chartData'
-import { fetchTokenChartData as fetchV3TokenChartData } from 'views/Dashboard/data/v3/token/chartData'
-import { QUERY_SETTINGS_IMMUTABLE, QUERY_SETTINGS_INTERVAL_REFETCH } from 'views/Dashboard/hooks/consts'
+import { getV2TokenDayData } from 'lib/graph-queries/get-v2-token-day-data'
+import { getV3TokenDayData } from 'lib/graph-queries/get-v3-token-day-data'
+import { TokenDayDataV2, TokenDayDataV3 } from 'lib/graph-queries/types'
+import useSWR from 'swr'
+import { PoolType } from 'types'
 
-export default function useTokenChartData(address: string, poolType: DashboardPoolType = 'v3') {
-  const { data: v3 } = useQuery([`dashboard/v3/token/chartData/${address}`], () => fetchV3TokenChartData(address), {
-    ...QUERY_SETTINGS_IMMUTABLE,
-    ...QUERY_SETTINGS_INTERVAL_REFETCH,
-    enabled: Boolean(address && poolType === 'v3'),
-  })
+function fetcher<T extends PoolType>(
+  type: T,
+  address: string,
+  length?: number,
+): Promise<T extends 'v2' ? TokenDayDataV2[] : TokenDayDataV3[]> {
+  if (type === 'v2') {
+    // we assert the return type to satisfy the conditional
+    return getV2TokenDayData(address, { length }) as Promise<T extends 'v2' ? TokenDayDataV2[] : TokenDayDataV3[]>
+  }
+  if (type === 'v3') {
+    return getV3TokenDayData(address, { length }) as Promise<T extends 'v2' ? TokenDayDataV2[] : TokenDayDataV3[]>
+  }
+  throw new Error('Invalid token type')
+}
 
-  const { data: v2 } = useQuery([`dashboard/v2/token/chartData/${address}`], () => fetchV2TokenChartData(address), {
-    ...QUERY_SETTINGS_IMMUTABLE,
-    ...QUERY_SETTINGS_INTERVAL_REFETCH,
-    enabled: Boolean(address && poolType === 'v2'),
-  })
+type UseTokenChartDataParams<T extends PoolType> = {
+  type: T
+  address: string
+}
 
-  return poolType === 'v3' ? v3?.data : v2?.data
+type UseTokenChartDataOptions = {
+  length?: number
+}
+
+export default function useTokenChartData<T extends PoolType>(
+  { type, address }: UseTokenChartDataParams<T>,
+  { length = 60 }: UseTokenChartDataOptions = {},
+): {
+  chartData?: T extends 'v2' ? TokenDayDataV2[] : TokenDayDataV3[]
+  error?: Error
+} {
+  const { data, error } = useSWR(
+    type && address ? `tokens/${type}/${address}` : null,
+    () => fetcher(type, address, length),
+    {
+      revalidateOnFocus: false,
+    },
+  )
+
+  return {
+    chartData: data,
+    error,
+  }
 }

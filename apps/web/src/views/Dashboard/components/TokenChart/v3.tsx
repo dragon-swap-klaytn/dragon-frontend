@@ -1,15 +1,15 @@
 import { SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { PoolType } from 'types'
 import BarChart from 'views/Dashboard/components/BarChart/alt'
+import CandleChart from 'views/Dashboard/components/CandleChart'
 import LineChart from 'views/Dashboard/components/LineChart/alt'
-import usePoolChartData from 'views/Dashboard/hooks/usePoolChartData'
+import useTokenChartData from 'views/Dashboard/hooks/useTokenChartData'
 import { timestampToDate } from 'views/Dashboard/utils/date'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
-type ChartType = 'volume' | 'TVL' | 'tx'
-const CHART_TYPES: ChartType[] = ['volume', 'TVL', 'tx']
+type ChartType = 'volume' | 'TVL' | 'price'
+const CHART_TYPES: ChartType[] = ['volume', 'TVL', 'price']
 
 function TooltipContent({ label, date }: { label: string; date: string }) {
   return (
@@ -25,34 +25,47 @@ type ChartDataElement = {
   value: number
 }
 
-type PoolChartProps = {
-  poolType: PoolType
+type CandleChartDataElement = {
+  time: number
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
+type TokenChartProps = {
   address: string
 }
 
-export function PoolChart({ poolType, address }: PoolChartProps) {
+export function TokenV3Chart({ address }: TokenChartProps) {
   const [chartType, setChartType] = useState<ChartType>('volume')
   const [tooltipContent, setTooltipContent] = useState<{ label: string; date: string } | null>(null)
-  const { chartData } = usePoolChartData({ type: poolType, address })
+  const { chartData } = useTokenChartData({ type: 'v3', address })
 
   const data = useMemo(() => {
     if (!chartData) return null
 
     const volumeData: ChartDataElement[] = []
     const tvlData: ChartDataElement[] = []
-    const txData: ChartDataElement[] = []
+    const priceData: CandleChartDataElement[] = []
 
-    chartData.forEach(({ timestamp, volumeUSD, tvlUSD, txCount }) => {
-      const time = timestampToDate(timestamp)
-      volumeData.push({ time, value: volumeUSD })
-      tvlData.push({ time, value: tvlUSD })
-      txData.push({ time, value: txCount })
+    chartData.forEach((elem) => {
+      const time = timestampToDate(elem.timestamp)
+      volumeData.push({ time, value: elem.volumeUSD })
+      tvlData.push({ time, value: elem.tvlUSD })
+      priceData.push({
+        time: elem.timestamp,
+        open: elem.ohlc[0],
+        high: elem.ohlc[1],
+        low: elem.ohlc[2],
+        close: elem.ohlc[3],
+      })
     })
 
     return {
       volume: volumeData,
       TVL: tvlData,
-      tx: txData,
+      price: priceData,
     }
   }, [chartData])
 
@@ -60,7 +73,10 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
     if (!data) return
 
     const item = data[chartType][data[chartType].length - 1]
-    const formattedValue = chartType === 'tx' ? item.value.toLocaleString() : formatDollarAmount(item.value)
+    const formattedValue =
+      chartType !== 'price'
+        ? formatDollarAmount((item as ChartDataElement).value)
+        : formatDollarAmount((item as CandleChartDataElement).close)
 
     setTooltipContent({
       label: formattedValue,
@@ -72,17 +88,14 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
     resetTooltip()
   }, [chartType, resetTooltip])
 
-  const onMouseHover = useCallback(
-    (value: number, label: string) => {
-      const formattedValue = chartType === 'tx' ? value.toLocaleString() : formatDollarAmount(value)
+  const onMouseHover = useCallback((value: number, label: string) => {
+    const formattedValue = formatDollarAmount(value)
 
-      setTooltipContent({
-        label: formattedValue,
-        date: label,
-      })
-    },
-    [chartType],
-  )
+    setTooltipContent({
+      label: formattedValue,
+      date: label,
+    })
+  }, [])
 
   const onMouseLeave = resetTooltip
 
@@ -90,7 +103,7 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
     return <Spinner />
   }
 
-  const Chart = chartType === 'TVL' ? LineChart : BarChart
+  const Chart = chartType === 'TVL' ? LineChart : chartType === 'price' ? CandleChart : BarChart
 
   return (
     <Chart

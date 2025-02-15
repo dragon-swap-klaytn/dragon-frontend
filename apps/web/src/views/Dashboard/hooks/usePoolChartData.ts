@@ -1,9 +1,10 @@
 import { getV2PoolDayData } from 'lib/graph-queries/get-v2-pool-day-data'
 import { getV3PoolDayData } from 'lib/graph-queries/get-v3-pool-day-data'
 import useSWR from 'swr'
+import { PoolType } from 'types'
 
 type UsePoolChartDataParams = {
-  type: 'v2' | 'v3'
+  type: PoolType
   address: string
 }
 

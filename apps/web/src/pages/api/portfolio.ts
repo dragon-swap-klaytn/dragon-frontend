@@ -1,8 +1,8 @@
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { NextApiHandler } from 'next'
-import { DashboardPoolType } from 'pages/dashboard'
 
 import { Simplify } from 'type-fest'
+import { PoolType } from 'types'
 import { Address } from 'viem'
 import { z } from 'zod'
 
@@ -19,7 +19,7 @@ type PortfolioTokenV3Data = PortfolioTokenBaseData & {
 
 type PortfolioBaseData = {
   poolId: Address
-  type: DashboardPoolType
+  type: PoolType
 }
 
 export type PortfolioPosition = {

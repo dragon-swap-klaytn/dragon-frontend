@@ -1,5 +1,6 @@
 import { LP_HOLDERS_FEE } from 'config/constants/info'
 import { PoolV2Detailed, PoolV3Detailed } from 'pools/get-cached-pools-data'
+import { PoolType } from 'types'
 import { calculateAPY } from 'utils/calculate-interests'
 
 const HOUR = 60 * 60 * 1000
@@ -7,7 +8,7 @@ const DAY = 24 * HOUR
 const WEEK = 7 * DAY
 
 type WithAPY<T> = T & {
-  type: 'v2' | 'v3'
+  type: PoolType
   apy: {
     '24H': number
     '7D': number

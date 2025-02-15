@@ -73,6 +73,9 @@ export type DayDataV2 = {
 
 export type PancakeDayDataV2 = DayDataV2
 export type PoolDayDataV2 = DayDataV2
+export type TokenDayDataV2 = DayDataV2 & {
+  priceUSD: number
+}
 
 export type DayDataV3 = {
   timestamp: number
@@ -85,6 +88,9 @@ export type DayDataV3 = {
 
 export type PancakeDayDataV3 = DayDataV3
 export type PoolDayDataV3 = DayDataV3
+export type TokenDayDataV3 = Omit<DayDataV3, 'txCount'> & {
+  ohlc: [number, number, number, number]
+}
 
 export type TransactionEvent = {
   timestamp: number

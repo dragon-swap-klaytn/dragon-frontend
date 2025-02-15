@@ -1,15 +1,15 @@
 import { SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { PoolType } from 'types'
 import BarChart from 'views/Dashboard/components/BarChart/alt'
+import CandleChart from 'views/Dashboard/components/CandleChart'
 import LineChart from 'views/Dashboard/components/LineChart/alt'
-import usePoolChartData from 'views/Dashboard/hooks/usePoolChartData'
+import useTokenChartData from 'views/Dashboard/hooks/useTokenChartData'
 import { timestampToDate } from 'views/Dashboard/utils/date'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
-type ChartType = 'volume' | 'TVL' | 'tx'
-const CHART_TYPES: ChartType[] = ['volume', 'TVL', 'tx']
+type ChartType = 'volume' | 'TVL' | 'tx' | 'price'
+const CHART_TYPES: ChartType[] = ['volume', 'TVL', 'tx', 'price']
 
 function TooltipContent({ label, date }: { label: string; date: string }) {
   return (
@@ -25,15 +25,22 @@ type ChartDataElement = {
   value: number
 }
 
-type PoolChartProps = {
-  poolType: PoolType
+type CandleChartDataElement = {
+  time: number
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
+type TokenChartProps = {
   address: string
 }
 
-export function PoolChart({ poolType, address }: PoolChartProps) {
+export function TokenV2Chart({ address }: TokenChartProps) {
   const [chartType, setChartType] = useState<ChartType>('volume')
   const [tooltipContent, setTooltipContent] = useState<{ label: string; date: string } | null>(null)
-  const { chartData } = usePoolChartData({ type: poolType, address })
+  const { chartData } = useTokenChartData({ type: 'v2', address })
 
   const data = useMemo(() => {
     if (!chartData) return null
@@ -41,18 +48,30 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
     const volumeData: ChartDataElement[] = []
     const tvlData: ChartDataElement[] = []
     const txData: ChartDataElement[] = []
+    const priceData: CandleChartDataElement[] = []
 
-    chartData.forEach(({ timestamp, volumeUSD, tvlUSD, txCount }) => {
-      const time = timestampToDate(timestamp)
-      volumeData.push({ time, value: volumeUSD })
-      tvlData.push({ time, value: tvlUSD })
-      txData.push({ time, value: txCount })
+    chartData.forEach((elem, i) => {
+      const time = timestampToDate(elem.timestamp)
+      volumeData.push({ time, value: elem.volumeUSD })
+      tvlData.push({ time, value: elem.tvlUSD })
+      txData.push({ time, value: elem.txCount })
+      if (i !== 0) {
+        const prevPrice = chartData[i - 1].priceUSD
+        priceData.push({
+          time: Math.round(elem.timestamp / 1000),
+          open: prevPrice,
+          high: Math.max(prevPrice, elem.priceUSD),
+          low: Math.min(prevPrice, elem.priceUSD),
+          close: elem.priceUSD,
+        })
+      }
     })
 
     return {
       volume: volumeData,
       TVL: tvlData,
       tx: txData,
+      price: priceData,
     }
   }, [chartData])
 
@@ -60,7 +79,12 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
     if (!data) return
 
     const item = data[chartType][data[chartType].length - 1]
-    const formattedValue = chartType === 'tx' ? item.value.toLocaleString() : formatDollarAmount(item.value)
+    const formattedValue =
+      chartType === 'tx'
+        ? (item as ChartDataElement).value.toLocaleString()
+        : chartType === 'price'
+        ? formatDollarAmount((item as CandleChartDataElement).close)
+        : formatDollarAmount((item as ChartDataElement).value)
 
     setTooltipContent({
       label: formattedValue,
@@ -90,7 +114,7 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
     return <Spinner />
   }
 
-  const Chart = chartType === 'TVL' ? LineChart : BarChart
+  const Chart = chartType === 'TVL' ? LineChart : chartType === 'price' ? CandleChart : BarChart
 
   return (
     <Chart
