@@ -40,7 +40,11 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
                 link: `/dashboard/${poolType}#tokens`,
               },
               {
-                label: !tokenData ? (!address ? '-' : address.slice(0, 8)) : tokenData.symbol,
+                label: !tokenData
+                  ? !address
+                    ? '-'
+                    : `${address.slice(0, 6)}...${address.slice(-4)}`
+                  : tokenData.symbol,
               },
             ]}
           />

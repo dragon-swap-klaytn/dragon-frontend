@@ -2,8 +2,9 @@ import { useTranslation } from '@pancakeswap/localization'
 import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner, TagV2 } from '@pancakeswap/uikit'
 import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
+import usePoolPositions, { PositionV2 } from 'hooks/usePoolPositions'
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { PoolV3Parsed } from 'pages/api/pools'
+import { PoolParsed, PoolV2Parsed, PoolV3Parsed } from 'pages/api/pools'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
@@ -15,8 +16,9 @@ import { PoolChart } from 'views/Dashboard/components/PoolChart'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
 import usePools from 'views/Dashboard/hooks/usePools'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { useAccount } from 'wagmi'
 
-const PoolDetailsPage = ({ poolType, address }: { poolType: PoolType; address: Address }) => {
+const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: T; address: Address }) => {
   const { t } = useTranslation()
   const { poolsData } = usePools({ poolTypes: [poolType], addresses: [address] }, { paused: !poolType || !address })
 
@@ -46,7 +48,7 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: PoolType; address: A
                 label: !poolData
                   ? !address
                     ? '-'
-                    : address.slice(0, 8)
+                    : `${address.slice(0, 6)}...${address.slice(-4)}`
                   : `${poolData.token0.symbol} / ${poolData.token1.symbol}`,
               },
             ]}
@@ -243,10 +245,90 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: PoolType; address: A
                 <PoolChart poolType={poolType} address={address} />
               </div>
             </div>
+
+            <div className="mt-4">
+              <PoolPositions pool={poolData} />
+            </div>
           </div>
         )}
       </div>
     </Page>
+  )
+}
+
+function PoolPositions({ pool }: { pool: PoolParsed }) {
+  const { address: account } = useAccount()
+  const { positions, error } = usePoolPositions({
+    account,
+    poolType: pool.type,
+    poolAddress: pool.id,
+  })
+
+  if (error || !positions || positions.length === 0) {
+    console.error('Error fetching positions:', error)
+    return null
+  }
+
+  if (pool.type === 'v2') {
+    return <PoolPositionsV2 pool={pool} position={(positions as PositionV2[])[0]} />
+  }
+
+  // TODO: @kay Add v3 positions
+  return (
+    <div>
+      <h1>Positions</h1>
+      <p>Positions found.</p>
+    </div>
+  )
+}
+
+function PoolPositionsV2({ pool, position }: { pool: PoolV2Parsed; position: PositionV2 }) {
+  const { t } = useTranslation()
+
+  const share = position.token0.amount / pool.reserve0
+  const shareUSD = share * pool.tvlUSD.current
+
+  // TODO: @kay Link to Position Page?
+  return (
+    <div className="rounded-xl bg-neutral w-full p-6">
+      <h2 className="text-base">{t('My Positions')}</h2>
+      <div className="mt-4 space-x-12">
+        <span className="inline-flex flex-col">
+          <span className="text-sm">$ {formatDollarAmount(shareUSD)}</span>
+          <span className="mt-1 text-xs text-on-surface-subtlest">{t('Value')}</span>
+        </span>
+        <span className="inline-flex flex-col">
+          <span className="text-sm">
+            {share.toLocaleString(undefined, {
+              style: 'percent',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
+          <span className="mt-1 text-xs text-on-surface-subtlest">{t('Share')}</span>
+        </span>
+        <span className="inline-flex flex-col space-y-1">
+          <span className="inline-flex items-center space-x-1">
+            <CurrencyLogoWithSymbol
+              logoSize={16}
+              addressA={pool.token0.id}
+              symbol={pool.token0.symbol}
+              symbolClassName="text-xs text-on-surface-subtlest"
+            />
+            <span className="text-sm">{formatAmount(position.token0.amount)}</span>
+          </span>
+          <span className="inline-flex items-center space-x-1">
+            <CurrencyLogoWithSymbol
+              logoSize={16}
+              addressA={pool.token1.id}
+              symbol={pool.token1.symbol}
+              symbolClassName="text-xs text-on-surface-subtlest"
+            />
+            <span className="text-sm">{formatAmount(position.token1.amount)}</span>
+          </span>
+        </span>
+      </div>
+    </div>
   )
 }
 

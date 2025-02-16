@@ -1,4 +1,5 @@
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
+import { WKLAY_ADDRESS } from 'lib/graph-queries/const'
 import { NextApiHandler } from 'next'
 
 import { Simplify } from 'type-fest'
@@ -89,6 +90,14 @@ type FetchedPortfolioV3Data = Simplify<
 
 type FetchedPortfolioV2Data = FetchedPortfolioBaseData
 
+const overrideKaia = (address: Address): Address => {
+  if (address === '0x0000000000000000000000000000000000000000') {
+    return WKLAY_ADDRESS
+  }
+
+  return address
+}
+
 const fetchPortfolioFromSs = async (account: Address) => {
   try {
     const res = await fetch(`${SS_PORTFOLIO_API}?account=${account}`)
@@ -127,12 +136,12 @@ const handler: NextApiHandler = async (req, res) => {
       const newPosition: PortfolioPosition = {
         positionId,
         token0: {
-          address: tokens[0].address,
+          address: overrideKaia(tokens[0].address),
           amount: tokens[0].amount,
           feeAmount: fees?.find((fee) => fee.address === tokens[0].address)?.amount ?? 0,
         },
         token1: {
-          address: tokens[1].address,
+          address: overrideKaia(tokens[1].address),
           amount: tokens[1].amount,
           feeAmount: fees?.find((fee) => fee.address === tokens[1].address)?.amount ?? 0,
         },
@@ -163,11 +172,11 @@ const handler: NextApiHandler = async (req, res) => {
         poolId,
         type: poolType,
         token0: {
-          address: tokens[0].address,
+          address: overrideKaia(tokens[0].address),
           amount: tokens[0].amount,
         },
         token1: {
-          address: tokens[1].address,
+          address: overrideKaia(tokens[1].address),
           amount: tokens[1].amount,
         },
       } as PortfolioV2Data,

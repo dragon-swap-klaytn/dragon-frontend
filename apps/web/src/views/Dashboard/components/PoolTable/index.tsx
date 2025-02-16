@@ -10,10 +10,10 @@ import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import usePools, { PoolsSortBy } from 'views/Dashboard/hooks/usePools'
 import { SortDirection } from 'views/Dashboard/types'
 
-const HEADER_IDS = ['pair', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
+const HEADER_IDS = ['pool', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
 type HeaderId = (typeof HEADER_IDS)[number]
 
-const TITLES = ['Pair', 'TVL', 'Apy 24H', 'Apy 7D', 'Volume 24H', 'Volume 7D'] as const
+const TITLES = ['Pool', 'TVL', 'Apy 24H', 'Apy 7D', 'Volume 24H', 'Volume 7D'] as const
 type Title = (typeof TITLES)[number]
 
 const HEADERS: {
@@ -21,7 +21,7 @@ const HEADERS: {
   title: Title
   sortBy?: PoolsSortBy
 }[] = [
-  { id: 'pair', title: 'Pair' },
+  { id: 'pool', title: 'Pool' },
   { id: 'tvl', title: 'TVL', sortBy: 'tvl' },
   { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H' },
   { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D' },
@@ -29,7 +29,7 @@ const HEADERS: {
   { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D' },
 ]
 
-const bSmeaders: Partial<HeaderId>[] = ['pair', 'tvl', 'volume24H']
+const bSmeaders: Partial<HeaderId>[] = ['pool', 'tvl', 'volume24H']
 const smHeaders: Partial<HeaderId>[] = [...bSmeaders, 'apy24H']
 const mdHeaders: Partial<HeaderId>[] = [...smHeaders, 'apy7D', 'volume7D']
 
@@ -160,7 +160,7 @@ export default function PoolTable({
             <tr>
               <td colSpan={headers.length} className="h-[250px] md:h-[300px] text-center">
                 <div className="flex items-center justify-center w-full">
-                  <p className="text-on-surface">{t('No Pairs')}</p>
+                  <p className="text-on-surface">{t('No Pools')}</p>
                 </div>
               </td>
             </tr>

@@ -22,17 +22,16 @@ function buildSearchParams({
 }
 
 type UsePortfolioParams = { account?: Address; poolTypes?: PoolType[]; onlyPoolIds?: Address[]; skip?: boolean }
+type UsePortfolioOptions = { paused?: boolean }
 
-export default function usePortfolio({
-  account,
-  poolTypes = ['v3', 'v2'],
-  onlyPoolIds,
-  skip = false,
-}: UsePortfolioParams) {
+export default function usePortfolio(
+  { account, poolTypes = ['v3', 'v2'], onlyPoolIds }: UsePortfolioParams,
+  { paused = false }: UsePortfolioOptions = {},
+) {
   const params = buildSearchParams({ account, poolTypes, onlyPoolIds })
 
-  const { data, isLoading, error } = useSWR(
-    !skip ? ['/api/portfolio', params] : null,
+  const { data, mutate, isLoading, error } = useSWR(
+    !paused && !!account ? ['/api/portfolio', params] : null,
     async () => {
       const res = await fetch(`/api/portfolio?${params}`)
       const parsed = (await res.json()) as { [poolId: Address]: PortfolioV3Data | PortfolioV2Data }
@@ -46,7 +45,8 @@ export default function usePortfolio({
 
   return {
     portfolio: data,
-    portfolioIsLoading: isLoading,
-    portfolioError: error,
+    mutatePortfolio: mutate,
+    isLoading,
+    error,
   }
 }
