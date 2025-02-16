@@ -1,10 +1,10 @@
-import usePortfolio from 'hooks/use-portfolio'
-import { PortfolioV2Data, PortfolioV3Data } from 'pages/api/portfolio'
+import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
+import { PortfolioV2Data } from 'pages/api/portfolio'
 import { PoolType } from 'types'
 import { Address } from 'viem'
 
 export type PositionV2 = PortfolioV2Data
-export type PositionV3 = PortfolioV3Data['positions'][number]
+export type PositionV3 = PortfolioV3DataBigInt['positions'][number]
 
 type UsePoolPositionsParams<T extends PoolType> = {
   account?: Address
@@ -54,7 +54,7 @@ export default function usePoolPositions<T extends PoolType>(
       }
     case 'v3':
       return {
-        positions: (portfolio[poolAddress] as PortfolioV3Data).positions as T extends 'v2'
+        positions: (portfolio[poolAddress] as PortfolioV3DataBigInt).positions as T extends 'v2'
           ? PositionV2[]
           : PositionV3[],
         isLoading,
