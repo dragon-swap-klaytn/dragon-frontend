@@ -23,20 +23,25 @@ type PortfolioBaseData = {
 }
 
 export type PortfolioPosition = {
-  isStaked: boolean
-  isOutOfBounds: boolean
+  positionId: number
   token0: PortfolioTokenV3Data
   token1: PortfolioTokenV3Data
+  isStaked: boolean
+  isOutOfBounds: boolean
   rewards?: PortfolioTokenBaseData[]
+  liquidity: number
+  lower: number
+  upper: number
+  sqrtPriceX96: string
 }
 
-type PortfolioV3Data = Simplify<
+export type PortfolioV3Data = Simplify<
   PortfolioBaseData & {
     positions: PortfolioPosition[]
   }
 >
 
-type PortfolioV2Data = Simplify<
+export type PortfolioV2Data = Simplify<
   PortfolioBaseData & {
     token0: PortfolioTokenBaseData
     token1: PortfolioTokenBaseData
@@ -45,7 +50,7 @@ type PortfolioV2Data = Simplify<
 
 const poolsSchema = z.object({
   account: z.string().regex(VALID_ADDRESS_REGEX),
-  types: z.preprocess(
+  poolTypes: z.preprocess(
     (v) => (typeof v === 'string' && v.length > 0 ? v.split(',') : ['v2', 'v3']),
     z.enum(['v2', 'v3']).array().nonempty(),
   ),
@@ -75,7 +80,7 @@ type FetchedPortfolioV3Data = Simplify<
     lower: number
     upper: number
     pool: Address
-    sqrtPriceX96: Address
+    sqrtPriceX96: string
     outOfBounds: boolean
     fees: FetchedPortfolioTokenData[]
     rewards: FetchedPortfolioTokenData[]
@@ -97,7 +102,7 @@ const fetchPortfolioFromSs = async (account: Address) => {
 }
 
 const handler: NextApiHandler = async (req, res) => {
-  const { account, types, onlyPoolIds } = await poolsSchema.parseAsync(req.query)
+  const { account, poolTypes, onlyPoolIds } = await poolsSchema.parseAsync(req.query)
 
   const portfolio = await fetchPortfolioFromSs(account as Address)
 
@@ -106,7 +111,7 @@ const handler: NextApiHandler = async (req, res) => {
     const poolId = pool.toLowerCase() as Address
     const poolType = ['position', 'farm'].includes(type) ? 'v3' : 'v2'
 
-    if (!types.includes(poolType)) {
+    if (!poolTypes.includes(poolType)) {
       return acc
     }
 
@@ -115,12 +120,12 @@ const handler: NextApiHandler = async (req, res) => {
     }
 
     if (poolType === 'v3') {
-      const { rewards, outOfBounds, fees } = staking as FetchedPortfolioV3Data
+      const { positionId, rewards, outOfBounds, fees, liquidity, lower, upper, sqrtPriceX96 } =
+        staking as FetchedPortfolioV3Data
 
       const prevPositions = (acc[poolId] as PortfolioV3Data)?.positions ?? []
       const newPosition: PortfolioPosition = {
-        isStaked: type === 'farm',
-        isOutOfBounds: outOfBounds,
+        positionId,
         token0: {
           address: tokens[0].address,
           amount: tokens[0].amount,
@@ -132,6 +137,12 @@ const handler: NextApiHandler = async (req, res) => {
           feeAmount: fees?.find((fee) => fee.address === tokens[1].address)?.amount ?? 0,
         },
         ...(rewards ? { rewards } : {}),
+        isStaked: type === 'farm',
+        isOutOfBounds: outOfBounds,
+        liquidity,
+        lower,
+        upper,
+        sqrtPriceX96,
       }
 
       return {
