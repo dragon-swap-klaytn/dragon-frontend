@@ -35,9 +35,12 @@ import { Field } from 'state/mint/actions'
 import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/form/LiquidityFormProvider'
 import { useV3FormState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 import { V3Farm } from 'views/Farms/FarmsV3'
-import { USER_ESTIMATED_MULTIPLIER, useUserPositionInfo } from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { BoostStatus, useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
-import { getDisplayApr } from '../../getDisplayApr'
+import {
+  USER_ESTIMATED_MULTIPLIER,
+  useUserPositionInfo,
+} from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
+import { BoostStatus, useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
+import { getDisplayApr } from 'views/Farms/components/getDisplayApr'
 
 const ApyLabelContainer = styled(Flex)`
   cursor: pointer;

@@ -27,7 +27,7 @@ export const useIsBoostedPool = (tokenId?: string) => {
   return { isBoosted: data?.[0], pid: Number(data?.[1]), mutate: refetch }
 }
 
-export const useUserPositionInfo = (tokenId?: string) => {
+export const useUserPositionInfo = (tokenId?: string | number) => {
   const { chainId } = useActiveChainId()
   const masterChefV3 = useMasterchefV3()
 

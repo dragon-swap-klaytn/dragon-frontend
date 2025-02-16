@@ -5,7 +5,7 @@ export enum BoostStatus {
   CanNotBoost,
 }
 
-export const useBoostStatus = (pid: number, tokenId?: string) => {
+export const useBoostStatus = (pid: number, tokenId?: string | number) => {
   return {
     status: BoostStatus.CanNotBoost,
     updateStatus: () => {},
