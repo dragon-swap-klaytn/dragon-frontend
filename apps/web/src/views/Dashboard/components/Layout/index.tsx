@@ -3,7 +3,6 @@ import { SubMenuItems } from '@pancakeswap/uikit'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { v3InfoPath } from '../../constants'
-import InfoNav from './InfoNav'
 
 export const InfoPageLayout = ({ children }) => {
   const router = useRouter()
@@ -29,7 +28,6 @@ export const InfoPageLayout = ({ children }) => {
   return (
     <>
       <SubMenuItems items={subMenuItems} activeItem={isV3 ? `/dashboard/v3` : `/dashboard`} />
-      <InfoNav />
       {children}
     </>
   )
