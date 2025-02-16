@@ -92,7 +92,7 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
             feeProtocol: pool.feeProtocol,
             reserve0: +pool.totalValueLockedToken0,
             reserve1: +pool.totalValueLockedToken1,
-            price: (+pool.sqrtPrice / FLOAT64_Q96) ** 2,
+            price: (+pool.sqrtPrice / FLOAT64_Q96) ** 2 * (10 ** +pool.token0.decimals / 10 ** +pool.token1.decimals),
             tvlUSD: +pool.totalValueLockedUSD,
             volumeUSD: +pool.volumeUSD,
             feeUSD: +pool.feesUSD,
