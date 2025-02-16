@@ -9,6 +9,9 @@ import { useBlockNumber, usePublicClient } from 'wagmi'
 
 const REFRESH_BLOCK_INTERVAL = 6000
 
+/**
+ * @deprecated
+ */
 export const usePollBlockNumber = () => {
   const queryClient = useQueryClient()
   const { chainId } = useActiveChainId()

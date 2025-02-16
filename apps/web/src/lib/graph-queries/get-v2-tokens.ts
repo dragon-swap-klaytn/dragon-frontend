@@ -1,6 +1,7 @@
 import { gql, request } from 'graphql-request'
-import { BATCH_SIZE, subgraphUrls, tokensToBeOverridden } from 'lib/graph-queries/const'
+import { BATCH_SIZE, subgraphUrls } from 'lib/graph-queries/const'
 import { TokenAccData, TokenRaw } from 'lib/graph-queries/types'
+import { overrideToken } from 'lib/graph-queries/utils'
 
 export const getV2Tokens = async <AccOnly extends boolean = false>({
   blockNumber,
@@ -73,18 +74,16 @@ export const getV2Tokens = async <AccOnly extends boolean = false>({
         const priceUSD = +token.derivedUSD
         const tvlUSD = tvl * priceUSD
 
+        const tokenSimple = overrideToken(token)
+
         return {
-          id: token.id,
-          symbol: token.symbol,
-          name: token.name,
-          decimals: +token.decimals,
+          ...tokenSimple,
           priceUSD,
           tvl,
           tvlUSD,
           volume: +token.tradeVolume,
           volumeUSD: +token.tradeVolumeUSD,
           txCount: +token.totalTransactions,
-          ...tokensToBeOverridden[token.id],
         } as TokenRaw
       })
 }

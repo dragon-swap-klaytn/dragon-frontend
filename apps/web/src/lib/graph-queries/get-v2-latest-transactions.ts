@@ -1,6 +1,7 @@
 import request, { gql } from 'graphql-request'
-import { subgraphUrls, tokensToBeOverridden } from 'lib/graph-queries/const'
+import { subgraphUrls } from 'lib/graph-queries/const'
 import { TransactionEvent } from 'lib/graph-queries/types'
+import { overrideToken } from 'lib/graph-queries/utils'
 
 export const getV2LatestTransactions = async ({ length = 100 } = {}) => {
   const document = gql`
@@ -94,8 +95,8 @@ export const getV2LatestTransactions = async ({ length = 100 } = {}) => {
       timestamp: m.timestamp * 1000,
       pool: m.pair.id,
       txHash: m.transaction.id,
-      token0: tokensToBeOverridden[m.token0.id] ?? m.token0,
-      token1: tokensToBeOverridden[m.token1.id] ?? m.token1,
+      token0: overrideToken(m.token0),
+      token1: overrideToken(m.token1),
       account: m.sender,
       amount0: +m.amount0,
       amount1: +m.amount1,
@@ -108,8 +109,8 @@ export const getV2LatestTransactions = async ({ length = 100 } = {}) => {
       timestamp: b.timestamp * 1000,
       pool: b.pair.id,
       txHash: b.transaction.id,
-      token0: tokensToBeOverridden[b.token0.id] ?? b.token0,
-      token1: tokensToBeOverridden[b.token1.id] ?? b.token1,
+      token0: overrideToken(b.token0),
+      token1: overrideToken(b.token1),
       account: b.sender,
       amount0: +b.amount0,
       amount1: +b.amount1,
@@ -122,8 +123,8 @@ export const getV2LatestTransactions = async ({ length = 100 } = {}) => {
       timestamp: s.timestamp * 1000,
       pool: s.pair.id,
       txHash: s.transaction.id,
-      token0: tokensToBeOverridden[s.token0.id] ?? s.token0,
-      token1: tokensToBeOverridden[s.token1.id] ?? s.token1,
+      token0: overrideToken(s.token0),
+      token1: overrideToken(s.token1),
       account: s.from,
       amount0: +s.amount0In - +s.amount0Out,
       amount1: +s.amount1In - +s.amount1Out,

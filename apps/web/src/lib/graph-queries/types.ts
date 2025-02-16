@@ -1,7 +1,7 @@
 import { Address } from 'viem'
 import { TransactionType } from 'views/Dashboard/types'
 
-type TokenSimple = {
+export type TokenSimple = {
   id: Address
   symbol: string
   name: string

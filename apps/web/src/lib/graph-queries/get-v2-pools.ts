@@ -1,6 +1,7 @@
 import { gql, request } from 'graphql-request'
-import { BATCH_SIZE, subgraphUrls, tokensToBeOverridden } from 'lib/graph-queries/const'
+import { BATCH_SIZE, subgraphUrls } from 'lib/graph-queries/const'
 import { PoolV2AccData, PoolV2Raw } from 'lib/graph-queries/types'
+import { overrideToken } from 'lib/graph-queries/utils'
 
 export const getV2Pools = async <AccOnly extends boolean = false>({
   blockNumber,
@@ -77,8 +78,8 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
         (pair) =>
           ({
             id: pair.id,
-            token0: tokensToBeOverridden[pair.token0.id] ?? pair.token0,
-            token1: tokensToBeOverridden[pair.token1.id] ?? pair.token1,
+            token0: overrideToken(pair.token0),
+            token1: overrideToken(pair.token1),
             reserve0: +pair.reserve0,
             reserve1: +pair.reserve1,
             price: +pair.reserve1 / +pair.reserve0,

@@ -6,13 +6,14 @@ import { GetStaticPaths, GetStaticProps } from 'next'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
 import PoolTable from 'views/Dashboard/components/PoolTable'
 import { TokenChart } from 'views/Dashboard/components/TokenChart'
 import useTokensData from 'views/Dashboard/hooks/useTokensData'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
-const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: string }) => {
+const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: Address }) => {
   const { t } = useTranslation()
   const { tokensData } = useTokensData({ poolType, addresses: [address] }, { paused: !poolType || !address })
 
