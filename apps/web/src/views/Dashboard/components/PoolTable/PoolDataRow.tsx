@@ -10,7 +10,7 @@ import getPercentage from 'utils/getPercentage'
 import PositionCard from 'views/Dashboard/components/PoolTable/PositionCard'
 import { feeTierPercent } from 'views/Dashboard/utils'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
-import { V3Farm } from 'views/PoolsV2/FarmsV3'
+import { V3Farm } from 'views/Farms/FarmsV3'
 
 export const PoolDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) => {
   return (

@@ -194,7 +194,7 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
             <div className="mt-8">
               <h2 className="text-xl">Pools</h2>
               <div className="mt-5">
-                <PoolTable poolType={poolType} tokenAddress={tokenData.id} />
+                <PoolTable poolTypes={poolType ? [poolType] : undefined} tokenAddress={tokenData.id} />
               </div>
             </div>
           </div>

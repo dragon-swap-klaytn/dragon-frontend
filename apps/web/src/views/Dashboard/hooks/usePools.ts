@@ -69,7 +69,7 @@ export default function usePools(
 ) {
   const params = buildSearchParams({ poolTypes, skip, addresses, tokenAddress, searchKey, sortBy, sortDirection })
 
-  const { data, error } = useSWR(paused ? null : ['dashboard/pools', params], async () => {
+  const { data, error } = useSWR(paused || !poolTypes ? null : ['dashboard/pools', params], async () => {
     const res = await fetch(`/api/pools?${params}`)
     const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number }
 

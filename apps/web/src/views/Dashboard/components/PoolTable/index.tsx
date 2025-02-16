@@ -21,13 +21,8 @@ import { PoolDataRow, PoolDataRowSkeleton } from 'views/Dashboard/components/Poo
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import usePools, { PoolsSortBy } from 'views/Dashboard/hooks/usePools'
 import { SortDirection } from 'views/Dashboard/types'
-import {
-  V2FarmWithoutStakedValue,
-  V2StakeValueAndV3Farm,
-  V3Farm,
-  V3FarmWithoutStakedValue,
-} from 'views/PoolsV2/FarmsV3'
-import { getStakedFarms } from 'views/PoolsV2/utils/getStakedFarms'
+import { V2FarmWithoutStakedValue, V2StakeValueAndV3Farm, V3Farm, V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
+import { getStakedFarms } from 'views/Farms/utils/getStakedFarms'
 import { useAccount } from 'wagmi'
 
 const HEADER_IDS = ['pool', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
@@ -62,7 +57,7 @@ export default function PoolTable({
   searchInput,
   tokenAddress,
 }: {
-  poolTypes: PoolType[]
+  poolTypes?: PoolType[]
   searchInput?: string
   tokenAddress?: string
 }) {

@@ -11,8 +11,8 @@ import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import { useMemo, useState } from 'react'
 import { toChecksumToken } from 'utils/toChecksumToken'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { V3Farm } from 'views/Farms/FarmsV3'
 import { FarmV3ApyButton } from 'views/PoolsV2/components/FarmCard/V3/FarmV3ApyButton'
-import { V3Farm } from 'views/PoolsV2/FarmsV3'
 
 export default function PositionCard({
   farm,
