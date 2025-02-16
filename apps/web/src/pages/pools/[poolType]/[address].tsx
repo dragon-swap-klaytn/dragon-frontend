@@ -2,6 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner, TagV2 } from '@pancakeswap/uikit'
 import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
+import { useBackTo } from 'hooks/use-back-to'
 import usePoolPositions, { PositionV2 } from 'hooks/usePoolPositions'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import NextLink from 'next/link'
@@ -10,6 +11,7 @@ import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
 import { PoolChart } from 'views/Dashboard/components/PoolChart'
@@ -21,6 +23,8 @@ import { useAccount } from 'wagmi'
 const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: T; address: Address }) => {
   const { t } = useTranslation()
   const { poolsData } = usePools({ poolTypes: [poolType], addresses: [address] }, { paused: !poolType || !address })
+
+  const { saveBackToHref } = useBackTo()
 
   const isUnknownPool = poolsData && poolsData.length === 0
   /**
@@ -128,15 +132,27 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
               </div>
 
               <div className="mt-4 md:mt-0 space-x-3">
-                <ButtonV2
-                  variant="secondary"
-                  onClick={() => {
-                    // TODO: Add Liquidity
-                  }}
+                <NextLink
+                  href={
+                    poolData.type === 'v3'
+                      ? `/add/${unwrapWKAIAAdress(poolData.token0.id)}/${unwrapWKAIAAdress(poolData.token1.id)}`
+                      : `/v2/add/${unwrapWKAIAAdress(poolData.token0.id)}/${unwrapWKAIAAdress(poolData.token1.id)}`
+                  }
                 >
-                  {t('Add Liquidity')}
-                </ButtonV2>
-                <NextLink href={`/swap?inputCurrency=${poolData.token0.id}&outputCurrency=${poolData.token1.id}`}>
+                  <ButtonV2
+                    variant="primary"
+                    onClick={() => {
+                      saveBackToHref()
+                    }}
+                  >
+                    {t('Add Liquidity')}
+                  </ButtonV2>
+                </NextLink>
+                <NextLink
+                  href={`/swap?inputCurrency=${unwrapWKAIAAdress(
+                    poolData.token0.id,
+                  )}&outputCurrency=${unwrapWKAIAAdress(poolData.token1.id)}`}
+                >
                   <ButtonV2 variant="subtle" onClick={() => {}}>
                     {t('Trade')}
                   </ButtonV2>
@@ -261,9 +277,13 @@ function PoolPositions({ pool }: { pool: PoolParsed }) {
     poolAddress: pool.id,
   })
 
-  if (error || !positions || positions.length === 0) {
+  if (error) {
     console.error('Error fetching positions:', error)
-    return null
+    return <></>
+  }
+
+  if (!positions || positions.length === 0) {
+    return <></>
   }
 
   if (pool.type === 'v2') {

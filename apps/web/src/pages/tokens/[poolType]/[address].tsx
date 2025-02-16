@@ -2,11 +2,13 @@ import { useTranslation } from '@pancakeswap/localization'
 import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner, TagV2 } from '@pancakeswap/uikit'
 import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
+import { useBackTo } from 'hooks/use-back-to'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import NextLink from 'next/link'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
 import PoolTable from 'views/Dashboard/components/PoolTable'
@@ -17,6 +19,8 @@ import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: Address }) => {
   const { t } = useTranslation()
   const { tokensData } = useTokensData({ poolType, addresses: [address] }, { paused: !poolType || !address })
+
+  const { saveBackToHref } = useBackTo()
 
   const isUnknownToken = tokensData && tokensData.length === 0
   /**
@@ -106,15 +110,23 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
               </div>
 
               <div className="mt-4 md:mt-0 space-x-3">
-                <ButtonV2
-                  variant="secondary"
-                  onClick={() => {
-                    // TODO: Add Liquidity
-                  }}
+                <NextLink
+                  href={
+                    tokenData.type === 'v3'
+                      ? `/add/${unwrapWKAIAAdress(tokenData.id)}`
+                      : `/v2/add/${unwrapWKAIAAdress(tokenData.id)}`
+                  }
                 >
-                  {t('Add Liquidity')}
-                </ButtonV2>
-                <NextLink href={`/swap?outputCurrency=${tokenData.id}`}>
+                  <ButtonV2
+                    variant="secondary"
+                    onClick={() => {
+                      saveBackToHref()
+                    }}
+                  >
+                    {t('Add Liquidity')}
+                  </ButtonV2>
+                </NextLink>
+                <NextLink href={`/swap?outputCurrency=${unwrapWKAIAAdress(tokenData.id)}`}>
                   <ButtonV2 variant="subtle" onClick={() => {}}>
                     {t('Trade')}
                   </ButtonV2>

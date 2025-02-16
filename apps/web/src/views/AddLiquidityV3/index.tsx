@@ -29,6 +29,7 @@ import { safeGetAddress } from 'utils'
 
 import { CurrencySelect } from 'components/CurrencySelect'
 import { CommonBasesType } from 'components/SearchModal/types'
+import { useBackTo } from 'hooks/use-back-to'
 import { AprCalculator } from './components/AprCalculator'
 import { V2Selector } from './components/V2Selector'
 import StableFormView from './formViews/StableFormView'
@@ -387,6 +388,8 @@ export function AddLiquidityV3Layout({
 }) {
   const { t } = useTranslation()
 
+  const { backTo } = useBackTo()
+
   const [selectType] = useAtom(selectTypeAtom)
   const { currencyIdA, currencyIdB, feeAmount } = useCurrencyParams()
 
@@ -402,7 +405,7 @@ export function AddLiquidityV3Layout({
       >
         <AppHeader
           title={title}
-          backTo="/liquidity"
+          backTo={backTo}
           IconSlot={
             <>
               {selectType === SELECTOR_TYPE.V3 && (
