@@ -17,10 +17,6 @@ export const MENU_ITEMS = [
     href: '/pools',
   },
   {
-    title: 'Farms',
-    href: '/farms',
-  },
-  {
     title: 'Dashboard',
     href: '/dashboard',
   },
