@@ -1,5 +1,6 @@
 import { CurrencyLogoWithSymbol, TagV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
+import NextLink from 'next/link'
 import { PoolParsed } from 'pages/api/pools'
 import getPercentage from 'utils/getPercentage'
 import { feeTierPercent } from 'views/Dashboard/utils'
@@ -46,13 +47,15 @@ export const PoolDataRow = ({ poolData, isLastIndex }: { poolData: PoolParsed; i
     >
       <td className="text-on-surface px-4 s:px-6 py-6 text-left">
         <div className="flex flex-col s:flex-row items-start s:items-center gap-2 sm">
-          <CurrencyLogoWithSymbol
-            addressA={poolData.token0.id}
-            addressB={poolData.token1.id}
-            symbol={`${poolData.token0.symbol}/${poolData.token1.symbol}`}
-            spaceX="gap-2"
-            flex="flex flex-col items-start gap-2 s:flex-row s:items-center"
-          />
+          <NextLink href={`/pools/${poolData.type}/${poolData.id}`} className="hover:underline hover:opacity-70">
+            <CurrencyLogoWithSymbol
+              addressA={poolData.token0.id}
+              addressB={poolData.token1.id}
+              symbol={`${poolData.token0.symbol}/${poolData.token1.symbol}`}
+              spaceX="gap-2"
+              flex="flex flex-col items-start gap-2 s:flex-row s:items-center"
+            />
+          </NextLink>
 
           {'feeTier' in poolData && <TagV2 color="default">{feeTierPercent(poolData.feeTier)}</TagV2>}
         </div>

@@ -1,5 +1,6 @@
 import { CurrencyLogoWithSymbol } from '@pancakeswap/uikit'
 import clsx from 'clsx'
+import NextLink from 'next/link'
 import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import Percent from 'views/Dashboard/components/Percent'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
@@ -48,7 +49,9 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
     >
       <td className="text-on-surface px-4 s:px-6 py-6 text-left">
         <div className="flex items-center space-x-2">
-          <CurrencyLogoWithSymbol addressA={tokenData.id} symbol={tokenData.symbol} />
+          <NextLink href={`/tokens/${tokenData.type}/${tokenData.id}`} className="hover:underline hover:opacity-70">
+            <CurrencyLogoWithSymbol addressA={tokenData.id} symbol={tokenData.symbol} />
+          </NextLink>
 
           <span className="text-on-surface-subtlest hidden lg:block line-clamp-1">{tokenData.name}</span>
         </div>

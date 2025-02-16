@@ -3,6 +3,7 @@ import { getV2Tokens } from 'lib/graph-queries/get-v2-tokens'
 import { getV3Tokens } from 'lib/graph-queries/get-v3-tokens'
 import { TokenBase } from 'lib/graph-queries/types'
 import { v2TokensAccDataCache, v3TokensAccDataCache } from 'lru-caches'
+import { PoolType } from 'types'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
 
@@ -54,6 +55,7 @@ const getV3TokensAccData = async (blockNumber: number) => {
 }
 
 export type TokenDetailed = TokenBase & {
+  type: PoolType
   priceUSD: {
     current: number
     '7D': number
@@ -106,6 +108,7 @@ const getV2TokensDatailedData = async () => {
       ({ priceUSD, tvl, tvlUSD, volume, volumeUSD, txCount, ...token }) =>
         ({
           ...token,
+          type: 'v2',
           priceUSD: {
             current: priceUSD,
             '7D': priceUSD - (tokens7D[token.id]?.priceUSD ?? 0),
@@ -169,6 +172,7 @@ const getV3TokensDatailedData = async () => {
       ({ priceUSD, tvl, tvlUSD, volume, volumeUSD, txCount, ...token }) =>
         ({
           ...token,
+          type: 'v3',
           priceUSD: {
             current: priceUSD,
             '7D': priceUSD - (tokens7D[token.id]?.priceUSD ?? 0),
