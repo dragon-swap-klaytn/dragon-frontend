@@ -87,7 +87,7 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
   }, [volumeWindowStr])
   const tvlValue = useMemo(() => formatDollarAmount(liquidityHover, 2, true), [liquidityHover])
 
-  const tvlChartHoverHandler = useCallback(
+  const tvlChartMoveHandler = useCallback(
     (value: number, time: string) => {
       setLiquidityHover(value)
       setLeftLabel(time)
@@ -99,7 +99,7 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
     setLeftLabel(undefined)
   }, [setLiquidityHover, setLeftLabel])
 
-  const volumeChartHoverHandler = useCallback(
+  const volumeChartMoveHandler = useCallback(
     (value: number, time: string) => {
       setVolumeHover(value)
       setRightLabel(time)
@@ -155,7 +155,7 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
             data={formattedTvlData}
             heightClassName="h-[220px]"
             minHeightClassName="min-h-[332px]"
-            onMouseHover={tvlChartHoverHandler}
+            onMouseMove={tvlChartMoveHandler}
             onMouseLeave={tvlChartLeaveHandler}
             topLeft={
               <ChartHeader title={t('TVL')} value={tvlValue} date={`${leftLabel ?? now.format('MMM D, YYYY')} (UTC)`} />
@@ -173,7 +173,7 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
                 ? weeklyVolumeData
                 : formattedVolumeData
             }
-            onMouseHover={volumeChartHoverHandler}
+            onMouseMove={volumeChartMoveHandler}
             onMouseLeave={volumeChartLeaveHandler}
             label={rightLabel}
             activeWindow={volumeWindow}

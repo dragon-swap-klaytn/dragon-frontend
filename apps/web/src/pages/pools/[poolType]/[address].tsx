@@ -30,25 +30,27 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: PoolType; address: s
   return (
     <Page className="w-full">
       <div className="flex flex-col xs:flex-row xs:justify-between">
-        <BreadscrumbsV2
-          items={[
-            {
-              label: 'Dashboard',
-              link: '/dashboard',
-            },
-            {
-              label: 'Pools',
-              link: `/dashboard/${poolType}/pools`,
-            },
-            {
-              label: !poolData
-                ? !address
-                  ? '-'
-                  : address.slice(0, 8)
-                : `${poolData.token0.symbol} / ${poolData.token1.symbol}`,
-            },
-          ]}
-        />
+        {!!poolType && (
+          <BreadscrumbsV2
+            items={[
+              {
+                label: `Dashboard (${poolType.toUpperCase()})`,
+                link: `/dashboard/${poolType}`,
+              },
+              {
+                label: 'Pools',
+                link: `/dashboard/${poolType}#pools`,
+              },
+              {
+                label: !poolData
+                  ? !address
+                    ? '-'
+                    : address.slice(0, 8)
+                  : `${poolData.token0.symbol} / ${poolData.token1.symbol}`,
+              },
+            ]}
+          />
+        )}
         {poolData && (
           <ExternalLink className="mt-4 xs:mt-0" href={getBlockExploreLink(address, 'address')}>
             {t('View on %site%', { site: getBlockExploreName() })}

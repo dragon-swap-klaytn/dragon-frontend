@@ -2,18 +2,18 @@ import { RowBetween, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import React, { ReactNode } from 'react'
+import { HTMLAttributes, ReactNode } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { VolumeWindow } from '../../types'
 
 dayjs.extend(utc)
 
-export type BarChartProps = {
+export type BarChartProps = Omit<HTMLAttributes<HTMLDivElement>, 'onMouseMove'> & {
   data: any[]
   color?: string
   heightClassName?: string
   minHeightClassName?: string
-  onMouseHover?: (value: number, label: string) => void
+  onMouseMove?: (value: number, label: string) => void
   onMouseLeave?: () => void
   label?: string
   activeWindow?: VolumeWindow
@@ -27,7 +27,7 @@ export type BarChartProps = {
     left?: number
     bottom?: number
   }
-} & React.HTMLAttributes<HTMLDivElement>
+}
 
 const CustomBar = ({
   x,
@@ -52,7 +52,7 @@ const CustomBar = ({
 const Chart = ({
   data,
   color = '#f97316',
-  onMouseHover,
+  onMouseMove,
   onMouseLeave,
   label,
   activeWindow,
@@ -78,22 +78,18 @@ const Chart = ({
         </div>
       ) : (
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={margin} onMouseLeave={onMouseLeave}>
-            <XAxis
-              dataKey="time"
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(time) => dayjs(time).format(activeWindow === VolumeWindow.monthly ? 'MMM' : 'DD')}
-              minTickGap={10}
-            />
-            <Tooltip
-              cursor={{ fill: color, opacity: 0.2 }}
-              contentStyle={{ display: 'none' }}
-              formatter={(v, n, props) => {
-                const formattedTime = dayjs(props.payload.time).format('MMM D')
-                const formattedTimeDaily = dayjs(props.payload.time).format('MMM D, YYYY')
-                const formattedTimePlusWeek = dayjs(props.payload.time).add(1, 'week')
-                const formattedTimePlusMonth = dayjs(props.payload.time).add(1, 'month')
+          <BarChart
+            data={data}
+            margin={margin}
+            onMouseLeave={onMouseLeave}
+            onMouseMove={(state) => {
+              if (onMouseMove && state?.activePayload && state.activePayload.length > 0) {
+                const { payload } = state.activePayload[0]
+
+                const formattedTime = dayjs(payload.time).format('MMM D')
+                const formattedTimeDaily = dayjs(payload.time).format('MMM D, YYYY')
+                const formattedTimePlusWeek = dayjs(payload.time).add(1, 'week')
+                const formattedTimePlusMonth = dayjs(payload.time).add(1, 'month')
 
                 let _time = ''
                 if (label !== formattedTime) {
@@ -112,11 +108,18 @@ const Chart = ({
                   }
                 }
 
-                if (onMouseHover) onMouseHover(props.payload.value, _time)
-
-                return [v, n]
-              }}
+                onMouseMove(payload.value, _time)
+              }
+            }}
+          >
+            <XAxis
+              dataKey="time"
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(time) => dayjs(time).format(activeWindow === VolumeWindow.monthly ? 'MMM' : 'DD')}
+              minTickGap={10}
             />
+            <Tooltip cursor={{ fill: color, opacity: 0.2 }} contentStyle={{ display: 'none' }} />
             <Bar
               dataKey="value"
               fill={color}

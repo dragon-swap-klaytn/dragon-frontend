@@ -27,21 +27,23 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
   return (
     <Page className="w-full">
       <div className="flex flex-col xs:flex-row xs:justify-between">
-        <BreadscrumbsV2
-          items={[
-            {
-              label: 'Dashboard',
-              link: '/dashboard',
-            },
-            {
-              label: 'Tokens',
-              link: `/dashboard/${poolType}/tokens`,
-            },
-            {
-              label: !tokenData ? (!address ? '-' : address.slice(0, 8)) : tokenData.symbol,
-            },
-          ]}
-        />
+        {!!poolType && (
+          <BreadscrumbsV2
+            items={[
+              {
+                label: `Dashboard (${poolType.toUpperCase()})`,
+                link: `/dashboard/${poolType}`,
+              },
+              {
+                label: 'Tokens',
+                link: `/dashboard/${poolType}#tokens`,
+              },
+              {
+                label: !tokenData ? (!address ? '-' : address.slice(0, 8)) : tokenData.symbol,
+              },
+            ]}
+          />
+        )}
         {tokenData && (
           <ExternalLink className="mt-4 xs:mt-0" href={getBlockExploreLink(address, 'token')}>
             {t('View on %site%', { site: getBlockExploreName() })}

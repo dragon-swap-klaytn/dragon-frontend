@@ -15,7 +15,7 @@ export default function Tokens({ poolType = 'v3' }: { poolType?: PoolType }) {
   return (
     <>
       <div className="flex flex-col xs:flex-row xs:items-center space-y-2 xs:space-y-0 xs:space-x-2 justify-between w-full">
-        <Header title={t('All Tokens')} />
+        <Header id="tokens" title={t('All Tokens')} />
 
         <SearchBar
           value={searchInput}

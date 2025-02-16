@@ -45,7 +45,7 @@ const config = {
   typescript: {
     tsconfigPath: 'tsconfig.build.json',
   },
-  output: process.env.STANDALONE ? "standalone" : undefined,
+  output: process.env.STANDALONE ? 'standalone' : undefined,
   compiler: {
     styledComponents: true,
   },
@@ -188,6 +188,11 @@ const config = {
         destination: 'https://farms-api.pancakeswap.com/v3/:chainId/liquidity/:address',
         permanent: false,
       },
+      {
+        source: '/dashboard',
+        destination: '/dashboard/v3',
+        permanent: false,
+      },
     ]
   },
   webpack: (webpackConfig, { webpack, isServer }) => {
@@ -220,7 +225,7 @@ const config = {
   },
 }
 
-let projectNextConfig 
+let projectNextConfig
 if (process.env.STANDALONE) {
   projectNextConfig = withVanillaExtract(withWebSecurityHeaders(config))
 } else {

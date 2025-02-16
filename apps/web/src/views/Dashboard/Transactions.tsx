@@ -12,7 +12,7 @@ export default function Transactions({ poolType = 'v3' }: { poolType: PoolType }
 
   return (
     <div className="w-full flex flex-col items-start space-y-5">
-      <Header title={t('Transactions')} />
+      <Header id="transactions" title={t('Transactions')} />
 
       <TransactionTable transactions={transactions} />
     </div>

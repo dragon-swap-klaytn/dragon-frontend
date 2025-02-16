@@ -4,18 +4,18 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import useTheme from 'hooks/useTheme'
 import { darken } from 'polished'
-import React, { ReactNode } from 'react'
+import { HTMLAttributes, ReactNode } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { RowBetween } from '../Row'
 
 dayjs.extend(utc)
 
-export type LineChartProps = {
+export type LineChartProps = Omit<HTMLAttributes<HTMLDivElement>, 'onMouseMove'> & {
   data: any[]
   color?: string
   heightClassName?: string
   minHeightClassName?: string
-  onMouseHover?: (value: number, label: string) => void
+  onMouseMove?: (value: number, label: string) => void
   onMouseLeave?: () => void
   topLeft?: ReactNode
   topRight?: ReactNode
@@ -27,12 +27,12 @@ export type LineChartProps = {
     left?: number
     bottom?: number
   }
-} & React.HTMLAttributes<HTMLDivElement>
+}
 
 const Chart = ({
   data,
   color = '#f97316',
-  onMouseHover,
+  onMouseMove,
   onMouseLeave,
   topLeft,
   topRight,
@@ -56,7 +56,18 @@ const Chart = ({
         </div>
       ) : (
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={margin} onMouseLeave={onMouseLeave}>
+          <AreaChart
+            data={data}
+            margin={margin}
+            onMouseLeave={onMouseLeave}
+            onMouseMove={(state) => {
+              if (onMouseMove && state?.activePayload && state.activePayload.length > 0) {
+                const { payload } = state.activePayload[0]
+
+                onMouseMove(payload.value, dayjs(payload.time).format('MMM D, YYYY'))
+              }
+            }}
+          >
             <defs>
               <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={darken(0.36, color)} stopOpacity={0.5} />
@@ -70,15 +81,7 @@ const Chart = ({
               tickFormatter={(time) => dayjs(time).format('DD')}
               minTickGap={10}
             />
-            <Tooltip
-              cursor={{ stroke: theme.colors.backgroundAlt2 }}
-              contentStyle={{ display: 'none' }}
-              formatter={(v, n, props) => {
-                if (onMouseHover) onMouseHover(props.payload.value, dayjs(props.payload.time).format('MMM D, YYYY'))
-
-                return [v, n]
-              }}
-            />
+            <Tooltip cursor={{ stroke: theme.colors.backgroundAlt2 }} contentStyle={{ display: 'none' }} />
             <Area dataKey="value" type="monotone" stroke={color} fill="url(#gradient)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>

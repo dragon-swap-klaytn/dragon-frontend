@@ -1,3 +1,7 @@
-export default function Header({ title }: { title: string }) {
-  return <h3 className="text-xl text-on-surface">{title}</h3>
+export default function Header({ title, id }: { title: string; id?: string }) {
+  return (
+    <h3 id={id} className="text-xl text-on-surface">
+      {title}
+    </h3>
+  )
 }

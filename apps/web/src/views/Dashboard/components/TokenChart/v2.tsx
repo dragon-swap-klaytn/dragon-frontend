@@ -76,7 +76,7 @@ export function TokenV2Chart({ address }: TokenChartProps) {
     resetTooltip()
   }, [chartType, resetTooltip])
 
-  const onMouseHover = useCallback(
+  const onMouseMove = useCallback(
     (value: number, label: string) => {
       const formattedValue = chartType === 'tx' ? value.toLocaleString() : formatDollarAmount(value)
 
@@ -101,7 +101,7 @@ export function TokenV2Chart({ address }: TokenChartProps) {
       data={data[chartType]}
       topLeft={tooltipContent ? <TooltipContent {...tooltipContent} /> : null}
       topRight={<SegmentedControl options={CHART_TYPES} value={chartType} onChange={setChartType} />}
-      onMouseHover={onMouseHover}
+      onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       margin={{ top: 16 }}
     />
