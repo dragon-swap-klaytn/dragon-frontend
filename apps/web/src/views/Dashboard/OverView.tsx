@@ -197,7 +197,7 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
 
       <div className="flex flex-col items-center mt-8 space-y-8 w-full">
         <Tokens poolType={poolType} />
-        <Pools poolType={poolType} />
+        <Pools poolTypes={[poolType]} />
         <Transactions poolType={poolType} />
       </div>
     </>

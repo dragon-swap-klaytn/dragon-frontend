@@ -6,7 +6,7 @@ import { PoolType } from 'types'
 import Header from 'views/Dashboard/components/Header'
 import PoolTable from './components/PoolTable'
 
-export default function Pools({ poolType = 'v3' }: { poolType: PoolType }) {
+export default function Pools({ poolTypes = ['v3'] }: { poolTypes: PoolType[] }) {
   const { t } = useTranslation()
 
   const [searchInput, setSearchInput] = useState('')
@@ -26,7 +26,7 @@ export default function Pools({ poolType = 'v3' }: { poolType: PoolType }) {
         />
       </div>
 
-      <PoolTable poolType={poolType} searchInput={debouncedSearchInput} />
+      <PoolTable poolTypes={poolTypes} searchInput={debouncedSearchInput} />
     </div>
   )
 }

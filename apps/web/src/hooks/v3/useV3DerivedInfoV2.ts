@@ -18,6 +18,7 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import tryParseCurrencyAmount from 'utils/tryParseCurrencyAmount'
 import { MintState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 
+import { PortfolioPositionBigInt } from 'hooks/use-portfolio'
 import { toChecksumToken } from 'utils/toChecksumToken'
 import { useAccount } from 'wagmi'
 import { PoolState } from './types'
@@ -25,13 +26,13 @@ import { usePool } from './usePools'
 import { tryParseTick } from './utils'
 import { getTickToPrice } from './utils/getTickToPrice'
 
-export default function useV3DerivedInfo(
+export default function useV3DerivedInfoV2(
   currencyA?: Currency,
   currencyB?: Currency,
   feeAmount?: FeeAmount,
   baseCurrency?: Currency,
   // override for existing position
-  existingPosition?: Position,
+  existingPosition?: PortfolioPositionBigInt,
   formState?: MintState,
 ): {
   pool?: Pool | null
@@ -120,8 +121,8 @@ export default function useV3DerivedInfo(
         const p =
           baseAmount && parsedQuoteAmount
             ? new Price(
-                baseAmount.currency,
-                parsedQuoteAmount.currency,
+                toChecksumToken(baseAmount.currency),
+                toChecksumToken(parsedQuoteAmount.currency),
                 baseAmount.quotient,
                 parsedQuoteAmount.quotient,
               )
@@ -172,8 +173,8 @@ export default function useV3DerivedInfo(
   } = useMemo(() => {
     return {
       [Bound.LOWER]:
-        typeof existingPosition?.tickLower === 'number'
-          ? existingPosition.tickLower
+        typeof existingPosition?.lower === 'number'
+          ? existingPosition.lower
           : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
             (!invertPrice && typeof leftRangeTypedValue === 'boolean')
           ? tickSpaceLimits[Bound.LOWER]
@@ -181,8 +182,8 @@ export default function useV3DerivedInfo(
           ? tryParseTick(feeAmount, rightRangeTypedValue)
           : tryParseTick(feeAmount, leftRangeTypedValue),
       [Bound.UPPER]:
-        typeof existingPosition?.tickUpper === 'number'
-          ? existingPosition.tickUpper
+        typeof existingPosition?.upper === 'number'
+          ? existingPosition.upper
           : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
             (invertPrice && typeof leftRangeTypedValue === 'boolean')
           ? tickSpaceLimits[Bound.UPPER]

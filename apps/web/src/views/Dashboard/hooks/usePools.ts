@@ -18,7 +18,7 @@ function buildSearchParams({
 >) {
   const params = new URLSearchParams()
   if (poolTypes) {
-    poolTypes.forEach((type) => params.append('types', type))
+    params.set('types', poolTypes.join(','))
   }
 
   if (sortBy) {
@@ -38,7 +38,7 @@ function buildSearchParams({
   }
 
   if (addresses && addresses.length) {
-    addresses.forEach((address) => params.append('onlyPoolIds', address))
+    params.set('onlyPoolIds', addresses.join(','))
   }
 
   if (tokenAddress) {

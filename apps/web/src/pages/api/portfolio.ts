@@ -30,7 +30,7 @@ export type PortfolioPosition = {
   isStaked: boolean
   isOutOfBounds: boolean
   rewards?: PortfolioTokenBaseData[]
-  liquidity: number
+  liquidity: string
   lower: number
   upper: number
   sqrtPriceX96: string
@@ -77,7 +77,7 @@ type FetchedPortfolioV3Data = Simplify<
     token0: Address
     token1: Address
     fee: number
-    liquidity: number
+    liquidity: string
     lower: number
     upper: number
     pool: Address

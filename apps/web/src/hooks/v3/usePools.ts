@@ -1,10 +1,11 @@
 import { BigintIsh, Currency, Token } from '@pancakeswap/swap-sdk-core'
-import { computePoolAddress, FeeAmount, Pool, DEPLOYER_ADDRESSES } from '@pancakeswap/v3-sdk'
-import { useMemo } from 'react'
-import { Address } from 'viem'
-import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import { computePoolAddress, DEPLOYER_ADDRESSES, FeeAmount, Pool } from '@pancakeswap/v3-sdk'
 import { v3PoolStateABI } from 'config/abi/v3PoolState'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useMemo } from 'react'
+import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import { toChecksumToken } from 'utils/toChecksumToken'
+import { Address } from 'viem'
 import { PoolState } from './types'
 
 // Classes are expensive to instantiate, so this caches the recently instantiated pools.
@@ -85,8 +86,9 @@ export function usePools(
 
     return poolKeys.map(([currencyA, currencyB, feeAmount]) => {
       if (currencyA && currencyB && feeAmount) {
-        const tokenA = currencyA.wrapped
-        const tokenB = currencyB.wrapped
+        const tokenA = toChecksumToken(currencyA.wrapped)
+        const tokenB = toChecksumToken(currencyB.wrapped)
+
         if (tokenA.equals(tokenB)) return undefined
 
         return tokenA.sortsBefore(tokenB) ? [tokenA, tokenB, feeAmount] : [tokenB, tokenA, feeAmount]

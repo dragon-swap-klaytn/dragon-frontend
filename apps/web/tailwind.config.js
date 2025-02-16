@@ -49,6 +49,7 @@ module.exports = {
           DEFAULT: '#ffffff14',
           hovered: '#ffffff24',
           pressed: '#ffffff29',
+          dark: '#0000007a',
         },
         border: {
           DEFAULT: '#3f3f46',

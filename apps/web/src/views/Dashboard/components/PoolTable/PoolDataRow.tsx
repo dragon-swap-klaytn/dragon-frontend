@@ -1,10 +1,16 @@
-import { CurrencyLogoWithSymbol, TagV2 } from '@pancakeswap/uikit'
+import { Transition } from '@headlessui/react'
+import { CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import NextLink from 'next/link'
+import { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import { PoolParsed } from 'pages/api/pools'
+import { PortfolioV2Data } from 'pages/api/portfolio'
+import { useMemo, useState } from 'react'
+import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import getPercentage from 'utils/getPercentage'
+import PositionCard from 'views/Dashboard/components/PoolTable/PositionCard'
 import { feeTierPercent } from 'views/Dashboard/utils'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { V3Farm } from 'views/PoolsV2/FarmsV3'
 
 export const PoolDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) => {
   return (
@@ -38,39 +44,106 @@ export const PoolDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) =
   )
 }
 
-export const PoolDataRow = ({ poolData, isLastIndex }: { poolData: PoolParsed; isLastIndex: boolean }) => {
+export const PoolDataRow = ({
+  poolData,
+  userData,
+  isLastIndex,
+  farm,
+}: {
+  poolData: PoolParsed
+  userData?: PortfolioV3DataBigInt | PortfolioV2Data
+  isLastIndex: boolean
+  farm?: V3Farm
+}) => {
+  const [showUserData, setShowUserData] = useState(false)
+  const poolSymbol = useMemo(
+    () => `${poolData.token0.symbol}/${poolData.token1.symbol}`,
+    [poolData.token0.symbol, poolData.token1.symbol],
+  )
+
   return (
-    <tr
-      className={clsx('bg-surface-raised text-sm', {
-        'border-b border-border': !isLastIndex,
-      })}
-    >
-      <td className="text-on-surface px-4 s:px-6 py-6 text-left">
-        <div className="flex flex-col s:flex-row items-start s:items-center gap-2 sm">
-          <NextLink href={`/pools/${poolData.type}/${poolData.id}`} className="hover:underline hover:opacity-70">
+    <>
+      <tr
+        className={clsx('bg-surface-raised text-sm cursor-pointer hover:opacity-70', {
+          'border-b border-border': !isLastIndex,
+        })}
+        onClick={() => setShowUserData(!showUserData)}
+      >
+        <td className="text-on-surface px-4 s:px-6 py-6 text-left">
+          <div className="flex flex-col s:flex-row items-start s:items-center gap-2 sm">
             <CurrencyLogoWithSymbol
               addressA={poolData.token0.id}
               addressB={poolData.token1.id}
-              symbol={`${poolData.token0.symbol}/${poolData.token1.symbol}`}
+              symbol={poolSymbol}
               spaceX="gap-2"
               flex="flex flex-col items-start gap-2 s:flex-row s:items-center"
             />
-          </NextLink>
 
-          {'feeTier' in poolData && <TagV2 color="default">{feeTierPercent(poolData.feeTier)}</TagV2>}
-        </div>
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <span>{formatDollarAmount(poolData.tvlUSD.current)}</span>
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <span>{formatDollarAmount(poolData.volumeUSD['24H'])}</span>
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
-        {formatDollarAmount(poolData.volumeUSD['7D'])}
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">{getPercentage(poolData.apy['24H'])}</td>
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">{getPercentage(poolData.apy['7D'])}</td>
-    </tr>
+            <div className="flex flex-wrap items-center gap-2">
+              <TagV2 className="min-w-8" color={poolData.type === 'v3' ? 'orange' : 'green'}>
+                {poolData.type.toUpperCase()}
+              </TagV2>
+              {'feeTier' in poolData && (
+                <TagV2 className="min-w-8" color="default">
+                  {feeTierPercent(poolData.feeTier)}
+                </TagV2>
+              )}
+
+              {userData && 'positions' in userData && userData.positions.length > 0 ? <>zzz</> : <></>}
+            </div>
+          </div>
+        </td>
+        <td className="text-on-surface px-4 py-6 text-left">
+          <span>{formatDollarAmount(poolData.tvlUSD.current)}</span>
+        </td>
+        <td className="text-on-surface px-4 py-6 text-left">
+          <span>{formatDollarAmount(poolData.volumeUSD['24H'])}</span>
+        </td>
+        <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+          {formatDollarAmount(poolData.volumeUSD['7D'])}
+        </td>
+        <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
+          {getPercentage(poolData.apy['24H'])}
+        </td>
+        <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+          {getPercentage(poolData.apy['7D'])}
+        </td>
+      </tr>
+
+      {farm && userData && 'positions' in userData && userData.positions.length > 0 ? (
+        <Transition
+          as="tr"
+          show={showUserData}
+          enter="transition-opacity duration-100"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-opacity duration-100"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <td className="bg-neutral" colSpan={6}>
+            <div className="grid grid-cols-6 p-5 gap-10">
+              <div className="col-span-1">
+                <h4 className="text-sm text-on-surface">{poolSymbol}</h4>
+
+                <ExternalLink href={getBlockExploreLink(poolData.id, 'token')} className="text-[13px]">
+                  {getBlockExploreName()}
+                </ExternalLink>
+              </div>
+
+              <div className="col-span-5 flex flex-col items-center space-y-3">
+                {userData.positions.map((position) => (
+                  <div key={`${poolData.id}:position:${position.positionId}`} className="w-full">
+                    <PositionCard poolSymbol={poolSymbol} position={position} farm={farm} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </td>
+        </Transition>
+      ) : (
+        <></>
+      )}
+    </>
   )
 }

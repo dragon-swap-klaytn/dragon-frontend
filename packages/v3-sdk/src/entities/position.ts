@@ -1,12 +1,12 @@
-import { BigintIsh, MaxUint256, Percent, Price, CurrencyAmount, Token } from '@pancakeswap/sdk'
+import { BigintIsh, CurrencyAmount, MaxUint256, Percent, Price, Token } from '@pancakeswap/sdk'
 import invariant from 'tiny-invariant'
 import { ZERO } from '../internalConstants'
+import { encodeSqrtRatioX96 } from '../utils/encodeSqrtRatioX96'
 import { maxLiquidityForAmounts } from '../utils/maxLiquidityForAmounts'
+import { PositionMath } from '../utils/positionMath'
 import { tickToPrice } from '../utils/priceTickConversions'
 import { SqrtPriceMath } from '../utils/sqrtPriceMath'
 import { TickMath } from '../utils/tickMath'
-import { PositionMath } from '../utils/positionMath'
-import { encodeSqrtRatioX96 } from '../utils/encodeSqrtRatioX96'
 import { Pool } from './pool'
 
 interface PositionConstructorArgs {
