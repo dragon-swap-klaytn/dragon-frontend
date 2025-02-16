@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner } from '@pancakeswap/uikit'
+import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner, TagV2 } from '@pancakeswap/uikit'
 import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
 import { GetStaticPaths, GetStaticProps } from 'next'
@@ -64,14 +64,17 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
           <div className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start">
               <div className="flex flex-col">
-                <div className="flex items-center space-x-2">
-                  <CurrencyLogoWithSymbol
-                    addressA={tokenData.id}
-                    symbol={tokenData.name}
-                    symbolClassName="text-xl font-bold"
-                  />
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <CurrencyLogoWithSymbol
+                      addressA={tokenData.id}
+                      symbol={tokenData.name}
+                      symbolClassName="text-xl font-bold"
+                    />
 
-                  <span className="text-xl text-on-surface-subtlest">{tokenData.symbol}</span>
+                    <span className="text-xl text-on-surface-subtlest">{tokenData.symbol}</span>
+                    <TagV2 color="blue">{poolType.toUpperCase()}</TagV2>
+                  </div>
                 </div>
 
                 <span className="mt-3 text-[32px]">$ {formatDollarAmount(tokenData.priceUSD.current)}</span>

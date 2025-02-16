@@ -6,7 +6,9 @@ import { parseV2Pool, parseV3Pool } from 'pools/parse-pool'
 import { Simplify } from 'type-fest'
 import { z } from 'zod'
 
-export type PoolParsed = Simplify<ReturnType<typeof parseV2Pool> | ReturnType<typeof parseV3Pool>>
+export type PoolV2Parsed = Simplify<ReturnType<typeof parseV2Pool>>
+export type PoolV3Parsed = Simplify<ReturnType<typeof parseV3Pool>>
+export type PoolParsed = PoolV2Parsed | PoolV3Parsed
 
 const poolsSchema = z.object({
   types: z.preprocess(

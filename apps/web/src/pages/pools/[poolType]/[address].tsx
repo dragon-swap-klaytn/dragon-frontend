@@ -1,8 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner } from '@pancakeswap/uikit'
+import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner, TagV2 } from '@pancakeswap/uikit'
 import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
 import { GetStaticPaths, GetStaticProps } from 'next'
+import { PoolV3Parsed } from 'pages/api/pools'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
@@ -70,12 +71,26 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: PoolType; address: s
           <div className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start">
               <div>
-                <CurrencyLogoWithSymbol
-                  addressA={poolData.token0.id}
-                  addressB={poolData.token1.id}
-                  symbol={`${poolData.token0.symbol} / ${poolData.token1.symbol}`}
-                  symbolClassName="text-2xl font-bold"
-                />
+                <div className="flex items-center space-x-4">
+                  <CurrencyLogoWithSymbol
+                    addressA={poolData.token0.id}
+                    addressB={poolData.token1.id}
+                    symbol={`${poolData.token0.symbol} / ${poolData.token1.symbol}`}
+                    symbolClassName="text-2xl font-bold"
+                  />
+                  <div className="flex items-center space-x-2">
+                    <TagV2 color="blue">{poolData.type.toUpperCase()}</TagV2>
+                    {poolData.type === 'v3' && (
+                      <TagV2 color="green">
+                        {(+(poolData as PoolV3Parsed).feeTier / 1000000).toLocaleString(undefined, {
+                          style: 'percent',
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </TagV2>
+                    )}
+                  </div>
+                </div>
 
                 <div className="mt-4 flex flex-1 flex-col s:flex-row space-y-2 s:space-y-0 s:space-x-4">
                   <div className="flex space-x-1 items-center">
