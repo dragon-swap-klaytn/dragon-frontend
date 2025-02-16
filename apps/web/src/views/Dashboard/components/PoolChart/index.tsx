@@ -33,7 +33,7 @@ type PoolChartProps = {
 export function PoolChart({ poolType, address }: PoolChartProps) {
   const [chartType, setChartType] = useState<ChartType>('volume')
   const [tooltipContent, setTooltipContent] = useState<{ label: string; date: string } | null>(null)
-  const { chartData } = usePoolChartData({ type: poolType, address })
+  const { chartData } = usePoolChartData({ type: poolType, address }, { length: 120 })
 
   const data = useMemo(() => {
     if (!chartData) return null
@@ -78,7 +78,7 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
 
       setTooltipContent({
         label: formattedValue,
-        date: label,
+        date: `${label} (UTC)`,
       })
     },
     [chartType],

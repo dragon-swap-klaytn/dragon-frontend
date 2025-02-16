@@ -31,7 +31,7 @@ type TokenChartProps = {
 export function TokenV3Chart({ address }: TokenChartProps) {
   const [chartType, setChartType] = useState<ChartType>('volume')
   const [tooltipContent, setTooltipContent] = useState<{ label: string; date: string } | null>(null)
-  const { chartData } = useTokenChartData({ type: 'v3', address })
+  const { chartData } = useTokenChartData({ type: 'v3', address }, { length: 120 })
 
   const data = useMemo(() => {
     if (!chartData) return null
@@ -75,7 +75,7 @@ export function TokenV3Chart({ address }: TokenChartProps) {
 
     setTooltipContent({
       label: formattedValue,
-      date: label,
+      date: `${label} (UTC)`,
     })
   }, [])
 

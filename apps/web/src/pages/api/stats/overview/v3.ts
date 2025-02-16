@@ -4,7 +4,7 @@ import { NextApiHandler } from 'next'
 import { getCachedV3ProtocolData } from 'protocol-data/get-cached-protocol-data'
 import { localCachedV2 } from 'utils/localCachedV2'
 
-const getCachedV3PancakeDayData = localCachedV2(() => getV3PancakeDayData({ length: 60 }), {
+const getCachedV3PancakeDayData = localCachedV2(() => getV3PancakeDayData({ length: 120 }), {
   staleWhileRevalidate: true,
   ttl: 1000 * 60 * 10,
   ttlOnCatch: 5 * 1000,
