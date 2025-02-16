@@ -20,7 +20,7 @@ const InfoPage = ({ poolType }: { poolType: PoolType }) => {
   const { t } = useTranslation()
 
   return (
-    <Page className="w-full flex flex-col items-center space-y-8 sm">
+    <Page className="w-full flex flex-col items-center space-y-8">
       <div className="flex flex-wrap items-center w-full justify-between gap-2">
         <h2 className="text-[40px] text-on-surface">{t('Dashboard')}</h2>
 

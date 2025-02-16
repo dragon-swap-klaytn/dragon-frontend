@@ -14,7 +14,7 @@ const DAY = 24 * HOUR
 // FIXME: do we need threshold?
 const TOKEN_LIQUIDITY_USD_THRESHOLD = 10
 
-const getV2TokensAccData = async (blockNumber: number) => {
+export const getV2TokensAccData = async (blockNumber: number) => {
   // check lru cache
   if (v2TokensAccDataCache.get(blockNumber.toString())) {
     return v2TokensAccDataCache.get(blockNumber.toString())!
@@ -34,7 +34,7 @@ const getV2TokensAccData = async (blockNumber: number) => {
   return tokensMap
 }
 
-const getV3TokensAccData = async (blockNumber: number) => {
+export const getV3TokensAccData = async (blockNumber: number) => {
   // check lru cache
   if (v3TokensAccDataCache.get(blockNumber.toString())) {
     return v3TokensAccDataCache.get(blockNumber.toString())!

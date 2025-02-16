@@ -10,7 +10,7 @@ import { z } from 'zod'
 const SS_PORTFOLIO_API = 'https://api.swapscanner.io/api/v0/dg-swap/portfolio'
 
 type PortfolioTokenBaseData = {
-  address: Address
+  address: string
   amount: number
 }
 
@@ -90,9 +90,9 @@ type FetchedPortfolioV3Data = Simplify<
 
 type FetchedPortfolioV2Data = FetchedPortfolioBaseData
 
-const overrideKaia = (address: Address): Address => {
+const overrideKaia = (address: Address, overrideTo: string = WKLAY_ADDRESS): string => {
   if (address === '0x0000000000000000000000000000000000000000') {
-    return WKLAY_ADDRESS
+    return overrideTo
   }
 
   return address
@@ -136,16 +136,23 @@ const handler: NextApiHandler = async (req, res) => {
       const newPosition: PortfolioPosition = {
         positionId,
         token0: {
-          address: overrideKaia(tokens[0].address),
+          address: overrideKaia(tokens[0].address) as Address,
           amount: tokens[0].amount,
           feeAmount: fees?.find((fee) => fee.address === tokens[0].address)?.amount ?? 0,
         },
         token1: {
-          address: overrideKaia(tokens[1].address),
+          address: overrideKaia(tokens[1].address) as Address,
           amount: tokens[1].amount,
           feeAmount: fees?.find((fee) => fee.address === tokens[1].address)?.amount ?? 0,
         },
-        ...(rewards ? { rewards } : {}),
+        ...(rewards
+          ? {
+              rewards: rewards.map((reward) => ({
+                address: overrideKaia(reward.address, 'KAIA'),
+                amount: reward.amount,
+              })),
+            }
+          : {}),
         isStaked: type === 'farm',
         isOutOfBounds: outOfBounds,
         liquidity,

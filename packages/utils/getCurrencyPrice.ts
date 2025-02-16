@@ -49,7 +49,7 @@ export async function getCurrencyUsdPrice(currencyParams?: CurrencyParams) {
 
 type PriceMap = Record<string, number>
 export async function fetchCurrencyPriceMap(): Promise<PriceMap> {
-  const priceMap = await fetch('/api/tokens/prices')
+  const priceMap = await fetch('/api/tokens/prices/ss')
     .then((res) => res.json())
     .catch((e) => {
       console.error('Failed to fetch prices', e)
