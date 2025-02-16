@@ -41,7 +41,7 @@ export function TokenV2Chart({ address }: TokenChartProps) {
     const txData: ChartDataElement[] = []
     const priceData: ChartDataElement[] = []
 
-    chartData.forEach((elem, i) => {
+    chartData.forEach((elem) => {
       const time = timestampToDate(elem.timestamp)
       volumeData.push({ time, value: elem.volumeUSD })
       tvlData.push({ time, value: elem.tvlUSD })
