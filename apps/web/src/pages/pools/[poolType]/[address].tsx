@@ -4,13 +4,13 @@ import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
 import usePoolPositions, { PositionV2 } from 'hooks/usePoolPositions'
 import { GetStaticPaths, GetStaticProps } from 'next'
+import NextLink from 'next/link'
 import { PoolParsed, PoolV2Parsed, PoolV3Parsed } from 'pages/api/pools'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
 import { Address } from 'viem'
-
 import Percent from 'views/Dashboard/components/Percent'
 import { PoolChart } from 'views/Dashboard/components/PoolChart'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
@@ -136,14 +136,11 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
                 >
                   {t('Add Liquidity')}
                 </ButtonV2>
-                <ButtonV2
-                  variant="subtle"
-                  onClick={() => {
-                    // TODO: Trade
-                  }}
-                >
-                  {t('Trade')}
-                </ButtonV2>
+                <NextLink href={`/swap?inputCurrency=${poolData.token0.id}&outputCurrency=${poolData.token1.id}`}>
+                  <ButtonV2 variant="subtle" onClick={() => {}}>
+                    {t('Trade')}
+                  </ButtonV2>
+                </NextLink>
               </div>
             </div>
 

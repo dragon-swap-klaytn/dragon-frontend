@@ -3,6 +3,7 @@ import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner
 import { ArrowUp } from '@phosphor-icons/react'
 import Page from 'components/Layout/Page'
 import { GetStaticPaths, GetStaticProps } from 'next'
+import NextLink from 'next/link'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
@@ -113,14 +114,11 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
                 >
                   {t('Add Liquidity')}
                 </ButtonV2>
-                <ButtonV2
-                  variant="subtle"
-                  onClick={() => {
-                    // TODO: Trade
-                  }}
-                >
-                  {t('Trade')}
-                </ButtonV2>
+                <NextLink href={`/swap?outputCurrency=${tokenData.id}`}>
+                  <ButtonV2 variant="subtle" onClick={() => {}}>
+                    {t('Trade')}
+                  </ButtonV2>
+                </NextLink>
               </div>
             </div>
 
