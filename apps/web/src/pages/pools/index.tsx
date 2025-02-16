@@ -1,12 +1,11 @@
 import { SUPPORT_FARMS } from 'config/constants/supportChains'
-import { FarmsV3PageLayout } from 'views/Farms'
+import { PoolsPageLayout } from 'views/PoolsV2'
 
 const FarmsPage = () => {
   return null
 }
 
-FarmsPage.Layout = FarmsV3PageLayout
-
+FarmsPage.Layout = PoolsPageLayout
 FarmsPage.chains = SUPPORT_FARMS
 
 export default FarmsPage
