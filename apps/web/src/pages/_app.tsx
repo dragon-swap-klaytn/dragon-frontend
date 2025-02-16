@@ -24,7 +24,6 @@ import Footer from 'components/Menu/Footer'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
 import { persistor, useStore } from 'state'
-import { usePollBlockNumber } from 'state/block/hooks'
 import { Blocklist, Updaters } from '..'
 import { SEO } from '../../next-seo.config'
 import Providers from '../Providers'
@@ -40,7 +39,7 @@ BigNumber.config({
 function GlobalHooks() {
   // useDataDogRUM()
   useLoadExperimentalFeatures()
-  usePollBlockNumber()
+  // usePollBlockNumber()
   useUserAgent()
   useEagerConnect()
   useAccountEventListener()
@@ -51,7 +50,7 @@ function GlobalHooks() {
 }
 
 function MPGlobalHooks() {
-  usePollBlockNumber()
+  // usePollBlockNumber()
   // useEagerConnectMP()
   useUserAgent()
   useAccountEventListener()
