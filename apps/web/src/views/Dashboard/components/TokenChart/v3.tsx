@@ -2,7 +2,6 @@ import { SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import BarChart from 'views/Dashboard/components/BarChart/alt'
-import CandleChart from 'views/Dashboard/components/CandleChart'
 import LineChart from 'views/Dashboard/components/LineChart/alt'
 import useTokenChartData from 'views/Dashboard/hooks/useTokenChartData'
 import { timestampToDate } from 'views/Dashboard/utils/date'
@@ -25,14 +24,6 @@ type ChartDataElement = {
   value: number
 }
 
-type CandleChartDataElement = {
-  time: number
-  open: number
-  high: number
-  low: number
-  close: number
-}
-
 type TokenChartProps = {
   address: string
 }
@@ -47,19 +38,13 @@ export function TokenV3Chart({ address }: TokenChartProps) {
 
     const volumeData: ChartDataElement[] = []
     const tvlData: ChartDataElement[] = []
-    const priceData: CandleChartDataElement[] = []
+    const priceData: ChartDataElement[] = []
 
     chartData.forEach((elem) => {
       const time = timestampToDate(elem.timestamp)
       volumeData.push({ time, value: elem.volumeUSD })
       tvlData.push({ time, value: elem.tvlUSD })
-      priceData.push({
-        time: elem.timestamp,
-        open: elem.ohlc[0],
-        high: elem.ohlc[1],
-        low: elem.ohlc[2],
-        close: elem.ohlc[3],
-      })
+      priceData.push({ time, value: elem.ohlc[3] })
     })
 
     return {
@@ -73,10 +58,7 @@ export function TokenV3Chart({ address }: TokenChartProps) {
     if (!data) return
 
     const item = data[chartType][data[chartType].length - 1]
-    const formattedValue =
-      chartType !== 'price'
-        ? formatDollarAmount((item as ChartDataElement).value)
-        : formatDollarAmount((item as CandleChartDataElement).close)
+    const formattedValue = formatDollarAmount(item.value)
 
     setTooltipContent({
       label: formattedValue,
@@ -103,7 +85,7 @@ export function TokenV3Chart({ address }: TokenChartProps) {
     return <Spinner />
   }
 
-  const Chart = chartType === 'TVL' ? LineChart : chartType === 'price' ? CandleChart : BarChart
+  const Chart = chartType === 'volume' ? BarChart : LineChart
 
   return (
     <Chart

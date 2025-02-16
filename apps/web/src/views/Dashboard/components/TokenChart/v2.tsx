@@ -2,7 +2,6 @@ import { SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import BarChart from 'views/Dashboard/components/BarChart/alt'
-import CandleChart from 'views/Dashboard/components/CandleChart'
 import LineChart from 'views/Dashboard/components/LineChart/alt'
 import useTokenChartData from 'views/Dashboard/hooks/useTokenChartData'
 import { timestampToDate } from 'views/Dashboard/utils/date'
@@ -25,14 +24,6 @@ type ChartDataElement = {
   value: number
 }
 
-type CandleChartDataElement = {
-  time: number
-  open: number
-  high: number
-  low: number
-  close: number
-}
-
 type TokenChartProps = {
   address: string
 }
@@ -48,23 +39,14 @@ export function TokenV2Chart({ address }: TokenChartProps) {
     const volumeData: ChartDataElement[] = []
     const tvlData: ChartDataElement[] = []
     const txData: ChartDataElement[] = []
-    const priceData: CandleChartDataElement[] = []
+    const priceData: ChartDataElement[] = []
 
     chartData.forEach((elem, i) => {
       const time = timestampToDate(elem.timestamp)
       volumeData.push({ time, value: elem.volumeUSD })
       tvlData.push({ time, value: elem.tvlUSD })
       txData.push({ time, value: elem.txCount })
-      if (i !== 0) {
-        const prevPrice = chartData[i - 1].priceUSD
-        priceData.push({
-          time: Math.round(elem.timestamp / 1000),
-          open: prevPrice,
-          high: Math.max(prevPrice, elem.priceUSD),
-          low: Math.min(prevPrice, elem.priceUSD),
-          close: elem.priceUSD,
-        })
-      }
+      priceData.push({ time, value: elem.priceUSD })
     })
 
     return {
@@ -82,8 +64,6 @@ export function TokenV2Chart({ address }: TokenChartProps) {
     const formattedValue =
       chartType === 'tx'
         ? (item as ChartDataElement).value.toLocaleString()
-        : chartType === 'price'
-        ? formatDollarAmount((item as CandleChartDataElement).close)
         : formatDollarAmount((item as ChartDataElement).value)
 
     setTooltipContent({
@@ -114,7 +94,7 @@ export function TokenV2Chart({ address }: TokenChartProps) {
     return <Spinner />
   }
 
-  const Chart = chartType === 'TVL' ? LineChart : chartType === 'price' ? CandleChart : BarChart
+  const Chart = chartType === 'volume' ? BarChart : LineChart
 
   return (
     <Chart
