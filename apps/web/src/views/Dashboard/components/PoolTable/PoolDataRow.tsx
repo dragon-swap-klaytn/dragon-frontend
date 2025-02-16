@@ -89,6 +89,7 @@ export const PoolDataRow = ({
                 </TagV2>
               )}
 
+              {/* TODO: remove zzz @kay */}
               {userData && 'positions' in userData && userData.positions.length > 0 ? <>zzz</> : <></>}
             </div>
           </div>
