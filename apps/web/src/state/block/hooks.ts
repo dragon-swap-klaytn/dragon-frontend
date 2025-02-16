@@ -9,9 +9,6 @@ import { useBlockNumber, usePublicClient } from 'wagmi'
 
 const REFRESH_BLOCK_INTERVAL = 6000
 
-/**
- * @deprecated
- */
 export const usePollBlockNumber = () => {
   const queryClient = useQueryClient()
   const { chainId } = useActiveChainId()
@@ -65,36 +62,13 @@ export const usePollBlockNumber = () => {
 
 export const useCurrentBlock = (): number => {
   const { chainId } = useActiveChainId()
-  const queryClient = useQueryClient()
-  const { data: blockNumber } = useBlockNumber({
-    chainId,
-    cacheTime: 10_000,
-    // onBlock: (data) => {
-    //   queryClient.setQueryData(['blockNumber', chainId], Number(data))
-    // },
-    onSuccess: (data) => {
-      if (!queryClient.getQueryCache().find<number>(['initialBlockNumber', chainId])?.state?.data) {
-        queryClient.setQueryData(['initialBlockNumber', chainId], Number(data))
-      }
-      if (!queryClient.getQueryCache().find<number>(['initialBlockTimestamp', chainId])?.state?.data) {
-        const fetchInitialBlockTimestamp = async () => {
-          const provider = viemClients[chainId as keyof typeof viemClients]
-          if (provider) {
-            const block = await provider.getBlock({ blockNumber: data })
-            queryClient.setQueryData(['initialBlockTimestamp', chainId], Number(block.timestamp))
-          }
-        }
-        fetchInitialBlockTimestamp()
-      }
-    },
+  const { data: currentBlock = 0 } = useQuery<number>(['blockNumber', chainId], {
+    enabled: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
-  // const { data: currentBlock = 0 } = useQuery<number>(['blockNumber', chainId], {
-  //   enabled: false,
-  //   refetchOnReconnect: false,
-  //   refetchOnWindowFocus: false,
-  //   refetchOnMount: false,
-  // })
-  return Number(blockNumber ?? 0)
+  return Number(currentBlock)
 }
 
 export const useChainCurrentBlock = (chainId: number): number => {

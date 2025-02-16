@@ -37,7 +37,7 @@ export const useUserPositionInfo = (tokenId?: string) => {
       return masterChefV3?.read.userPositionInfos([BigInt(tokenId ?? 0)])
     },
     {
-      enabled: Boolean(chainId && tokenId),
+      enabled: Boolean(chainId && tokenId && +tokenId > 0),
       ...QUERY_SETTINGS_WITHOUT_REFETCH,
     },
   )
