@@ -75,7 +75,7 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
                     />
 
                     <span className="text-xl text-on-surface-subtlest">{tokenData.symbol}</span>
-                    <TagV2 color="blue">{poolType.toUpperCase()}</TagV2>
+                    <TagV2 color="default">{poolType.toUpperCase()}</TagV2>
                   </div>
                 </div>
 

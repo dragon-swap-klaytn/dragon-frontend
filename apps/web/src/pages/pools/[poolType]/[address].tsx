@@ -81,7 +81,7 @@ const PoolDetailsPage = ({ poolType, address }: { poolType: PoolType; address: s
                     symbolClassName="text-2xl font-bold"
                   />
                   <div className="flex items-center space-x-2">
-                    <TagV2 color="blue">{poolData.type.toUpperCase()}</TagV2>
+                    <TagV2 color="default">{poolData.type.toUpperCase()}</TagV2>
                     {poolData.type === 'v3' && (
                       <TagV2 color="green">
                         {(+(poolData as PoolV3Parsed).feeTier / 1000000).toLocaleString(undefined, {
