@@ -46,7 +46,7 @@ export function MyPositionsSummary({
             />
           </div>
           <div className="px-6">
-            <MyPositionSummaryItem label={t('TVL')} value={tvlUSD} />
+            <MyPositionSummaryItem label={t('TVL')} value={tvlUSD} isDollar />
           </div>
         </div>
         <div className="px-6 md:px-0 md:grid grid-cols-2 md:divide-x divide-border">
@@ -54,6 +54,7 @@ export function MyPositionsSummary({
             <MyPositionSummaryItem
               label={t('Unclaimed Fees')}
               value={unclaimedFeeUSD}
+              isDollar
               suffix={
                 <ButtonV2 variant="secondary" onClick={claimFees} disabled={unclaimedFeeUSD === 0}>
                   {t('Claim All')}
@@ -66,6 +67,7 @@ export function MyPositionsSummary({
             <MyPositionSummaryItem
               label={t('Boost Rewards')}
               value={boostRewardUSD}
+              isDollar
               suffix={
                 <ButtonV2 variant="primary" onClick={collectRewards} disabled={boostRewardUSD === 0}>
                   {t('Collect All')}
