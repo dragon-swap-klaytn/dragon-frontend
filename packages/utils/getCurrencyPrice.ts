@@ -1,5 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { ZERO_ADDRESS } from '@pancakeswap/uikit'
+import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 
 // duck typing for native currency, token, token info
 export type CurrencyParams =
@@ -49,19 +50,12 @@ export async function getCurrencyUsdPrice(currencyParams?: CurrencyParams) {
 
 type PriceMap = Record<string, number>
 export async function fetchCurrencyPriceMap(): Promise<PriceMap> {
-  const priceMap = await fetch('/api/tokens/prices/ss')
-    .then((res) => res.json())
-    .catch((e) => {
-      console.error('Failed to fetch prices', e)
-      return {}
-    })
-
-  return priceMap as PriceMap
+  return getCachedTokenPrices()
 }
 
 export async function getCurrencyListUsdPrice(currencyListParams?: CurrencyParams[]): Promise<CurrencyUsdResult> {
   if (!currencyListParams) {
-    const priceMap = await fetchCurrencyPriceMap()
+    const priceMap = await getCachedTokenPrices()
     return priceMap
   }
 
@@ -69,7 +63,7 @@ export async function getCurrencyListUsdPrice(currencyListParams?: CurrencyParam
     throw new Error('Contains an invalid token')
   }
 
-  const priceMap = await fetchCurrencyPriceMap()
+  const priceMap = await getCachedTokenPrices()
 
   return currencyListParams.reduce((acc, currency) => {
     const key = getCurrencyKey(currency)

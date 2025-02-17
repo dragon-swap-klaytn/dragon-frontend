@@ -1,7 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
-import { ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import { fetchCurrencyPriceMap } from '@pancakeswap/utils/getCurrencyPrice'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { oraklNetworkOracleABI } from 'config/abi/oraklNetworkOracle'
@@ -30,9 +28,9 @@ export const getCakePriceFromOracle = async () => {
       args: [],
     }),
 
-    fetchCurrencyPriceMap(),
+    fetch('/api/tokens/prices/ss').then((res) => res.json()),
   ])
 
   // @ts-ignore
-  return +(priceMap[ZERO_ADDRESS] || formatUnits(data[1] as bigint, 8))
+  return +(priceMap.KAIA || formatUnits(data[1] as bigint, 8))
 }
