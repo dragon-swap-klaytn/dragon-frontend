@@ -2,6 +2,7 @@ import { Transition } from '@headlessui/react'
 import { CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
+import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
@@ -69,13 +70,19 @@ export const PoolDataRow = ({
       >
         <td className="text-on-surface px-4 s:px-6 py-6 text-left">
           <div className="flex flex-col s:flex-row items-start s:items-center gap-2 sm">
-            <CurrencyLogoWithSymbol
-              addressA={poolData.token0.id}
-              addressB={poolData.token1.id}
-              symbol={poolSymbol}
-              spaceX="gap-2"
-              flex="flex flex-col items-start gap-2 s:flex-row s:items-center"
-            />
+            <NextLink
+              href={`/pools/${poolData.type}/${poolData.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="hover:underline hover:opacity-70"
+            >
+              <CurrencyLogoWithSymbol
+                addressA={poolData.token0.id}
+                addressB={poolData.token1.id}
+                symbol={poolSymbol}
+                spaceX="gap-2"
+                flex="flex flex-col items-start gap-2 s:flex-row s:items-center"
+              />
+            </NextLink>
 
             <div className="flex flex-wrap items-center gap-2">
               <TagV2 className="min-w-8" color={poolData.type === 'v3' ? 'orange' : 'green'}>
@@ -131,8 +138,10 @@ export const PoolDataRow = ({
               </div>
 
               <PositionCardList
-                userData={userData}
                 className="col-span-5"
+                token0={poolData.token0}
+                token1={poolData.token1}
+                userData={userData}
                 poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
               />
             </div>

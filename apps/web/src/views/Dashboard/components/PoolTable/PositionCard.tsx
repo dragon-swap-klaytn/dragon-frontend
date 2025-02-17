@@ -1,26 +1,29 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { ERC20Token } from '@pancakeswap/sdk'
 import { TagV2 } from '@pancakeswap/uikit'
 
 import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import { useCurrency } from 'hooks/Tokens'
 import { PortfolioPositionBigInt, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
 import { useDerivedPositionInfoV2 } from 'hooks/v3/useDerivedPositionInfoV2'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
+import { TokenSimple } from 'lib/graph-queries/types'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 
 export default function PositionCardList({
   className,
+  token0,
+  token1,
   userData,
   poolFeeTier,
 }: {
   className?: string
+  token0: TokenSimple
+  token1: TokenSimple
   userData: PortfolioV3DataBigInt | PortfolioV2Data
   poolFeeTier: number
 }) {
@@ -30,6 +33,8 @@ export default function PositionCardList({
         (userData as PortfolioV3DataBigInt).positions.map((position) => (
           <PositionCard
             key={`${userData.poolId}:position:${position.positionId}`}
+            token0={token0}
+            token1={token1}
             position={position}
             poolFeeTier={poolFeeTier}
           />
@@ -41,7 +46,17 @@ export default function PositionCardList({
   )
 }
 
-export function PositionCard({ position, poolFeeTier }: { position: PortfolioPositionBigInt; poolFeeTier: number }) {
+export function PositionCard({
+  token0,
+  token1,
+  position,
+  poolFeeTier,
+}: {
+  token0: TokenSimple
+  token1: TokenSimple
+  position: PortfolioPositionBigInt
+  poolFeeTier: number
+}) {
   const { prices } = useTokenPrices()
   // use swapscanner price as fallback
   const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
@@ -83,9 +98,6 @@ export function PositionCard({ position, poolFeeTier }: { position: PortfolioPos
   const { tickLower, tickUpper } = _position ?? {}
   const tickAtLimit = useIsTickAtLimit(poolFeeTier, tickLower, tickUpper)
   const [inverted, setInverted] = useState(false)
-
-  const token0 = useCurrency(position.token0.address) as ERC20Token
-  const token1 = useCurrency(position.token1.address) as ERC20Token
 
   const priceLower = useMemo(() => {
     if (!_position) return null
