@@ -102,10 +102,10 @@ export const PoolDataRow = ({
           {formatDollarAmount(poolData.volumeUSD['7D'])}
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
-          {getPercentage(poolData.apy['24H'])}
+          {getPercentage(poolData.apy['24H'] + ((poolData as any).rewardApr ?? 0))}
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
-          {getPercentage(poolData.apy['7D'])}
+          {getPercentage(poolData.apy['7D'] + ((poolData as any).rewardApr ?? 0))}
         </td>
       </tr>
 
