@@ -1,7 +1,8 @@
+import { ChainId } from '@pancakeswap/chains'
 import { localCachedV2 } from 'utils/localCachedV2'
-import { viemClients } from 'utils/viem'
+import { getViemClients } from 'utils/viem.server'
 
-const publicClient = viemClients[8217]
+const publicClient = getViemClients({ chainId: ChainId.KLAYTN })
 
 export const getFreshBlockNumber = async () => {
   return publicClient.getBlockNumber()
