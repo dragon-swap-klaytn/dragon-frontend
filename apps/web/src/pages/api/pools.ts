@@ -30,8 +30,8 @@ const poolsSchema = z.object({
     z.string().regex(VALID_ADDRESS_REGEX).array(),
   ),
   tokenAddress: z.string().regex(VALID_ADDRESS_REGEX).optional(),
+  boostedOnly: z.preprocess((v) => v === 'true', z.boolean()).optional(),
   searchKey: z.string().optional(),
-  // TODO: boosted only option ? (using MasterChef contract)
   sortBy: z.enum(['apy24H', 'apy7D', 'volume24H', 'volume7D', 'tvl']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
 
@@ -71,7 +71,7 @@ const farmsV3 = farmsV3ConfigChainMap[ChainId.KLAYTN]
 const farmFetcherV3 = createFarmFetcherV3(getViemClients)
 
 const handler: NextApiHandler = async (req, res) => {
-  const { types, onlyPoolIds, tokenAddress, searchKey, sortBy, sortDirection, skip, limit } =
+  const { types, onlyPoolIds, tokenAddress, boostedOnly, searchKey, sortBy, sortDirection, skip, limit } =
     await poolsSchema.parseAsync(req.query)
 
   const [{ v2Pools, v3Pools }, prices] = await Promise.all([getCachedPoolsData(), getCachedTokenPrices()])
@@ -107,7 +107,7 @@ const handler: NextApiHandler = async (req, res) => {
     filteredBySearchKey(pool, searchKey),
   )
 
-  const pools: PoolParsed[] = []
+  let pools: PoolParsed[] = []
 
   if (onlyPoolIds.length > 0) {
     const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => id.toLowerCase())
@@ -123,6 +123,10 @@ const handler: NextApiHandler = async (req, res) => {
     if (types.includes('v3')) {
       pools.push(...filteredV3Pools)
     }
+  }
+
+  if (boostedOnly) {
+    pools = pools.filter((pool) => lpAddressToPoolWeights[pool.id] > 0)
   }
 
   const useDesc = sortDirection === 'desc' ? -1 : 1
