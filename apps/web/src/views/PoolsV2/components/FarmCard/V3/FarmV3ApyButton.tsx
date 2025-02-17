@@ -32,6 +32,7 @@ import { useAllV3Ticks } from 'hooks/v3/usePoolTickData'
 import useV3DerivedInfoV2 from 'hooks/v3/useV3DerivedInfoV2'
 import { useFarmsV3Public } from 'state/farmsV3/hooks'
 import { Field } from 'state/mint/actions'
+import { Address } from 'viem'
 import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/form/LiquidityFormProvider'
 import { useV3FormState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 import { V3Farm } from 'views/Farms/FarmsV3'
@@ -113,7 +114,7 @@ function FarmV3ApyButton_({ farm, position, isPositionStaked }: FarmV3ApyButtonP
       address: position.token0.address,
       amount: position.token0.amount,
       currencyAmount: CurrencyAmount.fromRawAmount(
-        new Token(ChainId.KLAYTN, position.token0.address, baseCurrency.decimals, baseCurrency.symbol),
+        new Token(ChainId.KLAYTN, position.token0.address as Address, baseCurrency.decimals, baseCurrency.symbol),
         Math.floor(position.token0.amount * 10 ** baseCurrency.decimals),
       ),
     }
@@ -126,7 +127,7 @@ function FarmV3ApyButton_({ farm, position, isPositionStaked }: FarmV3ApyButtonP
       address: position.token1.address,
       amount: position.token1.amount,
       currencyAmount: CurrencyAmount.fromRawAmount(
-        new Token(ChainId.KLAYTN, position.token1.address, quoteCurrency.decimals, quoteCurrency.symbol),
+        new Token(ChainId.KLAYTN, position.token1.address as Address, quoteCurrency.decimals, quoteCurrency.symbol),
         Math.floor(position.token1.amount * 10 ** quoteCurrency.decimals),
       ),
     }
