@@ -44,6 +44,7 @@ export const PoolDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) =
   )
 }
 
+// TODO: @daniel change farm prop to positions[]
 export const PoolDataRow = ({
   poolData,
   userData,

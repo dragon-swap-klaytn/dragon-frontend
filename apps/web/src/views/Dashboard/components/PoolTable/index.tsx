@@ -132,6 +132,7 @@ export default function PoolTable({
 
   const { pathname, query: urlQuery } = useRouter()
 
+  // TODO: @daniel remove farms related codes
   const mockApr = Boolean(urlQuery.mockApr)
   const { chainId } = useActiveChainId()
   const { data: farmsV2, poolLength: v2PoolLength, regularCakePerBlock } = useFarms()
@@ -140,6 +141,7 @@ export default function PoolTable({
     false,
   )
 
+  // TODO: @daniel remove farms related codes
   // FIXME: temporary sort sable v2 farm in front of v3 farms
   const farmsLP: V2AndV3Farms = useMemo(() => {
     const farms: V2AndV3Farms = [
@@ -258,6 +260,7 @@ export default function PoolTable({
             poolsData.map((poolData, index) => (
               <PoolDataRow
                 key={`poolTable:${poolData.id}`}
+                // TODO: @daniel change farm prop to positions[]
                 farm={chosenFarms.find((farm) => farm.lpAddress.toLowerCase() === poolData.id.toLowerCase()) as V3Farm}
                 userData={portfolio?.[poolData.id]}
                 poolData={poolData}
