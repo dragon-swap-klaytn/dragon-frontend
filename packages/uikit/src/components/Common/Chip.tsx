@@ -15,7 +15,7 @@ export function Chip({ className, label, selected, setSelected }: ChipProps) {
       className={clsx(
         className,
         "inline-flex items-center justify-center rounded-full space-x-2 py-2 text-white hover:opacity-70",
-        selected ? "bg-overlay-surface-hover-light px-3" : "bg-surface-container-highest px-6"
+        selected ? "bg-neutral-hovered px-3" : "bg-neutral px-6"
       )}
       onClick={() => setSelected(!selected)}
     >

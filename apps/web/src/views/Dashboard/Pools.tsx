@@ -21,12 +21,12 @@ export default function Pools({ poolTypes = ['v3'] }: { poolTypes: PoolType[] })
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="self-end"
-          placeholder="Search"
+          placeholder="Search..."
           width="w-52"
         />
       </div>
 
-      <PoolTable poolTypes={poolTypes} searchInput={debouncedSearchInput} />
+      <PoolTable poolTypes={poolTypes} searchKey={debouncedSearchInput} />
     </div>
   )
 }

@@ -1,5 +1,4 @@
 import { PoolParsed } from 'pages/api/pools'
-import { useMemo } from 'react'
 import useSWR from 'swr'
 import { PoolType } from 'types'
 import { SortDirection } from 'views/Dashboard/types'
@@ -9,12 +8,13 @@ function buildSearchParams({
   skip,
   addresses,
   tokenAddress,
+  boostedOnly,
   searchKey,
   sortBy,
   sortDirection,
 }: Pick<
   UsePoolsParams,
-  'poolTypes' | 'skip' | 'addresses' | 'tokenAddress' | 'searchKey' | 'sortBy' | 'sortDirection'
+  'poolTypes' | 'skip' | 'addresses' | 'tokenAddress' | 'boostedOnly' | 'searchKey' | 'sortBy' | 'sortDirection'
 >) {
   const params = new URLSearchParams()
   if (poolTypes) {
@@ -27,6 +27,10 @@ function buildSearchParams({
 
   if (sortDirection) {
     params.set('sortDirection', sortDirection)
+  }
+
+  if (boostedOnly) {
+    params.set('boostedOnly', 'true')
   }
 
   if (searchKey) {
@@ -56,6 +60,7 @@ type UsePoolsParams = {
   skip?: number
   addresses?: string[]
   tokenAddress?: string
+  boostedOnly?: boolean
   searchKey?: string
   sortBy?: PoolsSortBy
   sortDirection?: SortDirection
@@ -64,10 +69,19 @@ type UsePoolsOptions = {
   paused?: boolean
 }
 export default function usePools(
-  { poolTypes = ['v3'], skip, addresses, tokenAddress, searchKey, sortBy, sortDirection }: UsePoolsParams,
+  { poolTypes = ['v3'], skip, addresses, tokenAddress, boostedOnly, searchKey, sortBy, sortDirection }: UsePoolsParams,
   { paused = false }: UsePoolsOptions = {},
 ) {
-  const params = buildSearchParams({ poolTypes, skip, addresses, tokenAddress, searchKey, sortBy, sortDirection })
+  const params = buildSearchParams({
+    poolTypes,
+    skip,
+    addresses,
+    tokenAddress,
+    boostedOnly,
+    searchKey,
+    sortBy,
+    sortDirection,
+  })
 
   const { data, error } = useSWR(paused || !poolTypes ? null : ['dashboard/pools', params], async () => {
     const res = await fetch(`/api/pools?${params}`)
@@ -76,12 +90,9 @@ export default function usePools(
     return parsed
   })
 
-  return useMemo(
-    () => ({
-      poolsData: data?.pools,
-      totalPage: data?.totalPage,
-      poolsDataloading: !data && !error,
-    }),
-    [data, error],
-  )
+  return {
+    poolsData: data?.pools,
+    totalPage: data?.totalPage,
+    poolsDataloading: !data && !error,
+  }
 }

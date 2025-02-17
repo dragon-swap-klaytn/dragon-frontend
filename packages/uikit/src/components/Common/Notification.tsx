@@ -20,7 +20,7 @@ export function Notification({
   return (
     <div
       className={clsx(
-        "p-3 flex items-start space-x-3 rounded-xl",
+        "p-3 flex items-center space-x-3 rounded-xl",
         className,
         {
           highlight: {

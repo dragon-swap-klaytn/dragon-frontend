@@ -21,8 +21,18 @@ function buildSearchParams({
   return params.toString()
 }
 
-type UsePortfolioParams = { account?: Address; poolTypes?: PoolType[]; onlyPoolIds?: Address[]; skip?: boolean }
-type UsePortfolioOptions = { paused?: boolean }
+export type Portfolio = {
+  [poolId: Address]: PortfolioV3DataBigInt | PortfolioV2Data
+}
+
+type UsePortfolioParams = {
+  account?: Address
+  poolTypes?: PoolType[]
+  onlyPoolIds?: Address[]
+}
+type UsePortfolioOptions = {
+  paused?: boolean
+}
 
 export type PortfolioPositionBigInt = Omit<PortfolioPosition, 'liquidity' | 'sqrtPriceX96'> & {
   liquidity: bigint
@@ -64,7 +74,7 @@ export default function usePortfolio(
             ...acc,
             [portfolioData.poolId]: portfolioData,
           }),
-          {} as { [poolId: Address]: PortfolioV3DataBigInt | PortfolioV2Data },
+          {} as Portfolio,
         )
     },
     {
