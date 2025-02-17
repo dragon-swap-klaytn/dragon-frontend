@@ -418,7 +418,7 @@ export type TvlMap = {
 }
 
 export type CommonPrice = {
-  [address: string]: string
+  [address: string]: string | number
 }
 
 export const fetchCommonTokenUSDValue = async (priceHelper?: PriceHelper): Promise<CommonPrice> => {

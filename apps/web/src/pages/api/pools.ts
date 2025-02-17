@@ -1,13 +1,23 @@
+import { ChainId } from '@pancakeswap/chains'
+import { createFarmFetcherV3 } from '@pancakeswap/farms'
+import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { NextApiHandler } from 'next'
 
 import { getCachedPoolsData } from 'pools/get-cached-pools-data'
 import { parseV2Pool, parseV3Pool } from 'pools/parse-pool'
+import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 import { Simplify } from 'type-fest'
+import { calculateAPR } from 'utils/calculate-interests'
+import { getViemClients } from 'utils/viem.server'
 import { z } from 'zod'
 
 export type PoolV2Parsed = Simplify<ReturnType<typeof parseV2Pool>>
-export type PoolV3Parsed = Simplify<ReturnType<typeof parseV3Pool>>
+export type PoolV3Parsed = Simplify<
+  ReturnType<typeof parseV3Pool> & {
+    rewardApr: number
+  }
+>
 export type PoolParsed = PoolV2Parsed | PoolV3Parsed
 
 const poolsSchema = z.object({
@@ -57,14 +67,38 @@ function filteredBySearchKey(pool: PoolParsed, searchKey?: string) {
   )
 }
 
+const farmsV3 = farmsV3ConfigChainMap[ChainId.KLAYTN]
+const farmFetcherV3 = createFarmFetcherV3(getViemClients)
+
 const handler: NextApiHandler = async (req, res) => {
   const { types, onlyPoolIds, tokenAddress, searchKey, sortBy, sortDirection, skip, limit } =
     await poolsSchema.parseAsync(req.query)
 
-  const { v2Pools, v3Pools } = await getCachedPoolsData()
+  const [{ v2Pools, v3Pools }, prices] = await Promise.all([getCachedPoolsData(), getCachedTokenPrices()])
+
+  const {
+    farmsWithPrice,
+    cakePerSecond,
+    totalAllocPoint: _,
+  } = await farmFetcherV3.fetchFarms({
+    chainId: ChainId.KLAYTN,
+    farms: farmsV3,
+    commonPrice: prices,
+  })
+
+  const lpAddressToPoolWeights = Object.fromEntries(
+    farmsWithPrice.map((farm) => [farm.lpAddress.toLowerCase(), +farm.poolWeight]),
+  )
 
   const v2PoolsParsed = v2Pools.map(parseV2Pool)
-  const v3PoolsParsed = v3Pools.map(parseV3Pool)
+  const v3PoolsParsed = v3Pools.map((pool) => ({
+    ...parseV3Pool(pool),
+    rewardApr: calculateAPR({
+      interest: lpAddressToPoolWeights[pool.id] * +cakePerSecond * prices.KAIA,
+      principal: pool.tvlUSD.current,
+      duration: 1_000,
+    }),
+  }))
 
   const filteredV2Pools = filteredByTokenAddress(v2PoolsParsed, tokenAddress).filter((pool) =>
     filteredBySearchKey(pool, searchKey),
