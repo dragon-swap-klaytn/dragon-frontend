@@ -33,7 +33,6 @@ const PoolsPage = () => {
   const [boostedOnly, setBoostedOnly] = useState(false)
   const [searchKey, setSearchKey] = useState('')
   const [myPositionOnly, setMyPositionOnly] = useState(false)
-  // const [poolTypes, setPoolTypes] = useState<PoolType[]>(['v3', 'v2'])
   const [poolTypeOptions, setPoolTypeOptions] = useState(poolTypeSelectorOptions)
 
   const debouncedParams = useDebounce(
@@ -190,7 +189,7 @@ const PoolsPage = () => {
           />
         </div>
         <div className="mt-5">
-          <PoolTable {...debouncedParams} />
+          <PoolTable {...debouncedParams} portfolio={portfolio} />
         </div>
       </div>
     </Page>

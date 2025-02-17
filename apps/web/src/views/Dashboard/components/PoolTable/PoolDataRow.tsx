@@ -2,15 +2,14 @@ import { Transition } from '@headlessui/react'
 import { CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
-import { PoolParsed } from 'pages/api/pools'
+import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import getPercentage from 'utils/getPercentage'
-import PositionCard from 'views/Dashboard/components/PoolTable/PositionCard'
+import PositionCardList from 'views/Dashboard/components/PoolTable/PositionCard'
 import { feeTierPercent } from 'views/Dashboard/utils'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
-import { V3Farm } from 'views/Farms/FarmsV3'
 
 export const PoolDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) => {
   return (
@@ -49,12 +48,10 @@ export const PoolDataRow = ({
   poolData,
   userData,
   isLastIndex,
-  farm,
 }: {
   poolData: PoolParsed
   userData?: PortfolioV3DataBigInt | PortfolioV2Data
   isLastIndex: boolean
-  farm?: V3Farm
 }) => {
   const [showUserData, setShowUserData] = useState(false)
   const poolSymbol = useMemo(
@@ -91,7 +88,7 @@ export const PoolDataRow = ({
               )}
 
               {/* TODO: remove zzz @kay */}
-              {userData && 'positions' in userData && userData.positions.length > 0 ? <>zzz</> : <></>}
+              {userData ? <>zzz</> : <></>}
             </div>
           </div>
         </td>
@@ -112,7 +109,7 @@ export const PoolDataRow = ({
         </td>
       </tr>
 
-      {farm && userData && 'positions' in userData && userData.positions.length > 0 ? (
+      {userData ? (
         <Transition
           as="tr"
           show={showUserData}
@@ -133,13 +130,11 @@ export const PoolDataRow = ({
                 </ExternalLink>
               </div>
 
-              <div className="col-span-5 flex flex-col items-center space-y-3">
-                {userData.positions.map((position) => (
-                  <div key={`${poolData.id}:position:${position.positionId}`} className="w-full">
-                    <PositionCard poolSymbol={poolSymbol} position={position} farm={farm} />
-                  </div>
-                ))}
-              </div>
+              <PositionCardList
+                userData={userData}
+                className="col-span-5"
+                poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
+              />
             </div>
           </td>
         </Transition>

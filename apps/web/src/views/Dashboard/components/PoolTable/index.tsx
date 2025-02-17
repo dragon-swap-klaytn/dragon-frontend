@@ -1,25 +1,16 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
-import { BIG_ONE, BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import BigNumber from 'bignumber.js'
 import clsx from 'clsx'
 import { Portfolio } from 'hooks/use-portfolio'
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useCakePrice } from 'hooks/useCakePrice'
-import { useRouter } from 'next/router'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFarms } from 'state/farms/hooks'
-import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import { PoolType } from 'types'
-import { getFarmApr } from 'utils/apr'
 import { Address } from 'viem'
 import Pagination from 'views/Dashboard/components/Pagination'
 import { PoolDataRow, PoolDataRowSkeleton } from 'views/Dashboard/components/PoolTable/PoolDataRow'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import usePools, { PoolsSortBy } from 'views/Dashboard/hooks/usePools'
 import { SortDirection } from 'views/Dashboard/types'
-import { V2FarmWithoutStakedValue, V2StakeValueAndV3Farm, V3Farm, V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
 
 const HEADER_IDS = ['pool', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
 type HeaderId = (typeof HEADER_IDS)[number]
@@ -45,8 +36,6 @@ const smHeaders: Partial<HeaderId>[] = [...bSmeaders, 'apy24H']
 const mdHeaders: Partial<HeaderId>[] = [...smHeaders, 'apy7D', 'volume7D']
 
 const SHOW_POOL_COUNT = 10
-
-type V2AndV3Farms = Array<V3FarmWithoutStakedValue | V2FarmWithoutStakedValue>
 
 export default function PoolTable({
   poolTypes,
@@ -130,84 +119,6 @@ export default function PoolTable({
     [isSm, isBelowSm, isMd],
   )
 
-  const { pathname, query: urlQuery } = useRouter()
-
-  // TODO: @daniel remove farms related codes
-  const mockApr = Boolean(urlQuery.mockApr)
-  const { chainId } = useActiveChainId()
-  const { data: farmsV2, poolLength: v2PoolLength, regularCakePerBlock } = useFarms()
-  const { farmsWithPositions: farmsV3, poolLength: v3PoolLength } = useFarmsV3WithPositionsAndBooster(
-    { mockApr },
-    false,
-  )
-
-  // TODO: @daniel remove farms related codes
-  // FIXME: temporary sort sable v2 farm in front of v3 farms
-  const farmsLP: V2AndV3Farms = useMemo(() => {
-    const farms: V2AndV3Farms = [
-      ...farmsV3.map((f) => ({ ...f, version: 3 } as V3FarmWithoutStakedValue)),
-      ...farmsV2.map((f) => ({ ...f, version: 2 } as V2FarmWithoutStakedValue)),
-    ]
-    return farms
-  }, [farmsV2, farmsV3])
-
-  const cakePrice = useCakePrice()
-
-  const isArchived = pathname.includes('archived')
-  const isInactive = pathname.includes('history')
-  const isActive = !isInactive && !isArchived
-
-  const activeFarms = farmsLP.filter(
-    (farm) =>
-      farm.pid !== 0 &&
-      // (isFinished ? farm.multiplier === '0X' : farm.multiplier !== '0X') &&
-      (farm.version === 3 ? !v3PoolLength || v3PoolLength >= farm.pid : !v2PoolLength || v2PoolLength > farm.pid),
-  )
-
-  const farmsList = useCallback(
-    (farmsToDisplay: V2AndV3Farms): V2StakeValueAndV3Farm[] => {
-      const farmsToDisplayWithAPR: any = farmsToDisplay.map((farm) => {
-        if (farm.version === 3) {
-          return farm
-        }
-
-        if (!farm.quoteTokenAmountTotal || !farm.quoteTokenPriceBusd) {
-          return farm
-        }
-        const totalLiquidityFromLp = new BigNumber(farm?.lpTotalInQuoteToken ?? 0).times(farm.quoteTokenPriceBusd)
-        // Mock 1$ tvl if the farm doesn't have lp staked
-        const totalLiquidity = totalLiquidityFromLp.eq(BIG_ZERO) && mockApr ? BIG_ONE : totalLiquidityFromLp
-        const { cakeRewardsApr, lpRewardsApr } =
-          isActive && chainId
-            ? getFarmApr(
-                chainId,
-                new BigNumber(farm?.poolWeight ?? 0),
-                cakePrice,
-                totalLiquidity,
-                farm.lpAddress,
-                regularCakePerBlock,
-              )
-            : { cakeRewardsApr: 0, lpRewardsApr: 0 }
-
-        return { ...farm, apr: cakeRewardsApr, lpRewardsApr, liquidity: totalLiquidity }
-      })
-
-      return farmsToDisplayWithAPR
-    },
-    [mockApr, chainId, cakePrice, isActive, regularCakePerBlock],
-  )
-
-  const chosenFarms = useMemo(() => {
-    let chosenFs: V2StakeValueAndV3Farm[] = []
-    chosenFs = farmsList(activeFarms)
-
-    chosenFs = chosenFs.filter(
-      (farm) => farm.lpAddress.toLowerCase() !== '0xb39A385dba6aB12B09391F9a30ea927EAa4754Ef'.toLowerCase(),
-    )
-
-    return chosenFs
-  }, [farmsList, activeFarms])
-
   return (
     <div className="w-full">
       <table className="w-full rounded-xl overflow-hidden">
@@ -260,8 +171,6 @@ export default function PoolTable({
             poolsData.map((poolData, index) => (
               <PoolDataRow
                 key={`poolTable:${poolData.id}`}
-                // TODO: @daniel change farm prop to positions[]
-                farm={chosenFarms.find((farm) => farm.lpAddress.toLowerCase() === poolData.id.toLowerCase()) as V3Farm}
                 userData={portfolio?.[poolData.id]}
                 poolData={poolData}
                 isLastIndex={index === poolsData.length - 1}

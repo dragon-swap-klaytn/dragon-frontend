@@ -27,6 +27,7 @@ export type PortfolioPosition = {
   positionId: number
   token0: PortfolioTokenV3Data
   token1: PortfolioTokenV3Data
+  feeTier: number
   isStaked: boolean
   isOutOfBounds: boolean
   rewards?: PortfolioTokenBaseData[]
@@ -129,7 +130,7 @@ const handler: NextApiHandler = async (req, res) => {
     }
 
     if (poolType === 'v3') {
-      const { positionId, rewards, outOfBounds, fees, liquidity, lower, upper, sqrtPriceX96 } =
+      const { positionId, rewards, outOfBounds, fees, liquidity, lower, upper, sqrtPriceX96, fee } =
         staking as FetchedPortfolioV3Data
 
       const prevPositions = (acc[poolId] as PortfolioV3Data)?.positions ?? []
@@ -138,12 +139,12 @@ const handler: NextApiHandler = async (req, res) => {
         token0: {
           address: overrideKaia(tokens[0].address) as Address,
           amount: tokens[0].amount,
-          feeAmount: fees?.find((fee) => fee.address === tokens[0].address)?.amount ?? 0,
+          feeAmount: fees?.find((_fee) => _fee.address === tokens[0].address)?.amount ?? 0,
         },
         token1: {
           address: overrideKaia(tokens[1].address) as Address,
           amount: tokens[1].amount,
-          feeAmount: fees?.find((fee) => fee.address === tokens[1].address)?.amount ?? 0,
+          feeAmount: fees?.find((_fee) => _fee.address === tokens[1].address)?.amount ?? 0,
         },
         ...(rewards
           ? {
@@ -153,6 +154,7 @@ const handler: NextApiHandler = async (req, res) => {
               })),
             }
           : {}),
+        feeTier: fee,
         isStaked: type === 'farm',
         isOutOfBounds: outOfBounds,
         liquidity,

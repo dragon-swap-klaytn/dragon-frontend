@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import { Address } from 'viem'
 
 const sourceUrls = {
@@ -11,8 +11,12 @@ export default function useTokenPrices({
 }: {
   source?: 'default' | 'swapscanner'
 } = {}) {
-  const { data, error, mutate } = useSWR<Record<Address, number>>(sourceUrls[source], (key) =>
-    fetch(key).then((res) => res.json()),
+  const { data, error, mutate } = useSWRImmutable<Record<Address, number>>(
+    sourceUrls[source],
+    (key) => fetch(key).then((res) => res.json()),
+    {
+      refreshInterval: 1000 * 30,
+    },
   )
 
   return {

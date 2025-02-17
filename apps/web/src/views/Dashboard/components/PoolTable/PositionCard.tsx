@@ -1,45 +1,87 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { ERC20Token } from '@pancakeswap/sdk'
 import { TagV2 } from '@pancakeswap/uikit'
+
 import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { useCurrency } from 'hooks/Tokens'
-import { PortfolioPositionBigInt } from 'hooks/use-portfolio'
+import { PortfolioPositionBigInt, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
+import useTokenPrices from 'hooks/use-token-prices'
 import { useDerivedPositionInfoV2 } from 'hooks/v3/useDerivedPositionInfoV2'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
+import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
-import { toChecksumToken } from 'utils/toChecksumToken'
-import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
-import { V3Farm } from 'views/Farms/FarmsV3'
-import { FarmV3ApyButton } from 'views/PoolsV2/components/FarmCard/V3/FarmV3ApyButton'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 
-export default function PositionCard({
-  farm,
-  poolSymbol,
-  position,
+export default function PositionCardList({
+  className,
+  userData,
+  poolFeeTier,
 }: {
-  farm: V3Farm
-  poolSymbol: string
-  position: PortfolioPositionBigInt
+  className?: string
+  userData: PortfolioV3DataBigInt | PortfolioV2Data
+  poolFeeTier: number
 }) {
+  return (
+    <div className={clsx('flex flex-col items-center space-y-3', className)}>
+      {userData.type === 'v3' ? (
+        (userData as PortfolioV3DataBigInt).positions.map((position) => (
+          <PositionCard
+            key={`${userData.poolId}:position:${position.positionId}`}
+            position={position}
+            poolFeeTier={poolFeeTier}
+          />
+        ))
+      ) : (
+        <></>
+      )}
+    </div>
+  )
+}
+
+export function PositionCard({ position, poolFeeTier }: { position: PortfolioPositionBigInt; poolFeeTier: number }) {
+  const { prices } = useTokenPrices()
+  // use swapscanner price as fallback
+  const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
+
   const {
     t,
     currentLanguage: { locale },
   } = useTranslation()
-  const token0FeeUSD = useMemo(() => {
-    const currencyAUsdPrice = +farm.tokenPriceBusd
-    return position.token0.feeAmount * currencyAUsdPrice
-  }, [farm.tokenPriceBusd, position.token0.feeAmount])
 
-  const token1FeeUSD = useMemo(() => {
-    const currencyBUsdPrice = +farm.quoteTokenPriceBusd
-    return position.token1.feeAmount * currencyBUsdPrice
-  }, [farm.quoteTokenPriceBusd, position.token1.feeAmount])
+  const token0USD = useMemo(() => {
+    const price0 = prices?.[position.token0.address] ?? ssPrices?.[position.token0.address] ?? 0
 
-  const { position: _position } = useDerivedPositionInfoV2(position, farm.feeAmount)
+    return {
+      deposited: position.token0.amount * price0,
+      fee: position.token0.feeAmount * price0,
+    }
+  }, [position.token0.address, position.token0.feeAmount, prices, ssPrices, position.token0.amount])
+
+  const token1USD = useMemo(() => {
+    const price1 = prices?.[position.token1.address] ?? ssPrices?.[position.token1.address] ?? 0
+
+    return {
+      deposited: position.token1.amount * price1,
+      fee: position.token1.feeAmount * price1,
+    }
+  }, [position.token1.address, position.token1.feeAmount, prices, ssPrices, position.token1.amount])
+
+  const rewardsUSD = useMemo(() => {
+    if (!position.rewards) return 0
+
+    return position.rewards.reduce((acc, reward) => {
+      const price = prices?.[reward.address] ?? ssPrices?.[reward.address] ?? 0
+
+      return acc + reward.amount * price
+    }, 0)
+  }, [position.rewards, prices, ssPrices])
+
+  const { position: _position } = useDerivedPositionInfoV2(position, poolFeeTier)
   const { tickLower, tickUpper } = _position ?? {}
-  const tickAtLimit = useIsTickAtLimit(farm.feeAmount, tickLower, tickUpper)
+  const tickAtLimit = useIsTickAtLimit(poolFeeTier, tickLower, tickUpper)
   const [inverted, setInverted] = useState(false)
 
   const token0 = useCurrency(position.token0.address) as ERC20Token
@@ -49,27 +91,15 @@ export default function PositionCard({
     if (!_position) return null
     if (!token0 || !token1) return null
 
-    return farm.token.equals(toChecksumToken(token0))
-      ? inverted
-        ? _position.token0PriceLower
-        : _position.token0PriceUpper.invert()
-      : inverted
-      ? _position.token0PriceUpper.invert()
-      : _position.token0PriceLower
-  }, [inverted, token0, token1, farm.token, _position])
+    return inverted ? _position.token0PriceLower : _position.token0PriceUpper.invert()
+  }, [inverted, token0, token1, _position])
 
   const priceUpper = useMemo(() => {
     if (!_position) return null
     if (!token0 || !token1) return null
 
-    return farm.token.equals(toChecksumToken(token1))
-      ? inverted
-        ? _position.token0PriceLower.invert()
-        : _position.token0PriceUpper
-      : inverted
-      ? _position.token0PriceUpper
-      : _position.token0PriceLower.invert()
-  }, [_position, inverted, farm.token, token0, token1])
+    return inverted ? _position.token0PriceUpper : _position.token0PriceLower.invert()
+  }, [_position, inverted, token0, token1])
 
   if (!position) return null
 
@@ -77,7 +107,7 @@ export default function PositionCard({
     <div className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full">
       <div className="flex flex-col items-start space-y-2">
         <div className="flex items-center space-x-2">
-          <h5 className="text-on-surface">{poolSymbol}</h5>
+          <h5 className="text-on-surface">{`${token0.symbol}/${token1.symbol}`}</h5>
           <span className="text-[13px] text-on-surface-subtlest">#{position.positionId}</span>
         </div>
 
@@ -88,42 +118,50 @@ export default function PositionCard({
 
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex flex-col items-start w-[100px]">
-          <span className="text-sm text-on-surface">{position.token0.amount.toFixed(6)}</span>
+          <span className="text-sm text-on-surface">
+            {formatDollarAmountV2({
+              num: token0USD.deposited + token1USD.deposited,
+              withDollarSign: true,
+            })}
+          </span>
           <span className="text-xs text-on-surface-subtle">{t('Position')}</span>
         </div>
         <div className="flex flex-col items-start w-[100px]">
-          <span className="text-sm text-on-surface">{formatDollarAmount(token0FeeUSD + token1FeeUSD)}</span>
+          <span className="text-sm text-on-surface">
+            {formatDollarAmountV2({
+              num: token0USD.fee + token1USD.fee,
+              withDollarSign: true,
+            })}
+          </span>
           <span className="text-xs text-on-surface-subtle">{t('Fees')}</span>
         </div>
         <div className="flex flex-col items-start w-[100px]">
-          <FarmV3ApyButton farm={farm} position={position} isPositionStaked={position.isStaked} />
+          {/* <FarmV3ApyButton farm={farm} position={position} isPositionStaked={position.isStaked} /> */}
 
           <span className="text-xs text-on-surface-subtle">{t('APY')}</span>
         </div>
 
         {!!(priceLower && priceUpper) && (
-          <div className="flex flex-col items-start">
-            <div className="flex items-center space-x-1">
-              <span className="text-on-surface text-xs">
-                {!inverted
-                  ? `${farm.token0.symbol}/${farm.token1.symbol}`
-                  : `${farm.token1.symbol}/${farm.token0.symbol}`}
-              </span>
-
-              <button
-                type="button"
-                className="hover:opacity-70 text-on-surface-subtle"
-                onClick={() => setInverted(!inverted)}
-              >
-                <ArrowsLeftRight />
-              </button>
-            </div>
-
-            <div className="text-xs text-on-surface-subtle flex flex-wrap items-center gap-1 mt-2">
+          <div className="flex flex-col items-start w-[220px]">
+            <div className="text-xs text-on-surface-subtle flex flex-wrap items-center gap-1 mt-1">
               <span className="inline-block w-7">Min:</span>
               <span className="text-[13px] text-on-surface">
                 {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
               </span>
+
+              <div className="flex items-center space-x-1">
+                <span className="text-on-surface text-xs">
+                  {!inverted ? `${token0.symbol}/${token1.symbol}` : `${token1.symbol}/${token0.symbol}`}
+                </span>
+
+                <button
+                  type="button"
+                  className="hover:opacity-70 text-on-surface-subtle"
+                  onClick={() => setInverted(!inverted)}
+                >
+                  <ArrowsLeftRight />
+                </button>
+              </div>
             </div>
 
             <div className="text-xs text-on-surface-subtle flex flex-wrap items-center gap-1">
@@ -131,9 +169,26 @@ export default function PositionCard({
               <span className="text-[13px] text-on-surface">
                 {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
               </span>
+
+              <div className="flex items-center space-x-1">
+                <span className="text-on-surface text-xs">
+                  {!inverted ? `${token0.symbol}/${token1.symbol}` : `${token1.symbol}/${token0.symbol}`}
+                </span>
+              </div>
             </div>
           </div>
         )}
+
+        <div className="flex flex-col items-start w-[100px]">
+          <span className="text-sm text-on-surface-brand">
+            {formatDollarAmountV2({
+              num: rewardsUSD,
+              withDollarSign: true,
+            })}
+          </span>
+
+          <span className="text-xs text-on-surface-subtle">{t('Rewards')}</span>
+        </div>
       </div>
     </div>
   )
