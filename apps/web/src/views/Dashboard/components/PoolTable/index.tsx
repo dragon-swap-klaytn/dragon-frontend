@@ -84,7 +84,7 @@ export default function PoolTable({
   }, [poolsData])
 
   useEffect(() => {
-    setTotalPage(totalPage ?? 1)
+    if (totalPage) setTotalPage(totalPage)
   }, [totalPage])
 
   const paramsString = [
