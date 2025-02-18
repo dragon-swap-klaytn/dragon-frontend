@@ -61,7 +61,7 @@ export const PoolDataRowSkeleton = ({
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {openable && (
-        <td className="text-on-surface px-4 py-6 text-left">
+        <td className="text-on-surface pr-4 py-6 text-left">
           <CaretRight size={16} />
         </td>
       )}
@@ -154,7 +154,7 @@ export const PoolDataRow = ({
               {isBoosted && (
                 <div className="hidden xs:block">
                   <TagV2 className="min-w-8" color="orange">
-                    <span className="mr-1 hidden sm:block">Boost</span>
+                    <span className="mr-1 hidden md:block">Boost</span>
                     <span>🔥</span>
                   </TagV2>
                 </div>

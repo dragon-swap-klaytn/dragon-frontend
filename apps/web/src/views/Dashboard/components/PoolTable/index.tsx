@@ -137,15 +137,15 @@ export default function PoolTable({
           {/* Pool */}
           <col width="*" />
           {/* apy24H */}
-          <col width={isBelowMd ? '90px' : '140px'} />
+          <col width={isBelowMd ? '88px' : '124px'} />
           {/* apy7D */}
-          <col width="140px" className="hidden lg:table-column" />
+          <col width="124px" className="hidden lg:table-column" />
           {/* TVL */}
-          <col width="70px" className="hidden sm:table-column" />
+          <col width="80px" className="hidden sm:table-column" />
           {/* volume24H */}
-          <col width="70px" className="hidden s:table-column" />
+          <col width="80px" className="hidden s:table-column" />
           {/* volume7D */}
-          <col width="70px" className="hidden lg:table-column" />
+          <col width="80px" className="hidden lg:table-column" />
           {/* open details */}
           {openable && <col width="30px" />}
         </colgroup>
