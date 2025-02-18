@@ -103,6 +103,7 @@ export const PoolDataRow = ({
   )
 
   const isBoosted = !!(poolData as PoolV3Parsed).rewardApr && (poolData as PoolV3Parsed).rewardApr > 0
+  const isMyPool = !!portfolioData
 
   return (
     <>
@@ -126,6 +127,7 @@ export const PoolDataRow = ({
                 addressA={poolData.token0.id}
                 addressB={poolData.token1.id}
                 symbol={poolSymbol}
+                symbolClassName={isMyPool ? 'text-blue-500 text-sm font-bold' : undefined}
                 spaceX="gap-2"
                 flex="flex items-start gap-2"
               />
@@ -152,9 +154,6 @@ export const PoolDataRow = ({
                   </TagV2>
                 </div>
               )}
-
-              {/* TODO: remove zzz @kay */}
-              {portfolioData ? <>zzz</> : <></>}
             </div>
           </div>
         </td>
@@ -175,7 +174,7 @@ export const PoolDataRow = ({
         </td>
         {openable && (
           <td className="text-on-surface pr-4 py-6 text-left">
-            <CaretRight size={16} className={clsx({ 'rotate-90': showPortfolioData })} />
+            <CaretRight size={16} className={clsx({ 'rotate-90': showPortfolioData, 'text-blue-500': isMyPool })} />
           </td>
         )}
       </tr>
