@@ -52,6 +52,7 @@ export default function PositionCardList({
             token1={poolData.token1}
             position={position}
             poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
+            isBoosted={!!(poolData as PoolV3Parsed).rewardApr && (poolData as PoolV3Parsed).rewardApr > 0}
             priceMap={priceMap}
           />
         ))
@@ -98,12 +99,14 @@ function V3PositionCard({
   token1,
   position,
   poolFeeTier,
+  isBoosted,
   priceMap,
 }: {
   token0: TokenSimple
   token1: TokenSimple
   position: PortfolioPositionBigInt
   poolFeeTier: number
+  isBoosted: boolean
   priceMap: Record<string, number>
 }) {
   const {
@@ -144,11 +147,16 @@ function V3PositionCard({
   }, [inverted, _position])
 
   return (
-    <div className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full">
-      <div className="flex flex-col items-start space-y-2">
-        <div className="flex items-center space-x-2">
-          <h5 className="text-on-surface">{`${token0.symbol}/${token1.symbol}`}</h5>
-          <span className="text-[13px] text-gray-500">#{position.positionId}</span>
+    <div className="p-5 rounded-xl space-y-5 bg-neutral-dark w-full">
+      <div className="w-full space-y-2">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <h5 className="text-on-surface">{`${token0.symbol}/${token1.symbol}`}</h5>
+            <span className="text-[13px] text-gray-500">#{position.positionId}</span>
+          </div>
+          <TagV2 className={clsx('min-w-8', { hidden: !isBoosted || position.isOutOfBounds })} color="orange">
+            Boost 🔥
+          </TagV2>
         </div>
 
         <TagV2 className="min-w-8" color={position.isOutOfBounds ? 'red' : 'green'}>

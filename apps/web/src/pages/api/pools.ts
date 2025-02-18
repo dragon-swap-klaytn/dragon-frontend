@@ -91,14 +91,18 @@ const handler: NextApiHandler = async (req, res) => {
   )
 
   const v2PoolsParsed = v2Pools.map(parseV2Pool)
-  const v3PoolsParsed = v3Pools.map((pool) => ({
-    ...parseV3Pool(pool),
-    rewardApr: calculateAPR({
+  const v3PoolsParsed = v3Pools.map((pool) => {
+    const rewardApr = calculateAPR({
       interest: lpAddressToPoolWeights[pool.id] * +cakePerSecond * prices.KAIA,
       principal: pool.tvlUSD.current,
       duration: 1_000,
-    }),
-  }))
+    })
+
+    return {
+      ...parseV3Pool(pool),
+      rewardApr: Number.isFinite(rewardApr) ? rewardApr : 0,
+    }
+  })
 
   const filteredV2Pools = filteredByTokenAddress(v2PoolsParsed, tokenAddress).filter((pool) =>
     filteredBySearchKey(pool, searchKey),

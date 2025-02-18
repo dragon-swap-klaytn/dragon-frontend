@@ -2,7 +2,7 @@ import { Transition } from '@headlessui/react'
 import { CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakeswap/uikit'
 import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import { PortfolioData } from 'hooks/use-portfolio'
+import { PortfolioData, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { useMemo, useState } from 'react'
@@ -103,6 +103,9 @@ export const PoolDataRow = ({
   )
 
   const isBoosted = !!(poolData as PoolV3Parsed).rewardApr && (poolData as PoolV3Parsed).rewardApr > 0
+  const containsOutOfBounds =
+    (portfolioData as PortfolioV3DataBigInt)?.positions &&
+    (portfolioData as PortfolioV3DataBigInt).positions.some((p) => p.isOutOfBounds)
   const isMyPool = !!portfolioData
 
   return (
@@ -127,7 +130,9 @@ export const PoolDataRow = ({
                 addressA={poolData.token0.id}
                 addressB={poolData.token1.id}
                 symbol={poolSymbol}
-                symbolClassName={isMyPool ? 'text-blue-500 text-sm font-bold' : undefined}
+                symbolClassName={
+                  containsOutOfBounds ? 'text-red-500 font-bold' : isMyPool ? 'text-blue-500 font-bold' : undefined
+                }
                 spaceX="gap-2"
                 flex="flex items-start gap-2"
               />
@@ -158,10 +163,18 @@ export const PoolDataRow = ({
           </div>
         </td>
         <td className="text-on-surface px-4 py-6 text-left">
-          <APRWithBoost lpApr={poolData.apy['24H']} rewardApr={(poolData as any).rewardApr} isBoosted={isBoosted} />
+          <APRWithBoost
+            lpApr={poolData.apy['24H']}
+            rewardApr={(poolData as PoolV3Parsed).rewardApr}
+            isBoosted={isBoosted}
+          />
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
-          <APRWithBoost lpApr={poolData.apy['7D']} rewardApr={(poolData as any).rewardApr} isBoosted={isBoosted} />
+          <APRWithBoost
+            lpApr={poolData.apy['7D']}
+            rewardApr={(poolData as PoolV3Parsed).rewardApr}
+            isBoosted={isBoosted}
+          />
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
           <span>{formatDollarAmount(poolData.tvlUSD.current)}</span>
@@ -174,7 +187,14 @@ export const PoolDataRow = ({
         </td>
         {openable && (
           <td className="text-on-surface pr-4 py-6 text-left">
-            <CaretRight size={16} className={clsx({ 'rotate-90': showPortfolioData, 'text-blue-500': isMyPool })} />
+            <CaretRight
+              size={16}
+              className={clsx({
+                'rotate-90': showPortfolioData,
+                'text-blue-500': isMyPool,
+                '!text-red-500': containsOutOfBounds,
+              })}
+            />
           </td>
         )}
       </tr>
