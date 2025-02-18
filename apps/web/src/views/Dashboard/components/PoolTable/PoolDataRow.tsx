@@ -1,5 +1,6 @@
 import { Transition } from '@headlessui/react'
 import { CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakeswap/uikit'
+import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import NextLink from 'next/link'
@@ -49,10 +50,12 @@ export const PoolDataRow = ({
   poolData,
   userData,
   isLastIndex,
+  hide7Dcolumn,
 }: {
   poolData: PoolParsed
   userData?: PortfolioV3DataBigInt | PortfolioV2Data
   isLastIndex: boolean
+  hide7Dcolumn?: boolean
 }) => {
   const [showUserData, setShowUserData] = useState(false)
   const poolSymbol = useMemo(
@@ -63,7 +66,7 @@ export const PoolDataRow = ({
   return (
     <>
       <tr
-        className={clsx('bg-surface-raised text-sm cursor-pointer hover:opacity-70', {
+        className={clsx('bg-surface-raised text-sm cursor-pointer', {
           'border-b border-border': !isLastIndex,
         })}
         onClick={() => setShowUserData(!showUserData)}
@@ -85,11 +88,11 @@ export const PoolDataRow = ({
             </NextLink>
 
             <div className="flex flex-wrap items-center gap-2">
-              <TagV2 className="min-w-8" color={poolData.type === 'v3' ? 'orange' : 'green'}>
+              <TagV2 className="min-w-8" color="default">
                 {poolData.type.toUpperCase()}
               </TagV2>
               {'feeTier' in poolData && (
-                <TagV2 className="min-w-8" color="default">
+                <TagV2 className="min-w-8" color="green">
                   {feeTierPercent(poolData.feeTier)}
                 </TagV2>
               )}
@@ -105,14 +108,25 @@ export const PoolDataRow = ({
         <td className="text-on-surface px-4 py-6 text-left">
           <span>{formatDollarAmount(poolData.volumeUSD['24H'])}</span>
         </td>
-        <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+        <td
+          className={clsx('text-on-surface px-4 py-6 text-left hidden', {
+            'md:table-cell': !hide7Dcolumn,
+          })}
+        >
           {formatDollarAmount(poolData.volumeUSD['7D'])}
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
           {getPercentage(poolData.apy['24H'] + ((poolData as any).rewardApr ?? 0))}
         </td>
-        <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+        <td
+          className={clsx('text-on-surface px-4 py-6 text-left hidden', {
+            'md:table-cell': !hide7Dcolumn,
+          })}
+        >
           {getPercentage(poolData.apy['7D'] + ((poolData as any).rewardApr ?? 0))}
+        </td>
+        <td className="text-on-surface px-2 py-6 text-left">
+          <CaretRight size={16} className={clsx({ 'rotate-90': showUserData })} />
         </td>
       </tr>
 

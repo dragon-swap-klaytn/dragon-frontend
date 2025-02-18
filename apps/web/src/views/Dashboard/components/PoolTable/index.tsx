@@ -44,6 +44,8 @@ export default function PoolTable({
   addresses,
   boostedOnly,
   portfolio,
+  initialSortBy = 'tvl',
+  hide7Dcolumn = false,
 }: {
   poolTypes?: PoolType[]
   searchKey?: string
@@ -51,11 +53,13 @@ export default function PoolTable({
   addresses?: Address[]
   boostedOnly?: boolean
   portfolio?: Portfolio
+  initialSortBy?: PoolsSortBy
+  hide7Dcolumn?: boolean
 }) {
   const { t } = useTranslation()
 
   // for sorting
-  const [sortBy, setSortBy] = useState<PoolsSortBy>('tvl')
+  const [sortBy, setSortBy] = useState<PoolsSortBy>(initialSortBy)
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   // pagination
@@ -115,8 +119,8 @@ export default function PoolTable({
     () =>
       HEADERS.filter(({ id }) =>
         isBelowSm ? bSmeaders.includes(id) : isSm ? smHeaders.includes(id) : isMd ? mdHeaders.includes(id) : true,
-      ),
-    [isSm, isBelowSm, isMd],
+      ).filter(({ id }) => (hide7Dcolumn ? id !== 'volume7D' && id !== 'apy7D' : true)),
+    [isSm, isBelowSm, isMd, hide7Dcolumn],
   )
 
   return (
@@ -129,6 +133,7 @@ export default function PoolTable({
           {!isMobile && <col width="110px" />}
           {!isBelowSm && <col width="100px" />}
           {!isMobile && <col width="100px" />}
+          {!isMobile && <col width="30px" />}
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
@@ -152,6 +157,7 @@ export default function PoolTable({
                 )}
               </th>
             ))}
+            <th className="py-3 px-2 sr-only">open details</th>
           </tr>
         </thead>
         <tbody>
@@ -174,6 +180,7 @@ export default function PoolTable({
                 userData={portfolio?.[poolData.id]}
                 poolData={poolData}
                 isLastIndex={index === poolsData.length - 1}
+                hide7Dcolumn={hide7Dcolumn}
               />
             ))
           ) : (
