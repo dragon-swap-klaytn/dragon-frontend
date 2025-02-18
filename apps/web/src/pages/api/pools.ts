@@ -126,7 +126,12 @@ const handler: NextApiHandler = async (req, res) => {
   }
 
   if (boostedOnly) {
-    pools = pools.filter((pool) => lpAddressToPoolWeights[pool.id] > 0)
+    pools = pools.filter(
+      (pool) =>
+        lpAddressToPoolWeights[pool.id] > 0 &&
+        (pool as PoolV3Parsed)?.rewardApr &&
+        (pool as PoolV3Parsed).rewardApr > 0,
+    )
   }
 
   const useDesc = sortDirection === 'desc' ? -1 : 1

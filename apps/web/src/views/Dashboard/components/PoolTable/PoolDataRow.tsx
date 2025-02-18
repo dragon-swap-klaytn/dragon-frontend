@@ -13,7 +13,13 @@ import PositionCardList from 'views/Dashboard/components/PoolTable/PositionCard'
 import { feeTierPercent } from 'views/Dashboard/utils'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
-export const PoolDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) => {
+export const PoolDataRowSkeleton = ({
+  isLastIndex,
+  hide7DColumn,
+}: {
+  isLastIndex?: boolean
+  hide7DColumn?: boolean
+}) => {
   return (
     <tr
       className={clsx('bg-surface-raised text-sm', {
@@ -22,24 +28,49 @@ export const PoolDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) =
     >
       <td className="text-on-surface px-4 s:px-6 py-6 text-left">
         <div className="flex flex-col s:flex-row items-start s:items-center gap-2 sm">
-          <div className="w-6 h-6 bg-surface rounded-full animate-pulse" />
-          <div className="w-6 h-6 bg-surface rounded-full animate-pulse" />
+          <CurrencyLogoWithSymbol
+            addressA="dummy"
+            addressB="dummy"
+            spaceX="gap-2"
+            flex="flex flex-col items-start gap-2 s:flex-row s:items-center"
+          />
+          <div className="w-20 h-6 bg-neutral rounded-full animate-pulse" />
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="w-8 h-6 bg-neutral rounded-full animate-pulse" />
+            <div className="w-8 h-6 bg-neutral rounded-full animate-pulse" />
+          </div>
         </div>
       </td>
+      {/* APY24H */}
+      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell space-x-2">
+        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
+      </td>
+      {/* APY7D */}
+      <td
+        className={clsx('text-on-surface px-4 py-6 text-left hidden', {
+          'md:table-cell': !hide7DColumn,
+        })}
+      >
+        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
+      </td>
+      {/* TVL */}
       <td className="text-on-surface px-4 py-6 text-left">
-        <div className="bg-surface rounded-full animate-pulse w-16 h-4" />
+        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
+      </td>
+      {/* Volume24H */}
+      <td className="text-on-surface px-4 py-6 text-left">
+        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
+      </td>
+      {/* Volume7D */}
+      <td
+        className={clsx('text-on-surface px-4 py-6 text-left hidden', {
+          'md:table-cell': !hide7DColumn,
+        })}
+      >
+        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       <td className="text-on-surface px-4 py-6 text-left">
-        <div className="bg-surface rounded-full animate-pulse w-16 h-4" />
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="bg-surface rounded-full animate-pulse w-16 h-4" />
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="bg-surface rounded-full animate-pulse w-16 h-4" />
-      </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="bg-surface rounded-full animate-pulse w-16 h-4" />
+        <CaretRight size={16} />
       </td>
     </tr>
   )
@@ -50,18 +81,20 @@ export const PoolDataRow = ({
   poolData,
   userData,
   isLastIndex,
-  hide7Dcolumn,
+  hide7DColumn,
 }: {
   poolData: PoolParsed
   userData?: PortfolioV3DataBigInt | PortfolioV2Data
   isLastIndex: boolean
-  hide7Dcolumn?: boolean
+  hide7DColumn?: boolean
 }) => {
   const [showUserData, setShowUserData] = useState(false)
   const poolSymbol = useMemo(
     () => `${poolData.token0.symbol}/${poolData.token1.symbol}`,
     [poolData.token0.symbol, poolData.token1.symbol],
   )
+
+  const isBoosted = (poolData as PoolV3Parsed).rewardApr && (poolData as PoolV3Parsed).rewardApr > 0
 
   return (
     <>
@@ -96,11 +129,35 @@ export const PoolDataRow = ({
                   {feeTierPercent(poolData.feeTier)}
                 </TagV2>
               )}
+              {isBoosted && (
+                <TagV2 className="min-w-8" color="orange">
+                  Boost 🔥
+                </TagV2>
+              )}
 
               {/* TODO: remove zzz @kay */}
               {userData ? <>zzz</> : <></>}
             </div>
           </div>
+        </td>
+        <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell space-x-2">
+          {isBoosted ? (
+            <>
+              <span className="text-brand">
+                {getPercentage(poolData.apy['24H'] + ((poolData as any).rewardApr ?? 0))}
+              </span>
+              <span className="line-through text-gray-500">{getPercentage(poolData.apy['24H'])}</span>
+            </>
+          ) : (
+            <>{getPercentage(poolData.apy['24H'])}</>
+          )}
+        </td>
+        <td
+          className={clsx('text-on-surface px-4 py-6 text-left hidden', {
+            'md:table-cell': !hide7DColumn,
+          })}
+        >
+          {getPercentage(poolData.apy['7D'] + ((poolData as any).rewardApr ?? 0))}
         </td>
         <td className="text-on-surface px-4 py-6 text-left">
           <span>{formatDollarAmount(poolData.tvlUSD.current)}</span>
@@ -110,22 +167,12 @@ export const PoolDataRow = ({
         </td>
         <td
           className={clsx('text-on-surface px-4 py-6 text-left hidden', {
-            'md:table-cell': !hide7Dcolumn,
+            'md:table-cell': !hide7DColumn,
           })}
         >
           {formatDollarAmount(poolData.volumeUSD['7D'])}
         </td>
-        <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
-          {getPercentage(poolData.apy['24H'] + ((poolData as any).rewardApr ?? 0))}
-        </td>
-        <td
-          className={clsx('text-on-surface px-4 py-6 text-left hidden', {
-            'md:table-cell': !hide7Dcolumn,
-          })}
-        >
-          {getPercentage(poolData.apy['7D'] + ((poolData as any).rewardApr ?? 0))}
-        </td>
-        <td className="text-on-surface px-2 py-6 text-left">
+        <td className="text-on-surface px-4 py-6 text-left">
           <CaretRight size={16} className={clsx({ 'rotate-90': showUserData })} />
         </td>
       </tr>

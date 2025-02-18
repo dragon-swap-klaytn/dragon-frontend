@@ -189,7 +189,7 @@ const PoolsPage = () => {
           />
         </div>
         <div className="mt-5">
-          <PoolTable {...debouncedParams} portfolio={portfolio} initialSortBy="volume24H" hide7Dcolumn />
+          <PoolTable {...debouncedParams} portfolio={portfolio} initialSortBy="volume24H" hide7DColumn />
         </div>
       </div>
     </Page>

@@ -24,11 +24,11 @@ const HEADERS: {
   sortBy?: PoolsSortBy
 }[] = [
   { id: 'pool', title: 'Pool' },
+  { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H' },
+  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D' },
   { id: 'tvl', title: 'TVL', sortBy: 'tvl' },
   { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H' },
   { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D' },
-  { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H' },
-  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D' },
 ]
 
 const bSmeaders: Partial<HeaderId>[] = ['pool', 'tvl', 'volume24H']
@@ -45,7 +45,7 @@ export default function PoolTable({
   boostedOnly,
   portfolio,
   initialSortBy = 'tvl',
-  hide7Dcolumn = false,
+  hide7DColumn = false,
 }: {
   poolTypes?: PoolType[]
   searchKey?: string
@@ -54,7 +54,7 @@ export default function PoolTable({
   boostedOnly?: boolean
   portfolio?: Portfolio
   initialSortBy?: PoolsSortBy
-  hide7Dcolumn?: boolean
+  hide7DColumn?: boolean
 }) {
   const { t } = useTranslation()
 
@@ -119,20 +119,27 @@ export default function PoolTable({
     () =>
       HEADERS.filter(({ id }) =>
         isBelowSm ? bSmeaders.includes(id) : isSm ? smHeaders.includes(id) : isMd ? mdHeaders.includes(id) : true,
-      ).filter(({ id }) => (hide7Dcolumn ? id !== 'volume7D' && id !== 'apy7D' : true)),
-    [isSm, isBelowSm, isMd, hide7Dcolumn],
+      ).filter(({ id }) => (hide7DColumn ? id !== 'volume7D' && id !== 'apy7D' : true)),
+    [isSm, isBelowSm, isMd, hide7DColumn],
   )
 
   return (
     <div className="w-full">
       <table className="w-full rounded-xl overflow-hidden">
         <colgroup>
+          {/* Pool */}
           <col width="*" />
+          {/* apy24H */}
+          {!isBelowSm && <col width="150px" />}
+          {/* apy7D */}
+          {!hide7DColumn && !isMobile && <col width="80px" />}
+          {/* TVL */}
           <col width="110px" />
+          {/* volume24H */}
           <col width="110px" />
-          {!isMobile && <col width="110px" />}
-          {!isBelowSm && <col width="100px" />}
-          {!isMobile && <col width="100px" />}
+          {/* volume7D */}
+          {!hide7DColumn && <col width="110px" />}
+          {/* open details */}
           {!isMobile && <col width="30px" />}
         </colgroup>
         <thead>
@@ -171,7 +178,11 @@ export default function PoolTable({
             </tr>
           ) : !poolsData ? (
             Array.from({ length: SHOW_POOL_COUNT }).map((_, index) => (
-              <PoolDataRowSkeleton key={`poolTableSkeleton:${index + 1}`} isLastIndex={index === SHOW_POOL_COUNT - 1} />
+              <PoolDataRowSkeleton
+                key={`poolTableSkeleton:${index + 1}`}
+                isLastIndex={index === SHOW_POOL_COUNT - 1}
+                hide7DColumn={hide7DColumn}
+              />
             ))
           ) : poolsData.length > 0 ? (
             poolsData.map((poolData, index) => (
@@ -180,7 +191,7 @@ export default function PoolTable({
                 userData={portfolio?.[poolData.id]}
                 poolData={poolData}
                 isLastIndex={index === poolsData.length - 1}
-                hide7Dcolumn={hide7Dcolumn}
+                hide7DColumn={hide7DColumn}
               />
             ))
           ) : (
