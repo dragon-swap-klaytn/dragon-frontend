@@ -201,7 +201,7 @@ const PoolsPage = () => {
               </ButtonV2>
             </div>
           ) : (
-            <PoolTable {...debouncedParams} portfolio={portfolio} initialSortBy="volume24H" hide7DColumn />
+            <PoolTable {...debouncedParams} portfolio={portfolio} initialSortBy="apy24H" openable />
           )}
         </div>
       </div>

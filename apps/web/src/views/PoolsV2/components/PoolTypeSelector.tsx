@@ -1,5 +1,4 @@
-import { CustomSelect, SelectOption } from '@pancakeswap/uikit'
-import { useWindowSize } from 'hooks/useWindowSize'
+import { CustomSelect, SelectOption, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { PoolType } from 'types'
 
 export const poolTypeSelectorOptions = [
@@ -19,11 +18,11 @@ type PoolTypeSelectorProps = {
 }
 
 export default function PoolTypeSelector({ selectedPoolTypes, onSelectPoolTypes }: PoolTypeSelectorProps) {
-  const { width: windowWidth } = useWindowSize()
+  const { isBelowS } = useMatchBreakpoints()
 
   return (
     <CustomSelect
-      prefix={windowWidth < 530 ? undefined : 'Pool Type'}
+      prefix={isBelowS ? undefined : 'Pool Type'}
       options={poolTypeSelectorOptions}
       selectedOption={selectedPoolTypes}
       multiple

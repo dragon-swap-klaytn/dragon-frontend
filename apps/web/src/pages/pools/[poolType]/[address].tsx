@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner, TagV2 } from '@pancakeswap/uikit'
 import { ArrowUp } from '@phosphor-icons/react'
+import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import Page from 'components/Layout/Page'
-import { useBackTo } from 'hooks/use-back-to'
 import usePoolPositions, { PositionV2 } from 'hooks/usePoolPositions'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import NextLink from 'next/link'
@@ -23,8 +23,6 @@ import { useAccount } from 'wagmi'
 const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: T; address: Address }) => {
   const { t } = useTranslation()
   const { poolsData } = usePools({ poolTypes: [poolType], addresses: [address] }, { paused: !poolType || !address })
-
-  const { saveBackToHref } = useBackTo()
 
   const isUnknownPool = poolsData && poolsData.length === 0
   /**
@@ -132,22 +130,7 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
               </div>
 
               <div className="mt-4 md:mt-0 space-x-3">
-                <NextLink
-                  href={
-                    poolData.type === 'v3'
-                      ? `/add/${unwrapWKAIAAdress(poolData.token0.id)}/${unwrapWKAIAAdress(poolData.token1.id)}`
-                      : `/v2/add/${unwrapWKAIAAdress(poolData.token0.id)}/${unwrapWKAIAAdress(poolData.token1.id)}`
-                  }
-                >
-                  <ButtonV2
-                    variant="primary"
-                    onClick={() => {
-                      saveBackToHref()
-                    }}
-                  >
-                    {t('Add Liquidity')}
-                  </ButtonV2>
-                </NextLink>
+                <AddLiquidityButtonV2 poolType={poolType} token0={poolData.token0} token1={poolData.token1} />
                 <NextLink
                   href={`/swap?inputCurrency=${unwrapWKAIAAdress(
                     poolData.token0.id,

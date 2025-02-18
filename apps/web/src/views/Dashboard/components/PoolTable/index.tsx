@@ -22,18 +22,15 @@ const HEADERS: {
   id: HeaderId
   title: Title
   sortBy?: PoolsSortBy
+  hideBelow?: 's' | 'sm' | 'md' | 'lg'
 }[] = [
   { id: 'pool', title: 'Pool' },
   { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H' },
-  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D' },
-  { id: 'tvl', title: 'TVL', sortBy: 'tvl' },
-  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H' },
-  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D' },
+  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D', hideBelow: 'lg' },
+  { id: 'tvl', title: 'TVL', sortBy: 'tvl', hideBelow: 'sm' },
+  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H', hideBelow: 's' },
+  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D', hideBelow: 'lg' },
 ]
-
-const bSmeaders: Partial<HeaderId>[] = ['pool', 'tvl', 'volume24H']
-const smHeaders: Partial<HeaderId>[] = [...bSmeaders, 'apy24H']
-const mdHeaders: Partial<HeaderId>[] = [...smHeaders, 'apy7D', 'volume7D']
 
 const SHOW_POOL_COUNT = 10
 
@@ -43,18 +40,18 @@ export default function PoolTable({
   tokenAddress,
   addresses,
   boostedOnly,
+  openable = false,
   portfolio,
   initialSortBy = 'tvl',
-  hide7DColumn = false,
 }: {
   poolTypes?: PoolType[]
   searchKey?: string
   tokenAddress?: string
   addresses?: Address[]
   boostedOnly?: boolean
+  openable?: boolean
   portfolio?: Portfolio
   initialSortBy?: PoolsSortBy
-  hide7DColumn?: boolean
 }) {
   const { t } = useTranslation()
 
@@ -112,13 +109,25 @@ export default function PoolTable({
     [sortDirection, sortBy],
   )
 
-  const { isBelowSm, isSm, isMd, isMobile } = useMatchBreakpoints()
+  const { isBelowS, isBelowSm, isBelowMd, isBelowLg } = useMatchBreakpoints()
   const headers = useMemo(
     () =>
-      HEADERS.filter(({ id }) =>
-        isBelowSm ? bSmeaders.includes(id) : isSm ? smHeaders.includes(id) : isMd ? mdHeaders.includes(id) : true,
-      ).filter(({ id }) => (hide7DColumn ? id !== 'volume7D' && id !== 'apy7D' : true)),
-    [isSm, isBelowSm, isMd, hide7DColumn],
+      HEADERS.filter(({ hideBelow }) => {
+        if (hideBelow === 's') {
+          return !isBelowS
+        }
+        if (hideBelow === 'sm') {
+          return !isBelowSm
+        }
+        if (hideBelow === 'md') {
+          return !isBelowMd
+        }
+        if (hideBelow === 'lg') {
+          return !isBelowLg
+        }
+        return true
+      }),
+    [isBelowS, isBelowSm, isBelowMd, isBelowLg],
   )
 
   return (
@@ -128,17 +137,17 @@ export default function PoolTable({
           {/* Pool */}
           <col width="*" />
           {/* apy24H */}
-          {!isBelowSm && <col width="150px" />}
+          <col width={isBelowMd ? '90px' : '140px'} />
           {/* apy7D */}
-          {!hide7DColumn && !isMobile && <col width="80px" />}
+          <col width="140px" className="hidden lg:table-column" />
           {/* TVL */}
-          <col width="110px" />
+          <col width="70px" className="hidden sm:table-column" />
           {/* volume24H */}
-          <col width="110px" />
+          <col width="70px" className="hidden s:table-column" />
           {/* volume7D */}
-          {!hide7DColumn && <col width="110px" />}
+          <col width="70px" className="hidden lg:table-column" />
           {/* open details */}
-          {!isMobile && <col width="30px" />}
+          {openable && <col width="30px" />}
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
@@ -162,7 +171,7 @@ export default function PoolTable({
                 )}
               </th>
             ))}
-            <th className="py-3 px-2 sr-only">open details</th>
+            <th className="sr-only">open details</th>
           </tr>
         </thead>
         <tbody>
@@ -179,7 +188,7 @@ export default function PoolTable({
               <PoolDataRowSkeleton
                 key={`poolTableSkeleton:${index + 1}`}
                 isLastIndex={index === SHOW_POOL_COUNT - 1}
-                hide7DColumn={hide7DColumn}
+                openable={openable}
               />
             ))
           ) : poolsData.length > 0 ? (
@@ -189,7 +198,7 @@ export default function PoolTable({
                 userData={portfolio?.[poolData.id]}
                 poolData={poolData}
                 isLastIndex={index === poolsData.length - 1}
-                hide7DColumn={hide7DColumn}
+                openable={openable}
               />
             ))
           ) : (
