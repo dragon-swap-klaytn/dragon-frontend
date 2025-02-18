@@ -21,6 +21,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import clsx from 'clsx'
 import { usePoolTokenPercentage, useTokensDeposited, useTotalUSDValue } from 'components/PositionCard'
 import { useCurrency } from 'hooks/Tokens'
+import { useBackTo } from 'hooks/use-back-to'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMasterchef } from 'hooks/useContract'
 import { useV2Pair } from 'hooks/usePairs'
@@ -48,6 +49,8 @@ export default function PoolV2Page() {
 
   const router = useRouter()
   const { address: account } = useAccount()
+
+  const { backTo, saveBackToHref } = useBackTo()
 
   const [currencyIdA, currencyIdB] = router?.query?.currency ? router.query.currency : []
 
@@ -113,6 +116,7 @@ export default function PoolV2Page() {
         <NextLinkFromReactRouter
           to={`/v2/add/${tokenLabels[0]}/${tokenLabels[1]}`}
           className={clsx({ 'w-full': isMobile })}
+          onClick={saveBackToHref}
         >
           <ButtonV2 disabled={!pair} variant="primary" onClick={() => {}} fullWidth={isMobile}>
             {t('Add')}
@@ -121,6 +125,7 @@ export default function PoolV2Page() {
         <NextLinkFromReactRouter
           to={`/v2/remove/${tokenLabels[0]}/${tokenLabels[1]}`}
           className={clsx({ 'w-full': isMobile })}
+          onClick={saveBackToHref}
         >
           <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile}>
             {t('Remove')}
@@ -156,7 +161,7 @@ export default function PoolV2Page() {
               <TagV2>V2 LP</TagV2>
             </div>
           }
-          backTo="/liquidity"
+          backTo={backTo}
           noConfig
         />
         <div className="p-5 md:p-8">

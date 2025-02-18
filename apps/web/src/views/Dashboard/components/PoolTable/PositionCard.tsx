@@ -6,12 +6,14 @@ import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import { useBackTo } from 'hooks/use-back-to'
 import { PortfolioData, PortfolioPositionBigInt, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
 import { useDerivedPositionInfoV2 } from 'hooks/v3/useDerivedPositionInfoV2'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import { TokenSimple } from 'lib/graph-queries/types'
+import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
@@ -114,6 +116,8 @@ function V3PositionCard({
     currentLanguage: { locale },
   } = useTranslation()
 
+  const { saveBackToHref } = useBackTo()
+
   const { position: _position } = useDerivedPositionInfoV2(position, poolFeeTier)
   const tickAtLimit = useIsTickAtLimit(poolFeeTier, _position?.tickLower, _position?.tickUpper)
 
@@ -147,7 +151,11 @@ function V3PositionCard({
   }, [inverted, _position])
 
   return (
-    <div className="p-5 rounded-xl space-y-5 bg-neutral-dark w-full">
+    <NextLink
+      className="p-5 rounded-xl space-y-5 bg-neutral-dark w-full hover:bg-neutral-dark-hovered"
+      onClick={saveBackToHref}
+      href={`/liquidity/${position.positionId}`}
+    >
       <div className="w-full space-y-2">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -229,7 +237,7 @@ function V3PositionCard({
           <div className="mt-1 text-xs text-on-surface-subtlest">{t('Rewards')}</div>
         </div>
       </div>
-    </div>
+    </NextLink>
   )
 }
 
@@ -310,6 +318,7 @@ function V2PositionCard({
   poolAPY: number
 }) {
   const { t } = useTranslation()
+  const { saveBackToHref } = useBackTo()
 
   const {
     token0: { amount: amount0 },
@@ -330,7 +339,11 @@ function V2PositionCard({
   }, [priceMap, token0, token1, amount0, amount1, poolTvlUSD])
 
   return (
-    <div className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full">
+    <NextLink
+      className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full hover:bg-neutral-dark-hovered"
+      onClick={saveBackToHref}
+      href={`/v2/pair/${token0.id}/${token1.id}`}
+    >
       <h5>{`${token0.symbol}-${token1.symbol}`}</h5>
 
       <div className="w-full grid s:flex grid-cols-3 gap-3">
@@ -365,6 +378,6 @@ function V2PositionCard({
           <div className="mt-1 text-xs text-on-surface-subtlest">{t('APY')}</div>
         </div>
       </div>
-    </div>
+    </NextLink>
   )
 }

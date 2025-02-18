@@ -74,12 +74,14 @@ import BigNumber from 'bignumber.js'
 import clsx from 'clsx'
 import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
 import { RangeTag } from 'components/RangeTag'
+import { useBackTo } from 'hooks/use-back-to'
 import { useCakePrice } from 'hooks/useCakePrice'
 import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import Link from 'next/link'
 import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import currencyId from 'utils/currencyId'
 import { isUserRejected } from 'utils/sentry'
+import { toChecksumToken } from 'utils/toChecksumToken'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useIsBoostedPool, useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
@@ -177,6 +179,8 @@ export default function PoolPage() {
     t,
     currentLanguage: { locale },
   } = useTranslation()
+
+  const { backTo } = useBackTo()
 
   const [collecting, setCollecting] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
@@ -279,8 +283,8 @@ export default function PoolPage() {
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
 
   // usdc prices always in terms of tokens
-  const price0 = useStablecoinPrice(token0 ?? undefined, { enabled: !!feeValue0 })
-  const price1 = useStablecoinPrice(token1 ?? undefined, { enabled: !!feeValue1 })
+  const price0 = useStablecoinPrice(token0 ? toChecksumToken(token0) : undefined, { enabled: !!feeValue0 })
+  const price1 = useStablecoinPrice(token1 ? toChecksumToken(token1) : undefined, { enabled: !!feeValue1 })
 
   const fiatValueOfFees: CurrencyAmount<Currency> | null = useMemo(() => {
     if (!price0 || !price1 || !feeValue0 || !feeValue1) return null
@@ -647,7 +651,7 @@ export default function PoolPage() {
                   </span>
                 </div>
               }
-              backTo="/liquidity"
+              backTo={backTo}
               noConfig
             />
 

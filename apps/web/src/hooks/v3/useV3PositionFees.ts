@@ -4,6 +4,7 @@ import { useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useEffect, useMemo, useState } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
+import { toChecksumToken } from 'utils/toChecksumToken'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const MAX_UINT128 = 2n ** 128n - 1n
@@ -49,8 +50,14 @@ export function useV3PositionFees(
 
   if (pool && amounts) {
     return [
-      CurrencyAmount.fromRawAmount(asWNATIVE ? pool.token0 : unwrappedToken(pool.token0), amounts[0].toString()),
-      CurrencyAmount.fromRawAmount(asWNATIVE ? pool.token1 : unwrappedToken(pool.token1), amounts[1].toString()),
+      CurrencyAmount.fromRawAmount(
+        toChecksumToken(asWNATIVE ? pool.token0 : unwrappedToken(pool.token0)),
+        amounts[0].toString(),
+      ),
+      CurrencyAmount.fromRawAmount(
+        toChecksumToken(asWNATIVE ? pool.token1 : unwrappedToken(pool.token1)),
+        amounts[1].toString(),
+      ),
     ]
   }
   return [undefined, undefined]
