@@ -1,7 +1,7 @@
-import { Currency, Native, Token, WNATIVE } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
-import { enumValues } from '@pancakeswap/utils/enumValues'
+import { Currency, Native, Token, WNATIVE } from '@pancakeswap/sdk'
 import { TokenAddressMap } from '@pancakeswap/token-lists'
+import { enumValues } from '@pancakeswap/utils/enumValues'
 
 const createEmptyList = () => {
   const list = {} as Record<ChainId, TokenAddressMap<ChainId>[ChainId]>
@@ -24,7 +24,15 @@ export function serializeTokens(unserializedTokens: any) {
   return serializedTokens
 }
 
+export function unwrappedToken(token?: undefined): undefined
+export function unwrappedToken<T extends Token>(token: T): Currency
 export function unwrappedToken(token?: Token): Currency | undefined {
-  if (token && token.equals(WNATIVE[token.chainId as keyof typeof WNATIVE])) return Native.onChain(token.chainId)
+  if (!token) return undefined
+
+  const wrappedNative = WNATIVE[token.chainId as keyof typeof WNATIVE]
+  if (token.equals(wrappedNative)) {
+    return Native.onChain(token.chainId)
+  }
+
   return token
 }

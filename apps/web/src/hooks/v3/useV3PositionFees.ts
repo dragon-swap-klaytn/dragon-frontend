@@ -48,14 +48,14 @@ export function useV3PositionFees(
     }
   }, [positionManager, owner, latestBlockNumber, tokenId])
 
-  if (pool && amounts) {
+  if (pool?.token0 && pool?.token1 && amounts) {
     return [
       CurrencyAmount.fromRawAmount(
-        toChecksumToken(asWNATIVE ? pool.token0 : unwrappedToken(pool.token0)),
+        asWNATIVE ? toChecksumToken(pool.token0) : unwrappedToken(pool.token0),
         amounts[0].toString(),
       ),
       CurrencyAmount.fromRawAmount(
-        toChecksumToken(asWNATIVE ? pool.token1 : unwrappedToken(pool.token1)),
+        asWNATIVE ? toChecksumToken(pool.token1) : unwrappedToken(pool.token1),
         amounts[1].toString(),
       ),
     ]
