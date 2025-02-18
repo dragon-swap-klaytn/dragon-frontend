@@ -5,36 +5,44 @@ import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import Percent from 'views/Dashboard/components/Percent'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
-export const TokenDataRowSkeleton = ({ isLastIndex }: { isLastIndex: boolean }) => {
+export const TokenDataRowSkeleton = ({ isLastIndex }: { isLastIndex?: boolean }) => {
   return (
     <tr
       className={clsx('bg-surface-raised text-sm', {
         'border-b border-border': !isLastIndex,
       })}
     >
+      {/* Symbol & Name */}
       <td className="text-on-surface px-4 s:px-6 py-6 text-left">
         <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-surface rounded-full animate-pulse" />
-          <div className="w-20 h-4 bg-surface rounded-full animate-pulse" />
+          <CurrencyLogoWithSymbol addressA="dummy" />
+          <div className="w-12 h-4 bg-neutral rounded-full animate-pulse" />
+          <div className="w-16 h-4 hidden lg:block bg-neutral rounded-full animate-pulse" />
         </div>
       </td>
+      {/* Price */}
       <td className="text-on-surface px-4 py-6 text-left">
-        <div className="w-20 h-4 bg-surface rounded-full animate-pulse" />
+        <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
+      {/* Price Change 24H */}
       <td className="text-on-surface px-4 py-6 text-left">
-        <div className="w-20 h-4 bg-surface rounded-full animate-pulse" />
+        <div className="w-12 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="w-20 h-4 bg-surface rounded-full animate-pulse" />
+      {/* Price Change 7D */}
+      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+        <div className="w-12 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="w-20 h-4 bg-surface rounded-full animate-pulse" />
+      {/* Volume 24H */}
+      <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
+        <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="w-20 h-4 bg-surface rounded-full animate-pulse" />
+      {/* Volume 7D */}
+      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+        <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="w-20 h-4 bg-surface rounded-full animate-pulse" />
+      {/* TVL */}
+      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
+        <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
     </tr>
   )
