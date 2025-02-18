@@ -2,10 +2,9 @@ import { Transition } from '@headlessui/react'
 import { CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakeswap/uikit'
 import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
+import { PortfolioData } from 'hooks/use-portfolio'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
-import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import getPercentage from 'utils/getPercentage'
@@ -36,29 +35,29 @@ export const PoolDataRowSkeleton = ({
           />
           <div className="w-20 h-6 bg-neutral rounded-full animate-pulse" />
           <div className="flex flex-wrap items-center gap-2">
-            <div className="w-8 h-6 bg-neutral rounded-full animate-pulse" />
-            <div className="w-8 h-6 bg-neutral rounded-full animate-pulse" />
+            <div className="w-8 h-6 bg-neutral rounded-full animate-pulse hidden sm:block" />
+            <div className="w-8 h-6 bg-neutral rounded-full animate-pulse hidden md:block" />
           </div>
         </div>
       </td>
       {/* APY24H */}
-      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell space-x-2">
+      <td className="text-on-surface px-4 py-6 text-left">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* APY7D */}
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+      <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* TVL */}
-      <td className="text-on-surface px-4 py-6 text-left">
+      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Volume24H */}
-      <td className="text-on-surface px-4 py-6 text-left">
+      <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Volume7D */}
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+      <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {openable && (
@@ -88,16 +87,16 @@ const APRWithBoost = ({ lpApr, rewardApr, isBoosted }: { lpApr: number; rewardAp
 // TODO: @daniel change farm prop to positions[]
 export const PoolDataRow = ({
   poolData,
-  userData,
+  portfolioData,
   isLastIndex,
   openable = false,
 }: {
   poolData: PoolParsed
-  userData?: PortfolioV3DataBigInt | PortfolioV2Data
+  portfolioData?: PortfolioData
   isLastIndex: boolean
   openable?: boolean
 }) => {
-  const [showUserData, setShowUserData] = useState(false)
+  const [showPortfolioData, setShowPortfolioData] = useState(false)
   const poolSymbol = useMemo(
     () => `${poolData.token0.symbol}/${poolData.token1.symbol}`,
     [poolData.token0.symbol, poolData.token1.symbol],
@@ -113,7 +112,7 @@ export const PoolDataRow = ({
           'cursor-pointer': openable,
         })}
         onClick={() => {
-          if (openable) setShowUserData((p) => !p)
+          if (openable) setShowPortfolioData((p) => !p)
         }}
       >
         <td className="text-on-surface px-4 s:px-6 py-6 text-left">
@@ -155,7 +154,7 @@ export const PoolDataRow = ({
               )}
 
               {/* TODO: remove zzz @kay */}
-              {userData ? <>zzz</> : <></>}
+              {portfolioData ? <>zzz</> : <></>}
             </div>
           </div>
         </td>
@@ -176,7 +175,7 @@ export const PoolDataRow = ({
         </td>
         {openable && (
           <td className="text-on-surface pr-4 py-6 text-left">
-            <CaretRight size={16} className={clsx({ 'rotate-90': showUserData })} />
+            <CaretRight size={16} className={clsx({ 'rotate-90': showPortfolioData })} />
           </td>
         )}
       </tr>
@@ -184,7 +183,7 @@ export const PoolDataRow = ({
       {openable && (
         <Transition
           as="tr"
-          show={showUserData}
+          show={showPortfolioData}
           enter="transition-opacity duration-100"
           enterFrom="opacity-0"
           enterTo="opacity-100"
@@ -202,13 +201,7 @@ export const PoolDataRow = ({
                 </ExternalLink>
               </div>
 
-              <PositionCardList
-                className="flex-1"
-                token0={poolData.token0}
-                token1={poolData.token1}
-                userData={userData}
-                poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
-              />
+              <PositionCardList className="flex-1" poolData={poolData} portfolioData={portfolioData} />
             </div>
           </td>
         </Transition>

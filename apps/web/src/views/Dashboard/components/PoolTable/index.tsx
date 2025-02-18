@@ -195,7 +195,7 @@ export default function PoolTable({
             poolsData.map((poolData, index) => (
               <PoolDataRow
                 key={`poolTable:${poolData.id}`}
-                userData={portfolio?.[poolData.id]}
+                portfolioData={portfolio?.[poolData.id]}
                 poolData={poolData}
                 isLastIndex={index === poolsData.length - 1}
                 openable={openable}

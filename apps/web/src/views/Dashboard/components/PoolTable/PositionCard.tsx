@@ -6,12 +6,13 @@ import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { PortfolioPositionBigInt, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
+import { PortfolioData, PortfolioPositionBigInt, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
 import { useDerivedPositionInfoV2 } from 'hooks/v3/useDerivedPositionInfoV2'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import { TokenSimple } from 'lib/graph-queries/types'
+import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
 import { PoolType } from 'types'
@@ -20,33 +21,49 @@ import { useAccount } from 'wagmi'
 
 export default function PositionCardList({
   className,
-  token0,
-  token1,
-  userData,
-  poolFeeTier,
+  poolData,
+  portfolioData,
 }: {
   className?: string
-  token0: TokenSimple
-  token1: TokenSimple
-  userData?: PortfolioV3DataBigInt | PortfolioV2Data
-  poolFeeTier: number
+  poolData: PoolParsed
+  portfolioData?: PortfolioData
 }) {
+  const { prices } = useTokenPrices()
+  // use swapscanner price as fallback
+  const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
+
+  const priceMap = useMemo(
+    () => ({
+      ...prices,
+      ...ssPrices,
+    }),
+    [prices, ssPrices],
+  )
+
   return (
     <div className={clsx('flex flex-col items-center space-y-3', className)}>
-      {!userData ? (
-        <EmptyPositionCard token0={token0} token1={token1} />
-      ) : userData.type === 'v3' ? (
-        (userData as PortfolioV3DataBigInt).positions.map((position) => (
-          <PositionCard
-            key={`${userData.poolId}:position:${position.positionId}`}
-            token0={token0}
-            token1={token1}
+      {!portfolioData ? (
+        <EmptyPositionCard token0={poolData.token0} token1={poolData.token1} />
+      ) : portfolioData.type === 'v3' ? (
+        (portfolioData as PortfolioV3DataBigInt).positions.map((position) => (
+          <V3PositionCard
+            key={`${portfolioData.poolId}:position:${position.positionId}`}
+            token0={poolData.token0}
+            token1={poolData.token1}
             position={position}
-            poolFeeTier={poolFeeTier}
+            poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
+            priceMap={priceMap}
           />
         ))
       ) : (
-        <></>
+        <V2PositionCard
+          token0={poolData.token0}
+          token1={poolData.token1}
+          portfolioV2={portfolioData as PortfolioV2Data}
+          priceMap={priceMap}
+          poolTvlUSD={poolData.tvlUSD.current}
+          poolAPY={poolData.apy['24H']}
+        />
       )}
     </div>
   )
@@ -76,74 +93,55 @@ function EmptyPositionCard({
   )
 }
 
-export function PositionCard({
+function V3PositionCard({
   token0,
   token1,
   position,
   poolFeeTier,
+  priceMap,
 }: {
   token0: TokenSimple
   token1: TokenSimple
   position: PortfolioPositionBigInt
   poolFeeTier: number
+  priceMap: Record<string, number>
 }) {
-  const { prices } = useTokenPrices()
-  // use swapscanner price as fallback
-  const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
-
   const {
     t,
     currentLanguage: { locale },
   } = useTranslation()
 
-  const token0USD = useMemo(() => {
-    const price0 = prices?.[position.token0.address] ?? ssPrices?.[position.token0.address] ?? 0
-
-    return {
-      deposited: position.token0.amount * price0,
-      fee: position.token0.feeAmount * price0,
-    }
-  }, [position.token0.address, position.token0.feeAmount, prices, ssPrices, position.token0.amount])
-
-  const token1USD = useMemo(() => {
-    const price1 = prices?.[position.token1.address] ?? ssPrices?.[position.token1.address] ?? 0
-
-    return {
-      deposited: position.token1.amount * price1,
-      fee: position.token1.feeAmount * price1,
-    }
-  }, [position.token1.address, position.token1.feeAmount, prices, ssPrices, position.token1.amount])
-
-  const rewardsUSD = useMemo(() => {
-    if (!position.rewards) return 0
-
-    return position.rewards.reduce((acc, reward) => {
-      const price = prices?.[reward.address] ?? ssPrices?.[reward.address] ?? 0
-
-      return acc + reward.amount * price
-    }, 0)
-  }, [position.rewards, prices, ssPrices])
-
   const { position: _position } = useDerivedPositionInfoV2(position, poolFeeTier)
-  const { tickLower, tickUpper } = _position ?? {}
-  const tickAtLimit = useIsTickAtLimit(poolFeeTier, tickLower, tickUpper)
+  const tickAtLimit = useIsTickAtLimit(poolFeeTier, _position?.tickLower, _position?.tickUpper)
+
   const [inverted, setInverted] = useState(false)
 
-  const priceLower = useMemo(() => {
-    if (!_position) return null
-    if (!token0 || !token1) return null
+  const { token0USD, token1USD, rewardsUSD } = useMemo(() => {
+    const price0 = priceMap[position.token0.address] ?? 0
+    const price1 = priceMap[position.token1.address] ?? 0
+    const rewardPrice = position.rewards ? priceMap[position.rewards[0].address] ?? 0 : 0
 
-    return inverted ? _position.token0PriceLower : _position.token0PriceUpper.invert()
-  }, [inverted, token0, token1, _position])
+    return {
+      token0USD: {
+        deposited: position.token0.amount * price0,
+        fee: position.token0.feeAmount * price0,
+      },
+      token1USD: {
+        deposited: position.token1.amount * price1,
+        fee: position.token1.feeAmount * price1,
+      },
+      rewardsUSD: position.rewards ? position.rewards.reduce((acc, reward) => acc + reward.amount * rewardPrice, 0) : 0,
+    }
+  }, [position, priceMap])
 
-  const priceUpper = useMemo(() => {
-    if (!_position) return null
-    if (!token0 || !token1) return null
+  const { priceLower, priceUpper } = useMemo(() => {
+    if (!_position) return { priceLower: null, priceUpper: null }
 
-    return inverted ? _position.token0PriceUpper : _position.token0PriceLower.invert()
-  }, [_position, inverted, token0, token1])
-
-  if (!position) return null
+    return {
+      priceLower: inverted ? _position.token0PriceLower : _position.token0PriceUpper.invert(),
+      priceUpper: inverted ? _position.token0PriceUpper : _position.token0PriceLower.invert(),
+    }
+  }, [inverted, _position])
 
   return (
     <div className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full">
@@ -173,16 +171,16 @@ export function PositionCard({
 
       <div className="w-full grid s:flex grid-cols-3 gap-3">
         <div className="s:min-w-24">
-          <div className="text-sm text-on-surface">
+          <div className="text-sm">
             {formatDollarAmountV2({
               num: token0USD.deposited + token1USD.deposited,
               withDollarSign: true,
             })}
           </div>
-          <div className="mt-1 text-xs text-on-surface-subtlest">{t('Position')}</div>
+          <div className="mt-1 text-xs-subtlest">{t('Position')}</div>
         </div>
         <div className="s:min-w-24">
-          <div className="text-sm text-on-surface">
+          <div className="text-sm">
             {formatDollarAmountV2({
               num: token0USD.fee + token1USD.fee,
               withDollarSign: true,
@@ -253,13 +251,13 @@ function MinMaxPrice({
     <div className="flex flex-col items-start w-[220px]">
       <div className="text-xs text-on-surface-subtlest flex flex-wrap items-center gap-1 mt-1">
         <span className="inline-block w-7">Min:</span>
-        <span className="text-[13px] text-on-surface">
+        <span className="text-[13px]">
           {formatTickPrice(priceLower ?? undefined, tickAtLimit, Bound.LOWER, locale)}
         </span>
 
         <div className="flex items-center space-x-1">
-          <span className="text-on-surface text-xs">
-            {!inverted ? `${token0.symbol}/${token1.symbol}` : `${token1.symbol}/${token0.symbol}`}
+          <span className="text-xs">
+            {!inverted ? `${token0.symbol}-${token1.symbol}` : `${token1.symbol}-${token0.symbol}`}
           </span>
 
           <button
@@ -274,14 +272,89 @@ function MinMaxPrice({
 
       <div className="mt-1 text-xs text-on-surface-subtlest flex flex-wrap items-center gap-1">
         <span className="inline-block w-7">Max:</span>
-        <span className="text-[13px] text-on-surface">
+        <span className="text-[13px]">
           {formatTickPrice(priceUpper ?? undefined, tickAtLimit, Bound.UPPER, locale)}
         </span>
 
         <div className="flex items-center space-x-1">
-          <span className="text-on-surface text-xs">
+          <span className="text-xs">
             {!inverted ? `${token0.symbol}/${token1.symbol}` : `${token1.symbol}/${token0.symbol}`}
           </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function V2PositionCard({
+  token0,
+  token1,
+  portfolioV2,
+  priceMap,
+  poolTvlUSD,
+  poolAPY,
+}: {
+  token0: TokenSimple
+  token1: TokenSimple
+  portfolioV2: PortfolioV2Data
+  priceMap: Record<string, number>
+  poolTvlUSD: number
+  poolAPY: number
+}) {
+  const { t } = useTranslation()
+
+  const {
+    token0: { amount: amount0 },
+    token1: { amount: amount1 },
+  } = portfolioV2
+
+  const positionSummary = useMemo(() => {
+    const price0 = priceMap[token0.id] ?? 0
+    const price1 = priceMap[token1.id] ?? 0
+
+    const tvlUSD = amount0 * price0 + amount1 * price1
+    const share = tvlUSD / poolTvlUSD
+
+    return {
+      tvlUSD,
+      share,
+    }
+  }, [priceMap, token0, token1, amount0, amount1, poolTvlUSD])
+
+  return (
+    <div className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full">
+      <h5>{`${token0.symbol}-${token1.symbol}`}</h5>
+
+      <div className="w-full grid s:flex grid-cols-3 gap-3">
+        <div className="s:min-w-24">
+          <div className="text-sm">
+            {formatDollarAmountV2({
+              num: positionSummary.tvlUSD,
+              withDollarSign: true,
+            })}
+          </div>
+          <div className="mt-1 text-xs text-on-surface-subtlest">{t('Value')}</div>
+        </div>
+        <div className="s:min-w-24">
+          <div className="text-sm">
+            {positionSummary.share.toLocaleString(undefined, {
+              style: 'percent',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </div>
+          <div className="mt-1 text-xs text-on-surface-subtlest">{t('Shares')}</div>
+        </div>
+        <div className="s:min-w-24">
+          <div className="text-sm">
+            {poolAPY.toLocaleString(undefined, {
+              style: 'percent',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </div>
+
+          <div className="mt-1 text-xs text-on-surface-subtlest">{t('APY')}</div>
         </div>
       </div>
     </div>

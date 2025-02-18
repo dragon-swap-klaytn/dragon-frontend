@@ -21,8 +21,10 @@ function buildSearchParams({
   return params.toString()
 }
 
+export type PortfolioData = PortfolioV3DataBigInt | PortfolioV2Data
+
 export type Portfolio = {
-  [poolId: Address]: PortfolioV3DataBigInt | PortfolioV2Data
+  [poolId: Address]: PortfolioData
 }
 
 type UsePortfolioParams = {
