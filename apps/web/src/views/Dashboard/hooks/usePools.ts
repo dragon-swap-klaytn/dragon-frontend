@@ -83,12 +83,15 @@ export default function usePools(
     sortDirection,
   })
 
-  const { data, error } = useSWR(paused || !poolTypes ? null : ['dashboard/pools', params], async () => {
-    const res = await fetch(`/api/pools?${params}`)
-    const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number }
+  const { data, error } = useSWR(
+    paused || !poolTypes || poolTypes.length === 0 ? null : ['dashboard/pools', params],
+    async () => {
+      const res = await fetch(`/api/pools?${params}`)
+      const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number }
 
-    return parsed
-  })
+      return parsed
+    },
+  )
 
   return {
     poolsData: data?.pools,

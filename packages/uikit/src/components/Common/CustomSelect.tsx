@@ -42,7 +42,7 @@ export function CustomSelect({
     <Listbox value={selectedOption} onChange={onSelect} multiple={multiple}>
       <ListboxButton
         className={clsx(
-          "relative w-full h-9 flex justify-between items-center space-x-2 rounded-full bg-neutral px-4 py-2 text-base text-on-surface",
+          "relative w-full h-9 flex justify-between items-center space-x-2 rounded-full bg-neutral px-4 py-2 text-sm text-on-surface",
           "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
           "hover:bg-overlay-surface-hover-light"
         )}

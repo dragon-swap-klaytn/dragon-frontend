@@ -38,7 +38,7 @@ const PoolsPage = () => {
   const debouncedParams = useDebounce(
     {
       boostedOnly,
-      searchInput: searchKey,
+      searchKey,
       poolTypes: poolTypeOptions.map(({ value }) => value as PoolType),
       addresses: myPositionOnly && portfolio ? (Object.keys(portfolio) as Address[]) : undefined,
     },
@@ -189,7 +189,20 @@ const PoolsPage = () => {
           />
         </div>
         <div className="mt-5">
-          <PoolTable {...debouncedParams} portfolio={portfolio} initialSortBy="volume24H" hide7DColumn />
+          {debouncedParams.poolTypes.length === 0 ? (
+            <div className="mt-8">
+              <p className="text-on-surface">{t('Please select at least one pool type.')}</p>
+              <ButtonV2
+                className="mt-4"
+                variant="secondary"
+                onClick={() => setPoolTypeOptions(poolTypeSelectorOptions)}
+              >
+                {t('Select All')}
+              </ButtonV2>
+            </div>
+          ) : (
+            <PoolTable {...debouncedParams} portfolio={portfolio} initialSortBy="volume24H" hide7DColumn />
+          )}
         </div>
       </div>
     </Page>
