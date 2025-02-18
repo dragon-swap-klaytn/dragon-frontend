@@ -62,7 +62,7 @@ export default function PoolTable({
   // pagination
   const [page, setPage] = useState(1)
   const skip = (page - 1) * SHOW_POOL_COUNT
-  const [_totalPage, setTotalPage] = useState(-1)
+  const [_totalPage, setTotalPage] = useState(1)
 
   const [isFirstRender, setIsFirstRender] = useState(true)
 
@@ -84,7 +84,7 @@ export default function PoolTable({
   }, [poolsData])
 
   useEffect(() => {
-    setTotalPage(totalPage ?? -1)
+    setTotalPage(totalPage ?? 1)
   }, [totalPage])
 
   const paramsString = [
@@ -213,7 +213,7 @@ export default function PoolTable({
         </tbody>
       </table>
 
-      {_totalPage > 1 && (
+      {poolTypes?.length !== 0 && (
         <div className="mt-5">
           <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
         </div>

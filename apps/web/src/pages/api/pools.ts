@@ -2,6 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { createFarmFetcherV3 } from '@pancakeswap/farms'
 import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
+import { getCachedTokenPricesFromSwapscanner } from 'lib/ss'
 import { NextApiHandler } from 'next'
 
 import { getCachedPoolsData } from 'pools/get-cached-pools-data'
@@ -10,6 +11,7 @@ import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 import { Simplify } from 'type-fest'
 import { calculateAPR } from 'utils/calculate-interests'
 import { getViemClients } from 'utils/viem.server'
+import { getAddress } from 'viem'
 import { z } from 'zod'
 
 export type PoolV2Parsed = Simplify<ReturnType<typeof parseV2Pool>>
@@ -37,6 +39,15 @@ const poolsSchema = z.object({
 
   skip: z.coerce.number().optional().default(0),
   limit: z.coerce.number().max(100).optional().default(10),
+})
+
+const duplicateChecksumAddress = (priceMap: Record<string, number>) => ({
+  ...priceMap,
+  ...Object.fromEntries(
+    Object.entries(priceMap)
+      .filter(([address]) => VALID_ADDRESS_REGEX.test(address))
+      .map(([address, price]) => [getAddress(address), price]),
+  ),
 })
 
 function filteredByTokenAddress(pools: PoolParsed[], tokenAddress?: string) {
@@ -74,7 +85,15 @@ const handler: NextApiHandler = async (req, res) => {
   const { types, onlyPoolIds, tokenAddress, boostedOnly, searchKey, sortBy, sortDirection, skip, limit } =
     await poolsSchema.parseAsync(req.query)
 
-  const [{ v2Pools, v3Pools }, prices] = await Promise.all([getCachedPoolsData(), getCachedTokenPrices()])
+  const [{ v2Pools, v3Pools }, prices, ssPrices] = await Promise.all([
+    getCachedPoolsData(),
+    getCachedTokenPrices(),
+    // use swapscanner prices as a fallback
+    getCachedTokenPricesFromSwapscanner().catch((err) => {
+      console.error('/api/pools', err)
+      return {}
+    }),
+  ])
 
   const {
     farmsWithPrice,
@@ -83,7 +102,7 @@ const handler: NextApiHandler = async (req, res) => {
   } = await farmFetcherV3.fetchFarms({
     chainId: ChainId.KLAYTN,
     farms: farmsV3,
-    commonPrice: prices,
+    commonPrice: duplicateChecksumAddress({ ...ssPrices, ...prices }),
   })
 
   const lpAddressToPoolWeights = Object.fromEntries(
