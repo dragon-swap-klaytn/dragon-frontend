@@ -1,26 +1,27 @@
 import {
   BigintIsh,
+  Currency,
+  CurrencyAmount,
+  NativeCurrency,
   Percent,
   Token,
-  CurrencyAmount,
-  Currency,
-  NativeCurrency,
   validateAndParseAddress,
 } from '@pancakeswap/sdk'
 import { Address, encodeFunctionData, Hex } from 'viem'
 
 import invariant from 'tiny-invariant'
 import { nonfungiblePositionManagerABI } from './abi/NonfungiblePositionManager'
-import { Position } from './entities/position'
-import { ONE, ZERO } from './internalConstants'
-import { MethodParameters, toHex } from './utils/calldata'
-import { PermitOptions, SelfPermit } from './selfPermit'
 import { ADDRESS_ZERO } from './constants'
 import { Pool } from './entities'
+import { Position } from './entities/position'
+import { ONE, ZERO } from './internalConstants'
 import { Multicall } from './multicall'
 import { Payments } from './payments'
+import { PermitOptions, SelfPermit } from './selfPermit'
+import { MethodParameters, toHex } from './utils/calldata'
 
 export const MaxUint128 = 2n ** 128n - 1n
+const WKLAY_ADDRESS = '0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432'.toLowerCase()
 
 export interface MintSpecificOptions {
   /**
@@ -117,6 +118,33 @@ export interface CollectOptions {
    * Expected value of tokensOwed1, including as-of-yet-unaccounted-for fees/liquidity value to be burned
    */
   expectedCurrencyOwed1: CurrencyAmount<Currency>
+
+  /**
+   * The account that should receive the tokens.
+   */
+  recipient: Address
+}
+
+export interface CollectV2Options {
+  /**
+   * Indicates the ID of the position to collect for.
+   */
+  tokenId: BigintIsh
+
+  token0: Token
+  token1: Token
+
+  /**
+   * The account that should receive the tokens.
+   */
+  recipient: Address
+}
+
+export interface CollectToOptions {
+  /**
+   * Indicates the ID of the position to collect for.
+   */
+  tokenId: BigintIsh
 
   /**
    * The account that should receive the tokens.
@@ -335,8 +363,55 @@ export abstract class NonfungiblePositionManager {
     return calldatas
   }
 
+  private static encodeCollectV2(options: CollectV2Options): Hex[] {
+    const calldatas: Hex[] = []
+
+    const tokenId = BigInt(options.tokenId)
+    const { token0, token1 } = options
+    const isToken0NativeWrapped = token0.address.toLowerCase() === WKLAY_ADDRESS
+    const isToken1NativeWrapped = token1.address.toLowerCase() === WKLAY_ADDRESS
+
+    const recipient = validateAndParseAddress(options.recipient)
+    const callData = encodeFunctionData({
+      abi: NonfungiblePositionManager.ABI,
+      functionName: 'collect',
+      args: [
+        {
+          tokenId,
+          recipient: isToken0NativeWrapped || isToken1NativeWrapped ? ADDRESS_ZERO : recipient,
+          amount0Max: MaxUint128,
+          amount1Max: MaxUint128,
+        },
+      ],
+    })
+
+    // collect
+    calldatas.push(callData)
+
+    if (isToken0NativeWrapped || isToken1NativeWrapped) {
+      const token = isToken0NativeWrapped ? token1 : token0
+
+      calldatas.push(Payments.encodeUnwrapWETH9(0n, recipient))
+      calldatas.push(Payments.encodeSweepToken(token, 0n, recipient))
+    }
+
+    return calldatas
+  }
+
   public static collectCallParameters(options: CollectOptions): MethodParameters {
     const calldatas: Hex[] = NonfungiblePositionManager.encodeCollect(options)
+
+    return {
+      calldata: Multicall.encodeMulticall(calldatas),
+      value: toHex(0),
+    }
+  }
+
+  public static collectAllCallParameters(optionsList: CollectV2Options[]): MethodParameters {
+    const calldatas: Hex[] = []
+    for (const options of optionsList) {
+      calldatas.push(...NonfungiblePositionManager.encodeCollectV2(options))
+    }
 
     return {
       calldata: Multicall.encodeMulticall(calldatas),

@@ -14,6 +14,7 @@ export function CurrencyLogoWithAmount({
   amountClassName = "text-on-surface",
   value,
   valueClassName = "text-on-surface-subtlest text-xs",
+  logoSize,
 }: CurrencyLogoWithSymbolProps & {
   amount: ReactNode;
   amountClassName?: string;
@@ -29,6 +30,7 @@ export function CurrencyLogoWithAmount({
         addressB={addressB}
         symbol={symbol}
         symbolClassName={symbolClassName}
+        logoSize={logoSize}
       />
 
       <div className="flex flex-col items-end space-y-1">

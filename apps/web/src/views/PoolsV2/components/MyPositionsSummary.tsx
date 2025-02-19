@@ -2,7 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import { ButtonV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { ReactNode } from 'react'
-import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 
 type MyPositionsSummaryProps = {
   positionCount: {
@@ -10,8 +10,8 @@ type MyPositionsSummaryProps = {
     v3: number
   }
   tvlUSD: number
-  unclaimedFeeUSD: number
-  boostRewardUSD: number
+  unclaimedFeeUSD: number // fees for not staked positions
+  unclaimedRewardAndFeeUSD: number // rewards and fees for staked positions
   claimFees: () => void
   collectRewards: () => void
 }
@@ -20,7 +20,7 @@ export function MyPositionsSummary({
   positionCount,
   tvlUSD,
   unclaimedFeeUSD,
-  boostRewardUSD,
+  unclaimedRewardAndFeeUSD,
   claimFees,
   collectRewards,
 }: MyPositionsSummaryProps) {
@@ -52,11 +52,11 @@ export function MyPositionsSummary({
         <div className="px-6 md:px-0 md:grid grid-cols-2 md:divide-x divide-border">
           <div className="py-6 md:py-0 md:px-6 border-t md:border-t-0 border-border">
             <MyPositionSummaryItem
-              label={t('Unclaimed Fees')}
+              label={t('Position Fees')}
               value={unclaimedFeeUSD}
               isDollar
               suffix={
-                <ButtonV2 variant="secondary" onClick={claimFees} disabled={unclaimedFeeUSD === 0}>
+                <ButtonV2 variant="primary" onClick={claimFees} disabled={unclaimedFeeUSD === 0}>
                   {t('Claim All')}
                 </ButtonV2>
               }
@@ -65,12 +65,12 @@ export function MyPositionsSummary({
           </div>
           <div className="py-6 md:py-0 md:px-6 border-t md:border-t-0 border-border">
             <MyPositionSummaryItem
-              label={t('Boost Rewards')}
-              value={boostRewardUSD}
+              label={t('Staking Rewards & Fees')}
+              value={unclaimedRewardAndFeeUSD}
               isDollar
               suffix={
-                <ButtonV2 variant="primary" onClick={collectRewards} disabled={boostRewardUSD === 0}>
-                  {t('Collect All')}
+                <ButtonV2 variant="primary" onClick={collectRewards} disabled={unclaimedRewardAndFeeUSD === 0}>
+                  {t('Claim All')}
                 </ButtonV2>
               }
               flexRowWhenSmallScreen
@@ -107,7 +107,14 @@ function MyPositionSummaryItem({
       <div>
         <h4 className="text-[13px]">{label}</h4>
         <p className="mt-3 text-[32px] font-medium">
-          {value === 0 ? '-' : isDollar ? `$ ${formatDollarAmount(value)}` : value.toLocaleString()}
+          {value === 0
+            ? '-'
+            : isDollar
+            ? `${formatDollarAmountV2({
+                num: value,
+                withDollarSign: true,
+              })}`
+            : value.toLocaleString()}
         </p>
       </div>
       {suffix}

@@ -6,14 +6,9 @@ import { getBlockExploreLink, getBlockExploreName } from 'utils'
 interface DescriptionWithTxProps {
   description?: string
   txHash?: string
-  txChainId?: number
 }
 
-const DescriptionWithTx: React.FC<React.PropsWithChildren<DescriptionWithTxProps>> = ({
-  txHash,
-  txChainId,
-  children,
-}) => {
+const DescriptionWithTx: React.FC<React.PropsWithChildren<DescriptionWithTxProps>> = ({ txHash, children }) => {
   const { t } = useTranslation()
 
   return (

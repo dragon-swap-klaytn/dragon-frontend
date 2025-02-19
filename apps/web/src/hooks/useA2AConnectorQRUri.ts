@@ -20,11 +20,11 @@ const useA2AConnectorQRUri = () => {
     return connector?.id === 'klip'
   }, [connector])
 
-  const displayUriHandler = useCallback((uri) => {
+  const displayUriHandler = useCallback((uri: string) => {
     setQrUri(uri)
   }, [])
 
-  const requestKeyHandler = useCallback((key) => {
+  const requestKeyHandler = useCallback((key: string) => {
     setRequestKey(key)
   }, [])
 

@@ -437,28 +437,31 @@ export default function PoolPage() {
       !collectMigrationHash,
   )
 
-  const modalHeader = () => (
-    <>
-      <ContainerV2>
-        <CurrencyLogoWithAmount
-          className="pb-2 border-b border-border"
-          currencyA={feeValueUpper?.currency}
-          symbol={feeValueUpper?.currency?.symbol}
-          amount={feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}
-        />
+  const modalHeader = useCallback(
+    () => (
+      <>
+        <ContainerV2>
+          <CurrencyLogoWithAmount
+            className="pb-2 border-b border-border"
+            currencyA={feeValueUpper?.currency}
+            symbol={feeValueUpper?.currency?.symbol}
+            amount={feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}
+          />
 
-        <CurrencyLogoWithAmount
-          className="pt-2"
-          currencyA={feeValueLower?.currency}
-          symbol={feeValueLower?.currency?.symbol}
-          amount={feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}
-        />
-      </ContainerV2>
+          <CurrencyLogoWithAmount
+            className="pt-2"
+            currencyA={feeValueLower?.currency}
+            symbol={feeValueLower?.currency?.symbol}
+            amount={feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}
+          />
+        </ContainerV2>
 
-      <p className="my-4 text-sm text-on-surface text-center">
-        {t('Collecting fees will withdraw currently available fees for you')}
-      </p>
-    </>
+        <p className="my-4 text-sm text-on-surface text-center">
+          {t('Collecting fees will withdraw currently available fees for you')}
+        </p>
+      </>
+    ),
+    [feeValueUpper, feeValueLower, locale, t],
   )
 
   const isLoading = loading || poolState === PoolState.LOADING || poolState === PoolState.INVALID || !feeAmount

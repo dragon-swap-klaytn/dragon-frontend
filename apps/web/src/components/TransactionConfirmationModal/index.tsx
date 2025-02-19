@@ -31,7 +31,7 @@ export function TransactionSubmittedContent({
       <div className="flex flex-col items-center space-y-3 mt-6">
         <p className="text-on-surface">{t('Transaction Submitted')}</p>
         {chainId && hash && (
-          <ExternalLink href={getBlockExploreLink(hash, 'transaction')} className="text-on-surface-subtle">
+          <ExternalLink href={getBlockExploreLink(hash, 'transaction')}>
             {t('View on %site%', {
               site: getBlockExploreName(),
             })}

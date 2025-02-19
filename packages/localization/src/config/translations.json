@@ -3154,5 +3154,7 @@
   "%percent%% of total supply": "%percent%% of total supply",
   "Are you convert RKAIA reward(%reward%) to KAIA now?": "Are you convert RKAIA reward(%reward%) to KAIA now?",
   "Would you like to proceed to the app installation page?": "Would you like to proceed to the app installation page?",
-  "Language": "Language"
+  "Language": "Language",
+  "You have received approximately %rewardAmount% RKLAY and wish to convert it to KAIA.": "You have received approximately %rewardAmount% RKLAY and wish to convert it to KAIA.",
+  "Would you like to proceed?": "Would you like to proceed?"
 }

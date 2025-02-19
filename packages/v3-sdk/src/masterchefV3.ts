@@ -1,15 +1,16 @@
-import { encodeFunctionData, Hex } from 'viem'
 import { BigintIsh, CurrencyAmount, ONE, Token, validateAndParseAddress, ZERO } from '@pancakeswap/sdk'
 import invariant from 'tiny-invariant'
+import { encodeFunctionData, Hex } from 'viem'
+import { masterChefV3ABI } from './abi/MasterChefV3'
 import { ADDRESS_ZERO } from './constants'
 import { Position } from './entities'
 import { Multicall } from './multicall'
-import { masterChefV3ABI } from './abi/MasterChefV3'
 
 import {
   type AddLiquidityOptions,
-  isMint,
   CollectOptions,
+  CollectToOptions,
+  isMint,
   MaxUint128,
   type RemoveLiquidityOptions,
 } from './nonfungiblePositionManager'
@@ -22,7 +23,7 @@ interface WidthDrawOptions {
   to: string
 }
 
-interface HarvestOptions {
+export interface HarvestOptions {
   tokenId: BigintIsh
   to: string
 }
@@ -148,6 +149,31 @@ export abstract class MasterChefV3 {
     return calldatas
   }
 
+  private static encodeCollectTo(options: CollectToOptions): Hex[] {
+    const calldatas: Hex[] = []
+
+    const tokenId = BigInt(options.tokenId)
+    const recipient = validateAndParseAddress(options.recipient)
+
+    // collect
+    calldatas.push(
+      encodeFunctionData({
+        abi: MasterChefV3.ABI,
+        functionName: 'collectTo',
+        args: [
+          {
+            tokenId,
+            recipient: ADDRESS_ZERO,
+            amount0Max: MaxUint128,
+            amount1Max: MaxUint128,
+          },
+          recipient,
+        ],
+      })
+    )
+    return calldatas
+  }
+
   public static collectCallParameters(options: CollectOptions): MethodParameters {
     const calldatas: Hex[] = MasterChefV3.encodeCollect(options)
 
@@ -257,8 +283,6 @@ export abstract class MasterChefV3 {
     }
   }
 
-  // public static updateCallParameters() {}
-
   public static harvestCallParameters(options: HarvestOptions) {
     const calldatas: Hex[] = this.encodeHarvest(options)
 
@@ -270,6 +294,29 @@ export abstract class MasterChefV3 {
 
   public static batchHarvestCallParameters(options: HarvestOptions[]) {
     const calldatas: Hex[] = options.map((option) => this.encodeHarvest(option)).flat()
+
+    return {
+      calldata: Multicall.encodeMulticall(calldatas),
+      value: toHex(0),
+    }
+  }
+
+  public static harvestAndCollectToAllCallParameters({
+    harvestOptions,
+    collectToOptions,
+  }: {
+    harvestOptions?: HarvestOptions[]
+    collectToOptions?: CollectToOptions[]
+  }) {
+    const calldatas: Hex[] = []
+
+    if (harvestOptions) {
+      calldatas.push(...harvestOptions.map((option) => this.encodeHarvest(option)).flat())
+    }
+
+    if (collectToOptions) {
+      calldatas.push(...collectToOptions.map((option) => this.encodeCollectTo(option)).flat())
+    }
 
     return {
       calldata: Multicall.encodeMulticall(calldatas),
