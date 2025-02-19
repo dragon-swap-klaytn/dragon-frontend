@@ -179,7 +179,7 @@ export class KaiaWalletConnector extends Connector<WindowProvider | undefined, a
   }
 
   protected onAccountsChanged = (accounts: string[]) => {
-    if (accounts.length === 0) {
+    if (!accounts?.length) {
       this.emit('disconnect')
     } else {
       this.emit('change', {
