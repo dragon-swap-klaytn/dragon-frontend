@@ -257,7 +257,7 @@ function V3PositionCard({
             })}
           </div>
 
-          <div className="mt-1 text-xs text-on-surface-subtlest">{t('APY')}</div>
+          <div className="mt-1 text-xs text-on-surface-subtlest">{t('APR')}</div>
         </div>
 
         <div className="hidden lg:block">
