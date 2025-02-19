@@ -73,10 +73,7 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
               }),
             )
             const toast = receipt.status === 'success' ? toastSuccess : toastError
-            toast(
-              t('Transaction receipt'),
-              <ToastDescriptionWithTx txHash={receipt.transactionHash} txChainId={chainId} />,
-            )
+            toast(t('Transaction receipt'), <ToastDescriptionWithTx txHash={receipt.transactionHash} />)
 
             merge(fetchedTransactions.current, { [transaction.hash]: transactions[transaction.hash] })
           } catch (error) {
@@ -166,7 +163,7 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
                   const toastTitle = isStakeType ? t('Staked!') : t('Unstaked!')
                   toastSuccess(
                     toastTitle,
-                    <ToastDescriptionWithTx txHash={destinationTxHash} txChainId={steps[pendingStep].chainId}>
+                    <ToastDescriptionWithTx txHash={destinationTxHash}>
                       {isStakeType
                         ? t('Your LP Token have been staked in the Farm!')
                         : t('Your LP Token have been unstaked in the Farm!')}
@@ -177,7 +174,7 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
                   const errorText = isStakeType ? t('Token fail to stake.') : t('Token fail to unstake.')
                   toastError(
                     toastTitle,
-                    <ToastDescriptionWithTx txHash={destinationTxHash} txChainId={steps[pendingStep].chainId}>
+                    <ToastDescriptionWithTx txHash={destinationTxHash}>
                       <Box>
                         <Text
                           as="span"
