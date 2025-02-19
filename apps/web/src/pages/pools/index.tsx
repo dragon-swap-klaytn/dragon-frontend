@@ -615,7 +615,14 @@ const PoolsPage = () => {
                   'bg-on-surface-brand': claimStep >= 1,
                 })}
               />
-              <span className="text-on-surface text-center text-xs">1. {t('claim rewards & fees')} </span>
+              <span
+                className={clsx('text-center text-xs', {
+                  'text-on-surface-brand': claimStep === 1,
+                  'text-on-surface': claimStep > 1,
+                })}
+              >
+                1. {t('claim rewards & fees')}{' '}
+              </span>
             </div>
 
             <div className="col-span-1 flex flex-col items-center space-y-1.5">
@@ -625,7 +632,14 @@ const PoolsPage = () => {
                   'bg-on-surface-subtlest': claimStep < 2,
                 })}
               />
-              <span className="text-on-surface text-center text-xs">2. {t('withdraw RKLAY to KAIA')}</span>
+              <span
+                className={clsx('text-center text-xs', {
+                  'text-on-surface-brand': claimStep === 2,
+                  'text-on-surface': claimStep < 2,
+                })}
+              >
+                2. {t('withdraw RKLAY to KAIA')}
+              </span>
             </div>
           </div>
         )}
