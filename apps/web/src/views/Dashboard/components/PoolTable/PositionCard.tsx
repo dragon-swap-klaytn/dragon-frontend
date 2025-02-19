@@ -8,8 +8,9 @@ import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { useBackTo } from 'hooks/use-back-to'
-import { PortfolioData, PortfolioPositionBigInt, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
+import { PortfolioData, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
+import { PositionV3 } from 'hooks/usePoolPositions'
 import { useDerivedPositionInfoV2 } from 'hooks/v3/useDerivedPositionInfoV2'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
@@ -38,8 +39,8 @@ export default function PositionCardList({
 
   const priceMap = useMemo(
     () => ({
-      ...prices,
       ...ssPrices,
+      ...prices,
     }),
     [prices, ssPrices],
   )
@@ -58,7 +59,6 @@ export default function PositionCardList({
             volume24H={poolData.volumeUSD['24H']}
             rewardApr={(poolData as PoolV3Parsed).rewardApr || 0}
             poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
-            isBoosted={!!(poolData as PoolV3Parsed).rewardApr && (poolData as PoolV3Parsed).rewardApr > 0}
             priceMap={priceMap}
           />
         ))
@@ -100,24 +100,24 @@ function EmptyPositionCard({
   )
 }
 
-function V3PositionCard({
+export function V3PositionCard({
   token0,
   token1,
   position,
   volume24H,
   rewardApr,
   poolFeeTier,
-  isBoosted,
   priceMap,
+  bgClassName = 'bg-neutral-dark hover:bg-neutral-dark-hovered',
 }: {
   token0: TokenSimple
   token1: TokenSimple
-  position: PortfolioPositionBigInt
+  position: PositionV3
   volume24H: number
   rewardApr: number
   poolFeeTier: number
-  isBoosted: boolean
   priceMap: Record<string, number>
+  bgClassName?: string
 }) {
   const {
     t,
@@ -130,6 +130,8 @@ function V3PositionCard({
   const tickAtLimit = useIsTickAtLimit(poolFeeTier, _position?.tickLower, _position?.tickUpper)
 
   const [inverted, setInverted] = useState(false)
+
+  const isBoosted = rewardApr > 0
 
   const { token0USD, token1USD, rewardsUSD } = useMemo(() => {
     const price0 = priceMap[position.token0.address] ?? 0
@@ -192,7 +194,7 @@ function V3PositionCard({
 
   return (
     <NextLink
-      className="p-5 rounded-xl space-y-5 bg-neutral-dark w-full hover:bg-neutral-dark-hovered"
+      className={clsx('p-5 rounded-xl space-y-5 w-full', bgClassName)}
       onClick={saveBackToHref}
       href={`/liquidity/${position.positionId}`}
     >

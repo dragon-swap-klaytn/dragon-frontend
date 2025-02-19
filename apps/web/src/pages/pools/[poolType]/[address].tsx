@@ -1,12 +1,16 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner, TagV2 } from '@pancakeswap/uikit'
 import { ArrowUp } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import Page from 'components/Layout/Page'
-import usePoolPositions, { PositionV2 } from 'hooks/usePoolPositions'
+import { useBackTo } from 'hooks/use-back-to'
+import useTokenPrices from 'hooks/use-token-prices'
+import usePoolPositions, { PositionV2, PositionV3 } from 'hooks/usePoolPositions'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV2Parsed, PoolV3Parsed } from 'pages/api/pools'
+import { useMemo } from 'react'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
@@ -15,6 +19,7 @@ import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
 import { PoolChart } from 'views/Dashboard/components/PoolChart'
+import { V3PositionCard } from 'views/Dashboard/components/PoolTable/PositionCard'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
 import usePools from 'views/Dashboard/hooks/usePools'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
@@ -242,7 +247,7 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
               </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-6">
               <PoolPositions pool={poolData} />
             </div>
           </div>
@@ -253,6 +258,8 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
 }
 
 function PoolPositions({ pool }: { pool: PoolParsed }) {
+  const { t } = useTranslation()
+
   const { address: account } = useAccount()
   const { positions, error } = usePoolPositions({
     account,
@@ -269,29 +276,74 @@ function PoolPositions({ pool }: { pool: PoolParsed }) {
     return <></>
   }
 
-  if (pool.type === 'v2') {
-    return <PoolPositionsV2 pool={pool} position={(positions as PositionV2[])[0]} />
-  }
-
-  // TODO: @kay Add v3 positions
   return (
     <div>
-      <h1>Positions</h1>
-      <p>Positions found.</p>
+      <h2>{t('My Positions')}</h2>
+      <div className="mt-4 flex flex-col items-center space-y-3">
+        {pool.type === 'v2' ? (
+          <PoolPositionsV2 pool={pool} position={(positions as PositionV2[])[0]} />
+        ) : (
+          positions.map((position) => (
+            <PoolPositionsV3 key={pool.id} pool={pool as PoolV3Parsed} position={position as PositionV3} />
+          ))
+        )}
+      </div>
     </div>
   )
 }
 
-function PoolPositionsV2({ pool, position }: { pool: PoolV2Parsed; position: PositionV2 }) {
+function PoolPositionsV3({ pool, position }: { pool: PoolV3Parsed; position: PositionV3 }) {
+  const { prices } = useTokenPrices()
+  // use swapscanner price as fallback
+  const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
+
+  const priceMap = useMemo(
+    () => ({
+      ...ssPrices,
+      ...prices,
+    }),
+    [prices, ssPrices],
+  )
+
+  const rewardApr = pool.rewardApr || 0
+
+  return (
+    <V3PositionCard
+      bgClassName="bg-neutral hover:bg-neutral hover:bg-neutral-900"
+      token0={pool.token0}
+      token1={pool.token1}
+      position={position}
+      volume24H={pool.volumeUSD['24H']}
+      rewardApr={rewardApr}
+      poolFeeTier={+pool.feeTier}
+      priceMap={priceMap}
+    />
+  )
+}
+
+function PoolPositionsV2({
+  pool,
+  position,
+  bgClassName = 'bg-neutral hover:bg-neutral-900',
+}: {
+  pool: PoolV2Parsed
+  position: PositionV2
+  bgClassName?: string
+}) {
   const { t } = useTranslation()
+
+  const { saveBackToHref } = useBackTo()
 
   const share = position.token0.amount / pool.reserve0
   const shareUSD = share * pool.tvlUSD.current
 
-  // TODO: @kay Link to Position Page?
   return (
-    <div className="rounded-xl bg-neutral w-full p-6">
-      <h2 className="text-base">{t('My Positions')}</h2>
+    <NextLink
+      className={clsx('rounded-xl w-full p-6', bgClassName)}
+      onClick={saveBackToHref}
+      href={`/v2/pair/${pool.token0.id}/${pool.token1.id}`}
+    >
+      <h5>{`${pool.token0.symbol}-${pool.token1.symbol}`}</h5>
       <div className="mt-4 space-x-12">
         <span className="inline-flex flex-col">
           <span className="text-sm">$ {formatDollarAmount(shareUSD)}</span>
@@ -328,7 +380,7 @@ function PoolPositionsV2({ pool, position }: { pool: PoolV2Parsed; position: Pos
           </span>
         </span>
       </div>
-    </div>
+    </NextLink>
   )
 }
 
