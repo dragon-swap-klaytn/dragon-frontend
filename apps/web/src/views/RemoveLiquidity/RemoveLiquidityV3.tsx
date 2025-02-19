@@ -44,6 +44,7 @@ import { ArrowDown } from '@phosphor-icons/react'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { isUserRejected } from 'utils/sentry'
+import { toChecksumToken } from 'utils/toChecksumToken'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useBurnV3ActionHandlers } from './form/hooks'
 
@@ -99,7 +100,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
     feeValue1,
     outOfRange,
     error,
-  } = useDerivedV3BurnInfo(position, percent, receiveWNATIVE)
+  } = useDerivedV3BurnInfo({ position, percent, asWNATIVE: receiveWNATIVE })
 
   const { onPercentSelect } = useBurnV3ActionHandlers()
 
@@ -224,8 +225,14 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
   const removed = position?.liquidity === 0n
 
-  const price0 = useStablecoinPrice(liquidityValue0?.currency?.wrapped ?? undefined, { enabled: !!feeValue0 })
-  const price1 = useStablecoinPrice(liquidityValue1?.currency?.wrapped ?? undefined, { enabled: !!feeValue1 })
+  const price0 = useStablecoinPrice(
+    liquidityValue0?.currency?.wrapped ? toChecksumToken(liquidityValue0.currency.wrapped) : undefined,
+    { enabled: !!feeValue0 },
+  )
+  const price1 = useStablecoinPrice(
+    liquidityValue1?.currency?.wrapped ? toChecksumToken(liquidityValue1.currency.wrapped) : undefined,
+    { enabled: !!feeValue1 },
+  )
 
   const modalHeader = useCallback(() => {
     return (

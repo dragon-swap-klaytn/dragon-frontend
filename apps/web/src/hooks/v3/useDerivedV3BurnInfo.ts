@@ -1,19 +1,24 @@
+import { PositionDetails } from '@pancakeswap/farms'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
 import { Position } from '@pancakeswap/v3-sdk'
 import { useToken } from 'hooks/Tokens'
 import { ReactNode, useMemo } from 'react'
+import { toChecksumCurrencyAmount } from 'utils/toChecksumCurrencyAmount'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { PositionDetails } from '@pancakeswap/farms'
 import { useAccount } from 'wagmi'
 import { usePool } from './usePools'
 import { useV3PositionFees } from './useV3PositionFees'
 
-export function useDerivedV3BurnInfo(
-  position?: PositionDetails,
-  percent?: number,
+export function useDerivedV3BurnInfo({
+  position,
+  percent,
   asWNATIVE = false,
-): {
+}: {
+  position?: PositionDetails
+  percent: number
+  asWNATIVE?: boolean
+}): {
   position?: Position
   liquidityPercentage?: Percent
   liquidityValue0?: CurrencyAmount<Currency>
@@ -58,11 +63,13 @@ export function useDerivedV3BurnInfo(
 
   const liquidityValue0 =
     token0 && typeof discountedAmount0 !== 'undefined'
-      ? CurrencyAmount.fromRawAmount(asWNATIVE ? token0 : unwrappedToken(token0), discountedAmount0)
+      ? toChecksumCurrencyAmount(
+          CurrencyAmount.fromRawAmount(asWNATIVE ? token0 : unwrappedToken(token0)!, discountedAmount0),
+        )
       : undefined
   const liquidityValue1 =
     token1 && typeof discountedAmount1 !== 'undefined'
-      ? CurrencyAmount.fromRawAmount(asWNATIVE ? token1 : unwrappedToken(token1), discountedAmount1)
+      ? toChecksumCurrencyAmount(CurrencyAmount.fromRawAmount(asWNATIVE ? token1 : unwrappedToken(token1)!, discountedAmount1))
       : undefined
 
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, position?.tokenId, asWNATIVE)
