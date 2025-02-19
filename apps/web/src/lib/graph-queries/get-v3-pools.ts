@@ -47,7 +47,6 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
             sqrtPrice
             feeTier
             feeProtocol
-            liquidity
             totalValueLockedToken0
             totalValueLockedToken1
           `

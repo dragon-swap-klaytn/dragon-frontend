@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Price, Token } from '@pancakeswap/swap-sdk-core'
 import { TagV2 } from '@pancakeswap/uikit'
+import { FeeCalculator } from '@pancakeswap/v3-sdk'
 import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
@@ -18,6 +19,7 @@ import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
 import { PoolType } from 'types'
+import { calculateAPR, calculateAPY } from 'utils/calculate-interests'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import { useAccount } from 'wagmi'
 
@@ -53,6 +55,8 @@ export default function PositionCardList({
             token0={poolData.token0}
             token1={poolData.token1}
             position={position}
+            volume24H={poolData.volumeUSD['24H']}
+            rewardApr={(poolData as PoolV3Parsed).rewardApr || 0}
             poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
             isBoosted={!!(poolData as PoolV3Parsed).rewardApr && (poolData as PoolV3Parsed).rewardApr > 0}
             priceMap={priceMap}
@@ -100,6 +104,8 @@ function V3PositionCard({
   token0,
   token1,
   position,
+  volume24H,
+  rewardApr,
   poolFeeTier,
   isBoosted,
   priceMap,
@@ -107,6 +113,8 @@ function V3PositionCard({
   token0: TokenSimple
   token1: TokenSimple
   position: PortfolioPositionBigInt
+  volume24H: number
+  rewardApr: number
   poolFeeTier: number
   isBoosted: boolean
   priceMap: Record<string, number>
@@ -149,6 +157,38 @@ function V3PositionCard({
       priceUpper: inverted ? _position.token0PriceUpper : _position.token0PriceLower.invert(),
     }
   }, [inverted, _position])
+
+  const { lpApr, lpApy: _lpApy } = useMemo(() => {
+    if (!_position) return { lpApr: 0, lpApy: 0 }
+
+    const fee24HFraction = FeeCalculator.getEstimatedLPFeeByAmounts({
+      amountA: _position.amount0,
+      amountB: _position.amount1,
+      tickLower: _position.tickLower,
+      tickUpper: _position.tickUpper,
+      volume24H,
+      sqrtRatioX96: _position.pool.sqrtRatioX96,
+      mostActiveLiquidity: _position.pool.liquidity,
+      fee: _position.pool.fee,
+    })
+
+    const estimatedFee24H = +fee24HFraction.toSignificant(6)
+    const positionLiquidity = token0USD.deposited + token1USD.deposited
+    const duration = 24 * 60 * 60 * 1000
+
+    return {
+      lpApr: calculateAPR({
+        interest: estimatedFee24H,
+        principal: positionLiquidity,
+        duration,
+      }),
+      lpApy: calculateAPY({
+        interest: estimatedFee24H,
+        principal: positionLiquidity,
+        duration,
+      }),
+    }
+  }, [_position, volume24H, token0USD, token1USD])
 
   return (
     <NextLink
@@ -205,9 +245,16 @@ function V3PositionCard({
           <div className="mt-1 text-xs text-on-surface-subtlest">{t('Fees')}</div>
         </div>
         <div className="s:min-w-24">
-          <div className="text-sm text-on-surface">
-            {/* TODO: fix this APR @kay */}
-            APY VAL
+          <div
+            className={clsx('text-sm', {
+              'text-brand': isBoosted,
+            })}
+          >
+            {(lpApr + rewardApr).toLocaleString(undefined, {
+              style: 'percent',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </div>
 
           <div className="mt-1 text-xs text-on-surface-subtlest">{t('APY')}</div>
