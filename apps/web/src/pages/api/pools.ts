@@ -10,8 +10,8 @@ import { parseV2Pool, parseV3Pool } from 'pools/parse-pool'
 import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 import { Simplify } from 'type-fest'
 import { calculateAPR } from 'utils/calculate-interests'
+import { duplicateChecksumPriceMap } from 'utils/duplicate-checksum-price-map'
 import { getViemClients } from 'utils/viem.server'
-import { getAddress } from 'viem'
 import { z } from 'zod'
 
 export type PoolV2Parsed = Simplify<ReturnType<typeof parseV2Pool>>
@@ -39,15 +39,6 @@ const poolsSchema = z.object({
 
   skip: z.coerce.number().optional().default(0),
   limit: z.coerce.number().max(100).optional().default(10),
-})
-
-const duplicateChecksumAddress = (priceMap: Record<string, number>) => ({
-  ...priceMap,
-  ...Object.fromEntries(
-    Object.entries(priceMap)
-      .filter(([address]) => VALID_ADDRESS_REGEX.test(address))
-      .map(([address, price]) => [getAddress(address), price]),
-  ),
 })
 
 function filteredByTokenAddress(pools: PoolParsed[], tokenAddress?: string) {
@@ -95,6 +86,8 @@ const handler: NextApiHandler = async (req, res) => {
     }),
   ])
 
+  const commonPrice = duplicateChecksumPriceMap({ ...ssPrices, ...prices })
+
   const {
     farmsWithPrice,
     cakePerSecond,
@@ -102,7 +95,7 @@ const handler: NextApiHandler = async (req, res) => {
   } = await farmFetcherV3.fetchFarms({
     chainId: ChainId.KLAYTN,
     farms: farmsV3,
-    commonPrice: duplicateChecksumAddress({ ...ssPrices, ...prices }),
+    commonPrice,
   })
 
   const lpAddressToPoolWeights = Object.fromEntries(

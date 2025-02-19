@@ -1,5 +1,5 @@
 import useSWRImmutable from 'swr/immutable'
-import { Address } from 'viem'
+import { duplicateChecksumPriceMap } from 'utils/duplicate-checksum-price-map'
 
 const sourceUrls = {
   default: '/api/tokens/prices',
@@ -11,7 +11,7 @@ export default function useTokenPrices({
 }: {
   source?: 'default' | 'swapscanner'
 } = {}) {
-  const { data, error, mutate } = useSWRImmutable<Record<Address, number>>(
+  const { data, error, mutate } = useSWRImmutable<Record<string, number>>(
     sourceUrls[source],
     (key) => fetch(key).then((res) => res.json()),
     {
@@ -20,7 +20,7 @@ export default function useTokenPrices({
   )
 
   return {
-    prices: data,
+    prices: data ? duplicateChecksumPriceMap(data) : undefined,
     mutate,
     error,
   }
