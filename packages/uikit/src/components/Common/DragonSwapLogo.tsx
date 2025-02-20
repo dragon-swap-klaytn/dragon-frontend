@@ -1,13 +1,14 @@
 interface Props {
   className?: string;
+  size?: number;
 }
 
-export function DragonSwapLogo({ className }: Props) {
+export function DragonSwapLogo({ className, size = 28 }: Props) {
   return (
     <svg
       className={className}
-      width="28"
-      height="28"
+      width={size}
+      height={size}
       viewBox="0 0 28 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
