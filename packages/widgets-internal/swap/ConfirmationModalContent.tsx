@@ -1,14 +1,16 @@
+import { ReactNode } from "react";
+
 export function ConfirmationModalContent({
   bottomContent,
   topContent,
 }: {
-  topContent: () => React.ReactNode;
-  bottomContent: () => React.ReactNode;
+  topContent: ReactNode;
+  bottomContent: ReactNode;
 }) {
   return (
     <div className="w-full">
-      {topContent()}
-      {bottomContent()}
+      {topContent}
+      {bottomContent}
     </div>
   );
 }

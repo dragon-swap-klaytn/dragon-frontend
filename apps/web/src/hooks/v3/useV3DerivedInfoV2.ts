@@ -18,7 +18,7 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import tryParseCurrencyAmount from 'utils/tryParseCurrencyAmount'
 import { MintState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 
-import { PortfolioPositionBigInt } from 'hooks/use-portfolio'
+import { PositionV3 } from 'hooks/use-portfolio'
 import { toChecksumToken } from 'utils/toChecksumToken'
 import { useAccount } from 'wagmi'
 import { PoolState } from './types'
@@ -32,7 +32,7 @@ export default function useV3DerivedInfoV2(
   feeAmount?: FeeAmount,
   baseCurrency?: Currency,
   // override for existing position
-  existingPosition?: PortfolioPositionBigInt,
+  existingPosition?: PositionV3,
   formState?: MintState,
 ): {
   pool?: Pool | null

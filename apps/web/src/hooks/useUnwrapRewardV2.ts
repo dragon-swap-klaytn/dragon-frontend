@@ -1,27 +1,28 @@
-import { ChainId } from '@pancakeswap/chains'
-import { CAKE } from '@pancakeswap/tokens'
+import { Token } from '@pancakeswap/swap-sdk-core'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import { useWNativeContract } from 'hooks/useContract'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useState } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { SendTransactionResult } from 'wagmi/actions'
 
 interface IProps {
-  chainId: number
+  rewardToken: Token
   onDone?: (tx: SendTransactionResult) => void
 }
 
-export function useUnwrapRewardV2({ chainId, onDone }: IProps) {
+export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
+  const [inflight, setInflight] = useState(false)
+
   const { callWithGasPrice } = useCallWithGasPrice()
   const addTransaction = useTransactionAdder()
 
-  const rewardToken = useMemo(() => CAKE[chainId as ChainId], [chainId])
   const nativeInfo = useNativeCurrency()
   const wNativeContract = useWNativeContract(rewardToken.address)
 
   const unwrapReward = useCallback(
     async (reward: number) => {
+      setInflight(true)
       const numeratedRewardAmount = Math.floor(reward * 10 ** rewardToken.decimals)
       const rewardStr = reward.toLocaleString(undefined, {
         minimumSignificantDigits: 6,
@@ -44,6 +45,8 @@ export function useUnwrapRewardV2({ chainId, onDone }: IProps) {
       } catch (e) {
         console.error('Could not withdraw', e)
         return false
+      } finally {
+        setInflight(false)
       }
     },
     [nativeInfo, rewardToken, wNativeContract, callWithGasPrice, addTransaction, onDone],
@@ -51,5 +54,6 @@ export function useUnwrapRewardV2({ chainId, onDone }: IProps) {
 
   return {
     unwrapReward,
+    inflight,
   }
 }

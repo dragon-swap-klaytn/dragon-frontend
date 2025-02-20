@@ -6,7 +6,7 @@ import { ConfirmationPendingContent, TransactionErrorContent } from '@pancakeswa
 import { ArrowCircleUp } from '@phosphor-icons/react'
 import useA2AConnectorQRUri from 'hooks/useA2AConnectorQRUri'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useCallback } from 'react'
+import { FC, PropsWithChildren, ReactNode, useCallback } from 'react'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 import AddToWalletButton, { AddToWalletTextOptions } from '../AddToWallet/AddToWalletButton'
@@ -58,15 +58,13 @@ interface ConfirmationModalProps {
   customOnDismiss?: () => void
   hash: string | undefined
   errorMessage?: string
-  content: () => React.ReactNode
+  content: ReactNode
   attemptingTxn: boolean
   pendingText: string
   currencyToAdd?: Currency | undefined
 }
 
-const TransactionConfirmationModal: React.FC<
-  React.PropsWithChildren<InjectedModalProps & ConfirmationModalProps & ModalProps>
-> = ({
+const TransactionConfirmationModal: FC<PropsWithChildren<InjectedModalProps & ConfirmationModalProps & ModalProps>> = ({
   title,
   onDismiss,
   customOnDismiss,
@@ -105,7 +103,7 @@ const TransactionConfirmationModal: React.FC<
       ) : errorMessage ? (
         <TransactionErrorContent message={errorMessage} onDismiss={handleDismiss} />
       ) : (
-        content()
+        content
       )}
     </Modal>
   )

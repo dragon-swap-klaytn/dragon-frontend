@@ -36,14 +36,16 @@ type UsePortfolioOptions = {
   paused?: boolean
 }
 
-export type PortfolioPositionBigInt = Omit<PortfolioPosition, 'liquidity' | 'sqrtPriceX96'> & {
+export type PositionV3 = Omit<PortfolioPosition, 'liquidity' | 'sqrtPriceX96'> & {
   liquidity: bigint
   sqrtPriceX96: bigint
 }
 
 export type PortfolioV3DataBigInt = Omit<PortfolioV3Data, 'positions'> & {
-  positions: PortfolioPositionBigInt[]
+  positions: PositionV3[]
 }
+
+export type PositionV2 = PortfolioV2Data
 
 export default function usePortfolio(
   { account, poolTypes = ['v3', 'v2'], onlyPoolIds }: UsePortfolioParams,

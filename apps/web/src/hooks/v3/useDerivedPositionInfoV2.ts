@@ -1,9 +1,9 @@
 import { Position } from '@pancakeswap/v3-sdk'
 import { useCurrency } from 'hooks/Tokens'
-import { PortfolioPositionBigInt } from 'hooks/use-portfolio'
+import { PositionV3 } from 'hooks/use-portfolio'
 import { usePool } from './usePools'
 
-export function useDerivedPositionInfoV2(portfolio: PortfolioPositionBigInt, fee: number) {
+export function useDerivedPositionInfoV2(portfolio: PositionV3, fee: number) {
   const currency0 = useCurrency(portfolio.token0.address)
   const currency1 = useCurrency(portfolio.token1.address)
 

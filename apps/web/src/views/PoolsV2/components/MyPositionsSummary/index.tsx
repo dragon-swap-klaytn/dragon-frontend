@@ -6,7 +6,7 @@ import useTokenPrices from 'hooks/use-token-prices'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { ReactNode, useMemo } from 'react'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
-import useClaimFeesAndRewards from 'views/PoolsV2/components/MyPositionsSummary/use-claim-fees-and-rewards'
+import useClaimModals from 'views/PoolsV2/components/MyPositionsSummary/use-claim-modals'
 
 type MyPositionsSummaryProps = {
   portfolio?: Portfolio
@@ -28,7 +28,7 @@ export function MyPositionsSummary({ portfolio, invalidatePortflio }: MyPosition
     [prices, ssPrices],
   )
 
-  const { claimUnstakedFees, claimFeesAndRewards } = useClaimFeesAndRewards({
+  const { openClaimUnstakedFeesModal, openClaimFeesAndRewardsModal } = useClaimModals({
     priceMap: mergedPrices,
     portfolio,
     invalidatePortflio,
@@ -117,7 +117,7 @@ export function MyPositionsSummary({ portfolio, invalidatePortflio }: MyPosition
               value={unclaimedFeeUSD}
               isDollar
               suffix={
-                <ButtonV2 variant="primary" onClick={claimUnstakedFees} disabled={unclaimedFeeUSD === 0}>
+                <ButtonV2 variant="primary" onClick={openClaimUnstakedFeesModal} disabled={unclaimedFeeUSD === 0}>
                   {t('Claim All')}
                 </ButtonV2>
               }
@@ -130,7 +130,11 @@ export function MyPositionsSummary({ portfolio, invalidatePortflio }: MyPosition
               value={unclaimedRewardAndFeeUSD}
               isDollar
               suffix={
-                <ButtonV2 variant="primary" onClick={claimFeesAndRewards} disabled={unclaimedRewardAndFeeUSD === 0}>
+                <ButtonV2
+                  variant="primary"
+                  onClick={openClaimFeesAndRewardsModal}
+                  disabled={unclaimedRewardAndFeeUSD === 0}
+                >
                   {t('Claim All')}
                 </ButtonV2>
               }
