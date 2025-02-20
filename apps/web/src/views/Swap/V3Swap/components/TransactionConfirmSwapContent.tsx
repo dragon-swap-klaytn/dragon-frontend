@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/sdk'
 import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { Field } from 'state/swap/actions'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import SwapModalHeader from '../../components/SwapModalHeader'
@@ -79,59 +79,42 @@ export const TransactionConfirmSwapContent = memo<TransactionConfirmSwapContentP
         : false
     }, [currencyBalances, trade, slippageAdjustedAmounts])
 
-    const modalHeader = useCallback(() => {
-      return trade ? (
-        <SwapModalHeader
-          inputAmount={trade.inputAmount}
-          outputAmount={trade.outputAmount}
-          currencyBalances={currencyBalances}
-          tradeType={trade.tradeType}
-          slippageAdjustedAmounts={slippageAdjustedAmounts}
-          isEnoughInputBalance={isEnoughInputBalance ?? undefined}
-          recipient={recipient ?? undefined}
-          showAcceptChanges={showAcceptChanges}
-          onAcceptChanges={onAcceptChanges}
-        />
-      ) : null
-    }, [
-      currencyBalances,
-      onAcceptChanges,
-      recipient,
-      showAcceptChanges,
-      trade,
-      slippageAdjustedAmounts,
-      isEnoughInputBalance,
-    ])
-
-    const modalBottom = useCallback(() => {
-      return trade ? (
-        <SwapModalFooter
-          trade={trade}
-          tradeType={trade.tradeType}
-          inputAmount={trade.inputAmount}
-          outputAmount={trade.outputAmount}
-          currencyBalances={currencyBalances}
-          lpFee={lpFeeAmount ?? undefined}
-          priceImpact={priceImpactWithoutFee ?? undefined}
-          disabledConfirm={showAcceptChanges}
-          slippageAdjustedAmounts={slippageAdjustedAmounts}
-          isEnoughInputBalance={isEnoughInputBalance ?? undefined}
-          onConfirm={onConfirm}
-          allowedSlippage={allowedSlippage}
-        />
-      ) : null
-    }, [
-      trade,
-      currencyBalances,
-      lpFeeAmount,
-      showAcceptChanges,
-      isEnoughInputBalance,
-      slippageAdjustedAmounts,
-      priceImpactWithoutFee,
-      onConfirm,
-      allowedSlippage,
-    ])
-
-    return <ConfirmationModalContent topContent={modalHeader} bottomContent={modalBottom} />
+    return (
+      <ConfirmationModalContent
+        topContent={
+          trade ? (
+            <SwapModalHeader
+              inputAmount={trade.inputAmount}
+              outputAmount={trade.outputAmount}
+              currencyBalances={currencyBalances}
+              tradeType={trade.tradeType}
+              slippageAdjustedAmounts={slippageAdjustedAmounts}
+              isEnoughInputBalance={isEnoughInputBalance ?? undefined}
+              recipient={recipient ?? undefined}
+              showAcceptChanges={showAcceptChanges}
+              onAcceptChanges={onAcceptChanges}
+            />
+          ) : null
+        }
+        bottomContent={
+          trade ? (
+            <SwapModalFooter
+              trade={trade}
+              tradeType={trade.tradeType}
+              inputAmount={trade.inputAmount}
+              outputAmount={trade.outputAmount}
+              currencyBalances={currencyBalances}
+              lpFee={lpFeeAmount ?? undefined}
+              priceImpact={priceImpactWithoutFee ?? undefined}
+              disabledConfirm={showAcceptChanges}
+              slippageAdjustedAmounts={slippageAdjustedAmounts}
+              isEnoughInputBalance={isEnoughInputBalance ?? undefined}
+              onConfirm={onConfirm}
+              allowedSlippage={allowedSlippage}
+            />
+          ) : null
+        }
+      />
+    )
   },
 )

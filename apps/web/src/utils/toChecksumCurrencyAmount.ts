@@ -8,8 +8,10 @@ export const toChecksumCurrencyAmount = (currencyAmount: CurrencyAmount<Currency
     return currencyAmount
   }
 
+  const token = currency as Token
+
   return CurrencyAmount.fromFractionalAmount(
-    new Token(currency.chainId, getAddress(currency.address), currency.decimals, currency.symbol),
+    new Token(token.chainId, getAddress(token.address), token.decimals, token.symbol),
     currencyAmount.numerator,
     currencyAmount.denominator,
   )

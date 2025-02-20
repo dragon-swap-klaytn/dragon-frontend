@@ -6,5 +6,7 @@ export const toChecksumCurrency = (token: Currency) => {
     return token
   }
 
-  return new Token(token.chainId, getAddress(token.address), token.decimals, token.symbol)
+  const _token = token as Token
+
+  return new Token(_token.chainId, getAddress(_token.address), _token.decimals, _token.symbol)
 }
