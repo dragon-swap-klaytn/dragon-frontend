@@ -75,6 +75,7 @@ export default function PoolFinder() {
     true,
     true,
     'selectCurrencyModal',
+    [activeField, currency0, currency1],
   )
 
   return (

@@ -256,6 +256,27 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
     true,
     true,
     `farm-deposit-modal-${pid}`,
+    [
+      account,
+      pid,
+      lpTotalSupply,
+      tokenBalance,
+      lpTokenPrice,
+      lpLabel,
+      apr,
+      displayApr,
+      stakedBalance,
+      lpSymbol,
+      multiplier,
+      addLiquidityUrl,
+      cakePrice,
+      boosterState,
+      chainId,
+      crossChainWarningText,
+      lpRewardsApr,
+      allowance,
+      pendingTx,
+    ],
   )
 
   const [onPresentWithdraw] = useModal(

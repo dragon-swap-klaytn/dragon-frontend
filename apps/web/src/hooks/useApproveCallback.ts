@@ -67,7 +67,7 @@ export function useApproveCallback(
       attemptingTxn: true,
     }),
     true,
-    true,
+    false,
     'ApprovalConfirmationModal',
   )
 

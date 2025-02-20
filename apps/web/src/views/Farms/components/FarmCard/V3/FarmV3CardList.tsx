@@ -45,7 +45,7 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
       customOnDismiss={handleDismiss}
     />,
     true,
-    true,
+    false,
     'TxConfirmationModal',
   )
 

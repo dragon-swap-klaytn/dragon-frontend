@@ -540,6 +540,7 @@ export default function PoolPage() {
     true,
     true,
     'TransactionConfirmationModalCollectFees',
+    [collecting, collectMigrationHash, feeValueUpper, feeValueLower, locale],
   )
 
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
@@ -551,7 +552,7 @@ export default function PoolPage() {
       customOnDismiss={handleDismissConfirmation}
     />,
     true,
-    true,
+    false,
     'TxConfirmationModal',
   )
 

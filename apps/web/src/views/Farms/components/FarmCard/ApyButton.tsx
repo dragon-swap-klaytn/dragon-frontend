@@ -99,6 +99,24 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
     false,
     true,
     `FarmModal${pid}`,
+    [
+      account,
+      pid,
+      lpLabel,
+      userBalanceInFarm,
+      lpSymbol,
+      lpTokenPrice,
+      cakePrice,
+      apr,
+      multiplier,
+      displayApr,
+      lpRewardsApr,
+      addLiquidityUrl,
+      stableSwapAddress,
+      stableLpFee,
+      farmCakePerSecond,
+      totalMultipliers,
+    ],
   )
 
   const handleClickButton = (event: MouseEvent): void => {

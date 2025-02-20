@@ -149,7 +149,7 @@ const SingleFarmV3Card: React.FunctionComponent<
       customOnDismiss={handleDismiss}
     />,
     true,
-    true,
+    false,
     'TxConfirmationModal',
   )
 

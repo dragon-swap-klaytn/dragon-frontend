@@ -82,7 +82,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
       attemptingTxn
     />,
     true,
-    true,
+    false,
     'WrapConfirmationModal',
   )
   const {
