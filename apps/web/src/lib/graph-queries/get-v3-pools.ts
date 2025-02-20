@@ -44,6 +44,8 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
               name
               decimals
             }
+            liquidity
+            tick
             sqrtPrice
             feeTier
             feeProtocol
@@ -90,6 +92,9 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
             token1: overrideToken(pool.token1),
             feeTier: pool.feeTier,
             feeProtocol: pool.feeProtocol,
+            tick: pool.tick,
+            liquidity: pool.liquidity,
+            sqrtPriceX96: pool.sqrtPrice,
             reserve0: +pool.totalValueLockedToken0,
             reserve1: +pool.totalValueLockedToken1,
             price: (+pool.sqrtPrice / FLOAT64_Q96) ** 2 * (10 ** +pool.token0.decimals / 10 ** +pool.token1.decimals),

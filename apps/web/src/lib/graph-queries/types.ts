@@ -36,6 +36,9 @@ export type PoolV2Raw = PoolV2Base & PoolV2AccData
 export type PoolV3Base = PoolBase & {
   feeTier: string
   feeProtocol: string
+  tick: string
+  liquidity: string
+  sqrtPriceX96: string
 }
 
 export type PoolV3AccData = PoolAccDataBase & {
