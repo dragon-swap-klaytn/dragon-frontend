@@ -156,14 +156,14 @@ export default function AddLiquidity({
   )
 
   // check whether the user has approved the router on the tokens
-  const {
-    approvalState: approvalA,
-    approveCallback: approveACallback,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_A], chainId ? V2_ROUTER_ADDRESS[chainId] : undefined)
-  const {
-    approvalState: approvalB,
-    approveCallback: approveBCallback,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_B], chainId && V2_ROUTER_ADDRESS[chainId])
+  const { approvalState: approvalA, approveCallback: approveACallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_A],
+    chainId ? V2_ROUTER_ADDRESS[chainId] : undefined,
+  )
+  const { approvalState: approvalB, approveCallback: approveBCallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_B],
+    chainId && V2_ROUTER_ADDRESS[chainId],
+  )
 
   const addTransaction = useTransactionAdder()
 
@@ -308,6 +308,19 @@ export default function AddLiquidity({
     true,
     true,
     'addLiquidityModal',
+    [
+      noLiquidity,
+      attemptingTxn,
+      txHash,
+      pair?.liquidityToken,
+      allowedSlippage,
+      parsedAmounts,
+      currencies,
+      price,
+      noLiquidity,
+      poolTokenPercentage,
+      liquidityMinted,
+    ],
   )
 
   const onPresentAddLiquidityModal = useCallback(() => {

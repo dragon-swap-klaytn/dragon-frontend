@@ -323,6 +323,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
     true,
     true,
     'TransactionConfirmationModalIncreaseLiquidity',
+    [attemptingTxn, txHash, position, outOfRange, ticksAtLimit],
   )
 
   const handleButtonSubmit = useCallback(

@@ -333,6 +333,19 @@ export default function AddStableLiquidity({
     true,
     true,
     'addLiquidityModal',
+    [
+      noLiquidity,
+      attemptingTxn,
+      txHash,
+      pair?.liquidityToken,
+      allowedSlippage,
+      parsedAmounts,
+      currencies,
+      price,
+      noLiquidity,
+      poolTokenPercentage,
+      liquidityMinted,
+    ],
   )
 
   let isValid = !error
