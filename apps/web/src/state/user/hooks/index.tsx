@@ -433,6 +433,8 @@ export function useTrackedTokenPairs(): [ERC20Token, ERC20Token][] {
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list
     const keyed = combinedList.reduce<{ [key: string]: [ERC20Token, ERC20Token] }>((memo, [tokenA, tokenB]) => {
+      if (!tokenA.address || !tokenB.address) return memo
+
       const sorted = tokenA.sortsBefore(tokenB)
       const key = sorted
         ? `${safeGetAddress(tokenA.address)}:${safeGetAddress(tokenB.address)}`
