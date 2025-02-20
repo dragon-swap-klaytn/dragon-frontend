@@ -3,7 +3,7 @@ import { Currency, CurrencyAmount, Fraction, Percent, Token } from '@pancakeswap
 import { ButtonV2, InjectedModalProps } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
-import React, { useCallback } from 'react'
+import React from 'react'
 import { Field } from 'state/burn/actions'
 import { AddLiquidityModalHeader, PairDistribution } from './common'
 
@@ -47,40 +47,6 @@ const ConfirmAddLiquidityModal: React.FC<
 }) => {
   const { t } = useTranslation()
 
-  const modalHeader = useCallback(() => {
-    return (
-      <AddLiquidityModalHeader
-        allowedSlippage={allowedSlippage}
-        currencies={currencies}
-        liquidityMinted={liquidityMinted}
-        poolTokenPercentage={poolTokenPercentage}
-        price={price}
-        noLiquidity={noLiquidity}
-      >
-        <PairDistribution
-          title={t('Input')}
-          currencyA={currencies[Field.CURRENCY_A]}
-          currencyAValue={parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
-          currencyB={currencies[Field.CURRENCY_B]}
-          currencyBValue={parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
-        />
-      </AddLiquidityModalHeader>
-    )
-  }, [allowedSlippage, currencies, liquidityMinted, noLiquidity, parsedAmounts, poolTokenPercentage, price, t])
-
-  const modalBottom = useCallback(() => {
-    return (
-      <ButtonV2 variant="primary" onClick={onAdd} className="mt-6" fullWidth>
-        {noLiquidity ? t('Create Pair & Supply') : t('Confirm Supply')}
-      </ButtonV2>
-    )
-  }, [noLiquidity, onAdd, t])
-
-  const confirmationContent = useCallback(
-    () => <ConfirmationModalContent topContent={modalHeader} bottomContent={modalBottom} />,
-    [modalHeader, modalBottom],
-  )
-
   return (
     <TransactionConfirmationModal
       title={title}
@@ -90,7 +56,33 @@ const ConfirmAddLiquidityModal: React.FC<
       currencyToAdd={currencyToAdd}
       errorMessage={liquidityErrorMessage}
       hash={hash}
-      content={confirmationContent}
+      content={
+        <ConfirmationModalContent
+          topContent={
+            <AddLiquidityModalHeader
+              allowedSlippage={allowedSlippage}
+              currencies={currencies}
+              liquidityMinted={liquidityMinted}
+              poolTokenPercentage={poolTokenPercentage}
+              price={price}
+              noLiquidity={noLiquidity}
+            >
+              <PairDistribution
+                title={t('Input')}
+                currencyA={currencies[Field.CURRENCY_A]}
+                currencyAValue={parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
+                currencyB={currencies[Field.CURRENCY_B]}
+                currencyBValue={parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
+              />
+            </AddLiquidityModalHeader>
+          }
+          bottomContent={
+            <ButtonV2 variant="primary" onClick={onAdd} className="mt-6" fullWidth>
+              {noLiquidity ? t('Create Pair & Supply') : t('Confirm Supply')}
+            </ButtonV2>
+          }
+        />
+      }
       pendingText={pendingText}
     />
   )

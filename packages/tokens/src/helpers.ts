@@ -24,8 +24,6 @@ export function serializeTokens(unserializedTokens: any) {
   return serializedTokens
 }
 
-export function unwrappedToken(token?: undefined): undefined
-export function unwrappedToken<T extends Token>(token: T): Currency
 export function unwrappedToken(token?: Token): Currency | undefined {
   if (!token) return undefined
 

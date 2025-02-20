@@ -437,33 +437,6 @@ export default function PoolPage() {
       !collectMigrationHash,
   )
 
-  const modalHeader = useCallback(
-    () => (
-      <>
-        <ContainerV2>
-          <CurrencyLogoWithAmount
-            className="pb-2 border-b border-border"
-            currencyA={feeValueUpper?.currency}
-            symbol={feeValueUpper?.currency?.symbol}
-            amount={feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}
-          />
-
-          <CurrencyLogoWithAmount
-            className="pt-2"
-            currencyA={feeValueLower?.currency}
-            symbol={feeValueLower?.currency?.symbol}
-            amount={feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}
-          />
-        </ContainerV2>
-
-        <p className="my-4 text-sm text-on-surface text-center">
-          {t('Collecting fees will withdraw currently available fees for you')}
-        </p>
-      </>
-    ),
-    [feeValueUpper, feeValueLower, locale, t],
-  )
-
   const isLoading = loading || poolState === PoolState.LOADING || poolState === PoolState.INVALID || !feeAmount
   const isOwnNFT = isStakedInMCv3 || ownsNFT
 
@@ -551,16 +524,16 @@ export default function PoolPage() {
       customOnDismiss={handleDismissConfirmation}
       hash={collectMigrationHash ?? ''}
       errorMessage={errorMessage}
-      content={() => (
+      content={
         <ConfirmationModalContent
-          topContent={modalHeader}
-          bottomContent={() => (
+          topContent={<ModalHeader feeValueUpper={feeValueUpper} feeValueLower={feeValueLower} locale={locale} />}
+          bottomContent={
             <ButtonV2 variant="primary" fullWidth onClick={collect}>
               {t('Collect')}
             </ButtonV2>
-          )}
+          }
         />
-      )}
+      }
       pendingText={t('Collecting fees')}
       maxWidth="max-w-[400px]"
     />,
@@ -1203,6 +1176,42 @@ function CurrencyWithValue({ a, b }: { a: CurrencyWithValueProps; b: CurrencyWit
         amount={typeof b.amount === 'string' ? b.amount : <FormattedCurrencyAmount currencyAmount={b.amount} />}
         value={b.value || '0'}
       />
+    </>
+  )
+}
+
+function ModalHeader({
+  feeValueUpper,
+  feeValueLower,
+  locale,
+}: {
+  feeValueUpper?: CurrencyAmount<Currency> | null
+  feeValueLower?: CurrencyAmount<Currency> | null
+  locale: string
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <ContainerV2>
+        <CurrencyLogoWithAmount
+          className="pb-2 border-b border-border"
+          currencyA={feeValueUpper?.currency}
+          symbol={feeValueUpper?.currency?.symbol}
+          amount={feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}
+        />
+
+        <CurrencyLogoWithAmount
+          className="pt-2"
+          currencyA={feeValueLower?.currency}
+          symbol={feeValueLower?.currency?.symbol}
+          amount={feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}
+        />
+      </ContainerV2>
+
+      <p className="my-4 text-sm text-on-surface text-center">
+        {t('Collecting fees will withdraw currently available fees for you')}
+      </p>
     </>
   )
 }

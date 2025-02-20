@@ -36,9 +36,8 @@ type UsePortfolioOptions = {
   paused?: boolean
 }
 
-export type PositionV3 = Omit<PortfolioPosition, 'liquidity' | 'sqrtPriceX96'> & {
+export type PositionV3 = Omit<PortfolioPosition, 'liquidity'> & {
   liquidity: bigint
-  sqrtPriceX96: bigint
 }
 
 export type PortfolioV3DataBigInt = Omit<PortfolioV3Data, 'positions'> & {
@@ -67,7 +66,6 @@ export default function usePortfolio(
               positions: portfolioData.positions.map((position) => ({
                 ...position,
                 liquidity: BigInt(position.liquidity),
-                sqrtPriceX96: BigInt(position.sqrtPriceX96),
               })),
             } as PortfolioV3DataBigInt
           }

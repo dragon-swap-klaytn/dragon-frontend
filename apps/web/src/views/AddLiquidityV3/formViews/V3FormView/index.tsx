@@ -379,9 +379,9 @@ export default function V3FormView({
       attemptingTxn={attemptingTxn}
       hash={txHash}
       errorMessage={txnErrorMessage}
-      content={() => (
+      content={
         <ConfirmationModalContent
-          topContent={() =>
+          topContent={
             position ? (
               <PositionPreview
                 position={position}
@@ -391,13 +391,13 @@ export default function V3FormView({
               />
             ) : null
           }
-          bottomContent={() => (
+          bottomContent={
             <ButtonV2 variant="primary" fullWidth className="mt-4" onClick={onAdd}>
               {t('Add')}
             </ButtonV2>
-          )}
+          }
         />
-      )}
+      }
       pendingText={pendingText}
     />,
     true,

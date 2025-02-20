@@ -34,7 +34,6 @@ export type PortfolioPosition = {
   liquidity: string
   lower: number
   upper: number
-  sqrtPriceX96: string
 }
 
 export type PortfolioV3Data = Simplify<
@@ -82,7 +81,6 @@ type FetchedPortfolioV3Data = Simplify<
     lower: number
     upper: number
     pool: Address
-    sqrtPriceX96: string
     outOfBounds: boolean
     fees: FetchedPortfolioTokenData[]
     rewards: FetchedPortfolioTokenData[]
@@ -130,8 +128,7 @@ const handler: NextApiHandler = async (req, res) => {
     }
 
     if (poolType === 'v3') {
-      const { positionId, rewards, outOfBounds, fees, liquidity, lower, upper, sqrtPriceX96, fee } =
-        staking as FetchedPortfolioV3Data
+      const { positionId, rewards, outOfBounds, fees, liquidity, lower, upper, fee } = staking as FetchedPortfolioV3Data
 
       const prevPositions = (acc[poolId] as PortfolioV3Data)?.positions ?? []
       const newPosition: PortfolioPosition = {
@@ -160,7 +157,6 @@ const handler: NextApiHandler = async (req, res) => {
         liquidity,
         lower,
         upper,
-        sqrtPriceX96,
       }
 
       return {

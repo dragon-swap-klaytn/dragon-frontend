@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Percent, Token } from '@pancakeswap/sdk'
 import { ButtonV2, ContainerV2, CurrencyLogoWithAmount, InjectedModalProps } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
-import React, { useCallback } from 'react'
+import React from 'react'
 
 import { useTranslation } from '@pancakeswap/localization'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
@@ -49,56 +49,6 @@ const ConfirmRemoveLiquidityModal: React.FC<
 }) => {
   const { t } = useTranslation()
 
-  const modalHeader = useCallback(() => {
-    return (
-      <>
-        <ContainerV2>
-          {parsedAmounts[Field.CURRENCY_A] && (
-            <CurrencyLogoWithAmount
-              currencyA={currencyA}
-              symbol={currencyA?.symbol}
-              amount={parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
-              className="pb-3 border-b border-border"
-            />
-          )}
-          {parsedAmounts[Field.CURRENCY_B] && (
-            <CurrencyLogoWithAmount
-              currencyA={currencyB}
-              symbol={currencyB?.symbol}
-              amount={parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
-              className="pt-3"
-            />
-          )}
-        </ContainerV2>
-
-        <p className="text-sm text-on-surface mt-2 text-center">
-          {t('Output is estimated. If the price changes by more than %slippage%% your transaction will revert.', {
-            slippage: allowedSlippage / 100,
-          })}
-        </p>
-      </>
-    )
-  }, [allowedSlippage, currencyA, currencyB, parsedAmounts, t])
-
-  const modalBottom = useCallback(() => {
-    return (
-      <ButtonV2
-        variant="primary"
-        fullWidth
-        className="mt-4"
-        disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)}
-        onClick={onRemove}
-      >
-        {t('Confirm')}
-      </ButtonV2>
-    )
-  }, [approval, onRemove, t, signatureData])
-
-  const confirmationContent = useCallback(
-    () => <ConfirmationModalContent topContent={modalHeader} bottomContent={modalBottom} />,
-    [modalHeader, modalBottom],
-  )
-
   return (
     <TransactionConfirmationModal
       title={title}
@@ -107,7 +57,49 @@ const ConfirmRemoveLiquidityModal: React.FC<
       attemptingTxn={attemptingTxn}
       hash={hash}
       errorMessage={liquidityErrorMessage}
-      content={confirmationContent}
+      content={
+        <ConfirmationModalContent
+          topContent={
+            <>
+              <ContainerV2>
+                {parsedAmounts[Field.CURRENCY_A] && (
+                  <CurrencyLogoWithAmount
+                    currencyA={currencyA}
+                    symbol={currencyA?.symbol}
+                    amount={parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
+                    className="pb-3 border-b border-border"
+                  />
+                )}
+                {parsedAmounts[Field.CURRENCY_B] && (
+                  <CurrencyLogoWithAmount
+                    currencyA={currencyB}
+                    symbol={currencyB?.symbol}
+                    amount={parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
+                    className="pt-3"
+                  />
+                )}
+              </ContainerV2>
+
+              <p className="text-sm text-on-surface mt-2 text-center">
+                {t('Output is estimated. If the price changes by more than %slippage%% your transaction will revert.', {
+                  slippage: allowedSlippage / 100,
+                })}
+              </p>
+            </>
+          }
+          bottomContent={
+            <ButtonV2
+              variant="primary"
+              fullWidth
+              className="mt-4"
+              disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)}
+              onClick={onRemove}
+            >
+              {t('Confirm')}
+            </ButtonV2>
+          }
+        />
+      }
       pendingText={pendingText}
     />
   )

@@ -234,52 +234,6 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
     { enabled: !!feeValue1 },
   )
 
-  const modalHeader = useCallback(() => {
-    return (
-      <>
-        <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
-
-        <ContainerV2 className="mt-2">
-          <CurrencyLogoWithAmount
-            currencyA={liquidityValue0?.currency}
-            amount={<FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
-            symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
-            className="pb-3 border-b border-border"
-          />
-          <CurrencyLogoWithAmount
-            currencyA={liquidityValue1?.currency}
-            amount={<FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
-            symbol={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
-            className="pt-3"
-          />
-        </ContainerV2>
-
-        {feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) ? (
-          <div className="pt-4 mt-4">
-            <p className="text-sm text-on-surface">{t('You will also collect fees earned from this position.')}</p>
-
-            <h5 className="text-xs text-on-surface-subtle mt-3">{t('earned fees')}</h5>
-
-            <ContainerV2 className="mt-2">
-              <CurrencyLogoWithAmount
-                currencyA={feeValue0?.currency}
-                amount={<FormattedCurrencyAmount currencyAmount={feeValue0} />}
-                symbol={`${feeValue0?.currency?.symbol} ${t('Fees Earned')}`}
-                className="pb-3 border-b border-border"
-              />
-              <CurrencyLogoWithAmount
-                currencyA={feeValue1?.currency}
-                amount={<FormattedCurrencyAmount currencyAmount={feeValue1} />}
-                symbol={`${feeValue1?.currency?.symbol} ${t('Fees Earned')}`}
-                className="pt-3"
-              />
-            </ContainerV2>
-          </div>
-        ) : null}
-      </>
-    )
-  }, [feeValue0, feeValue1, liquidityValue0, liquidityValue1, t])
-
   const router = useRouter()
 
   const handleDismissConfirmation = useCallback(() => {
@@ -317,16 +271,60 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
         minHeight: 'auto',
       }}
       errorMessage={errorMessage}
-      content={() => (
+      content={
         <ConfirmationModalContent
-          topContent={modalHeader}
-          bottomContent={() => (
+          topContent={
+            <>
+              <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
+
+              <ContainerV2 className="mt-2">
+                <CurrencyLogoWithAmount
+                  currencyA={liquidityValue0?.currency}
+                  amount={<FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
+                  symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
+                  className="pb-3 border-b border-border"
+                />
+                <CurrencyLogoWithAmount
+                  currencyA={liquidityValue1?.currency}
+                  amount={<FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
+                  symbol={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
+                  className="pt-3"
+                />
+              </ContainerV2>
+
+              {feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) ? (
+                <div className="pt-4 mt-4">
+                  <p className="text-sm text-on-surface">
+                    {t('You will also collect fees earned from this position.')}
+                  </p>
+
+                  <h5 className="text-xs text-on-surface-subtle mt-3">{t('earned fees')}</h5>
+
+                  <ContainerV2 className="mt-2">
+                    <CurrencyLogoWithAmount
+                      currencyA={feeValue0?.currency}
+                      amount={<FormattedCurrencyAmount currencyAmount={feeValue0} />}
+                      symbol={`${feeValue0?.currency?.symbol} ${t('Fees Earned')}`}
+                      className="pb-3 border-b border-border"
+                    />
+                    <CurrencyLogoWithAmount
+                      currencyA={feeValue1?.currency}
+                      amount={<FormattedCurrencyAmount currencyAmount={feeValue1} />}
+                      symbol={`${feeValue1?.currency?.symbol} ${t('Fees Earned')}`}
+                      className="pt-3"
+                    />
+                  </ContainerV2>
+                </div>
+              ) : null}
+            </>
+          }
+          bottomContent={
             <ButtonV2 fullWidth onClick={onRemove} className="mt-6" variant="primary">
               {t('Remove')}
             </ButtonV2>
-          )}
+          }
         />
-      )}
+      }
       pendingText={pendingText}
     />,
     true,

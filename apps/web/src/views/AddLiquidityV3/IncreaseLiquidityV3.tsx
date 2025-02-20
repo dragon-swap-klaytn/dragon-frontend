@@ -306,18 +306,18 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
       attemptingTxn={attemptingTxn}
       errorMessage={txnErrorMessage}
       hash={txHash}
-      content={() => (
+      content={
         <ConfirmationModalContent
-          topContent={() =>
+          topContent={
             position ? <PositionPreview position={position} inRange={!outOfRange} ticksAtLimit={ticksAtLimit} /> : null
           }
-          bottomContent={() => (
+          bottomContent={
             <ButtonV2 variant="primary" fullWidth className="mt-4" onClick={onIncrease}>
               {t('Increase')}
             </ButtonV2>
-          )}
+          }
         />
-      )}
+      }
       pendingText={pendingText}
     />,
     true,
