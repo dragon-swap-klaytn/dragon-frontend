@@ -7,6 +7,7 @@ import Page from 'components/Layout/Page'
 import { useBackTo } from 'hooks/use-back-to'
 import useTokenPrices from 'hooks/use-token-prices'
 import usePoolPositions, { PositionV2, PositionV3 } from 'hooks/usePoolPositions'
+import { useV3Pool } from 'hooks/v3/use-v3-pool'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV2Parsed, PoolV3Parsed } from 'pages/api/pools'
@@ -19,10 +20,10 @@ import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
 import { PoolChart } from 'views/Dashboard/components/PoolChart'
-import { V3PositionCard } from 'views/Dashboard/components/PoolTable/PositionCard'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
 import usePools from 'views/Dashboard/hooks/usePools'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { V3PositionCard } from 'views/PoolsV2/components/PositionCard'
 import { useAccount } from 'wagmi'
 
 const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: T; address: Address }) => {
@@ -305,17 +306,17 @@ function PoolPositionsV3({ pool, position }: { pool: PoolV3Parsed; position: Pos
     [prices, ssPrices],
   )
 
-  const rewardApr = pool.rewardApr || 0
+  const v3Pool = useV3Pool({ poolData: pool })
 
   return (
     <V3PositionCard
       bgClassName="bg-neutral hover:bg-neutral hover:bg-neutral-900"
       token0={pool.token0}
       token1={pool.token1}
-      position={position}
       volume24H={pool.volumeUSD['24H']}
-      rewardApr={rewardApr}
-      poolFeeTier={+pool.feeTier}
+      rewardApr={pool.rewardApr || 0}
+      pool={v3Pool}
+      position={position}
       priceMap={priceMap}
     />
   )

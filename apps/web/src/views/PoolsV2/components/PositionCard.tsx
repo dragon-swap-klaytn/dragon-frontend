@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Price, Token } from '@pancakeswap/swap-sdk-core'
 import { TagV2 } from '@pancakeswap/uikit'
-import { FeeCalculator } from '@pancakeswap/v3-sdk'
+import { FeeCalculator, Pool, Position } from '@pancakeswap/v3-sdk'
 import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
@@ -11,7 +11,7 @@ import { useBackTo } from 'hooks/use-back-to'
 import { PortfolioData, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
 import { PositionV3 } from 'hooks/usePoolPositions'
-import { useDerivedPositionInfoV2 } from 'hooks/v3/useDerivedPositionInfoV2'
+import { useV3Pool } from 'hooks/v3/use-v3-pool'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import { TokenSimple } from 'lib/graph-queries/types'
@@ -45,23 +45,27 @@ export default function PositionCardList({
     [prices, ssPrices],
   )
 
+  const v3Pool = useV3Pool({ poolData })
+
   return (
     <div className={clsx('flex flex-col items-center space-y-3', className)}>
       {!portfolioData ? (
         <EmptyPositionCard token0={poolData.token0} token1={poolData.token1} />
       ) : portfolioData.type === 'v3' ? (
-        (portfolioData as PortfolioV3DataBigInt).positions.map((position) => (
-          <V3PositionCard
-            key={`${portfolioData.poolId}:position:${position.positionId}`}
-            token0={poolData.token0}
-            token1={poolData.token1}
-            position={position}
-            volume24H={poolData.volumeUSD['24H']}
-            rewardApr={(poolData as PoolV3Parsed).rewardApr || 0}
-            poolFeeTier={+(poolData as PoolV3Parsed).feeTier}
-            priceMap={priceMap}
-          />
-        ))
+        (portfolioData as PortfolioV3DataBigInt).positions.map((position) =>
+          v3Pool ? (
+            <V3PositionCard
+              key={`${portfolioData.poolId}:position:${position.positionId}`}
+              token0={poolData.token0}
+              token1={poolData.token1}
+              pool={v3Pool}
+              volume24H={poolData.volumeUSD['24H']}
+              rewardApr={(poolData as PoolV3Parsed).rewardApr || 0}
+              position={position}
+              priceMap={priceMap}
+            />
+          ) : null,
+        )
       ) : (
         <V2PositionCard
           token0={poolData.token0}
@@ -103,19 +107,19 @@ function EmptyPositionCard({
 export function V3PositionCard({
   token0,
   token1,
-  position,
+  pool,
+  position: _position,
   volume24H,
   rewardApr,
-  poolFeeTier,
   priceMap,
   bgClassName = 'bg-neutral-dark hover:bg-neutral-dark-hovered',
 }: {
   token0: TokenSimple
   token1: TokenSimple
+  pool: Pool
   position: PositionV3
   volume24H: number
   rewardApr: number
-  poolFeeTier: number
   priceMap: Record<string, number>
   bgClassName?: string
 }) {
@@ -126,52 +130,51 @@ export function V3PositionCard({
 
   const { saveBackToHref } = useBackTo()
 
-  const { position: _position } = useDerivedPositionInfoV2(position, poolFeeTier)
-  const tickAtLimit = useIsTickAtLimit(poolFeeTier, _position?.tickLower, _position?.tickUpper)
-
   const [inverted, setInverted] = useState(false)
 
   const isBoosted = rewardApr > 0
 
+  const position = useMemo(
+    () =>
+      new Position({
+        pool,
+        liquidity: _position.liquidity,
+        tickLower: _position.lower,
+        tickUpper: _position.upper,
+      }),
+    [pool, _position.liquidity, _position.lower, _position.upper],
+  )
+
   const { token0USD, token1USD, rewardsUSD } = useMemo(() => {
-    const price0 = priceMap[position.token0.address] ?? 0
-    const price1 = priceMap[position.token1.address] ?? 0
-    const rewardPrice = position.rewards ? priceMap[position.rewards[0].address] ?? 0 : 0
+    const price0 = priceMap[_position.token0.address] ?? 0
+    const price1 = priceMap[_position.token1.address] ?? 0
+    const rewardPrice = _position.rewards ? priceMap[_position.rewards[0].address] ?? 0 : 0
 
     return {
       token0USD: {
-        deposited: position.token0.amount * price0,
-        fee: position.token0.feeAmount * price0,
+        deposited: _position.token0.amount * price0,
+        fee: _position.token0.feeAmount * price0,
       },
       token1USD: {
-        deposited: position.token1.amount * price1,
-        fee: position.token1.feeAmount * price1,
+        deposited: _position.token1.amount * price1,
+        fee: _position.token1.feeAmount * price1,
       },
-      rewardsUSD: position.rewards ? position.rewards.reduce((acc, reward) => acc + reward.amount * rewardPrice, 0) : 0,
+      rewardsUSD: _position.rewards
+        ? _position.rewards.reduce((acc, reward) => acc + reward.amount * rewardPrice, 0)
+        : 0,
     }
-  }, [position, priceMap])
-
-  const { priceLower, priceUpper } = useMemo(() => {
-    if (!_position) return { priceLower: null, priceUpper: null }
-
-    return {
-      priceLower: inverted ? _position.token0PriceLower : _position.token0PriceUpper.invert(),
-      priceUpper: inverted ? _position.token0PriceUpper : _position.token0PriceLower.invert(),
-    }
-  }, [inverted, _position])
+  }, [_position, priceMap])
 
   const { lpApr, lpApy: _lpApy } = useMemo(() => {
-    if (!_position) return { lpApr: 0, lpApy: 0 }
-
     const fee24HFraction = FeeCalculator.getEstimatedLPFeeByAmounts({
-      amountA: _position.amount0,
-      amountB: _position.amount1,
-      tickLower: _position.tickLower,
-      tickUpper: _position.tickUpper,
+      amountA: position.amount0,
+      amountB: position.amount1,
+      tickLower: position.tickLower,
+      tickUpper: position.tickUpper,
       volume24H,
-      sqrtRatioX96: _position.pool.sqrtRatioX96,
-      mostActiveLiquidity: _position.pool.liquidity,
-      fee: _position.pool.fee,
+      sqrtRatioX96: pool.sqrtRatioX96,
+      mostActiveLiquidity: pool.liquidity,
+      fee: pool.fee,
     })
 
     const estimatedFee24H = +fee24HFraction.toSignificant(6)
@@ -190,27 +193,31 @@ export function V3PositionCard({
         duration,
       }),
     }
-  }, [_position, volume24H, token0USD, token1USD])
+  }, [pool, position, volume24H, token0USD, token1USD])
+
+  const tickAtLimit = useIsTickAtLimit(pool.fee, _position.lower, _position.upper)
+  const priceLower = inverted ? position.token0PriceLower : position.token0PriceUpper.invert()
+  const priceUpper = inverted ? position.token0PriceUpper : position.token0PriceLower.invert()
 
   return (
     <NextLink
       className={clsx('p-5 rounded-xl space-y-5 w-full', bgClassName)}
       onClick={saveBackToHref}
-      href={`/liquidity/${position.positionId}`}
+      href={`/liquidity/${_position.positionId}`}
     >
       <div className="w-full space-y-2">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <h5 className="text-on-surface">{`${token0.symbol}/${token1.symbol}`}</h5>
-            <span className="text-[13px] text-gray-500">#{position.positionId}</span>
+            <span className="text-[13px] text-gray-500">#{_position.positionId}</span>
           </div>
-          <TagV2 className={clsx('min-w-8', { hidden: !isBoosted || position.isOutOfBounds })} color="orange">
+          <TagV2 className={clsx('min-w-8', { hidden: !isBoosted || _position.isOutOfBounds })} color="orange">
             Boost 🔥
           </TagV2>
         </div>
 
-        <TagV2 className="min-w-8" color={position.isOutOfBounds ? 'red' : 'green'}>
-          {position.isOutOfBounds ? t('Out of range') : 'In range'}
+        <TagV2 className="min-w-8" color={_position.isOutOfBounds ? 'red' : 'green'}>
+          {_position.isOutOfBounds ? t('Out of range') : 'In range'}
         </TagV2>
       </div>
 

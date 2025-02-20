@@ -8,9 +8,9 @@ import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { useMemo, useState } from 'react'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import getPercentage from 'utils/getPercentage'
-import PositionCardList from 'views/Dashboard/components/PoolTable/PositionCard'
 import { feeTierPercent } from 'views/Dashboard/utils'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import PositionCardList from 'views/PoolsV2/components/PositionCard'
 
 export const PoolDataRowSkeleton = ({
   isLastIndex,
