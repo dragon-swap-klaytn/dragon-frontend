@@ -131,7 +131,7 @@ export function V3PositionCard({
 
   const [inverted, setInverted] = useState(false)
 
-  const isBoosted = rewardApr > 0
+  const isBoosted = rewardApr > 0 && !_position.isOutOfBounds && _position.isStaked
 
   const position = useMemo(
     () =>
@@ -210,7 +210,7 @@ export function V3PositionCard({
             <h5 className="text-on-surface">{`${token0.symbol}/${token1.symbol}`}</h5>
             <span className="text-[13px] text-gray-500">#{_position.positionId}</span>
           </div>
-          <TagV2 className={clsx('min-w-8', { hidden: !isBoosted || _position.isOutOfBounds })} color="orange">
+          <TagV2 className={clsx('min-w-8', { hidden: !isBoosted })} color="orange">
             Boost 🔥
           </TagV2>
         </div>
@@ -258,7 +258,7 @@ export function V3PositionCard({
               'text-brand': isBoosted,
             })}
           >
-            {(lpApr + rewardApr).toLocaleString(undefined, {
+            {(lpApr + (isBoosted ? rewardApr : 0)).toLocaleString(undefined, {
               style: 'percent',
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
