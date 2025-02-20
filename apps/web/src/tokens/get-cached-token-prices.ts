@@ -1,3 +1,5 @@
+import { ChainId } from '@pancakeswap/chains'
+import { CAKE } from '@pancakeswap/tokens'
 import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { WKLAY_ADDRESS } from 'lib/graph-queries/const'
 import { getV2TokensAccData, getV3TokensAccData } from 'tokens/get-cached-token-stats'
@@ -59,6 +61,8 @@ const getTokenPrices = async () => {
 
   // explicitly add KAIA price
   avgPrices.KAIA = avgPrices[WKLAY_ADDRESS]
+  // explicitly add RKLAY price
+  avgPrices[CAKE[ChainId.KLAYTN].address.toLowerCase()] = avgPrices[WKLAY_ADDRESS]
 
   return avgPrices
 }
