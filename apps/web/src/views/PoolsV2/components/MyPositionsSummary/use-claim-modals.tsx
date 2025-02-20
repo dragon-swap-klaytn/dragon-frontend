@@ -200,12 +200,11 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
       }
       pendingText={t('claim fees')}
       maxWidth="max-w-[400px]"
-      dependencies={[positions.unstaked, collectMigrationHash, txInflight, unwrappingInflight]}
     />,
     true,
     true,
     'TransactionConfirmationModalClaimPositionFees',
-    true,
+    [positions.unstaked, collectMigrationHash, txInflight, unwrappingInflight],
   )
 
   const claimStakedFeesAndRewards = useCallback(async () => {
@@ -333,12 +332,11 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
       }
       pendingText={t('claim rewards and fees')}
       maxWidth="max-w-[400px]"
-      dependencies={[positions.staked, collectMigrationHash, txInflight, rewardToken, rewardAmountToCollect, claimStep]}
     />,
     true,
     true,
     'TransactionConfirmationModalClaimRewardsAndFees',
-    true,
+    [positions.staked, collectMigrationHash, txInflight, rewardToken, rewardAmountToCollect, claimStep],
   )
 
   return {

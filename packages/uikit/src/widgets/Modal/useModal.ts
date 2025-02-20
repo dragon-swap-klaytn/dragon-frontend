@@ -9,7 +9,7 @@ const useModal = (
   closeOnOverlayClick = true,
   updateOnPropsChange = false,
   modalId = "defaultNodeId",
-  useDependencies = false
+  dependencies: any[] = []
 ): [Handler, HandlerWithArgs] => {
   const currentModal = useRef<React.ReactNode>();
   currentModal.current = modal;
@@ -39,9 +39,9 @@ const useModal = (
   useEffect(() => {
     // NodeId is needed in case there are 2 useModal hooks on the same page and one has updateOnPropsChange
     if (updateOnPropsChange && isOpen && nodeId === modalId) {
-      if (useDependencies) {
-        const modalDependency = get(modal, "props.dependencies");
-        const oldModalDependency = get(modalNode, "props.dependencies");
+      if (dependencies.length > 0) {
+        const modalDependency = get(modal, "props.dependency");
+        const oldModalDependency = get(modalNode, "props.dependency");
         if (serialize(modalDependency) !== serialize(oldModalDependency)) {
           setModalNode(modal);
         }
@@ -59,7 +59,7 @@ const useModal = (
         }
       }
     }
-  }, [updateOnPropsChange, nodeId, modalId, isOpen, modal, modalNode, setModalNode, useDependencies]);
+  }, [updateOnPropsChange, nodeId, modalId, isOpen, modal, modalNode, setModalNode, dependencies]);
 
   return [onPresentCallback, onDismissCallback];
 };
