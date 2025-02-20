@@ -404,6 +404,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
     true,
     true,
     'removeLiquidityModal',
+    [txHash, allowedSlippage, attemptingTxn, approvalState, signatureData, parsedAmounts, currencyA, currencyB],
   )
 
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)

@@ -1,20 +1,20 @@
-import BigNumber from "bignumber.js";
-import { ReactElement } from "react";
 import { useTranslation } from "@pancakeswap/localization";
-import { getBalanceNumber } from "@pancakeswap/utils/formatBalance";
 import {
-  Button,
-  IconButton,
-  NotEnoughTokensModal,
-  Text,
-  Flex,
+  AddIcon,
   Balance,
+  Button,
+  Flex,
+  IconButton,
+  MinusIcon,
+  NotEnoughTokensModal,
   Skeleton,
+  Text,
   useModal,
   useTooltip,
-  MinusIcon,
-  AddIcon,
 } from "@pancakeswap/uikit";
+import { getBalanceNumber } from "@pancakeswap/utils/formatBalance";
+import BigNumber from "bignumber.js";
+import { ReactElement } from "react";
 
 import { DeserializedPool } from "./types";
 

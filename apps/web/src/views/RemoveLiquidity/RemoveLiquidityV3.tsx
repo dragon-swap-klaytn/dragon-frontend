@@ -330,6 +330,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
     true,
     true,
     'TransactionConfirmationModalRemoveLiquidity',
+    [attemptingTxn, liquidityValue0, liquidityValue1, feeValue0, feeValue1, txnHash],
   )
 
   const showCollectAsWNative = Boolean(

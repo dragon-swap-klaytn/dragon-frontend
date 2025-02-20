@@ -185,6 +185,17 @@ export function MMSwapCommitButton({
     true,
     true,
     'MMconfirmSwapModal',
+    [
+      rfqTrade.trade,
+      txHash,
+      attemptingTxn,
+      confirmModalState,
+      pendingModalSteps,
+      tradeToConfirm,
+      showApproveFlow,
+      currencyBalances,
+      currentAllowance,
+    ],
   )
   // End Modals
 

@@ -204,6 +204,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     true,
     true,
     'TransactionConfirmationModalClaimPositionFees',
+    [positions.unstaked, collectMigrationHash, txInflight, unwrappingInflight],
   )
 
   const claimStakedFeesAndRewards = useCallback(async () => {
@@ -335,6 +336,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     true,
     true,
     'TransactionConfirmationModalClaimRewardsAndFees',
+    [positions.staked, collectMigrationHash, txInflight, rewardToken, rewardAmountToCollect, claimStep],
   )
 
   return {

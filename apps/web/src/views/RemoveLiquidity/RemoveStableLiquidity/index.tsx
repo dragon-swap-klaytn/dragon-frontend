@@ -327,6 +327,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
     true,
     true,
     'removeLiquidityModal',
+    [attemptingTxn, txHash, allowedSlippage, approvalState, parsedAmounts, currencyA, currencyB],
   )
 
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)

@@ -8,7 +8,8 @@ const useModal = (
   modal: React.ReactNode,
   closeOnOverlayClick = true,
   updateOnPropsChange = false,
-  modalId = "defaultNodeId"
+  modalId = "defaultNodeId",
+  dependencies: any[] = []
 ): [Handler, HandlerWithArgs] => {
   const currentModal = useRef<React.ReactNode>();
   currentModal.current = modal;
@@ -38,19 +39,27 @@ const useModal = (
   useEffect(() => {
     // NodeId is needed in case there are 2 useModal hooks on the same page and one has updateOnPropsChange
     if (updateOnPropsChange && isOpen && nodeId === modalId) {
-      const modalProps = get(modal, "props");
-      const oldModalProps = get(modalNode, "props");
-      // Note: I tried to use lodash isEqual to compare props but it is giving false-negatives too easily
-      // For example ConfirmSwapModal in exchange has ~500 lines prop object that stringifies to same string
-      // and online diff checker says both objects are identical but lodash isEqual thinks they are different
-      // Do not try to replace JSON.stringify with isEqual, high risk of infinite rerenders
-      // TODO: Find a good way to handle modal updates, this whole flow is just backwards-compatible workaround,
-      // would be great to simplify the logic here
-      if (modalProps && oldModalProps && serialize(modalProps) !== serialize(oldModalProps)) {
-        setModalNode(modal);
+      if (dependencies.length > 0) {
+        const modalDependency = get(modal, "props.dependency");
+        const oldModalDependency = get(modalNode, "props.dependency");
+        if (serialize(modalDependency) !== serialize(oldModalDependency)) {
+          setModalNode(modal);
+        }
+      } else {
+        const modalProps = get(modal, "props");
+        const oldModalProps = get(modalNode, "props");
+        // Note: I tried to use lodash isEqual to compare props but it is giving false-negatives too easily
+        // For example ConfirmSwapModal in exchange has ~500 lines prop object that stringifies to same string
+        // and online diff checker says both objects are identical but lodash isEqual thinks they are different
+        // Do not try to replace JSON.stringify with isEqual, high risk of infinite rerenders
+        // TODO: Find a good way to handle modal updates, this whole flow is just backwards-compatible workaround,
+        // would be great to simplify the logic here
+        if (modalProps && oldModalProps && serialize(modalProps) !== serialize(oldModalProps)) {
+          setModalNode(modal);
+        }
       }
     }
-  }, [updateOnPropsChange, nodeId, modalId, isOpen, modal, modalNode, setModalNode]);
+  }, [updateOnPropsChange, nodeId, modalId, isOpen, modal, modalNode, setModalNode, dependencies]);
 
   return [onPresentCallback, onDismissCallback];
 };

@@ -275,6 +275,18 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     true,
     true,
     'confirmSwapModal',
+    [
+      trade,
+      txHash,
+      approvalState,
+      attemptingTxn,
+      tradeToConfirm,
+      showApproveFlow,
+      currencyBalances,
+      confirmModalState,
+      pendingModalSteps,
+      currentAllowance,
+    ],
   )
   // End Modals
 
