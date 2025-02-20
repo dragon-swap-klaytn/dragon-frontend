@@ -1,9 +1,9 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { createElement } from "react";
 
-import { Button, Text, Flex, Heading, Balance } from "@pancakeswap/uikit";
+import { Balance, Button, Flex, Heading, Text } from "@pancakeswap/uikit";
 
-import { ActionContainer, ActionTitles, ActionContent } from "./styles";
+import { ActionContainer, ActionContent, ActionTitles } from "./styles";
 
 import { HarvestActionsProps } from "../types";
 

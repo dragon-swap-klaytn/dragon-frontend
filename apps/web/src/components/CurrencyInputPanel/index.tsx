@@ -171,7 +171,7 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
             })}
             onClick={!disabled ? onMax : undefined}
           >
-            {!hideBalance && !!currency ? t('Balance: %balance%', { balance: balance ?? t('Loading') }) : ''}
+            {!hideBalance && !!currency ? t('Balance: {{balance}}', { balance: balance ?? t('Loading') }) : ''}
           </button>
         )}
       </div>

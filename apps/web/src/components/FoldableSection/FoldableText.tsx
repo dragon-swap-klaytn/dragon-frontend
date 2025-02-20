@@ -1,7 +1,7 @@
-import { useState, ReactNode, useCallback, useMemo } from 'react'
-import { styled } from 'styled-components'
-import { ExpandableLabel, Flex, FlexProps, Text } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { ExpandableLabel, Flex, FlexProps, Text } from '@pancakeswap/uikit'
+import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { styled } from 'styled-components'
 
 interface FoldableTextProps extends Omit<FlexProps, 'title'> {
   title?: ReactNode

@@ -1,9 +1,9 @@
-import BigNumber from "bignumber.js";
 import { useTranslation } from "@pancakeswap/localization";
-import React, { useMemo, ReactNode } from "react";
-import { styled } from "styled-components";
+import { Skeleton, Text, useMatchBreakpoints } from "@pancakeswap/uikit";
 import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
-import { Text, Skeleton, useMatchBreakpoints } from "@pancakeswap/uikit";
+import BigNumber from "bignumber.js";
+import React, { ReactNode, useMemo } from "react";
+import { styled } from "styled-components";
 
 import { DeserializedPool } from "../types";
 import { BaseCell, CellContent } from "./BaseCell";

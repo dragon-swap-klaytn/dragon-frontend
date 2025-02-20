@@ -1,6 +1,6 @@
-import { styled } from 'styled-components'
-import { Text, Flex, Toggle, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { Flex, Text, Toggle, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { styled } from 'styled-components'
 
 import { useStakeOnly } from '../hooks'
 

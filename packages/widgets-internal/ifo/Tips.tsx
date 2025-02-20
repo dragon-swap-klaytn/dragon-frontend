@@ -1,10 +1,10 @@
-import BigNumber from "bignumber.js";
-import { useMemo } from "react";
-import { SpaceProps } from "styled-system";
-import { FlexGap, Message, MessageText, InfoFilledIcon, Box, MessageProps } from "@pancakeswap/uikit";
-import Link from "next/link";
 import { useTranslation } from "@pancakeswap/localization";
+import { Box, FlexGap, InfoFilledIcon, Message, MessageProps, MessageText } from "@pancakeswap/uikit";
+import BigNumber from "bignumber.js";
+import Link from "next/link";
+import { useMemo } from "react";
 import styled from "styled-components";
+import { SpaceProps } from "styled-system";
 
 type Props = {
   amount?: BigNumber | number;

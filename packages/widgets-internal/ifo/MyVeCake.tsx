@@ -1,9 +1,9 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { FlexGap, Text } from "@pancakeswap/uikit";
-import { PropsWithChildren, useMemo } from "react";
-import styled from "styled-components";
 import { BigNumber } from "bignumber.js";
 import Image from "next/image";
+import { PropsWithChildren, useMemo } from "react";
+import styled from "styled-components";
 
 import { BalanceDisplay } from "./BalanceDisplay";
 

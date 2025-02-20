@@ -1,12 +1,12 @@
-import { styled } from 'styled-components'
-import { SpaceProps } from 'styled-system'
-import { memo, useMemo } from 'react'
-import { Text, Row, VerifiedIcon } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
 import { MANAGER, Strategy, isManagerVerified } from '@pancakeswap/position-managers'
+import { Row, Text, VerifiedIcon } from '@pancakeswap/uikit'
+import { memo, useMemo } from 'react'
+import { styled } from 'styled-components'
+import { SpaceProps } from 'styled-system'
 
-import { CardSection } from './CardSection'
 import { getStrategyName } from '../utils'
+import { CardSection } from './CardSection'
 
 interface Props extends SpaceProps {
   id: MANAGER

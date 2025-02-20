@@ -2,17 +2,17 @@ import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { NATIVE } from '@pancakeswap/sdk'
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  Box,
-  Button,
-  Flex,
-  InfoIcon,
-  Text,
-  UserMenu,
-  UserMenuDivider,
-  UserMenuItem,
-  useTooltip,
+    ArrowDownIcon,
+    ArrowUpIcon,
+    Box,
+    Button,
+    Flex,
+    InfoIcon,
+    Text,
+    UserMenu,
+    UserMenuDivider,
+    UserMenuItem,
+    useTooltip,
 } from '@pancakeswap/uikit'
 import { useActiveChainId, useLocalNetworkChain } from 'hooks/useActiveChainId'
 import { useNetworkConnectorUpdater } from 'hooks/useActiveWeb3React'

@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { styled } from 'styled-components'
 import { Flex, UserMenuItem } from '@pancakeswap/uikit'
 import { useShowOnceAirdropModal } from 'hooks/useShowOnceAirdropModal'
+import { styled } from 'styled-components'
 
 const Dot = styled.div`
   background-color: ${({ theme }) => theme.colors.success};

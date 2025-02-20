@@ -1,13 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
-  BinanceChainIcon,
-  ButtonProps,
-  ButtonV2,
-  CoinbaseWalletIcon,
-  MetamaskIcon,
-  OperaIcon,
-  TokenPocketIcon,
-  TrustWalletIcon,
+    BinanceChainIcon,
+    ButtonProps,
+    ButtonV2,
+    CoinbaseWalletIcon,
+    MetamaskIcon,
+    OperaIcon,
+    TokenPocketIcon,
+    TrustWalletIcon,
 } from '@pancakeswap/uikit'
 import getTokenIconSrc from '@pancakeswap/utils/getTokenIconSrc'
 import clsx from 'clsx'
@@ -46,7 +46,7 @@ const getWalletText = (textOptions: AddToWalletTextOptions, tokenSymbol: string 
     textOptions !== AddToWalletTextOptions.NO_TEXT &&
     (textOptions === AddToWalletTextOptions.TEXT
       ? t('Add to Wallet')
-      : t('Add %asset% to Wallet', { asset: tokenSymbol }))
+      : t('Add {{asset}} to Wallet', { asset: tokenSymbol }))
   )
 }
 

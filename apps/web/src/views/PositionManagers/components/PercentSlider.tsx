@@ -1,9 +1,9 @@
-import { styled } from 'styled-components'
-import { SpaceProps } from 'styled-system'
-import { memo, useCallback, useMemo } from 'react'
-import { Slider, Box, Flex, Button } from '@pancakeswap/uikit'
 import { useDebouncedChangeHandler } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
+import { Box, Button, Flex, Slider } from '@pancakeswap/uikit'
+import { memo, useCallback, useMemo } from 'react'
+import { styled } from 'styled-components'
+import { SpaceProps } from 'styled-system'
 
 interface Props extends SpaceProps {
   percent: number

@@ -1,6 +1,6 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { Text, Button } from "@pancakeswap/uikit";
-import { StyledActionContainer, ActionContent, ActionTitles } from "./styles";
+import { Button, Text } from "@pancakeswap/uikit";
+import { ActionContent, ActionTitles, StyledActionContainer } from "./styles";
 
 export interface EnableStakeActionProps {
   pendingTx: boolean;

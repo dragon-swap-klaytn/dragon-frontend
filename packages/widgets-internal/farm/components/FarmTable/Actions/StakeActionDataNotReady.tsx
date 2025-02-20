@@ -1,6 +1,6 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { Text, Skeleton } from "@pancakeswap/uikit";
-import { StyledActionContainer, ActionContent, ActionTitles } from "./styles";
+import { Skeleton, Text } from "@pancakeswap/uikit";
+import { ActionContent, ActionTitles, StyledActionContainer } from "./styles";
 
 const StakeActionDataNotReady = () => {
   const { t } = useTranslation();

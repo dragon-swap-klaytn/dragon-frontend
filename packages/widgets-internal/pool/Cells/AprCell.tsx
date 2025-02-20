@@ -1,11 +1,11 @@
+import { useTranslation } from "@pancakeswap/localization";
+import { Text, useMatchBreakpoints } from "@pancakeswap/uikit";
 import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
 import BigNumber from "bignumber.js";
-import { useTranslation } from "@pancakeswap/localization";
 import { createElement, FunctionComponent } from "react";
-import { Text, useMatchBreakpoints } from "@pancakeswap/uikit";
 
-import { CellContent, BaseCell } from "./BaseCell";
 import { DeserializedPool } from "../types";
+import { BaseCell, CellContent } from "./BaseCell";
 
 interface AprCellProps<T> {
   pool: DeserializedPool<T>;

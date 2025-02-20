@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
 import { useTranslation } from "@pancakeswap/localization";
-import { Text, IconButton, MinusIcon, AddIcon } from "@pancakeswap/uikit";
-import { StyledActionContainer, ActionContent, ActionTitles, IconButtonWrapper } from "./styles";
+import { AddIcon, IconButton, MinusIcon, Text } from "@pancakeswap/uikit";
+import { ReactNode } from "react";
+import { ActionContent, ActionTitles, IconButtonWrapper, StyledActionContainer } from "./styles";
 
 export interface StakedActionComponentProps {
   lpSymbol: string;

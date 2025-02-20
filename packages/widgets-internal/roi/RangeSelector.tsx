@@ -1,5 +1,5 @@
-import { Currency, Price } from "@pancakeswap/sdk";
 import { useTranslation } from "@pancakeswap/localization";
+import { Currency, Price } from "@pancakeswap/sdk";
 import { formatPrice } from "@pancakeswap/utils/formatFractions";
 import { memo } from "react";
 

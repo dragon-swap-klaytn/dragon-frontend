@@ -1,9 +1,9 @@
-import { styled } from 'styled-components'
-import { Box, Text } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
-import LineChartLoaderSVG from './LineChartLoaderSVG'
+import { Box, Text } from '@pancakeswap/uikit'
+import { styled } from 'styled-components'
 import BarChartLoaderSVG from './BarChartLoaderSVG'
 import CandleChartLoaderSVG from './CandleChartLoaderSVG'
+import LineChartLoaderSVG from './LineChartLoaderSVG'
 
 const LoadingText = styled(Box)`
   position: absolute;

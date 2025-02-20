@@ -1,7 +1,7 @@
-import { Flex, Button, Text, QuestionHelper } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { Button, Flex, QuestionHelper, Text } from '@pancakeswap/uikit'
+import { GAS_PRICE, GAS_PRICE_GWEI } from 'state/types'
 import { useGasPriceManager } from 'state/user/hooks'
-import { GAS_PRICE_GWEI, GAS_PRICE } from 'state/types'
 
 const GasSettings = () => {
   const { t } = useTranslation()
@@ -47,7 +47,7 @@ const GasSettings = () => {
           }}
           variant={gasPrice === GAS_PRICE_GWEI.default ? 'primary' : 'tertiary'}
         >
-          {t('Standard (%gasPrice%)', { gasPrice: GAS_PRICE.default })}
+          {t('Standard ({{gasPrice}})', { gasPrice: GAS_PRICE.default })}
         </Button>
         <Button
           mt="4px"
@@ -58,7 +58,7 @@ const GasSettings = () => {
           }}
           variant={gasPrice === GAS_PRICE_GWEI.fast ? 'primary' : 'tertiary'}
         >
-          {t('Fast (%gasPrice%)', { gasPrice: GAS_PRICE.fast })}
+          {t('Fast ({{gasPrice}})', { gasPrice: GAS_PRICE.fast })}
         </Button>
         <Button
           mr="4px"
@@ -69,7 +69,7 @@ const GasSettings = () => {
           }}
           variant={gasPrice === GAS_PRICE_GWEI.instant ? 'primary' : 'tertiary'}
         >
-          {t('Instant (%gasPrice%)', { gasPrice: GAS_PRICE.instant })}
+          {t('Instant ({{gasPrice}})', { gasPrice: GAS_PRICE.instant })}
         </Button>
       </Flex>
     </Flex>

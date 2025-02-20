@@ -10,11 +10,11 @@ import { isUserRejected } from 'utils/sentry'
 import { Hash, isAddress } from 'viem'
 
 import { INITIAL_ALLOWED_SLIPPAGE } from 'config/constants'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { basisPointsToPercent } from 'utils/exchange'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
 
 export enum SwapCallbackState {
   INVALID,
