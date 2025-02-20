@@ -62,6 +62,7 @@ interface ConfirmationModalProps {
   attemptingTxn: boolean
   pendingText: string
   currencyToAdd?: Currency | undefined
+  dependencies?: any[]
 }
 
 const TransactionConfirmationModal: FC<PropsWithChildren<InjectedModalProps & ConfirmationModalProps & ModalProps>> = ({
