@@ -1,5 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { WKAIA_ADDRESS } from '@pancakeswap/uikit'
+import { Address } from 'viem'
 
 export const DEFAULT_TOKEN_LIST = [
   {
@@ -374,3 +375,5 @@ export const DEFAULT_TOKEN_LIST = [
     decimals: 18,
   },
 ]
+
+export const MASTERCHEFV3_ADDRESS = '0xB845fB78C78d349ec08d47C2cCdC564baD2f67B0' as Address
