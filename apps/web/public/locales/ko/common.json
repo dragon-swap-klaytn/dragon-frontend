@@ -111,7 +111,7 @@
   "wating confirm...": "확인 대기 중...",
 
   "Add {{assetA}}-{{assetB}} Liquidity": "{{assetA}}-{{assetB}} 유동성 추가",
-  "Fee Tier": "수수료 등급",
+  "Fee Tier": "수수료",
   "Selected Range": "선택된 범위",
   "Insufficient {{symbol}} balance": "{{symbol}} 잔액 부족",
   "Insufficient token allowance. Click \"Enable\" to approve.": "토큰 허용량이 부족합니다. \"활성화\"를 클릭하여 승인하세요.",
@@ -303,5 +303,7 @@
   "Are you convert RKAIA reward({{reward}}) to KAIA now?": "지금 RKAIA 보상({{reward}})을 KAIA로 변환하시겠습니까?",
   "Main": "메인",
   "Pair": "페어",
-  "Liquidity": "유동성"
+  "Liquidity": "유동성",
+  "Increase": "추가",
+  "Increase Liquidity": "유동성 추가"
 }

@@ -18,6 +18,8 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import tryParseCurrencyAmount from 'utils/tryParseCurrencyAmount'
 import { MintState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 
+import { toChecksumCurrency } from 'utils/toChecksumCurrency'
+import { toChecksumCurrencyAmount } from 'utils/toChecksumCurrencyAmount'
 import { toChecksumToken } from 'utils/toChecksumToken'
 import { useAccount } from 'wagmi'
 import { PoolState } from './types'
@@ -228,11 +230,17 @@ export default function useV3DerivedInfo(
 
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     // we wrap the currencies just to get the price in terms of the other token
-    const wrappedIndependentAmount = independentAmount?.wrapped
+    if (!independentAmount?.wrapped) {
+      return undefined
+    }
+
+    const checksumWrappedIndependentAmount = toChecksumCurrencyAmount(independentAmount.wrapped)
     const dependentCurrency = dependentField === Field.CURRENCY_B ? currencyB : currencyA
+    const dependentChecksumCurrency = dependentCurrency ? toChecksumCurrency(dependentCurrency) : undefined
+
     if (
       independentAmount &&
-      wrappedIndependentAmount &&
+      checksumWrappedIndependentAmount &&
       typeof tickLower === 'number' &&
       typeof tickUpper === 'number' &&
       poolForPosition
@@ -242,7 +250,7 @@ export default function useV3DerivedInfo(
         return undefined
       }
 
-      const position: Position | undefined = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
+      const position: Position | undefined = checksumWrappedIndependentAmount.currency.equals(poolForPosition.token0)
         ? Position.fromAmount0({
             pool: poolForPosition,
             tickLower,
@@ -257,10 +265,13 @@ export default function useV3DerivedInfo(
             amount1: independentAmount.quotient,
           })
 
-      const dependentTokenAmount = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
+      const dependentTokenAmount = checksumWrappedIndependentAmount.currency.equals(poolForPosition.token0)
         ? position.amount1
         : position.amount0
-      return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
+      return (
+        dependentChecksumCurrency &&
+        CurrencyAmount.fromRawAmount(dependentChecksumCurrency, dependentTokenAmount.quotient)
+      )
     }
 
     return undefined
