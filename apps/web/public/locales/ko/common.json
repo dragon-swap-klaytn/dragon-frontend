@@ -305,5 +305,14 @@
   "Pair": "페어",
   "Liquidity": "유동성",
   "Increase": "추가",
-  "Increase Liquidity": "유동성 추가"
+  "Increase Liquidity": "유동성 추가",
+
+  "Boost Completed": "부스트 완료",
+  "Boost Canceled": "부스트 취소됨",
+  "Harvested": "수확 완료",
+  "Deposit tokens and harvest rewards!": "토큰을 예치하고 보상을 수확하세요!",
+  "Provide tokens to the liquidity pool to start farming.": "유동성 풀에 토큰을 제공하여 파밍을 시작하세요.",
+  "Rewards accumulate daily based on your deposit amount, and you can claim them to your wallet anytime.": "예치한 금액에 따라 보상이 매일 쌓이며, 언제든 지갑으로 청구할 수 있습니다.",
+  "Cancel Boost": "부스트 취소",
+  "Start Boost": "부스트 시작"
 }

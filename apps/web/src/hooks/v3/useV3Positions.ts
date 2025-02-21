@@ -1,9 +1,10 @@
 /* eslint-disable */
 import { PositionDetails } from '@pancakeswap/farms'
 import { masterChefV3ABI } from '@pancakeswap/v3-sdk'
+import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Address, useContractRead, useContractReads } from 'wagmi'
 
 interface UseV3PositionsResults {
@@ -90,10 +91,7 @@ export function useV3PositionFromTokenId(tokenId: bigint | undefined): UseV3Posi
   )
 }
 
-export function useV3TokenIdsByAccount(
-  contractAddress?: Address,
-  account?: Address | null | undefined,
-): { tokenIds: bigint[]; loading: boolean } {
+export function useV3TokenIdsByAccount(contractAddress?: Address, account?: Address | null | undefined) {
   const { chainId, isWrongNetwork } = useActiveChainId()
 
   const enabled = useMemo(
@@ -159,6 +157,11 @@ export function useV3TokenIdsByAccount(
     }
   }, [account, refetchBalance, refetchTokenIds])
 
+  const refetchAll = useCallback(() => {
+    refetchBalance()
+    refetchTokenIds()
+  }, [refetchBalance, refetchTokenIds])
+
   return {
     tokenIds: useMemo(
       () =>
@@ -166,6 +169,25 @@ export function useV3TokenIdsByAccount(
       [tokenIds, enabled],
     ),
     loading: !enabled ? false : someTokenIdsLoading || balanceLoading,
+    refetchAll,
+  }
+}
+
+export function useV3TokenIdsByAccountV2(account?: Address) {
+  const { portfolio, mutatePortfolio, isLoading } = usePortfolio({ account }, { paused: !account })
+
+  const positions = useMemo(() => {
+    if (!portfolio) return []
+    return Object.values(portfolio)
+      .filter((pool) => pool.type === 'v3')
+      .map((pool) => (pool as PortfolioV3DataBigInt).positions)
+      .flat()
+  }, [portfolio])
+
+  return {
+    tokenIds: positions.filter((p) => p.isStaked).map((p) => p.positionId),
+    loading: isLoading,
+    mutateTokenIds: mutatePortfolio,
   }
 }
 

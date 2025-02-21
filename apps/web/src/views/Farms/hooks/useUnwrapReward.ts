@@ -32,11 +32,7 @@ export function useUnwrapReward({ reward, chainId }: IProps) {
         minimumSignificantDigits: 6,
         maximumSignificantDigits: 6,
       })
-    // const alertText = t(`Are you convert {{wrap}} reward({{reward}}) to {{native}} now?`, {
-    //   wrap: rewardToken.symbol,
-    //   native: nativeInfo.symbol,
-    //   reward: rewardAmount,
-    // })
+
     const alertText = t(`Are you convert RKAIA reward({{reward}}) to KAIA now?`, {
       reward: rewardAmount,
     })

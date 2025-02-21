@@ -38,7 +38,7 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
   const showKlipQr = useKlipQrCondition()
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
     <ApprovalConfirmationModal
-      title="Confirm Transaction"
+      title={t('Confirm Transaction')}
       content={() => ''}
       pendingText="wating confirm..."
       attemptingTxn

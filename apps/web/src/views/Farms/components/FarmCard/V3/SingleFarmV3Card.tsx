@@ -142,7 +142,7 @@ const SingleFarmV3Card: React.FunctionComponent<
 
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
     <ApprovalConfirmationModal
-      title="Confirm Transaction"
+      title={t('Confirm Transaction')}
       content={() => ''}
       pendingText="wating confirm..."
       attemptingTxn

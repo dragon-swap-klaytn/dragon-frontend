@@ -1,21 +1,29 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
-    useSelectedWallet,
-    WalletConnectorNotFoundError,
-    WalletStorageKey,
-    WalletSwitchChainError,
+  useSelectedWallet,
+  WalletConnectorNotFoundError,
+  WalletStorageKey,
+  WalletSwitchChainError,
 } from '@pancakeswap/ui-wallets'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useCallback, useRef } from 'react'
 import { useAppDispatch } from 'state'
-import { ConnectorNotFoundError, SwitchChainNotSupportedError, useConnect, useDisconnect, useNetwork } from 'wagmi'
+import {
+  ConnectorNotFoundError,
+  SwitchChainNotSupportedError,
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useNetwork,
+} from 'wagmi'
 import { clearUserStates } from '../utils/clearUserStates'
 import { useActiveChainId } from './useActiveChainId'
 import { useSessionChainId } from './useSessionChainId'
 
 const useAuth = () => {
   const dispatch = useAppDispatch()
+  const { isConnected } = useAccount()
   const { connectAsync, connectors } = useConnect()
   const { chain } = useNetwork()
   const { disconnectAsync } = useDisconnect()
@@ -28,6 +36,9 @@ const useAuth = () => {
 
   const login = useCallback(
     async (connectorID: string) => {
+      if (isConnected) {
+        return undefined
+      }
       const findConnector = connectors.find((c) => c.id === connectorID)
 
       lastRequestedConnectorIdRef.current = connectorID
@@ -61,7 +72,7 @@ const useAuth = () => {
       }
       return undefined
     },
-    [connectors, connectAsync, chainId, setSessionChainId, t, disconnectAsync, setSelected],
+    [connectors, connectAsync, chainId, setSessionChainId, t, disconnectAsync, setSelected, isConnected],
   )
 
   const logout = useCallback(async () => {

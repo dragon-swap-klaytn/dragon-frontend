@@ -45,6 +45,9 @@ export function useV3PositionFees(
           const [amount0, amount1] = results.result
           setAmounts([amount0, amount1])
         })
+        .catch((error) => {
+          console.error('Failed to fetch position fees', error)
+        })
     }
   }, [positionManager, owner, latestBlockNumber, tokenId])
 

@@ -1,17 +1,14 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { ChainId } from '@pancakeswap/chains'
-import { isActiveV3Farm } from '@pancakeswap/farms'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@pancakeswap/sdk'
 import {
   ButtonV2,
   ContainerV2,
   CurrencyLogoWithAmount,
   CurrencyLogoWithSymbol,
-  Dots,
   ExternalLink,
   NotFound,
-  Notification,
   Spinner,
   TagV2,
   ToggleSwitch,
@@ -23,20 +20,24 @@ import { ConfirmationModalContent, NextLinkFromReactRouter } from '@pancakeswap/
 
 import { DEFAULT_LANGUAGE, Locale, Trans, useTranslation } from '@pancakeswap/localization'
 import { MasterChefV3, NonfungiblePositionManager, Pool, Position, isPoolTickInRange } from '@pancakeswap/v3-sdk'
+import { useQuery } from '@tanstack/react-query'
+import clsx from 'clsx'
 import { AppBody, AppHeader } from 'components/App'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
 import { CurrencyLogo } from 'components/Logo'
 import { RangePriceSection } from 'components/RangePriceSection'
+import { RangeTag } from 'components/RangeTag'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
+import { MASTERCHEFV3_ADDRESS } from 'const'
 import dayjs from 'dayjs'
 import { gql } from 'graphql-request'
 import { useToken } from 'hooks/Tokens'
+import { useBackTo } from 'hooks/use-back-to'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { useFarm } from 'hooks/useFarm'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { PoolState } from 'hooks/v3/types'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
@@ -45,48 +46,33 @@ import { useV3PositionFees } from 'hooks/v3/useV3PositionFees'
 import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
+import { GetStaticPaths } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { NextSeo } from 'next-seo'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useMemo, useState } from 'react'
+import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin, getBlockExploreLink } from 'utils'
+import currencyId from 'utils/currencyId'
 import { formatCurrencyAmount, formatPrice } from 'utils/formatCurrencyAmount'
 import { v3Clients } from 'utils/graphql'
+import { isUserRejected } from 'utils/sentry'
+import { toChecksumToken } from 'utils/toChecksumToken'
+import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { getViemClients } from 'utils/viem'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { hexToBigInt } from 'viem'
 import { AprCalculator } from 'views/AddLiquidityV3/components/AprCalculator'
 import RateToggle from 'views/AddLiquidityV3/formViews/V3FormView/components/RateToggle'
-import Page from 'views/Page'
-import { useSendTransaction, useWalletClient } from 'wagmi'
-/*
-import { MerklSection } from 'components/Merkl/MerklSection'
-import { MerklTag } from 'components/Merkl/MerklTag'
-import { useMerklInfo } from 'hooks/useMerkl'
-*/
-import { CAKE } from '@pancakeswap/tokens'
-import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
-import { useQuery } from '@tanstack/react-query'
-import BigNumber from 'bignumber.js'
-import clsx from 'clsx'
-import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
-import { RangeTag } from 'components/RangeTag'
-import { useBackTo } from 'hooks/use-back-to'
-import { useCakePrice } from 'hooks/useCakePrice'
-import useKlipQrCondition from 'hooks/useKlipQrCondition'
-import { GetStaticPaths } from 'next'
-import Link from 'next/link'
-import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
-import currencyId from 'utils/currencyId'
-import { isUserRejected } from 'utils/sentry'
-import { toChecksumToken } from 'utils/toChecksumToken'
-import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useIsBoostedPool, useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
-import useFarmV3Actions, { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
+import Page from 'views/Page'
+import BoostingCard from 'views/PoolsV2/components/BoostingCard'
+import { useSendTransaction, useWalletClient } from 'wagmi'
 
 const useInverter = ({
   priceLower,
@@ -207,19 +193,13 @@ export default function PoolPage() {
     tickUpper,
     tokenId,
   } = positionDetails || {}
+
   const tokenIdStr = tokenId?.toString() || ''
 
   const removed = liquidity === 0n
 
-  // const metadata = usePositionTokenURI(parsedTokenId)
-
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
-  const { data: farmDetail } = useFarm({ currencyA: token0, currencyB: token1, feeAmount })
-  const hasActiveFarm = useMemo(
-    () => farmDetail && isActiveV3Farm(farmDetail.farm, farmDetail.poolLength),
-    [farmDetail],
-  )
 
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
@@ -301,12 +281,13 @@ export default function PoolPage() {
 
   const positionManager = useV3NFTPositionManagerContract()
   const masterchefV3 = useMasterchefV3()
-  const { tokenIds: stakedTokenIds, loading: tokenIdsInMCv3Loading } = useV3TokenIdsByAccount(
-    masterchefV3?.address,
-    account,
-  )
+  const {
+    tokenIds: stakedTokenIds,
+    loading: tokenIdsInMCv3Loading,
+    refetchAll,
+  } = useV3TokenIdsByAccount(MASTERCHEFV3_ADDRESS, account)
 
-  const isStakedInMCv3 = tokenId && Boolean(stakedTokenIds.find((id) => id === tokenId))
+  const isStakedInMCv3 = !!tokenId && Boolean(stakedTokenIds.find((id) => id === tokenId))
 
   const manager = isStakedInMCv3 ? masterchefV3 : positionManager
   const interfaceManager = isStakedInMCv3 ? MasterChefV3 : NonfungiblePositionManager
@@ -455,24 +436,12 @@ export default function PoolPage() {
     [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId],
   )
 
-  const cake = CAKE[ChainId.KLAYTN]
   const { farmsWithPositions: farmsV3, updateFarmsV3WithPositionsAndBooster } = useFarmsV3WithPositionsAndBooster()
   const farmsLP = useMemo(() => farmsV3.map((f) => ({ ...f, version: 3 } as V3FarmWithoutStakedValue)), [farmsV3])
   const farm = useMemo(
     () => farmsLP.find((f) => f.lpAddress.toLowerCase() === poolAddress?.toLowerCase()),
     [farmsLP, poolAddress],
   )
-  const pendingCake = useMemo(() => farm?.pendingCakeByTokenIds[tokenIdStr] || 0n, [farm, tokenIdStr])
-
-  const [numberedPendingCake, setNumberedPendingCake] = useState<number>(0)
-  useEffect(() => {
-    if (!pendingCake) return
-    if (!cake || !cake.decimals) return
-
-    setNumberedPendingCake(
-      new BigNumber(pendingCake.toString()).div(getFullDecimalMultiplier(cake.decimals)).toNumber(),
-    )
-  }, [pendingCake, cake])
 
   const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenIdStr)
   const { updateUserPositionInfo } = useUserPositionInfo(tokenIdStr)
@@ -483,28 +452,13 @@ export default function PoolPage() {
     updateUserPositionInfo()
     updateStatus()
     updateFarmsV3WithPositionsAndBooster()
-    setNumberedPendingCake(0)
-  }, [
-    updateIsBoostedPool,
-    updateUserPositionInfo,
-    updateStatus,
-    updateFarmsV3WithPositionsAndBooster,
-    setNumberedPendingCake,
-  ])
-  const cakePrice = useCakePrice()
-  const { harvesting } = useFarmsV3BatchHarvest()
-  const { onHarvest, attemptingTxn, dismissFarmV3Action } = useFarmV3Actions({
-    tokenId: tokenIdStr,
-    reward: pendingCake,
-    onDone,
-  })
+    refetchAll()
+  }, [updateIsBoostedPool, updateUserPositionInfo, updateStatus, updateFarmsV3WithPositionsAndBooster, refetchAll])
+
   const handleDismissConfirmation = useCallback(() => {
     setErrorMessage(undefined)
     setCollecting(false)
-    dismissFarmV3Action()
-  }, [dismissFarmV3Action])
-
-  const isHarvesting = useMemo(() => attemptingTxn || (harvesting ?? false), [attemptingTxn, harvesting])
+  }, [])
 
   const [onClaimFee] = useModal(
     <TransactionConfirmationModal
@@ -532,35 +486,6 @@ export default function PoolPage() {
     [collecting, collectMigrationHash, feeValueUpper, feeValueLower, locale],
   )
 
-  const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
-    <ApprovalConfirmationModal
-      title="Confirm Transaction"
-      content={() => ''}
-      pendingText={t('wating confirm...')}
-      attemptingTxn
-      customOnDismiss={handleDismissConfirmation}
-    />,
-    true,
-    false,
-    'TxConfirmationModal',
-  )
-
-  const showKlipQrCode = useKlipQrCondition()
-  const handleHarvest = useCallback(async () => {
-    if (showKlipQrCode) {
-      onPresentKlipTxModal()
-    }
-
-    await onHarvest()
-
-    if (showKlipQrCode) {
-      onDismissKlipTxModal({ force: true })
-    }
-    if (!attemptingTxn) {
-      handleDismissConfirmation()
-    }
-  }, [onPresentKlipTxModal, onDismissKlipTxModal, showKlipQrCode, onHarvest, attemptingTxn, handleDismissConfirmation])
-
   if (!isLoading && poolState === PoolState.NOT_EXISTS) {
     return (
       <NotFound LinkComp={Link}>
@@ -568,13 +493,6 @@ export default function PoolPage() {
       </NotFound>
     )
   }
-
-  const farmingTips =
-    inRange && ownsNFT && hasActiveFarm && !isStakedInMCv3 ? (
-      <Notification variant="info" nStyle="highlight" className="mb-8">
-        <p>{t('Boost your position to earn rewards with the indicated APR!')}</p>
-      </Notification>
-    ) : null
 
   return (
     <Page>
@@ -611,40 +529,18 @@ export default function PoolPage() {
             />
 
             <div className="p-5 md:p-8">
-              {farmingTips}
-
-              {!!numberedPendingCake && (
-                <div className={clsx({ 'mt-8': !!farmingTips })}>
+              {!!tokenId && isOwnNFT && !!farm?.lpAddress && (
+                <>
                   <SectionTitle>{t('Boosts')}</SectionTitle>
 
-                  <div className="px-4 py-3 bg-neutral w-full flex items-center space-x-2 justify-between rounded-xl mt-2">
-                    <div className="flex flex-col space-y-2 items-start">
-                      <h5 className="text-on-surface-subtlest text-xs">{t('Harvested Amount')}</h5>
-
-                      <span className="text-on-surface font-bold">
-                        {numberedPendingCake.toLocaleString(undefined, {
-                          minimumSignificantDigits: 6,
-                          maximumSignificantDigits: 6,
-                        })}{' '}
-                        {/* {cake.symbol} */}
-                        RKAIA
-                      </span>
-
-                      <span className="text-on-surface-subtlest text-xs">
-                        ~
-                        {(numberedPendingCake * cakePrice.toNumber()).toLocaleString(undefined, {
-                          minimumSignificantDigits: 3,
-                          maximumSignificantDigits: 3,
-                        })}{' '}
-                        USD
-                      </span>
-                    </div>
-
-                    <ButtonV2 variant="secondary" onClick={handleHarvest} disabled={isHarvesting}>
-                      {isHarvesting ? <Dots>{t('Harvesting')}</Dots> : t('Harvest')}
-                    </ButtonV2>
-                  </div>
-                </div>
+                  <BoostingCard
+                    poolId={farm.lpAddress}
+                    positionId={Number(tokenId)}
+                    isStaked={isStakedInMCv3}
+                    onDone={onDone}
+                    className="mb-8 mt-2"
+                  />
+                </>
               )}
 
               <div className="grid gap-8 w-full md:grid-flow-col md:grid-cols-2 md:gap-[60px] mt-8">
