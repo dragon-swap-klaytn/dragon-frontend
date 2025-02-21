@@ -144,7 +144,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
     isFarm
       ? t("“My Balance” here includes both LP Tokens in your wallet, and LP Tokens already staked in this farm.")
       : t(
-          "“My Balance” here includes both %assetSymbol% in your wallet, and %assetSymbol% already staked in this pool.",
+          "“My Balance” here includes both {{assetSymbol}} in your wallet, and {{assetSymbol}} already staked in this pool.",
           { assetSymbol: stakingTokenSymbol }
         ),
     { placement: "top-end", tooltipOffset: [20, 10] }
@@ -185,7 +185,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
         {header}
         <Flex flexDirection="column" mb="8px">
           <Text color="secondary" bold fontSize="12px" textTransform="uppercase">
-            {t("%asset% staked", { asset: stakingTokenSymbol })}
+            {t("{{asset}} staked", { asset: stakingTokenSymbol })}
           </Text>
           <BalanceInput
             inputProps={{ scale: "sm" }}

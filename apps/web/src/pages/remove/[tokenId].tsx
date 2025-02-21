@@ -1,4 +1,6 @@
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { DEFAULT_LANGUAGE } from '@pancakeswap/localization'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { getDefaultStaticPaths } from 'utils/pageUtils'
 import { CHAIN_IDS } from 'utils/wagmi'
 import RemoveLiquidityFormProvider from 'views/RemoveLiquidity/form/RemoveLiquidityFormProvider'
 import RemoveLiquidity from 'views/RemoveLiquidity/RemoveLiquidityV3'
@@ -15,15 +17,9 @@ RemoveLiquidityPage.chains = CHAIN_IDS
 
 export default RemoveLiquidityPage
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { tokenId } = params
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = async ({ params, locale }: { params: any; locale: string }) => {
+  const { tokenId } = params || {}
 
   const isNumberReg = /^\d+$/
 
@@ -37,6 +33,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   return {
-    props: {},
+    props: {
+      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
+    },
   }
 }

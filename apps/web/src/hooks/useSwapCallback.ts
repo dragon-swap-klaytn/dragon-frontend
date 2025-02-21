@@ -156,11 +156,11 @@ export function useSwapCallback(
             const translatableWithRecipient =
               trade.tradeType === TradeType.EXACT_OUTPUT
                 ? recipient === account
-                  ? 'Swap max. %inputAmount% %inputSymbol% for %outputAmount% %outputSymbol%'
-                  : 'Swap max. %inputAmount% %inputSymbol% for %outputAmount% %outputSymbol% to %recipientAddress%'
+                  ? 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}}'
+                  : 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
                 : recipient === account
-                ? 'Swap %inputAmount% %inputSymbol% for min. %outputAmount% %outputSymbol%'
-                : 'Swap %inputAmount% %inputSymbol% for min. %outputAmount% %outputSymbol% to %recipientAddress%'
+                ? 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}}'
+                : 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
 
             addTransaction(
               { hash: response },
@@ -200,7 +200,9 @@ export function useSwapCallback(
             } else {
               // otherwise, the error was unexpected and we need to convey that
               console.error(`Swap failed`, error, methodName, args, value)
-              throw new Error(t('Swap failed: %message%', { message: transactionErrorToUserReadableMessage(error, t) }))
+              throw new Error(
+                t('Swap failed: {{message}}', { message: transactionErrorToUserReadableMessage(error, t) }),
+              )
             }
           })
       },

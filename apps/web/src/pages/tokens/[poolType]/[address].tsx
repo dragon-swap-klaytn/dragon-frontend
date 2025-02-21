@@ -3,11 +3,10 @@ import { BreadscrumbsV2, ButtonV2, CurrencyLogoWithSymbol, ExternalLink, Spinner
 import { ArrowUp } from '@phosphor-icons/react'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import Page from 'components/Layout/Page'
-import { GetStaticPaths, GetStaticProps } from 'next'
 import NextLink from 'next/link'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
-import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import { getDefaultStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
 import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
@@ -54,7 +53,7 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
         )}
         {tokenData && (
           <ExternalLink className="mt-4 xs:mt-0" href={getBlockExploreLink(address, 'token')}>
-            {t('View on %site%', { site: getBlockExploreName() })}
+            {t('View on {{site}}', { site: getBlockExploreName() })}
           </ExternalLink>
         )}
       </div>
@@ -192,5 +191,5 @@ TokenDetailsPage.chains = [] // set all
 
 export default TokenDetailsPage
 
-export const getStaticPaths: GetStaticPaths = getTokenStaticPaths()
-export const getStaticProps: GetStaticProps = getTokenStaticProps()
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = getTokenStaticProps

@@ -87,7 +87,6 @@ export default function TransactionTable({
   const [page, setPage] = useState(1)
   const [totalPage, setTotalPage] = useState(1)
 
-  // const [txFilter, setTxFilter] = useState<TransactionType | undefined>(undefined)
   const [txFilterStr, setTxFilterStr] = useState<TxFilter>('All')
   const [filteredTransactions, setFilteredTransactions] = useState<TransactionEventWithType[] | undefined>(undefined)
   useEffect(() => {
@@ -111,13 +110,7 @@ export default function TransactionTable({
       default:
         break
     }
-    // if (txFilterStr === 'All') setTxFilter(undefined)
-    // if (txFilterStr === 'Swaps') setTxFilter(TransactionType.SWAP)
-    // if (txFilterStr === 'Adds') setTxFilter(TransactionType.MINT)
-    // if (txFilterStr === 'Removes') setTxFilter(TransactionType.BURN)
   }, [txFilterStr, transactions])
-
-  // const getTxsSortByClassName = useTxsSortByClassName(txsSortBy, sortDirection)
 
   useEffect(() => {
     const totalPageResult = Math.ceil((filteredTransactions?.length ?? 0) / SHOW_TRANSACTION_COUNT)
@@ -155,10 +148,10 @@ export default function TransactionTable({
   const headers = useMemo(
     () =>
       [
-        { title: t('Total Value'), TxsSortBy: 'amountUSD' },
-        { title: t('Token%index% Amount', { index: '0' }), TxsSortBy: 'amountToken0' },
-        { title: t('Token%index% Amount', { index: '1' }), TxsSortBy: 'amountToken1' },
-        { title: t('Time'), TxsSortBy: 'timestamp' },
+        { title: 'Total Value', TxsSortBy: 'amountUSD' },
+        { title: t('Token{{index}} Amount', { index: '0' }), TxsSortBy: 'amountToken0' },
+        { title: t('Token{{index}} Amount', { index: '1' }), TxsSortBy: 'amountToken1' },
+        { title: 'Time', TxsSortBy: 'timestamp' },
       ].filter(({ TxsSortBy: s }) =>
         isBelowS ? bSHeaders.includes(s as TxsSortBy) : isMobile ? mobileHeaders.includes(s as TxsSortBy) : true,
       ),
@@ -171,6 +164,7 @@ export default function TransactionTable({
         options={TX_FILTER_OPTIONS as unknown as TxFilter[]}
         value={txFilterStr}
         onChange={setTxFilterStr}
+        useTranslationOption
       />
       <table className="w-full rounded-xl overflow-hidden">
         <colgroup>

@@ -1,5 +1,5 @@
+import { TFunction } from "@pancakeswap/localization";
 import { Percent } from "@pancakeswap/swap-sdk-core";
-import { ContextApi } from "@pancakeswap/localization";
 
 /**
  * Given the price impact, get user confirmation.
@@ -11,7 +11,7 @@ export function confirmPriceImpactWithoutFee(
   priceImpactWithoutFee: Percent,
   priceImpactWithoutFeeConfirmMin: Percent,
   allowedPriceImpactHigh: Percent,
-  t: ContextApi["t"]
+  t: TFunction
 ): boolean {
   if (!priceImpactWithoutFee.lessThan(priceImpactWithoutFeeConfirmMin)) {
     const confirmWord = "confirm";
@@ -19,7 +19,7 @@ export function confirmPriceImpactWithoutFee(
       // eslint-disable-next-line no-alert
       window.prompt(
         t(
-          'This swap has a price impact of at least %amount%%. Please type the word "%word%" to continue with this swap.',
+          'This swap has a price impact of at least {{amount}}%. Please type the word "{{word}}" to continue with this swap.',
           {
             amount: priceImpactWithoutFeeConfirmMin.toFixed(0),
             word: confirmWord,
@@ -32,7 +32,7 @@ export function confirmPriceImpactWithoutFee(
     // eslint-disable-next-line no-alert
     return window.confirm(
       t(
-        "This swap has a price impact of at least %amount%%. Please confirm that you would like to continue with this swap.",
+        "This swap has a price impact of at least {{amount}}%. Please confirm that you would like to continue with this swap.",
         {
           amount: allowedPriceImpactHigh.toFixed(0),
         }

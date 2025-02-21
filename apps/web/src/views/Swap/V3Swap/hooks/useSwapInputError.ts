@@ -76,7 +76,7 @@ export function useSwapInputError(
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-    inputError = t('Insufficient %symbol% balance', { symbol: amountIn.currency.symbol })
+    inputError = t('Insufficient {{symbol}} balance', { symbol: amountIn.currency.symbol })
   }
 
   return inputError

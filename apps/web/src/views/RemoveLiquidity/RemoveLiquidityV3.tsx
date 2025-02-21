@@ -68,7 +68,7 @@ export default function RemoveLiquidityV3() {
 function Remove({ tokenId }: { tokenId?: bigint }) {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   // flag for receiving WNATIVE
@@ -252,7 +252,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
   const pendingText = useMemo(
     () =>
-      t('Removing %amountA% %symbolA% and %amountB% %symbolB%', {
+      t('Removing {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
         amountA: liquidityValue0?.toSignificant(6),
         symbolA: liquidityValue0?.currency?.symbol,
         amountB: liquidityValue1?.toSignificant(6),
@@ -347,7 +347,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
       <AppBody>
         <AppHeader
           backTo={`/liquidity/${tokenId}`}
-          title={t('Remove %assetA%-%assetB% Liquidity', {
+          title={t('Remove {{assetA}}-{{assetB}} Liquidity', {
             assetA: liquidityValue0?.currency?.symbol ?? '',
             assetB: liquidityValue1?.currency?.symbol ?? '',
           })}
@@ -456,7 +456,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
           {isStakedInMCv3 ? (
             <Notification variant="info" className="mt-4" nStyle="highlight">
               {t(
-                'This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed %cake% to your wallet.',
+                'This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed {{cake}} to your wallet.',
                 {
                   cake: CAKE_SYMBOL,
                 },

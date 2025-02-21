@@ -1,13 +1,14 @@
-import { formatEther } from 'viem'
+import { DEFAULT_LANGUAGE } from '@pancakeswap/localization'
+import { dehydrate, QueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { gql } from 'graphql-request'
-import { GetStaticProps } from 'next'
-import { dehydrate, QueryClient } from '@tanstack/react-query'
+import { getCakePriceFromOracle } from 'hooks/useCakePrice'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getCakeVaultAddress } from 'utils/addressHelpers'
 import { getCakeContract } from 'utils/contractHelpers'
 import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
 import { bitQueryServerClient, infoServerClient } from 'utils/graphql'
-import { getCakePriceFromOracle } from 'hooks/useCakePrice'
+import { formatEther } from 'viem'
 import Home from '../views/Home'
 
 const IndexPage = () => {
@@ -20,7 +21,7 @@ const addressCount = 4425459
 
 const tvl = 6082955532.115718
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps = async ({ locale }: { locale: string }) => {
   const queryClient = new QueryClient()
 
   const totalTxQuery = gql`
@@ -123,6 +124,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
+      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
     },
     revalidate: 60 * 60 * 24 * 30, // 30 days
   }

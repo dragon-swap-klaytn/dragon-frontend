@@ -65,7 +65,7 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
       {multiplier !== '0X' && unstakedPositions.length > 0 && (
         <Flex flexDirection="column" width="100%" mb="24px" id={`${farm.pid}-farm-v3-available`}>
           <PreTitle fontSize="12px" color="textSubtle" m="0 0 8px 0">
-            {t('%totalAvailableFarm% LP Available for Farming', { totalAvailableFarm: unstakedPositions.length })}
+            {t('{{totalAvailableFarm}} LP Available for Farming', { totalAvailableFarm: unstakedPositions.length })}
           </PreTitle>
           <AutoRow width="100%" gap="16px" flexDirection="column" alignItems="flex-start">
             {partition_(unstakedPositions, (position) => !isPositionOutOfRange(pool?.tickCurrent, position))
@@ -98,7 +98,7 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
       {stakedPositions.length > 0 && (
         <Flex flexDirection="column" width="100%" mb="24px" id={`${farm.pid}-farm-v3-staking`}>
           <PreTitle color="textSubtle" m="0 0 8px 0">
-            {t('%totalStakedFarm% Staked Farming', { totalStakedFarm: stakedPositions.length })}
+            {t('{{totalStakedFarm}} Staked Farming', { totalStakedFarm: stakedPositions.length })}
           </PreTitle>
           <Flex flexWrap="wrap" width="100%">
             {stakedPositions.map((position) => (

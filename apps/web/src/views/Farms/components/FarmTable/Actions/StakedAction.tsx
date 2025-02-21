@@ -159,7 +159,7 @@ const Staked: React.FunctionComponent<React.PropsWithChildren<StackedActionProps
 
   const crossChainWarningText = useMemo(() => {
     return isFirstTime
-      ? t('A small amount of %nativeToken% is required for the first-time setup of cross-chain %cake% farming.', {
+      ? t('A small amount of {{nativeToken}} is required for the first-time setup of cross-chain {{cake}} farming.', {
           nativeToken: native.symbol,
           cake: CAKE_SYMBOL_VIEW,
         })

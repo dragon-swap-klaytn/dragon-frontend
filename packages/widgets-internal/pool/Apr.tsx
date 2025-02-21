@@ -110,7 +110,7 @@ export function Apr<T>({
       stakingTokenDecimals={stakingToken.decimals}
       apr={poolApr}
       stakingTokenSymbol={stakingToken?.symbol || ""}
-      linkLabel={t("Get %symbol%", { symbol: stakingToken?.symbol || "" })}
+      linkLabel={t("Get {{symbol}}", { symbol: stakingToken?.symbol || "" })}
       linkHref={apyModalLink}
       earningTokenSymbol={earningToken?.symbol}
       autoCompoundFrequency={autoCompoundFrequency}

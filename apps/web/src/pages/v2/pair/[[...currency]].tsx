@@ -31,6 +31,7 @@ import { useLPApr } from 'state/swap/useLPApr'
 import { useTokenBalance } from 'state/wallet/hooks'
 import useSWRImmutable from 'swr/immutable'
 import { formatAmount } from 'utils/formatInfoNumbers'
+import { getDefaultStaticPaths, getDefaultStaticProps } from 'utils/pageUtils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { useAccount } from 'wagmi'
 
@@ -99,7 +100,10 @@ export default function PoolV2Page() {
   const poolData = useLPApr(pair)
 
   const tokens: PairTokens = useMemo(() => {
-    return [unwrappedToken(pair?.token0), unwrappedToken(pair?.token1)]
+    return [
+      pair?.token0 ? unwrappedToken(pair.token0) : undefined,
+      pair?.token1 ? unwrappedToken(pair.token1) : undefined,
+    ]
   }, [pair, chainId])
   const tokenLabels: string[] = useMemo(() => {
     return [
@@ -158,7 +162,7 @@ export default function PoolV2Page() {
                 symbolClassName="text-lg font-bold text-on-surface"
               />
 
-              <TagV2>V2 LP</TagV2>
+              <TagV2>{t('V2')}</TagV2>
             </div>
           }
           backTo={backTo}
@@ -225,3 +229,6 @@ function CurrencyWithAmount({ a, b }: { a: CurrencyWithAmountProps; b: CurrencyW
     </div>
   )
 }
+
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = getDefaultStaticProps(['common'])

@@ -67,7 +67,7 @@ export const AddLiquidityModalHeader = ({
 }: AddLiquidityModalHeaderProps) => {
   const { t } = useTranslation()
   const { tooltip, tooltipVisible, targetRef } = useTooltip(
-    t('Output is estimated. If the price changes by more than %slippage%% your transaction will revert.', {
+    t('Output is estimated. If the price changes by more than {{slippage}}% your transaction will revert.', {
       slippage: allowedSlippage / 100,
     }),
   )

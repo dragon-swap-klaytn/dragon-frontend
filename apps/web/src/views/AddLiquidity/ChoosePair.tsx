@@ -41,9 +41,9 @@ export function ChoosePair({
     <>
       <AppHeader
         title={t('Add Liquidity')}
-        subtitle={t('Receive LP tokens and earn 0.17% trading fees')}
+        subtitle={t('Receive LP tokens and earn 0.24% trading fees')}
         helper={t(
-          'Liquidity providers earn a 0.17% trading fee on all trades made for that token pair, proportional to their share of the liquidity pair.',
+          'Liquidity providers earn a 0.24% trading fee on all trades made for that token pair, proportional to their share of the liquidity pair.',
         )}
         backTo="/liquidity"
       />

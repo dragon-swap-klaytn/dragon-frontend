@@ -112,7 +112,7 @@ export default function V3FormView({
 
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const expertMode = useIsExpertMode()
 
@@ -364,8 +364,18 @@ export default function V3FormView({
   const pendingText = useMemo(
     () =>
       !outOfRange
-        ? t('Supplying %amountA% %symbolA% and %amountB% %symbolB%', translationData)
-        : t('Supplying %amount% %symbol%', translationData),
+        ? t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
+            amountA: translationData.amountA,
+            symbolA: translationData.symbolA,
+            amountB: translationData.amountB,
+            symbolB: translationData.symbolB,
+          })
+        : t('Supplying {{amount}} {{symbol}}', {
+            amountA: translationData.amountA,
+            symbolA: translationData.symbolA,
+            amountB: translationData.amountB,
+            symbolB: translationData.symbolB,
+          }),
     [t, outOfRange, translationData],
   )
 
@@ -598,7 +608,7 @@ export default function V3FormView({
             />
 
             <p className="text-[13px] text-on-surface-subtle mt-1 px-2">
-              {t('Current %symbol% Price', { symbol: baseCurrency?.symbol })}:{' '}
+              {t('Current {{symbol}} Price', { symbol: baseCurrency?.symbol })}:{' '}
               {price ? (invertPrice ? price?.invert()?.toSignificant(5) : price?.toSignificant(5)) : '-'}{' '}
               {quoteCurrency?.symbol}
             </p>

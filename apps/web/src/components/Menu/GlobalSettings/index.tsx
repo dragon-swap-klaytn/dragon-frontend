@@ -2,7 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import { MenuIconButton, ToggleSwitch, useModal } from '@pancakeswap/uikit'
 import { Gear, Question } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import LanguageSettings from 'components/Menu/GlobalSettings/LanguageSettings'
+import LocaleSettings from 'components/Menu/GlobalSettings/LocaleSettings'
 import { SettingModeType, SettingsMode } from 'components/Menu/GlobalSettings/types'
 import { usePathname } from 'next/navigation'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
@@ -72,8 +72,8 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
             />
           </div>
 
-          <LanguageSettings
-            onClickLanguage={() => {
+          <LocaleSettings
+            onClickLocale={() => {
               setOpen(false)
               setGlobalSettingsOpen?.(false)
             }}

@@ -92,7 +92,7 @@ export const AprButton = memo(function YieldInfo({
 
       <Text lineHeight="120%" mt="20px">
         {aprTimeWindow > 0
-          ? t(`Calculated based on previous %days% days average data.`, { days: aprTimeWindow })
+          ? t(`Calculated based on previous {{days}} days average data.`, { days: aprTimeWindow })
           : t('Calculated based average data since vault inception.')}
       </Text>
     </>,

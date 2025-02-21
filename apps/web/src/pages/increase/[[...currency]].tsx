@@ -1,8 +1,10 @@
+import { DEFAULT_LANGUAGE, Locale } from '@pancakeswap/localization'
 import { USDC, USDT } from '@pancakeswap/tokens'
 import { useCurrency } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { GetStaticPaths } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 import { CHAIN_IDS } from 'utils/wagmi'
 import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/form/LiquidityFormProvider'
@@ -42,7 +44,7 @@ export const getStaticPaths: GetStaticPaths = () => {
   }
 }
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps = async ({ params, locale }: { params: any; locale: Locale }) => {
   const { currency = [] } = params || {}
   const [currencyIdA, currencyIdB, feeAmountFromUrl, tokenId] = currency
   const match = currencyIdA?.match(OLD_PATH_STRUCTURE)
@@ -74,6 +76,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   return {
-    props: {},
+    props: {
+      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
+    },
   }
 }

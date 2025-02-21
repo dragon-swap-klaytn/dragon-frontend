@@ -1,10 +1,10 @@
-import { styled } from "styled-components";
-import { useMemo } from "react";
-import dayjs from "dayjs";
 import { useTranslation } from "@pancakeswap/localization";
+import dayjs from "dayjs";
+import { useMemo } from "react";
+import { styled } from "styled-components";
 import { Flex } from "../../components/Box";
-import { Text } from "../../components/Text";
 import { Skeleton } from "../../components/Skeleton";
+import { Text } from "../../components/Text";
 
 const StyledIfoVestingFooter = styled(Flex)`
   padding: 16px;
@@ -57,7 +57,7 @@ const IfoVestingFooter: React.FC<React.PropsWithChildren<IfoVestingFooterProps>>
 
   return (
     <StyledIfoVestingFooter flexDirection="column">
-      <FooterEntry label={t("Release rate")} value={t("%releaseRate% per second", { releaseRate })} />
+      <FooterEntry label={t("Release rate")} value={t("{{releaseRate}} per second", { releaseRate })} />
       <FooterEntry label={t("Fully released date")} value={releaseDate} />
     </StyledIfoVestingFooter>
   );

@@ -1,15 +1,15 @@
-import { Position } from '@pancakeswap/v3-sdk'
-import { useToken } from 'hooks/Tokens'
-import { useMemo, useState, SetStateAction, Dispatch } from 'react'
-import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-import { usePool } from 'hooks/v3/usePools'
 import { PositionDetails } from '@pancakeswap/farms'
-import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
-import { Currency, Price, Token } from '@pancakeswap/sdk'
-import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
-import { Bound } from 'config/constants/types'
 import { useTranslation } from '@pancakeswap/localization'
+import { Currency, Price, Token } from '@pancakeswap/sdk'
+import { Position } from '@pancakeswap/v3-sdk'
+import { Bound } from 'config/constants/types'
+import { useToken } from 'hooks/Tokens'
+import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
+import { usePool } from 'hooks/v3/usePools'
+import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
+import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 interface PositionListItemDisplayProps {
   positionSummaryLink: string
@@ -45,7 +45,7 @@ export default function PositionListItem({ positionDetails, children }: Position
 
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   const token0 = useToken(token0Address)
@@ -84,11 +84,11 @@ export default function PositionListItem({ positionDetails, children }: Position
   let subtitle = ''
 
   if (priceUpper && priceLower && currencyBase && currencyQuote) {
-    subtitle = `${t('Min %minAmount%', {
+    subtitle = `${t('Min {{minAmount}}', {
       minAmount: formatTickPrice(inverted ? priceUpper.invert() : priceLower, tickAtLimit, Bound.LOWER, locale),
-    })} / ${t('Max %maxAmount%', {
+    })} / ${t('Max {{maxAmount}}', {
       maxAmount: formatTickPrice(inverted ? priceLower.invert() : priceUpper, tickAtLimit, Bound.UPPER, locale),
-    })} ${t('%assetA% per %assetB%', {
+    })} ${t('{{assetA}} per {{assetB}}', {
       assetA: inverted ? currencyBase?.symbol : currencyQuote?.symbol,
       assetB: inverted ? currencyQuote?.symbol : currencyBase?.symbol,
     })}`

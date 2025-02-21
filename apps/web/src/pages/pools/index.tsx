@@ -1,6 +1,6 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { ButtonV2, Chip, Notification, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
+import { ButtonV2, Chip, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import Page from 'components/Layout/Page'
 import { useBackTo } from 'hooks/use-back-to'
@@ -8,6 +8,7 @@ import usePortfolio from 'hooks/use-portfolio'
 import NextLink from 'next/link'
 import { useMemo, useState } from 'react'
 import { PoolType } from 'types'
+import { getDefaultStaticProps } from 'utils/pageUtils'
 import { Address } from 'viem'
 import PoolTable from 'views/Dashboard/components/PoolTable'
 import { MyPositionsSummary } from 'views/PoolsV2/components/MyPositionsSummary'
@@ -47,7 +48,7 @@ const PoolsPage = () => {
       <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between">
         <div>
           <h1 className="text-[40px] font-medium">{t('Pools')}</h1>
-          <p className="text-sm text-on-surface-subtlest">{t('Stake LP tokens to earn')}</p>
+          <p className="text-sm text-on-surface-subtlest">{t('Boost positions to earn.')}</p>
         </div>
         <NextLink href="/add" className="mt-4 xs:mt-0">
           <ButtonV2 variant="secondary" onClick={() => saveBackToHref()}>
@@ -65,18 +66,7 @@ const PoolsPage = () => {
               <Spinner />
             </div>
           ) : (
-            <>
-              <div
-                className={clsx('my-5', {
-                  hidden: portfolio && Object.keys(portfolio).length > 0,
-                })}
-              >
-                <Notification variant="info" fullWidth className="!bg-surface-raised">
-                  {t('Add liquidity to the pool and claim fees. View your positions here.')}
-                </Notification>
-              </div>
-              <MyPositionsSummary portfolio={portfolio} invalidatePortflio={() => mutatePortfolio()} />
-            </>
+            <MyPositionsSummary portfolio={portfolio} invalidatePortflio={() => mutatePortfolio()} />
           )}
         </div>
       </div>
@@ -90,6 +80,7 @@ const PoolsPage = () => {
               options={['All', 'Boost🔥']}
               value={boostedOnly ? 'Boost🔥' : 'All'}
               onChange={(value) => setBoostedOnly(value === 'Boost🔥')}
+              useTranslationOption
             />
           </div>
           <div
@@ -154,3 +145,5 @@ PoolsPage.Layout = ({ children }) => <div>{children}</div>
 PoolsPage.chains = []
 
 export default PoolsPage
+
+export const getStaticProps = getDefaultStaticProps(['common'])

@@ -4,6 +4,7 @@ import { useCurrency } from 'hooks/Tokens'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { useFarmPrivateAPI } from 'state/farms/hooks'
+import { getDefaultStaticPaths, getDefaultStaticProps } from 'utils/pageUtils'
 import { CHAIN_IDS } from 'utils/wagmi'
 import AddLiquidityV2FormProvider from 'views/AddLiquidity/AddLiquidityV2FormProvider'
 import { AddLiquidityV3Layout, UniversalAddLiquidity } from 'views/AddLiquidityV3'
@@ -94,3 +95,6 @@ const AddLiquidityPage = () => {
 AddLiquidityPage.chains = CHAIN_IDS
 
 export default AddLiquidityPage
+
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = getDefaultStaticProps(['common'])

@@ -1,4 +1,3 @@
-import { LanguageProvider } from '@pancakeswap/localization'
 import { ModalProvider, UIKitProvider, dark, light } from '@pancakeswap/uikit'
 import { Store } from '@reduxjs/toolkit'
 import { Hydrate, QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -31,19 +30,17 @@ const Providers: React.FC<
         <WagmiConfig config={wagmiConfig}>
           <Provider store={store}>
             <NextThemeProvider>
-              <LanguageProvider>
-                <StyledUIKitProvider>
-                  <SWRConfig
-                    value={{
-                      use: [fetchStatusMiddleware],
-                    }}
-                  >
-                    <HistoryManagerProvider>
-                      <ModalProvider>{children}</ModalProvider>
-                    </HistoryManagerProvider>
-                  </SWRConfig>
-                </StyledUIKitProvider>
-              </LanguageProvider>
+              <StyledUIKitProvider>
+                <SWRConfig
+                  value={{
+                    use: [fetchStatusMiddleware],
+                  }}
+                >
+                  <HistoryManagerProvider>
+                    <ModalProvider>{children}</ModalProvider>
+                  </HistoryManagerProvider>
+                </SWRConfig>
+              </StyledUIKitProvider>
             </NextThemeProvider>
           </Provider>
         </WagmiConfig>

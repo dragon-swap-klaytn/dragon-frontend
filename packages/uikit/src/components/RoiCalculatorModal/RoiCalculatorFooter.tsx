@@ -133,7 +133,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
                   {displayApr}%
                 </Text>
                 <Text color="textSubtle" small>
-                  {`*${t("Base APR (%symbol% yield only)", { symbol: CAKE_SYMBOL_VIEW })}`}
+                  {`*${t("Base APR ({{symbol}} yield only)", { symbol: CAKE_SYMBOL_VIEW })}`}
                 </Text>
                 <Text small textAlign="right">
                   {`${cakeRewardAPRDisplay?.toLocaleString("en-US", {
@@ -162,7 +162,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
             )}
             {!Number.isFinite(apy) && (
               <Text color="textSubtle" small>
-                {t("APY (%compoundTimes%x daily compound)", {
+                {t("APY ({{compoundTimes}}x daily compound)", {
                   compoundTimes: autoCompoundFrequency > 0 ? autoCompoundFrequency : 1,
                 })}
               </Text>
@@ -202,7 +202,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
               <>
                 <li>
                   <Text fontSize="12px" textAlign="center" color="textSubtle" display="inline">
-                    {t("LP rewards: %percent%% trading fees, distributed proportionally among LP token holders.", {
+                    {t("LP rewards: {{percent}}% trading fees, distributed proportionally among LP token holders.", {
                       percent: stableSwapAddress && stableLpFee ? BIG_ONE_HUNDRED.times(stableLpFee).toNumber() : 0.3,
                     })}
                   </Text>
@@ -232,7 +232,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
             {performanceFee > 0 && (
               <li>
                 <Text mt="14px" fontSize="12px" textAlign="center" color="textSubtle" display="inline">
-                  {t("All estimated rates take into account this pool’s %fee%% performance fee", {
+                  {t("All estimated rates take into account this pool’s {{fee}}% performance fee", {
                     fee: performanceFee,
                   })}
                 </Text>

@@ -42,9 +42,9 @@ export default function ApproveLiquidityTokens({
           state={approvalA === ApprovalState.PENDING ? 'loading' : 'default'}
         >
           {approvalA === ApprovalState.PENDING ? (
-            <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
+            <Dots>{t('Enabling {{asset}}', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
           ) : (
-            t('Enable %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })
+            t('Enable {{asset}}', { asset: currencies[Field.CURRENCY_A]?.symbol })
           )}
         </ButtonV2>
       )}
@@ -57,9 +57,9 @@ export default function ApproveLiquidityTokens({
           state={approvalA === ApprovalState.PENDING ? 'loading' : 'default'}
         >
           {approvalB === ApprovalState.PENDING ? (
-            <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
+            <Dots>{t('Enabling {{asset}}', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
           ) : (
-            t('Enable %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })
+            t('Enable {{asset}}', { asset: currencies[Field.CURRENCY_B]?.symbol })
           )}
         </ButtonV2>
       )}

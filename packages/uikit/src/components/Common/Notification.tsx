@@ -42,7 +42,7 @@ export function Notification({
       )}
     >
       <div
-        className={clsx("w-4 h-4 shrink-0 pt-0.5", {
+        className={clsx("w-4 h-4 shrink-0", {
           "text-gray-900": nStyle === "highlight",
           "text-teal-300": nStyle === "default" && variant === "positive",
           "text-yellow-300": nStyle === "default" && variant === "caution",

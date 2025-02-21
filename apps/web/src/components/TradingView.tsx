@@ -1,5 +1,5 @@
-import { Box, FlexProps, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { Box, FlexProps, useMatchBreakpoints } from '@pancakeswap/uikit'
 import Script from 'next/script'
 import { useEffect } from 'react'
 import { DefaultTheme, useTheme } from 'styled-components'
@@ -57,7 +57,9 @@ interface TradingViewProps {
 }
 
 const TradingView = ({ id, symbol }: TradingViewProps) => {
-  const { currentLanguage } = useTranslation()
+  const {
+    i18n: { language },
+  } = useTranslation()
   const theme = useTheme()
   const { isMobile } = useMatchBreakpoints()
 
@@ -74,16 +76,16 @@ const TradingView = ({ id, symbol }: TradingViewProps) => {
     // @ts-ignore
     if (window.tv) {
       // @ts-ignore
-      initializeTradingView(window.tv, theme, currentLanguage.code, opts)
+      initializeTradingView(window.tv, theme, language, opts)
     } else {
       tradingViewListener().then((tv) => {
-        initializeTradingView(tv, theme, currentLanguage.code, opts)
+        initializeTradingView(tv, theme, language, opts)
       })
     }
 
     // Ignore isMobile to avoid re-render TV
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, currentLanguage, id, symbol])
+  }, [theme, language, id, symbol])
 
   return (
     <Box overflow="hidden" className="tradingview_container">

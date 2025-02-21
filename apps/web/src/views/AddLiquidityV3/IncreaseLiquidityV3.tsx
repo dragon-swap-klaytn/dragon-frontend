@@ -56,7 +56,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
 
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const expertMode = useIsExpertMode()
 
@@ -276,7 +276,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
 
   const pendingText = useMemo(() => {
     if (depositADisabled) {
-      return t('Supplying %amountA% %symbolA% %amountB% %symbolB%', {
+      return t('Supplying {{amountA}} {{symbolA}} {{amountB}} {{symbolB}}', {
         amountA: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_B], 4, locale),
         symbolA: currencies[Field.CURRENCY_B]?.symbol,
         amountB: '',
@@ -284,14 +284,14 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
       })
     }
     if (depositBDisabled) {
-      return t('Supplying %amountA% %symbolA% %amountB% %symbolB%', {
+      return t('Supplying {{amountA}} {{symbolA}} {{amountB}} {{symbolB}}', {
         amountA: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_A], 4, locale),
         symbolA: currencies[Field.CURRENCY_A]?.symbol,
         amountB: '',
         symbolB: '',
       })
     }
-    return t('Supplying %amountA% %symbolA% and %amountB% %symbolB%', {
+    return t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
       amountA: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_A], 4, locale),
       symbolA: currencies[Field.CURRENCY_A]?.symbol ?? '',
       amountB: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_B], 4, locale),
@@ -360,7 +360,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
       <div className="max-w-md mx-auto md:bg-surface-raised rounded-2xl">
         <AppHeader
           backTo={`/liquidity/${tokenId}`}
-          title={t('Add %assetA%-%assetB% Liquidity', {
+          title={t('Add {{assetA}}-{{assetB}} Liquidity', {
             assetA: currencies[Field.CURRENCY_A]?.symbol ?? '',
             assetB: currencies[Field.CURRENCY_B]?.symbol ?? '',
           })}

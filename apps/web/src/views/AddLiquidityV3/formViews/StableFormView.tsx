@@ -93,18 +93,18 @@ export default function StableFormView({
             {showFieldAApproval && (
               <Button onClick={approveACallback} disabled={approvalA === ApprovalState.PENDING} width="100%">
                 {approvalA === ApprovalState.PENDING ? (
-                  <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
+                  <Dots>{t('Enabling {{asset}}', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
                 ) : (
-                  t('Enable %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })
+                  t('Enable {{asset}}', { asset: currencies[Field.CURRENCY_A]?.symbol })
                 )}
               </Button>
             )}
             {showFieldBApproval && (
               <Button onClick={approveBCallback} disabled={approvalB === ApprovalState.PENDING} width="100%">
                 {approvalB === ApprovalState.PENDING ? (
-                  <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
+                  <Dots>{t('Enabling {{asset}}', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
                 ) : (
-                  t('Enable %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })
+                  t('Enable {{asset}}', { asset: currencies[Field.CURRENCY_B]?.symbol })
                 )}
               </Button>
             )}
@@ -230,7 +230,7 @@ export default function StableFormView({
 
               <Text>
                 {price?.toSignificant(6) ?? '-'}{' '}
-                {t('%assetA% per %assetB%', {
+                {t('{{assetA}} per {{assetB}}', {
                   assetB: currencies[Field.CURRENCY_B]?.symbol ?? '',
                   assetA: currencies[Field.CURRENCY_A]?.symbol ?? '',
                 })}

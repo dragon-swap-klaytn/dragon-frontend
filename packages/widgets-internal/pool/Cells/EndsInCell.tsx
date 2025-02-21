@@ -20,7 +20,7 @@ export const EndTimeTooltipComponent: React.FC<React.PropsWithChildren<EndTimeTo
 }) => {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation();
 
   return (
@@ -70,9 +70,9 @@ export function TimeCountdownDisplay({
           ? endTimeObject?.totalDays
             ? endTimeObject?.totalDays === 1
               ? t("1 day")
-              : t("%days% days", { days: endTimeObject?.totalDays })
+              : t("{{days}} days", { days: endTimeObject?.totalDays })
             : t("< 1 day")
-          : t("%days% days", { days: 0 })}
+          : t("{{days}} days", { days: 0 })}
       </Text>
       <span ref={endTimeTargetRef}>
         <TimerIcon ml="4px" color="primary" />

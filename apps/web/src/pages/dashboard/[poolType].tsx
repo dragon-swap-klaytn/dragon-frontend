@@ -1,11 +1,11 @@
-import { useTranslation } from '@pancakeswap/localization'
+import { DEFAULT_LANGUAGE, Locale, useTranslation } from '@pancakeswap/localization'
 import { SegmentedControl } from '@pancakeswap/uikit'
 import Page from 'components/Layout/Page'
 import { atom } from 'jotai'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 import { PoolType } from 'types'
-import { getTokenStaticPaths } from 'utils/pageUtils'
+import { getDefaultStaticPaths } from 'utils/pageUtils'
 import Overview from 'views/Dashboard/OverView'
 
 export const DASHBOARD_TABS = ['Overview', 'Pairs', 'Tokens'] as const
@@ -42,8 +42,8 @@ InfoPage.chains = [] // set all
 
 export default InfoPage
 
-export const getStaticPaths: GetStaticPaths = getTokenStaticPaths()
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = async ({ params, locale }: { params: any; locale: Locale }) => {
   const poolType = params?.poolType
 
   if (poolType !== 'v2' && poolType !== 'v3') {
@@ -58,6 +58,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       poolType,
+      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
     },
   }
 }

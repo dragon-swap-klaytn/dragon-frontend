@@ -50,7 +50,7 @@ export const RewardAssets: React.FC<RewardAssetsProps> = ({
         `${t('Harvested')}!`,
         <ToastDescriptionWithTx txHash={receipt.transactionHash}>
           <p className="text-sm text-on-surface">
-            {t('Your %symbol% earnings have been sent to your wallet!', { symbol: earningToken.symbol })}
+            {t('Your {{symbol}} earnings have been sent to your wallet!', { symbol: earningToken.symbol })}
           </p>
         </ToastDescriptionWithTx>,
       )

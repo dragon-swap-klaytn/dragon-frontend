@@ -1,7 +1,7 @@
-import { styled } from "styled-components";
 import { useTranslation } from "@pancakeswap/localization";
-import { Text } from "../Text";
+import { styled } from "styled-components";
 import { ArrowBackIcon, ArrowForwardIcon } from "../Svg";
+import { Text } from "../Text";
 
 export const PageButtons = styled.div`
   width: 100%;
@@ -47,13 +47,13 @@ const PaginationButton = ({ currentPage, maxPage, showMaxPageText, setCurrentPag
       </Arrow>
       {showMaxPageText && maxPage ? (
         <Text>
-          {t("Page %page% of %maxPage%", {
+          {t("Page {{page}} of {{maxPage}}", {
             page: currentPage,
             maxPage,
           })}
         </Text>
       ) : (
-        <Text>{t("Page %page%", { page: currentPage })}</Text>
+        <Text>{t("Page {{page}}", { page: currentPage })}</Text>
       )}
       <Arrow onClick={handleNextButton}>
         <ArrowForwardIcon color={currentPage === maxPage ? "textDisabled" : "primary"} />

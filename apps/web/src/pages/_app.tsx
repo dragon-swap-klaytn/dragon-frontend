@@ -20,6 +20,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 
 // import { useDataDogRUM } from 'hooks/useDataDogRUM'
 import { ChainId } from '@pancakeswap/chains'
+import { appWithTranslation } from '@pancakeswap/localization'
 import Footer from 'components/Menu/Footer'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
@@ -157,4 +158,4 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   )
 }
 
-export default MyApp
+export default appWithTranslation(MyApp)

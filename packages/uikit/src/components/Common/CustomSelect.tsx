@@ -1,5 +1,5 @@
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
-import { TranslateFunction } from "@pancakeswap/localization";
+import { TFunction } from "@pancakeswap/localization";
 import { CaretDown, Check } from "@phosphor-icons/react";
 import clsx from "clsx";
 
@@ -12,7 +12,7 @@ type BaseSelectProps = {
   options: SelectOption[];
   prefix?: string;
   placeholder?: string;
-  t?: TranslateFunction;
+  t?: TFunction;
 };
 
 type SingleSelectProps = BaseSelectProps & {
@@ -28,7 +28,7 @@ type MultipleSelectProps = BaseSelectProps & {
 };
 
 type CustomSelectProps = SingleSelectProps | MultipleSelectProps;
-
+const defaultT: TFunction = ((key: string) => key) as TFunction;
 export function CustomSelect({
   options,
   prefix,
@@ -36,7 +36,7 @@ export function CustomSelect({
   selectedOption,
   onSelect,
   multiple,
-  t = (k: string) => k,
+  t = defaultT,
 }: CustomSelectProps) {
   return (
     <Listbox value={selectedOption} onChange={onSelect} multiple={multiple}>

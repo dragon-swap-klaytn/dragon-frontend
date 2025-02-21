@@ -42,7 +42,7 @@ export default function useCatchTxError(params?: Params): CatchTxErrorReturn {
       if (err) {
         toastError(
           t('Error'),
-          t('Transaction failed with error: %reason%', {
+          t('Transaction failed with error: {{reason}}', {
             reason: notPreview ? error.shortMessage || error.message : error.message,
           }),
         )
@@ -61,7 +61,7 @@ export default function useCatchTxError(params?: Params): CatchTxErrorReturn {
         t('Failed'),
         <ToastDescriptionWithTx txHash={hash}>
           {err
-            ? t('Transaction failed with error: %reason%', {
+            ? t('Transaction failed with error: {{reason}}', {
                 reason: notPreview ? getViemErrorMessage(err) : err.message,
               })
             : t('Transaction failed. For detailed error message:')}

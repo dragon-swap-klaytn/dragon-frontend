@@ -9,14 +9,13 @@ import { PositionV2, PositionV3 } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
 import usePoolPositions from 'hooks/usePoolPositions'
 import { useV3Pool } from 'hooks/v3/use-v3-pool'
-import { GetStaticPaths, GetStaticProps } from 'next'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV2Parsed, PoolV3Parsed } from 'pages/api/pools'
 import { useMemo } from 'react'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { getTokenStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import { getDefaultStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
 import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
@@ -65,7 +64,7 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
         )}
         {poolData && (
           <ExternalLink className="mt-4 xs:mt-0" href={getBlockExploreLink(address, 'address')}>
-            {t('View on %site%', { site: getBlockExploreName() })}
+            {t('View on {{site}}', { site: getBlockExploreName() })}
           </ExternalLink>
         )}
       </div>
@@ -192,17 +191,17 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
                 </div>
                 <div className="flex justify-between space-x-4">
                   <div className="space-y-1.5 flex-1">
-                    <h4 className="text-xs">Volume 24H</h4>
+                    <h4 className="text-xs">{t('Volume 24H')}</h4>
                     <p className="text-xl font-medium">$ {formatDollarAmount(poolData.volumeUSD['24H'])}</p>
                   </div>
                   <div className="space-y-1.5 flex-1">
-                    <h4 className="text-xs">Volume 7D</h4>
+                    <h4 className="text-xs">{t('Volume 7D')}</h4>
                     <p className="text-xl font-medium">$ {formatDollarAmount(poolData.volumeUSD['7D'])}</p>
                   </div>
                 </div>
                 <div className="flex justify-between">
                   <div className="space-y-1.5 flex-1">
-                    <h4 className="text-xs">APY 24H</h4>
+                    <h4 className="text-xs">{t('APY 24H')}</h4>
                     <p className="text-xl font-medium text-emerald-400">
                       {poolData.apy['24H'].toLocaleString(undefined, {
                         style: 'percent',
@@ -212,7 +211,7 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
                     </p>
                   </div>
                   <div className="space-y-1.5 flex-1">
-                    <h4 className="text-xs">APY 7D</h4>
+                    <h4 className="text-xs">{t('APY 7D')}</h4>
                     <p className="text-xl font-medium text-emerald-400">
                       {poolData.apy['7D'].toLocaleString(undefined, {
                         style: 'percent',
@@ -223,7 +222,7 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <h4 className="text-xs">Total Transactions</h4>
+                  <h4 className="text-xs">{t('Total Transactions')}</h4>
                   <p className="text-xl font-medium">{poolData.txCount.total.toLocaleString()}</p>
                   <div>
                     <div className="flex items-center space-x-1">
@@ -391,5 +390,5 @@ PoolDetailsPage.chains = [] // set all
 
 export default PoolDetailsPage
 
-export const getStaticPaths: GetStaticPaths = getTokenStaticPaths()
-export const getStaticProps: GetStaticProps = getTokenStaticProps()
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = getTokenStaticProps

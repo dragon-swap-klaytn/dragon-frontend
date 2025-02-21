@@ -269,13 +269,13 @@ const SingleFarmV3Card: React.FunctionComponent<
                       }}
                     >
                       {outOfRangeUnstaked ? (
-                        <>
+                        <p>
                           {t('Inactive positions will')}
                           <b> {t('NOT')} </b>
                           {t('earn KAIA rewards from farm.')}
-                        </>
+                        </p>
                       ) : (
-                        t('You may add or remove liquidity on the position detail page without unstake')
+                        <p>{t('You may add or remove liquidity on the position detail page without unstake')}</p>
                       )}
                       <Arrow />
                     </StyledTooltip>

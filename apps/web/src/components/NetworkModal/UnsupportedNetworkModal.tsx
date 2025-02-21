@@ -25,8 +25,8 @@ export function UnsupportedNetworkModal({ pageSupportedChains }: { pageSupported
     <Modal title={t('Check your network')} hideCloseButton>
       <div className="w-full">
         <p className="break-keep text-center text-on-surface">
-          {/* {t('Currently %feature% only supported in', { feature: typeof title === 'string' ? title : 'this page' })}{' '} */}
-          {t('Currently %feature% only supported in', { feature: 'this page' })}{' '}
+          {/* {t('Currently {{feature}} only supported in', { feature: typeof title === 'string' ? title : 'this page' })}{' '} */}
+          {t('Currently {{feature}} only supported in', { feature: 'this page' })}{' '}
           {/* {supportedMainnetChains?.map((c) => c.name).join(', ')} */}
           Kaia Network
         </p>

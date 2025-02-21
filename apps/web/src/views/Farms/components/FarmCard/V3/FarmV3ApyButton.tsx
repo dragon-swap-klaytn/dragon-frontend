@@ -218,7 +218,7 @@ function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, tokenId }:
       </ul>
       <br />
       <Text>
-        {t('Calculated using the total active liquidity staked versus the %symbol% reward emissions for the farm.', {
+        {t('Calculated using the total active liquidity staked versus the {{symbol}} reward emissions for the farm.', {
           symbol: CAKE_SYMBOL_VIEW,
         })}
       </Text>

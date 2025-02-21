@@ -2,17 +2,17 @@ import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { NATIVE } from '@pancakeswap/sdk'
 import {
-    ArrowDownIcon,
-    ArrowUpIcon,
-    Box,
-    Button,
-    Flex,
-    InfoIcon,
-    Text,
-    UserMenu,
-    UserMenuDivider,
-    UserMenuItem,
-    useTooltip,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  Box,
+  Button,
+  Flex,
+  InfoIcon,
+  Text,
+  UserMenu,
+  UserMenuDivider,
+  UserMenuItem,
+  useTooltip,
 } from '@pancakeswap/uikit'
 import { useActiveChainId, useLocalNetworkChain } from 'hooks/useActiveChainId'
 import { useNetworkConnectorUpdater } from 'hooks/useActiveWeb3React'
@@ -65,7 +65,7 @@ const WrongNetworkSelect = ({ switchNetwork, chainId }) => {
   const { t } = useTranslation()
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     t(
-      'The URL you are accessing (Chain id: %chainId%) belongs to %network%; mismatching your wallet’s network. Please switch the network to continue.',
+      'The URL you are accessing (Chain id: {{chainId}}) belongs to {{network}}; mismatching your wallet’s network. Please switch the network to continue.',
       {
         chainId,
         network: chains.find((c) => c.id === chainId)?.name ?? 'Unknown network',

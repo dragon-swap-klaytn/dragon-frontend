@@ -90,7 +90,7 @@ export default function AddLiquidity({
 
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const gasPrice = useGasPrice()
 
@@ -242,7 +242,7 @@ export default function AddLiquidity({
             {
               summary: `Add ${amountA} ${symbolA} and ${amountB} ${symbolB}`,
               translatableSummary: {
-                text: 'Add %amountA% %symbolA% and %amountB% %symbolB%',
+                text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
                 data: { amountA, symbolA, amountB, symbolB },
               },
               type: 'add-liquidity',
@@ -263,14 +263,14 @@ export default function AddLiquidity({
           attemptingTxn: false,
           liquidityErrorMessage:
             err && !isUserRejected(err)
-              ? t('Add liquidity failed: %message%', { message: transactionErrorToUserReadableMessage(err, t) })
+              ? t('Add liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
               : undefined,
           txHash: undefined,
         })
       })
   }
 
-  const pendingText = t('Supplying %amountA% %symbolA% and %amountB% %symbolB%', {
+  const pendingText = t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
     amountA: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_A], 4, locale),
     symbolA: currencies[Field.CURRENCY_A]?.symbol ?? '',
     amountB: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_B], 4, locale),

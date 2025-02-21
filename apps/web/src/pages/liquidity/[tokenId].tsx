@@ -21,17 +21,9 @@ import {
 
 import { ConfirmationModalContent, NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
+import { DEFAULT_LANGUAGE, Locale, Trans, useTranslation } from '@pancakeswap/localization'
 import { MasterChefV3, NonfungiblePositionManager, Pool, Position, isPoolTickInRange } from '@pancakeswap/v3-sdk'
 import { AppBody, AppHeader } from 'components/App'
-import { useToken } from 'hooks/Tokens'
-import { useStablecoinPrice } from 'hooks/useBUSDPrice'
-import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { useFarm } from 'hooks/useFarm'
-import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
-import { usePool } from 'hooks/v3/usePools'
-import { NextSeo } from 'next-seo'
-// import { usePositionTokenURI } from 'hooks/v3/usePositionTokenURI'
-import { Trans, useTranslation } from '@pancakeswap/localization'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
 import { CurrencyLogo } from 'components/Logo'
 import { RangePriceSection } from 'components/RangePriceSection'
@@ -39,15 +31,22 @@ import TransactionConfirmationModal from 'components/TransactionConfirmationModa
 import { Bound } from 'config/constants/types'
 import dayjs from 'dayjs'
 import { gql } from 'graphql-request'
+import { useToken } from 'hooks/Tokens'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useStablecoinPrice } from 'hooks/useBUSDPrice'
+import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
+import { useFarm } from 'hooks/useFarm'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { PoolState } from 'hooks/v3/types'
+import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
+import { usePool } from 'hooks/v3/usePools'
 import { useV3PositionFees } from 'hooks/v3/useV3PositionFees'
 import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { NextSeo } from 'next-seo'
 import { useRouter } from 'next/router'
 import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSingleCallResult } from 'state/multicall/hooks'
@@ -67,7 +66,7 @@ import { MerklSection } from 'components/Merkl/MerklSection'
 import { MerklTag } from 'components/Merkl/MerklTag'
 import { useMerklInfo } from 'hooks/useMerkl'
 */
-import { CAKE, CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
+import { CAKE } from '@pancakeswap/tokens'
 import { getFullDecimalMultiplier } from '@pancakeswap/utils/getFullDecimalMultiplier'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -77,6 +76,7 @@ import { RangeTag } from 'components/RangeTag'
 import { useBackTo } from 'hooks/use-back-to'
 import { useCakePrice } from 'hooks/useCakePrice'
 import useKlipQrCondition from 'hooks/useKlipQrCondition'
+import { GetStaticPaths } from 'next'
 import Link from 'next/link'
 import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import currencyId from 'utils/currencyId'
@@ -119,7 +119,6 @@ function PositionPriceSection({
   currencyQuote,
   currencyBase,
   priceLower,
-  inverted,
   pool,
   tickAtLimit,
   setManuallyInverted,
@@ -127,7 +126,7 @@ function PositionPriceSection({
 }) {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   return (
@@ -144,15 +143,15 @@ function PositionPriceSection({
         <RangePriceSection
           title={t('Min Price')}
           price={formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
-          currency0={currencyQuote}
-          currency1={currencyBase}
+          currency0={manuallyInverted ? currencyQuote : currencyBase}
+          currency1={manuallyInverted ? currencyBase : currencyQuote}
         />
 
         <RangePriceSection
           title={t('Max Price')}
           price={formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
-          currency0={currencyQuote}
-          currency1={currencyBase}
+          currency0={manuallyInverted ? currencyQuote : currencyBase}
+          currency1={manuallyInverted ? currencyBase : currencyQuote}
         />
 
         <div className="flex items-center col-span-2 md:col-span-1">
@@ -163,9 +162,9 @@ function PositionPriceSection({
               className="pl-4"
               title={t('Current Price')}
               titleColor="text-on-surface-brand"
-              currency0={currencyQuote}
-              currency1={currencyBase}
-              price={formatPrice(inverted ? pool.token1Price : pool.token0Price, 6, locale)}
+              currency0={manuallyInverted ? currencyQuote : currencyBase}
+              currency1={manuallyInverted ? currencyBase : currencyQuote}
+              price={formatPrice(manuallyInverted ? pool.token0Price : pool.token1Price, 6, locale)}
             />
           ) : null}
         </div>
@@ -177,7 +176,7 @@ function PositionPriceSection({
 export default function PoolPage() {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   const { backTo } = useBackTo()
@@ -254,16 +253,6 @@ export default function PoolPage() {
   const inverted = token1 && base ? base.equals(token1) : undefined
   const currencyQuote = inverted ? currency0 : currency1
   const currencyBase = inverted ? currency1 : currency0
-
-  // const ratio = useMemo(() => {
-  //   return priceLower && pool && priceUpper
-  //     ? getRatio(
-  //         inverted ? priceUpper.invert() : priceLower,
-  //         pool.token0Price,
-  //         inverted ? priceLower.invert() : priceUpper,
-  //       )
-  //     : undefined
-  // }, [inverted, pool, priceLower, priceUpper])
 
   // fees
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, positionDetails?.tokenId, receiveWNATIVE)
@@ -529,12 +518,12 @@ export default function PoolPage() {
           topContent={<ModalHeader feeValueUpper={feeValueUpper} feeValueLower={feeValueLower} locale={locale} />}
           bottomContent={
             <ButtonV2 variant="primary" fullWidth onClick={collect}>
-              {t('Collect')}
+              {t('Claim')}
             </ButtonV2>
           }
         />
       }
-      pendingText={t('Collecting fees')}
+      pendingText={t('claim fees')}
       maxWidth="max-w-[400px]"
     />,
     true,
@@ -547,7 +536,7 @@ export default function PoolPage() {
     <ApprovalConfirmationModal
       title="Confirm Transaction"
       content={() => ''}
-      pendingText="wating confirm..."
+      pendingText={t('wating confirm...')}
       attemptingTxn
       customOnDismiss={handleDismissConfirmation}
     />,
@@ -583,18 +572,7 @@ export default function PoolPage() {
   const farmingTips =
     inRange && ownsNFT && hasActiveFarm && !isStakedInMCv3 ? (
       <Notification variant="info" nStyle="highlight" className="mb-8">
-        <p>
-          <b>{`${currencyQuote?.symbol}-${currencyBase?.symbol}`}</b>&nbsp;
-          {t(
-            'has an active DragonSwap farm. Stake your position in the farm to start earning with the indicated APR with %cake% farming.',
-            {
-              cake: CAKE_SYMBOL_VIEW,
-            },
-          )}
-        </p>
-        <NextLinkFromReactRouter to="/farms" className="underline underline-offset-2 hover:opacity-70">
-          {t('Go to Farms')} {' >>'}
-        </NextLinkFromReactRouter>
+        <p>{t('Boost your position to earn rewards with the indicated APR!')}</p>
       </Notification>
     ) : null
 
@@ -792,7 +770,6 @@ export default function PoolPage() {
                 currencyQuote={currencyQuote}
                 currencyBase={currencyBase}
                 priceLower={priceLower}
-                inverted={inverted}
                 pool={pool}
                 priceUpper={priceUpper}
                 tickAtLimit={tickAtLimit}
@@ -1123,32 +1100,6 @@ function PositionHistoryRow({
   )
 }
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const tokenId = params?.tokenId
-
-  const isNumberReg = /^\d+$/
-
-  if (tokenId && !(tokenId as string)?.match(isNumberReg)) {
-    return {
-      redirect: {
-        statusCode: 303,
-        destination: `/add`,
-      },
-    }
-  }
-
-  return {
-    props: {},
-  }
-}
-
 export function SectionTitle({ children, className }: PropsWithChildren<{ className?: string }>) {
   return <h3 className={clsx('text-xs text-on-surface-brand', className)}>{children}</h3>
 }
@@ -1215,4 +1166,32 @@ function ModalHeader({
       </p>
     </>
   )
+}
+
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: false,
+  }
+}
+
+export const getStaticProps = async ({ params, locale }: { params: any; locale: Locale }) => {
+  const tokenId = params?.tokenId
+
+  const isNumberReg = /^\d+$/
+
+  if (tokenId && !(tokenId as string)?.match(isNumberReg)) {
+    return {
+      redirect: {
+        statusCode: 303,
+        destination: `/add`,
+      },
+    }
+  }
+
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
+    },
+  }
 }

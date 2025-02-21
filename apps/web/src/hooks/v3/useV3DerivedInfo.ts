@@ -376,14 +376,14 @@ export default function useV3DerivedInfo(
     currencyAAmount &&
     (currencyAAmount?.equalTo(0) || currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount))
   ) {
-    errorMessage = t('Insufficient %symbol% balance', { symbol: currencies[Field.CURRENCY_A]?.symbol ?? '' })
+    errorMessage = t('Insufficient {{symbol}} balance', { symbol: currencies[Field.CURRENCY_A]?.symbol ?? '' })
   }
 
   if (
     currencyBAmount &&
     (currencyBAmount?.equalTo(0) || currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount))
   ) {
-    errorMessage = t('Insufficient %symbol% balance', { symbol: currencies[Field.CURRENCY_B]?.symbol ?? '' })
+    errorMessage = t('Insufficient {{symbol}} balance', { symbol: currencies[Field.CURRENCY_B]?.symbol ?? '' })
   }
 
   const invalidPool = poolState === PoolState.INVALID

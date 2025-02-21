@@ -104,7 +104,7 @@ export const StepCounter = memo(
           />
 
           <span className="text-xs text-on-surface-subtlest">
-            {tokenA && tokenB && t("%assetA% per %assetB%", { assetA: tokenB, assetB: tokenA })}
+            {tokenA && tokenB && t("{{assetA}} per {{assetB}}", { assetA: tokenB, assetB: tokenA })}
           </span>
         </div>
         <div className="flex flex-col items-center space-y-3">

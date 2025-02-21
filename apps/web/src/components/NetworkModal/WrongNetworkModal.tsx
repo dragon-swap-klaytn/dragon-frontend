@@ -15,16 +15,16 @@ export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain?: 
   const chainId = currentChain?.id || DEFAULT_CHAIN_ID
   const { t } = useTranslation()
 
-  // const switchText = t('Switch to %network%', { network: currentChain.name })
-  const switchText = t('Switch to %network%', { network: 'Kaia' })
+  // const switchText = t('Switch to {{network}}', { network: currentChain.name })
+  const switchText = t('Switch to {{network}}', { network: 'Kaia' })
 
   return (
     <Modal title={t('You are in wrong network')} onDismiss={onDismiss}>
       <div className="w-full">
-        {/* <p>{t('This page is located for %network%.', { network: currentChain.name })}</p> */}
-        <p className="text-sm text-on-surface">{t('This page is located for %network%.', { network: 'Kaia' })}</p>
+        {/* <p>{t('This page is located for {{network}}.', { network: currentChain.name })}</p> */}
+        <p className="text-sm text-on-surface">{t('This page is located for {{network}}.', { network: 'Kaia' })}</p>
         <p className="text-sm text-on-surface">
-          {t('You are under %network% now, please switch the network to continue.', { network: chain?.name ?? '' })}
+          {t('You are under {{network}} now, please switch the network to continue.', { network: chain?.name ?? '' })}
         </p>
 
         <div className="flex items-center space-x-2 p-3 rounded-xl bg-red-950 mt-4 text-sm text-on-surface">

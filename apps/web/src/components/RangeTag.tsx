@@ -16,7 +16,7 @@ export function RangeTag({
     <TagV2 color="red">
       {children || (
         <div className="flex items-center space-x-1">
-          <span>{t('Inactive')}</span>
+          <span>{t('Out of range')}</span>
 
           <QuestionHelper
             text={
@@ -33,6 +33,6 @@ export function RangeTag({
       )}
     </TagV2>
   ) : (
-    <TagV2 color="green">{children || t('Active')}</TagV2>
+    <TagV2 color="green">{children || t('In range')}</TagV2>
   )
 }

@@ -6,6 +6,7 @@ import smartRouterPkgs from '@pancakeswap/smart-router/package.json' assert { ty
 import { createVanillaExtractPlugin } from '@vanilla-extract/next-plugin'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import i18nConfig from './next-i18next.config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -79,6 +80,8 @@ const config = {
       },
     ],
   },
+  i18n: i18nConfig.i18n,
+  trailingSlash: true,
   async rewrites() {
     return [
       {

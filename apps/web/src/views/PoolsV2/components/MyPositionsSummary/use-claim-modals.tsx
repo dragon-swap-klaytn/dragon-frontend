@@ -300,7 +300,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
 
   const [openClaimFeesAndRewardsModal] = useModal(
     <TransactionConfirmationModal
-      title={t('Claim Staking Rewards & Fees')}
+      title={t('Claim Boost Rewards & Fees')}
       attemptingTxn={txInflight}
       customOnDismiss={onDismiss}
       hash={collectMigrationHash ?? ''}
@@ -532,7 +532,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
         ) : (
           <div className="pb-5 text-sm text-on-surface text-center">
             <p>
-              {t('You have received approximately %rewardAmount% RKLAY and wish to convert it to KAIA.', {
+              {t('You have received approximately {{rewardAmount}} RKLAY and wish to convert it to KAIA.', {
                 rewardAmount: formatAmount(rewardAmountToCollect),
               })}
             </p>

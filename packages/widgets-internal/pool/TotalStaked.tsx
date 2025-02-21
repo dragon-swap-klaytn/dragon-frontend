@@ -29,7 +29,7 @@ export const TotalStaked: React.FC<
   const { t } = useTranslation();
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    t("Total amount of %symbol% staked in this pool", { symbol }),
+    t("Total amount of {{symbol}} staked in this pool", { symbol }),
     {
       placement: "bottom",
     }

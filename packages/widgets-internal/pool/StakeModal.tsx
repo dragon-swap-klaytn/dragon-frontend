@@ -184,7 +184,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         stakingTokenPrice={stakingTokenPrice}
         stakingTokenDecimals={stakingTokenDecimals}
         apr={apr}
-        linkLabel={t("Get %symbol%", { symbol: stakingTokenSymbol })}
+        linkLabel={t("Get {{symbol}}", { symbol: stakingTokenSymbol })}
         linkHref={getTokenLink}
         stakingTokenBalance={userDataStakedBalance.plus(stakingTokenBalance)}
         stakingTokenSymbol={stakingTokenSymbol}
@@ -200,7 +200,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
       <Box overflow="hide auto">
         {stakingLimit.gt(0) && !isRemovingStake && (
           <Text color="secondary" bold mb="24px" style={{ textAlign: "center" }} fontSize="16px">
-            {t("Max stake for this pool: %amount% %token%", {
+            {t("Max stake for this pool: {{amount}} {{token}}", {
               amount: getFullDisplayBalance(stakingLimit, stakingTokenDecimals, 0),
               token: stakingTokenSymbol,
             })}
@@ -224,7 +224,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         />
         {hasReachedStakeLimit && (
           <Text color="failure" fontSize="12px" style={{ textAlign: "right" }} mt="4px">
-            {t("Maximum total stake: %amount% %token%", {
+            {t("Maximum total stake: {{amount}} {{token}}", {
               amount: getFullDisplayBalance(new BigNumber(stakingLimit), stakingTokenDecimals, 0),
               token: stakingTokenSymbol,
             })}
@@ -232,7 +232,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         )}
         {userNotEnoughToken && (
           <Text color="failure" fontSize="12px" style={{ textAlign: "right" }} mt="4px">
-            {t("Insufficient %symbol% balance", {
+            {t("Insufficient {{symbol}} balance", {
               symbol: stakingTokenSymbol,
             })}
           </Text>
@@ -243,11 +243,12 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
           </Text>
         )}
         <Text ml="auto" color="textSubtle" fontSize="12px" mb="8px">
-          {t("Balance: %balance%", {
-            balance: getFullDisplayBalance(
-              isRemovingStake ? userDataStakedBalance : stakingTokenBalance,
-              stakingTokenDecimals
-            ),
+          {t("Balance: {{balance}}", {
+            balance:
+              getFullDisplayBalance(
+                isRemovingStake ? userDataStakedBalance : stakingTokenBalance,
+                stakingTokenDecimals
+              ) ?? t("Loading"),
           })}
         </Text>
         <Slider
@@ -323,7 +324,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         {!isRemovingStake && (
           <StyledLink external href={getTokenLink}>
             <Button width="100%" mt="8px" variant="secondary">
-              {t("Get %symbol%", { symbol: stakingTokenSymbol })}
+              {t("Get {{symbol}}", { symbol: stakingTokenSymbol })}
             </Button>
           </StyledLink>
         )}

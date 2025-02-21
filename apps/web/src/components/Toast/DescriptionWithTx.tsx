@@ -16,7 +16,7 @@ const DescriptionWithTx: React.FC<React.PropsWithChildren<DescriptionWithTxProps
       {typeof children === 'string' ? <p className="text-sm text-on-surface text-left">{children}</p> : children}
       {txHash && (
         <ExternalLink href={getBlockExploreLink(txHash, 'transaction')} className="mt-1 text-on-surface">
-          {t('View on %site%', { site: getBlockExploreName() })}: {truncateHash(txHash, 8, 0)}
+          {t('View on {{site}}', { site: getBlockExploreName() })}: {truncateHash(txHash, 8, 0)}
         </ExternalLink>
       )}
     </>

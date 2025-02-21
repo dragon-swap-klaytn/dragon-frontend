@@ -1,4 +1,5 @@
 import { CustomSelect, SelectOption, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { useTranslation } from 'next-i18next'
 import { PoolType } from 'types'
 
 export const poolTypeSelectorOptions = [
@@ -19,10 +20,11 @@ type PoolTypeSelectorProps = {
 
 export default function PoolTypeSelector({ selectedPoolTypes, onSelectPoolTypes }: PoolTypeSelectorProps) {
   const { isBelowS } = useMatchBreakpoints()
+  const { t } = useTranslation()
 
   return (
     <CustomSelect
-      prefix={isBelowS ? undefined : 'Pool Type'}
+      prefix={isBelowS ? undefined : t('Pool Type')}
       options={poolTypeSelectorOptions}
       selectedOption={selectedPoolTypes}
       multiple

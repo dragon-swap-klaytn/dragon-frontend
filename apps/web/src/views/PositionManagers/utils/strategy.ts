@@ -1,7 +1,7 @@
-import { TranslateFunction } from '@pancakeswap/localization'
+import { TFunction } from '@pancakeswap/localization'
 import { Strategy } from '@pancakeswap/position-managers'
 
-export function getStrategyName(t: TranslateFunction, strategy: Strategy) {
+export function getStrategyName(t: TFunction, strategy: Strategy) {
   switch (strategy) {
     case Strategy.TYPICAL_WIDE:
       return t('Typical Wide')

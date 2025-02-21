@@ -102,7 +102,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
       (confirmModalState === ConfirmModalState.APPROVING_TOKEN ||
         confirmModalState === ConfirmModalState.APPROVE_PENDING)
     ) {
-      setTitle(t('Enable spending %symbol%', { symbol: `${trade?.inputAmount?.currency?.symbol}` }))
+      setTitle(t('Enable spending {{symbol}}', { symbol: `${trade?.inputAmount?.currency?.symbol}` }))
 
       return <ApproveModalContent isBonus={isBonus} qrUri={qrUri} />
     }
@@ -162,7 +162,7 @@ export const ConfirmSwapModal = memo<InjectedModalProps & ConfirmSwapModalProps>
           <div className="flex flex-col space-y-3">
             {chainId && (
               <ExternalLink href={getBlockExploreLink(txHash, 'transaction')} className="text-on-surface">
-                {t('View on %site%', { site: getBlockExploreName() })}: {truncateHash(txHash, 8, 0)}
+                {t('View on {{site}}', { site: getBlockExploreName() })}: {truncateHash(txHash, 8, 0)}
               </ExternalLink>
             )}
 

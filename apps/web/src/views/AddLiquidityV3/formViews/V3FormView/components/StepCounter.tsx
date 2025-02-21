@@ -115,7 +115,7 @@ const StepCounter = ({
         />
 
         <span className="text-xs text-on-surface-subtlest">
-          {tokenA && tokenB && t('%assetA% per %assetB%', { assetA: tokenB?.symbol, assetB: tokenA?.symbol })}
+          {tokenA && tokenB && t('{{assetA}} per {{assetB}}', { assetA: tokenB?.symbol, assetB: tokenA?.symbol })}
         </span>
       </div>
       <div className="flex flex-col items-center space-y-3">

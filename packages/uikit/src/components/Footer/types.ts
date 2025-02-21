@@ -1,4 +1,4 @@
-import { Language } from "../LangSelector/types";
+import { Locale } from "@pancakeswap/localization";
 import { FlexProps } from "../Box";
 
 export type FooterLinkType = {
@@ -14,7 +14,7 @@ export type FooterProps = {
   toggleTheme: (isDark: boolean) => void;
   cakePriceUsd?: number;
   currentLang: string;
-  langs: Language[];
+  langs: Locale[];
   chainId: number;
-  setLang: (lang: Language) => void;
+  setLang: (lang: Locale) => void;
 } & FlexProps;

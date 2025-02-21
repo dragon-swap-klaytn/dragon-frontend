@@ -67,7 +67,7 @@ export const VaultLinks = memo(function VaultLinks({
       </StyledScanLink>
       {/* {projectVaultUrl && managerInfo && (
         <StyledScanLink href={projectVaultUrl} icon={<PlayCircleOutlineIcon />}>
-          {t('View Vault on %managerName%', { managerName: managerInfo.name })}
+          {t('View Vault on {{managerName}}', { managerName: managerInfo.name })}
         </StyledScanLink>
       )} */}
       {children}

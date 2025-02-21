@@ -126,7 +126,7 @@ export function MyPositionsSummary({ portfolio, invalidatePortflio }: MyPosition
           </div>
           <div className="py-6 md:py-0 md:px-6 border-t md:border-t-0 border-border">
             <MyPositionSummaryItem
-              label={t('Staking Rewards & Fees')}
+              label={t('Boost Rewards & Fees')}
               value={unclaimedRewardAndFeeUSD}
               isDollar
               suffix={

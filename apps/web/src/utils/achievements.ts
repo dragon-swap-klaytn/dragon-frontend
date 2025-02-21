@@ -1,7 +1,7 @@
-import { TranslateFunction } from '@pancakeswap/localization'
+import { TFunction } from '@pancakeswap/localization'
 import { Campaign, TranslatableText } from 'config/constants/types'
 
-export const getAchievementTitle = (campaign: Campaign | undefined, t: TranslateFunction): TranslatableText => {
+export const getAchievementTitle = (campaign: Campaign | undefined, t: TFunction): TranslatableText => {
   if (!campaign) {
     return ''
   }
@@ -9,13 +9,13 @@ export const getAchievementTitle = (campaign: Campaign | undefined, t: Translate
 
   switch (campaign.type) {
     case 'ifo':
-      return t('IFO Shopper: %title%', { title })
+      return t('IFO Shopper: {{title}}', { title })
     default:
       return campaign.title || ''
   }
 }
 
-export const getAchievementDescription = (campaign: Campaign | undefined, t: TranslateFunction): TranslatableText => {
+export const getAchievementDescription = (campaign: Campaign | undefined, t: TFunction): TranslatableText => {
   if (!campaign) {
     return ''
   }
@@ -23,7 +23,7 @@ export const getAchievementDescription = (campaign: Campaign | undefined, t: Tra
 
   switch (campaign.type) {
     case 'ifo':
-      return t('Participated in the %title% IFO by committing above the minimum required amount', { title })
+      return t('Participated in the {{title}} IFO by committing above the minimum required amount', { title })
     default:
       return campaign.description || ''
   }

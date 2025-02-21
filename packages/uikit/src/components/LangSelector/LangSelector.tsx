@@ -1,18 +1,18 @@
+import { Locale } from "@pancakeswap/localization";
 import React from "react";
-import Text from "../Text/Text";
-import Dropdown from "../Dropdown/Dropdown";
-import Button from "../Button/Button";
-import LanguageIcon from "../Svg/Icons/Language";
-import MenuButton from "./MenuButton";
 import { Colors } from "../../theme";
-import { Language } from "./types";
-import { Position } from "../Dropdown/types";
+import Button from "../Button/Button";
 import { Scale } from "../Button/types";
+import Dropdown from "../Dropdown/Dropdown";
+import { Position } from "../Dropdown/types";
+import LanguageIcon from "../Svg/Icons/Language";
+import Text from "../Text/Text";
+import MenuButton from "./MenuButton";
 
 interface Props {
   currentLang: string;
-  langs: Language[];
-  setLang: (lang: Language) => void;
+  langs: Locale[];
+  setLang: (lang: Locale) => void;
   color: keyof Colors;
   dropdownPosition?: Position;
   buttonScale?: Scale;
@@ -38,13 +38,13 @@ const LangSelector: React.FC<React.PropsWithChildren<Props>> = ({
   >
     {langs.map((lang) => (
       <MenuButton
-        key={lang.locale}
+        key={lang}
         fullWidth
         onClick={() => setLang(lang)}
         // Safari fix
         style={{ minHeight: "32px", height: "auto" }}
       >
-        {lang.language}
+        {lang}
       </MenuButton>
     ))}
   </Dropdown>

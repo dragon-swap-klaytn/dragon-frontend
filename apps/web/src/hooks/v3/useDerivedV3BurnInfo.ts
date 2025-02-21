@@ -69,7 +69,9 @@ export function useDerivedV3BurnInfo({
       : undefined
   const liquidityValue1 =
     token1 && typeof discountedAmount1 !== 'undefined'
-      ? toChecksumCurrencyAmount(CurrencyAmount.fromRawAmount(asWNATIVE ? token1 : unwrappedToken(token1)!, discountedAmount1))
+      ? toChecksumCurrencyAmount(
+          CurrencyAmount.fromRawAmount(asWNATIVE ? token1 : unwrappedToken(token1)!, discountedAmount1),
+        )
       : undefined
 
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, position?.tokenId, asWNATIVE)

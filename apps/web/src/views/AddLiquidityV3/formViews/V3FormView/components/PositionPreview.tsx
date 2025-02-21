@@ -36,7 +36,7 @@ export const PositionPreview = ({
 }) => {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   const currency0 = unwrappedToken(position.pool.token0)

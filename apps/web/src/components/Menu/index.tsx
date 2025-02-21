@@ -18,7 +18,7 @@ export const MENU_ITEMS = [
   },
   {
     title: 'Dashboard',
-    href: '/dashboard',
+    href: '/dashboard/v3',
   },
 ]
 

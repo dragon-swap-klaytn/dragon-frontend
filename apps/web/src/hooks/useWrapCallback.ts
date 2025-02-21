@@ -74,7 +74,10 @@ export default function useWrapCallback(
                   const wrap = WNATIVE[chainId].symbol
                   addTransaction(txReceipt, {
                     summary: `Wrap ${amount} ${native} to ${wrap}`,
-                    translatableSummary: { text: 'Wrap %amount% %native% to %wrap%', data: { amount, native, wrap } },
+                    translatableSummary: {
+                      text: 'Wrap {{amount}} {{native}} to {{wrap}}',
+                      data: { amount, native, wrap },
+                    },
                     type: 'wrap',
                   })
                 } catch (error) {
@@ -88,7 +91,7 @@ export default function useWrapCallback(
             : undefined,
         inputError: sufficientBalance
           ? undefined
-          : t('Insufficient %symbol% balance', { symbol: inputCurrency.symbol }),
+          : t('Insufficient {{symbol}} balance', { symbol: inputCurrency.symbol }),
       }
     }
     if (
@@ -113,7 +116,10 @@ export default function useWrapCallback(
                   const native = outputCurrency.symbol
                   addTransaction(txReceipt, {
                     summary: `Unwrap ${amount} ${wrap} to ${native}`,
-                    translatableSummary: { text: 'Unwrap %amount% %wrap% to %native%', data: { amount, wrap, native } },
+                    translatableSummary: {
+                      text: 'Unwrap {{amount}} {{wrap}} to {{native}}',
+                      data: { amount, wrap, native },
+                    },
                   })
                 } catch (error) {
                   console.error('Could not withdraw', error)
@@ -126,11 +132,23 @@ export default function useWrapCallback(
             : undefined,
         inputError: sufficientBalance
           ? undefined
-          : t('Insufficient %symbol% balance', { symbol: inputCurrency.symbol }),
+          : t('Insufficient {{symbol}} balance', { symbol: inputCurrency.symbol }),
       }
     }
     return NOT_APPLICABLE
-  }, [wbnbContract, chainId, inputCurrency, outputCurrency, t, inputAmount, balance, addTransaction, callWithGasPrice])
+  }, [
+    wbnbContract,
+    chainId,
+    inputCurrency,
+    outputCurrency,
+    t,
+    inputAmount,
+    balance,
+    addTransaction,
+    callWithGasPrice,
+    qrHandlers,
+    rklayContract,
+  ])
 }
 
 export function useIsWrapping(

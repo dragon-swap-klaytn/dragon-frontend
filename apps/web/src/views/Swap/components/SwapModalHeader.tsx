@@ -41,11 +41,11 @@ export default function SwapModalHeader({
 
   const tradeInfoText = useMemo(() => {
     return tradeType === TradeType.EXACT_INPUT
-      ? t('Output is estimated. You will receive at least %amount% %symbol% or the transaction will revert.', {
+      ? t('Output is estimated. You will receive at least {{amount}} {{symbol}} or the transaction will revert.', {
           amount: `${amount}`,
           symbol,
         })
-      : t('Input is estimated. You will sell at most %amount% %symbol% or the transaction will revert.', {
+      : t('Input is estimated. You will sell at most {{amount}} {{symbol}} or the transaction will revert.', {
           amount: `${amount}`,
           symbol,
         })
@@ -53,7 +53,7 @@ export default function SwapModalHeader({
 
   const truncatedRecipient = recipient ? truncateHash(recipient) : ''
 
-  const recipientInfoText = t('Output will be sent to %recipient%', {
+  const recipientInfoText = t('Output will be sent to {{recipient}}', {
     recipient: truncatedRecipient,
   })
 

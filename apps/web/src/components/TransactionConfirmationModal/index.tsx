@@ -32,7 +32,7 @@ export function TransactionSubmittedContent({
         <p className="text-on-surface">{t('Transaction Submitted')}</p>
         {chainId && hash && (
           <ExternalLink href={getBlockExploreLink(hash, 'transaction')}>
-            {t('View on %site%', {
+            {t('View on {{site}}', {
               site: getBlockExploreName(),
             })}
           </ExternalLink>

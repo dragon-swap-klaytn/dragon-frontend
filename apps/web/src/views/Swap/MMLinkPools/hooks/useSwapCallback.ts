@@ -1,17 +1,17 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { SwapParameters, TradeType } from '@pancakeswap/sdk'
+import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
 import isZero from '@pancakeswap/utils/isZero'
 import truncateHash from '@pancakeswap/utils/truncateHash'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useMemo } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useGasPrice } from 'state/user/hooks'
-import { Hash, hexToBigInt } from 'viem'
 import { calculateGasMargin, safeGetAddress } from 'utils'
 import { logSwap, logTx } from 'utils/log'
 import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
-import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
+import { Hash, hexToBigInt } from 'viem'
 import { useMMSwapContract } from '../utils/exchange'
 
 export enum SwapCallbackState {
@@ -146,11 +146,11 @@ export function useSwapCallback(
             const translatableWithRecipient =
               trade.tradeType === TradeType.EXACT_OUTPUT
                 ? recipient === account
-                  ? 'Swap max. %inputAmount% %inputSymbol% for %outputAmount% %outputSymbol%'
-                  : 'Swap max. %inputAmount% %inputSymbol% for %outputAmount% %outputSymbol% to %recipientAddress%'
+                  ? 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}}'
+                  : 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
                 : recipient === account
-                ? 'Swap %inputAmount% %inputSymbol% for min. %outputAmount% %outputSymbol%'
-                : 'Swap %inputAmount% %inputSymbol% for min. %outputAmount% %outputSymbol% to %recipientAddress%'
+                ? 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}}'
+                : 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
 
             addTransaction(
               { hash: response },
@@ -190,7 +190,9 @@ export function useSwapCallback(
             } else {
               // otherwise, the error was unexpected and we need to convey that
               console.error(`Swap failed`, error, methodName, args, value)
-              throw new Error(t('Swap failed: %message%', { message: transactionErrorToUserReadableMessage(error, t) }))
+              throw new Error(
+                t('Swap failed: {{message}}', { message: transactionErrorToUserReadableMessage(error, t) }),
+              )
             }
           })
       },

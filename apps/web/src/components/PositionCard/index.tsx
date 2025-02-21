@@ -180,14 +180,14 @@ function MinimalPositionCardView({
 
             {isStableLP ? null : (
               <Wrapper
-                title={<h5>{t('Pooled %asset%', { asset: currency0.symbol })}</h5>}
+                title={<h5>{t('Pooled {{asset}}', { asset: currency0.symbol })}</h5>}
                 value={token0Deposited?.toSignificant(6) || '-'}
               />
             )}
 
             {isStableLP ? null : (
               <Wrapper
-                title={<h5>{t('Pooled %asset%', { asset: currency1.symbol })}</h5>}
+                title={<h5>{t('Pooled {{asset}}', { asset: currency1.symbol })}</h5>}
                 value={token1Deposited?.toSignificant(6) || '-'}
               />
             )}

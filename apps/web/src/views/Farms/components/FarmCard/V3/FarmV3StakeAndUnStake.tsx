@@ -71,7 +71,7 @@ export const FarmV3LPPosition = ({
 }) => {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   const { position } = useDerivedPositionInfo(position_)
@@ -107,7 +107,7 @@ export const FarmV3LPPosition = ({
       <AutoRow gap="4px">
         <Box>
           <Text bold fontSize="12px" ellipsis>
-            {t('Min %minAmount%', {
+            {t('Min {{minAmount}}', {
               minAmount: formatTickPrice(priceLower || undefined, tickAtLimit, Bound.LOWER, locale),
             })}
           </Text>
@@ -115,14 +115,14 @@ export const FarmV3LPPosition = ({
         /
         <Box maxWidth="250px">
           <Text bold fontSize="12px" ellipsis>
-            {t('Max %maxAmount%', {
+            {t('Max {{maxAmount}}', {
               maxAmount: formatTickPrice(priceUpper || undefined, tickAtLimit, Bound.UPPER, locale),
             })}
           </Text>
         </Box>
         <Box>
           <Text bold fontSize="12px">
-            {t('%assetA% per %assetB%', {
+            {t('{{assetA}} per {{assetB}}', {
               assetA: inverted ? unwrappedToken(quoteToken)?.symbol : unwrappedToken(token)?.symbol,
               assetB: inverted ? unwrappedToken(token)?.symbol : unwrappedToken(quoteToken)?.symbol,
             })}

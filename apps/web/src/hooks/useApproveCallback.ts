@@ -114,7 +114,10 @@ export function useApproveCallback(
       }
 
       if (!tokenContract) {
-        toastError(t('Error'), t('Cannot find contract of the token %tokenAddress%', { tokenAddress: token?.address }))
+        toastError(
+          t('Error'),
+          t('Cannot find contract of the token {{tokenAddress}}', { tokenAddress: token?.address }),
+        )
         console.error('tokenContract is null')
         setIsPendingError(true)
         return undefined
@@ -206,10 +209,10 @@ export function useApproveCallback(
             addTransaction(response, {
               summary: `Approve ${overrideAmountApprove ?? amountToApprove?.currency?.symbol}`,
               translatableSummary: {
-                text: 'Approve %symbol%',
+                text: 'Approve {{symbol}}',
                 data: { symbol: overrideAmountApprove?.toString() ?? amountToApprove?.currency?.symbol },
               },
-              approval: { tokenAddress: token?.address, spender },
+              approval: { tokenAddress: token?.address ?? '', spender },
               type: 'approve',
             })
           }

@@ -32,12 +32,12 @@ export function useUnwrapReward({ reward, chainId }: IProps) {
         minimumSignificantDigits: 6,
         maximumSignificantDigits: 6,
       })
-    // const alertText = t(`Are you convert %wrap% reward(%reward%) to %native% now?`, {
+    // const alertText = t(`Are you convert {{wrap}} reward({{reward}}) to {{native}} now?`, {
     //   wrap: rewardToken.symbol,
     //   native: nativeInfo.symbol,
     //   reward: rewardAmount,
     // })
-    const alertText = t(`Are you convert RKAIA reward(%reward%) to KAIA now?`, {
+    const alertText = t(`Are you convert RKAIA reward({{reward}}) to KAIA now?`, {
       reward: rewardAmount,
     })
 
@@ -53,7 +53,7 @@ export function useUnwrapReward({ reward, chainId }: IProps) {
       addTransaction(txReceipt, {
         summary: `Unwrap ${rewardAmount} ${rewardToken.symbol} to ${nativeInfo.symbol}`,
         translatableSummary: {
-          text: 'Unwrap %amount% %wrap% to %native%',
+          text: 'Unwrap {{amount}} {{wrap}} to {{native}}',
           data: { amount: rewardAmount, wrap: rewardToken.symbol, native: nativeInfo.symbol },
         },
       })

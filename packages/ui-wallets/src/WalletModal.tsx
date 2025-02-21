@@ -1,5 +1,5 @@
 import { usePreloadImages } from '@pancakeswap/hooks'
-import { useTranslation } from '@pancakeswap/localization'
+import { Trans, useTranslation } from '@pancakeswap/localization'
 import {
   ConnectorId,
   ConnectorIds,
@@ -467,10 +467,17 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
       {!(qrCode && selected) && (
         <p className="text-sm text-on-surface mt-4">
-          By connecting a wallet, you agree to Dragonswap{' '}
-          <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
-            Terms of Service
-          </a>
+          <Trans
+            i18nKey="wallet-connect-terms"
+            t={t}
+            components={{
+              href: (
+                <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
+                  {t('Terms Of Service')}
+                </a>
+              ),
+            }}
+          />
         </p>
       )}
 

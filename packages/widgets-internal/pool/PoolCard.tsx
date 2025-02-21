@@ -1,6 +1,6 @@
 import { useTranslation } from "@pancakeswap/localization";
+import { CardBody, CardRibbon, Flex, Skeleton } from "@pancakeswap/uikit";
 import { ReactElement, useMemo } from "react";
-import { Flex, CardBody, CardRibbon, Skeleton } from "@pancakeswap/uikit";
 import { PoolCardHeader, PoolCardHeaderTitle } from "./PoolCardHeader";
 import { StyledCard } from "./StyledCard";
 import { DeserializedPool } from "./types";
@@ -41,9 +41,9 @@ export function PoolCard<T>({
         {totalStaked && totalStaked.gte(0) ? (
           <>
             <PoolCardHeaderTitle
-              title={isCakePool ? t("Manual") : t("Earn %asset%", { asset: earningToken?.symbol || "" })}
+              title={isCakePool ? t("Manual") : t("Earn {{asset}}", { asset: earningToken?.symbol || "" })}
               subTitle={
-                isCakePool ? t("Earn CAKE, stake CAKE") : t("Stake %symbol%", { symbol: stakingToken?.symbol || "" })
+                isCakePool ? t("Earn CAKE, stake CAKE") : t("Stake {{symbol}}", { symbol: stakingToken?.symbol || "" })
               }
               showBoostedTag={showBoostedTag}
             />

@@ -214,11 +214,11 @@ export function useDerivedMintInfo(
   }
 
   if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
-    addError = t('Insufficient %symbol% balance', { symbol: currencies[Field.CURRENCY_A]?.symbol })
+    addError = t('Insufficient {{symbol}} balance', { symbol: currencies[Field.CURRENCY_A]?.symbol })
   }
 
   if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
-    addError = t('Insufficient %symbol% balance', { symbol: currencies[Field.CURRENCY_B]?.symbol })
+    addError = t('Insufficient {{symbol}} balance', { symbol: currencies[Field.CURRENCY_B]?.symbol })
   }
 
   if (isOneWeiAttack) {

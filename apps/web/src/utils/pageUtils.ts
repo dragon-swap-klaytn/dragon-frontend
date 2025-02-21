@@ -1,45 +1,61 @@
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { Locale } from '@pancakeswap/localization'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { isAddress } from 'viem'
 
-export const getTokenStaticPaths = (): GetStaticPaths => {
-  return () => {
+export const getDefaultStaticProps = (locales: string[]) => {
+  return async ({ locale, defaultLocale }: { locale: Locale; defaultLocale: Locale }) => {
     return {
-      paths: [],
-      fallback: true,
+      props: {
+        ...(await serverSideTranslations(locale || defaultLocale, locales)),
+      },
     }
   }
 }
 
-export const getTokenStaticProps = (): GetStaticProps => {
-  return async ({ params }) => {
-    const poolType = params?.poolType
+export const getDefaultStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: true,
+  }
+}
 
-    if (poolType !== 'v2' && poolType !== 'v3') {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      }
-    }
+export const getTokenStaticProps = async ({
+  params,
+  locale,
+  defaultLocale,
+}: {
+  params: any
+  locale: Locale
+  defaultLocale: Locale
+}) => {
+  const { poolType } = params || {}
 
-    const address = params?.address
-
-    // In case somebody pastes checksummed address into url (since GraphQL expects lowercase address)
-    if (!address || !isAddress(String(address).toLowerCase())) {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      }
-    }
-
+  if (poolType !== 'v2' && poolType !== 'v3') {
     return {
-      props: {
-        poolType,
-        address,
+      redirect: {
+        destination: '/',
+        permanent: false,
       },
     }
+  }
+
+  const address = params?.address
+
+  // In case somebody pastes checksummed address into url (since GraphQL expects lowercase address)
+  if (!address || !isAddress(String(address).toLowerCase())) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    }
+  }
+
+  return {
+    props: {
+      poolType,
+      address,
+      ...(await serverSideTranslations(locale || defaultLocale, ['common'])),
+    },
   }
 }

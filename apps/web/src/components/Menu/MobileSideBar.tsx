@@ -4,7 +4,7 @@ import { InjectedModalProps, ModalV3, WindowSize } from '@pancakeswap/uikit'
 
 import { MENU_ITEMS } from 'components/Menu'
 import { ExternalLinks } from 'components/Menu/Footer'
-import LanguageSettings from 'components/Menu/GlobalSettings/LanguageSettings'
+import LocaleSettings from 'components/Menu/GlobalSettings/LocaleSettings'
 import { useWindowSize } from 'hooks/useWindowSize'
 import Link from 'next/link'
 
@@ -40,7 +40,7 @@ export const MobileSideBar = memo<InjectedModalProps & MobileSideBarProps>(funct
         ))}
       </div>
 
-      <LanguageSettings className="mt-32" onClickLanguage={() => setGlobalSettingsOpen?.(false)} />
+      <LocaleSettings className="mt-32" onClickLocale={() => setGlobalSettingsOpen?.(false)} />
 
       <ExternalLinks className="mt-8" />
     </ModalV3>

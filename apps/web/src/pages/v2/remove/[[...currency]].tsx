@@ -1,6 +1,8 @@
+import { DEFAULT_LANGUAGE } from '@pancakeswap/localization'
 import { useCurrency } from 'hooks/Tokens'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
+import { getDefaultStaticPaths } from 'utils/pageUtils'
 import { CHAIN_IDS } from 'utils/wagmi'
 import RemoveLiquidity, { RemoveLiquidityV2Layout } from 'views/RemoveLiquidity'
 import RemoveLiquidityV2FormProvider from 'views/RemoveLiquidity/RemoveLiquidityV2FormProvider'
@@ -49,14 +51,8 @@ export default RemoveLiquidityPage
 
 const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40})-(0x[a-fA-F0-9]{40})$/
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = async ({ params, locale }: { params: any; locale: string }) => {
   const currency = (params?.currency as string[]) || []
 
   if (currency.length === 0) {
@@ -88,6 +84,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   return {
-    props: {},
+    props: {
+      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
+    },
   }
 }

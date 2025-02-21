@@ -54,7 +54,7 @@ export const SwapLineChart: React.FC<SwapLineChartNewProps> = ({
     );
   }, [data]);
   const {
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation();
   const chartRef = useRef<HTMLDivElement>(null);
   const colors = useMemo(() => {

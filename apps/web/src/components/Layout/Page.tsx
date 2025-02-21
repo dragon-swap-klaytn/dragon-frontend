@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 export const PageMeta: React.FC<React.PropsWithChildren> = () => {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const { pathname } = useRouter()
 

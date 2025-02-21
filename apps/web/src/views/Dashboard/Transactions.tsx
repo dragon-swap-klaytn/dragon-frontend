@@ -7,7 +7,6 @@ import useOverviewData from 'views/Dashboard/hooks/useOverviewData'
 export default function Transactions({ poolType = 'v3' }: { poolType: PoolType }) {
   const { t } = useTranslation()
 
-  // const transactions = useProtocolTransactions(poolType)
   const { transactions } = useOverviewData(poolType)
 
   return (

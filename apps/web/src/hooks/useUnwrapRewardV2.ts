@@ -36,7 +36,7 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
         addTransaction(txReceipt, {
           summary: `Unwrap ${rewardStr} ${rewardToken.symbol} to ${nativeInfo.symbol}`,
           translatableSummary: {
-            text: 'Unwrap %amount% %wrap% to %native%',
+            text: 'Unwrap {{amount}} {{wrap}} to {{native}}',
             data: { amount: rewardStr, wrap: rewardToken.symbol, native: nativeInfo.symbol },
           },
         })

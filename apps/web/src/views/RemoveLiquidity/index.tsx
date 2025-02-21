@@ -335,7 +335,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
             {
               summary: `Remove ${amountA} ${currencyA?.symbol} and ${amountB} ${currencyB?.symbol}`,
               translatableSummary: {
-                text: 'Remove %amountA% %symbolA% and %amountB% %symbolB%',
+                text: 'Remove {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
                 data: { amountA, symbolA: currencyA?.symbol, amountB, symbolB: currencyB?.symbol },
               },
               type: 'remove-liquidity',
@@ -356,7 +356,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
             attemptingTxn: false,
             liquidityErrorMessage:
               err && !isUserRejected(err)
-                ? t('Remove liquidity failed: %message%', { message: transactionErrorToUserReadableMessage(err, t) })
+                ? t('Remove liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
                 : undefined,
             txHash: undefined,
           })
@@ -364,7 +364,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
     }
   }
 
-  const pendingText = t('Removing %amountA% %symbolA% and %amountB% %symbolB%', {
+  const pendingText = t('Removing {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
     amountA: parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '',
     symbolA: currencyA?.symbol ?? '',
     amountB: parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '',
@@ -450,7 +450,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
                 }`}
                 className="hover:opacity-70 underline underline-offset-2 flex items-center space-x-1"
               >
-                <span>{t('Receive %currency%', { currency: WNATIVE[chainId]?.symbol })}</span>
+                <span>{t('Receive {{currency}}', { currency: WNATIVE[chainId]?.symbol })}</span>
                 <ArrowRight size={16} />
               </Link>
             ) : oneCurrencyIsWNative ? (
@@ -460,7 +460,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
                 }`}
                 className="hover:opacity-70 underline underline-offset-2 flex items-center space-x-1"
               >
-                <span>{t('Receive %currency%', { currency: native?.symbol })}</span>
+                <span>{t('Receive {{currency}}', { currency: native?.symbol })}</span>
                 <ArrowRight size={12} />
               </Link>
             ) : null}
@@ -592,11 +592,11 @@ export const RemoveLiquidityLayout = ({ currencyA, currencyB, children }) => {
       <AppBody>
         <AppHeader
           backTo={`/v2/pair/${addressA}/${addressB}`}
-          title={t('Remove %assetA%-%assetB% Liquidity', {
+          title={t('Remove {{assetA}}-{{assetB}} Liquidity', {
             assetA: currencyA?.symbol ?? '',
             assetB: currencyB?.symbol ?? '',
           })}
-          subtitle={t('To receive %assetA% and %assetB%', {
+          subtitle={t('To receive {{assetA}} and {{assetB}}', {
             assetA: currencyA?.symbol ?? '',
             assetB: currencyB?.symbol ?? '',
           })}

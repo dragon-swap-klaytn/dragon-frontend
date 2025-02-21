@@ -51,7 +51,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
       <Notification variant="warning" fullWidth>
         <p>
           {t(
-            'Anyone can create tokens on %network% with any name, including creating fake versions of existing tokens and tokens that claim to represent projects that do not have a token.',
+            'Anyone can create tokens on {{network}} with any name, including creating fake versions of existing tokens and tokens that claim to represent projects that do not have a token.',
             {
               // network: chains.find((c) => c.id === chainId)?.name,
               network: 'Kaia',

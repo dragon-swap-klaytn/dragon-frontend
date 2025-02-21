@@ -124,7 +124,7 @@ export function V3PositionCard({
 }) {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   const { saveBackToHref } = useBackTo()
@@ -216,7 +216,7 @@ export function V3PositionCard({
         </div>
 
         <TagV2 className="min-w-8" color={_position.isOutOfBounds ? 'red' : 'green'}>
-          {_position.isOutOfBounds ? t('Out of range') : 'In range'}
+          {_position.isOutOfBounds ? t('Out of range') : t('In range')}
         </TagV2>
       </div>
 
@@ -241,7 +241,7 @@ export function V3PositionCard({
               withDollarSign: true,
             })}
           </div>
-          <div className="mt-1 text-xs-subtlest">{t('Position')}</div>
+          <div className="mt-1 text-xs text-on-surface-subtlest">{t('Position')}</div>
         </div>
         <div className="s:min-w-24">
           <div className="text-sm">

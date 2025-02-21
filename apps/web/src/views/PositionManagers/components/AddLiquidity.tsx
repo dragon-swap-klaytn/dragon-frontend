@@ -117,7 +117,7 @@ export const AddLiquidity = memo(function AddLiquidity({
   const [valueB, setValueB] = useState('')
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const { account, chain } = useWeb3React()
   const tokenPairName = useMemo(() => `${currencyA.symbol}-${currencyB.symbol}`, [currencyA, currencyB])
@@ -302,8 +302,16 @@ export const AddLiquidity = memo(function AddLiquidity({
   const pendingText = useMemo(
     () =>
       isSingleDepositToken
-        ? t('Supplying %amount% %symbol%', translationData)
-        : t('Supplying %amountA% %symbolA% and %amountB% %symbolB%', translationData),
+        ? t('Supplying {{amount}} {{symbol}}', {
+            amount: translationData.amount,
+            symbol: translationData.symbol,
+          })
+        : t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
+            amountA: translationData.amountA,
+            symbolA: translationData.symbolA,
+            amountB: translationData.amountB,
+            symbolB: translationData.symbolB,
+          }),
     [t, isSingleDepositToken, translationData],
   )
 
@@ -445,7 +453,7 @@ export const AddLiquidityButton = memo(function AddLiquidityButton({
           disabled={disabled || approvalStateToken0 === ApprovalState.PENDING}
           onClick={approveCallbackToken0}
         >
-          {t('Approve %symbol%', { symbol: amountA?.currency?.symbol ?? '' })}
+          {t('Approve {{symbol}}', { symbol: amountA?.currency?.symbol ?? '' })}
         </Button>
       )}
       {showAmountButtonB && (
@@ -456,7 +464,7 @@ export const AddLiquidityButton = memo(function AddLiquidityButton({
           disabled={disabled || approvalStateToken1 === ApprovalState.PENDING}
           onClick={approveCallbackToken1}
         >
-          {t('Approve %symbol%', { symbol: amountB?.currency?.symbol ?? '' })}
+          {t('Approve {{symbol}}', { symbol: amountB?.currency?.symbol ?? '' })}
         </Button>
       )}
       <Button

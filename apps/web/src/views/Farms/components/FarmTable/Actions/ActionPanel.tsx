@@ -250,7 +250,7 @@ export const ActionPanelV3: FC<ActionPanelV3Props> = ({
             {isActive && (
               <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
                 <StyledText color="primary" onClick={addLiquidityModal.onOpen}>
-                  {t('Add %symbol%', { symbol: lpLabel })}
+                  {t('Add {{symbol}}', { symbol: lpLabel })}
                 </StyledText>
               </Flex>
             )}
@@ -296,7 +296,7 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
 
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const isActive = farm.multiplier !== '0X'
   const lpLabel = useMemo(() => farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, ''), [farm.lpSymbol])
@@ -357,7 +357,7 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
             {isActive && (
               <Flex mb="2px" justifyContent={alignLinksToRight ? 'flex-end' : 'flex-start'}>
                 <StyledText color="primary" onClick={addLiquidityModal.onOpen}>
-                  {t('Add %symbol%', { symbol: lpLabel })}
+                  {t('Add {{symbol}}', { symbol: lpLabel })}
                 </StyledText>
               </Flex>
             )}

@@ -227,7 +227,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
             {
               summary: `Remove ${amountA} ${currencyA?.symbol} and ${amountB} ${currencyB?.symbol}`,
               translatableSummary: {
-                text: 'Remove %amountA% %symbolA% and %amountB% %symbolB%',
+                text: 'Remove {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
                 data: { amountA, symbolA: currencyA?.symbol, amountB, symbolB: currencyB?.symbol },
               },
               type: 'remove-liquidity',
@@ -243,7 +243,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
             attemptingTxn: false,
             liquidityErrorMessage:
               err && !isUserRejected(err)
-                ? t('Remove liquidity failed: %message%', { message: transactionErrorToUserReadableMessage(err, t) })
+                ? t('Remove liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
                 : undefined,
             txHash: undefined,
           })
@@ -251,7 +251,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
     }
   }
 
-  const pendingText = t('Removing %amountA% %symbolA% and %amountB% %symbolB%', {
+  const pendingText = t('Removing {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
     amountA: parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '',
     symbolA: currencyA?.symbol ?? '',
     amountB: parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '',
@@ -421,7 +421,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
                         currencyB?.isNative ? WNATIVE[chainId]?.address : currencyIdB
                       }?stable=1`}
                     >
-                      {t('Receive %currency%', { currency: WNATIVE[chainId]?.symbol })}
+                      {t('Receive {{currency}}', { currency: WNATIVE[chainId]?.symbol })}
                     </StyledInternalLink>
                   ) : oneCurrencyIsWNative ? (
                     <StyledInternalLink
@@ -429,7 +429,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
                         currencyA && currencyA.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdA
                       }/${currencyB && currencyB.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdB}?stable=1`}
                     >
-                      {t('Receive %currency%', { currency: native?.symbol })}
+                      {t('Receive {{currency}}', { currency: native?.symbol })}
                     </StyledInternalLink>
                   ) : null}
                 </RowBetween>

@@ -38,7 +38,7 @@ export default function AddressInputPanel({
 
         {address && chainId && (
           <ExternalLink href={getBlockExploreLink(address, 'address')} textSize="text-xs">
-            {t('View on %site%', {
+            {t('View on {{site}}', {
               site: getBlockExploreName(),
             })}
           </ExternalLink>
