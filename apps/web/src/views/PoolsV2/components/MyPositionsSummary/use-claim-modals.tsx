@@ -366,6 +366,9 @@ function ClaimUnstakedFeesModalHeader({
         const token1FeeAmount = position.token1.feeAmount
 
         const totalUSD = token0Price * token0FeeAmount + token1Price * token1FeeAmount
+        if (!totalUSD) {
+          return null
+        }
 
         return (
           <div key={`claimModal1:${position.positionId}`}>
@@ -453,8 +456,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
 
             const totalUSD =
               token0Price * token0FeeAmount + token1Price * token1FeeAmount + rewardTokenPrice * rewardAmount
-
-            if (!token0FeeAmount && !token1FeeAmount && !rewardAmount) {
+            if (!totalUSD) {
               return null
             }
 
