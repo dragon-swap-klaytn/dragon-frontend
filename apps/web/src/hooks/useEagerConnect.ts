@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAccount, useConfig, useConnect } from 'wagmi'
 
-import { WalletStorageKey } from '@pancakeswap/ui-wallets'
+import { resetWalletStorage, WalletStorageKey } from '@pancakeswap/ui-wallets'
 import { WalletIds } from '@pancakeswap/uikit'
 import { CHAINS } from 'config/chains'
 import { getConnectorId } from 'config/wallet'
@@ -34,9 +34,7 @@ const useEagerConnect = () => {
 
       if (prevAccount !== '') {
         login(getConnectorId(WalletIds.klip)).catch(() => {
-          localStorage.removeItem(WalletStorageKey.WALLET)
-          localStorage.removeItem(WalletStorageKey.CONNECTOR)
-          localStorage.removeItem(WalletStorageKey.ADDRESS)
+          resetWalletStorage()
         })
       }
 
@@ -49,11 +47,10 @@ const useEagerConnect = () => {
     }
 
     config.autoConnect().then((res) => {
+      // @TODO: remove after debugging
+      console.log('[autoConnect]', res)
       const connectedAccount = res?.account
-      if (!connectedAccount) {
-        return
-      }
-      if (connectedAccount?.toLocaleLowerCase() !== prevAccount.toLocaleLowerCase()) {
+      if (!connectedAccount || connectedAccount?.toLowerCase() !== prevAccount.toLowerCase()) {
         logout()
       }
     })

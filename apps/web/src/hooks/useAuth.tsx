@@ -1,8 +1,8 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
+  resetWalletStorage,
   useSelectedWallet,
   WalletConnectorNotFoundError,
-  WalletStorageKey,
   WalletSwitchChainError,
 } from '@pancakeswap/ui-wallets'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
@@ -77,9 +77,7 @@ const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      localStorage.removeItem(WalletStorageKey.WALLET)
-      localStorage.removeItem(WalletStorageKey.CONNECTOR)
-      localStorage.removeItem(WalletStorageKey.ADDRESS)
+      resetWalletStorage()
 
       await disconnectAsync()
       setSelected(null)
