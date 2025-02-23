@@ -38,6 +38,7 @@ import { calculateGasMargin } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { calculateSlippageAmount } from 'utils/exchange'
 
+import { useBackTo } from '@pancakeswap/uikit/hooks/use-back-to'
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { Field } from 'state/burn/actions'
@@ -271,25 +272,29 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
       ((currencyA && WNATIVE[chainId]?.equals(currencyA)) || (currencyB && WNATIVE[chainId]?.equals(currencyB))),
   )
 
+  const { saveBackToHref } = useBackTo()
+
   const handleSelectCurrencyA = useCallback(
     (currency: Currency) => {
+      saveBackToHref()
       if (currencyIdB && currencyId(currency) === currencyIdB) {
         router.replace(`/v2/remove/${currencyId(currency)}/${currencyIdA}?stable=1`, undefined, { shallow: true })
       } else {
         router.replace(`/v2/remove/${currencyId(currency)}/${currencyIdB}?stable=1`, undefined, { shallow: true })
       }
     },
-    [currencyIdA, currencyIdB, router],
+    [currencyIdA, currencyIdB, router, saveBackToHref],
   )
   const handleSelectCurrencyB = useCallback(
     (currency: Currency) => {
+      saveBackToHref()
       if (currencyIdA && currencyId(currency) === currencyIdA) {
         router.replace(`/v2/remove/${currencyIdB}/${currencyId(currency)}?stable=1`, undefined, { shallow: true })
       } else {
         router.replace(`/v2/remove/${currencyIdA}/${currencyId(currency)}?stable=1`, undefined, { shallow: true })
       }
     },
-    [currencyIdA, currencyIdB, router],
+    [currencyIdA, currencyIdB, router, saveBackToHref],
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -420,6 +425,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
                       href={`/v2/remove/${currencyA?.isNative ? WNATIVE[chainId]?.address : currencyIdA}/${
                         currencyB?.isNative ? WNATIVE[chainId]?.address : currencyIdB
                       }?stable=1`}
+                      onClick={saveBackToHref}
                     >
                       {t('Receive {{currency}}', { currency: WNATIVE[chainId]?.symbol })}
                     </StyledInternalLink>
@@ -428,6 +434,7 @@ export default function RemoveStableLiquidity({ currencyA, currencyB, currencyId
                       href={`/v2/remove/${
                         currencyA && currencyA.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdA
                       }/${currencyB && currencyB.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdB}?stable=1`}
+                      onClick={saveBackToHref}
                     >
                       {t('Receive {{currency}}', { currency: native?.symbol })}
                     </StyledInternalLink>

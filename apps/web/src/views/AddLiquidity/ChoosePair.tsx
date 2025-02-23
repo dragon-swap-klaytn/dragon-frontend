@@ -5,6 +5,7 @@ import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { CurrencySelect } from 'components/CurrencySelect'
 import { RowBetween } from 'components/Layout/Row'
+import { useBackTo } from 'hooks/use-back-to'
 import { useV2Pair } from 'hooks/usePairs'
 import { useLPApr } from 'state/swap/useLPApr'
 import { formatAmount } from 'utils/formatInfoNumbers'
@@ -37,6 +38,8 @@ export function ChoosePair({
     },
   )
 
+  const { backTo } = useBackTo()
+
   return (
     <>
       <AppHeader
@@ -45,7 +48,7 @@ export function ChoosePair({
         helper={t(
           'Liquidity providers earn a 0.24% trading fee on all trades made for that token pair, proportional to their share of the liquidity pair.',
         )}
-        backTo="/liquidity"
+        backTo={backTo}
       />
       <CardBody>
         <Box>

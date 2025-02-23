@@ -34,6 +34,7 @@ import { isUserRejected } from 'utils/sentry'
 import { getViemClients } from 'utils/viem'
 import { hexToBigInt } from 'viem'
 
+import { useBackTo } from 'hooks/use-back-to'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { V3SubmitButton } from './components/V3SubmitButton'
 import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
@@ -355,11 +356,13 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
     />
   )
 
+  const { backTo } = useBackTo()
+
   return (
     <Page>
       <div className="max-w-md mx-auto md:bg-surface-raised rounded-2xl">
         <AppHeader
-          backTo={`/liquidity/${tokenId}`}
+          backTo={backTo}
           title={t('Add {{assetA}}-{{assetB}} Liquidity', {
             assetA: currencies[Field.CURRENCY_A]?.symbol ?? '',
             assetB: currencies[Field.CURRENCY_B]?.symbol ?? '',

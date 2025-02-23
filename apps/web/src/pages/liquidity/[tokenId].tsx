@@ -412,6 +412,8 @@ export default function PoolPage() {
 
   // const { hasMerkl } = useMerklInfo(poolAddress)
 
+  const { saveBackToHref } = useBackTo()
+
   const buttons = useMemo(
     () =>
       currency0 && currency1 ? (
@@ -419,21 +421,21 @@ export default function PoolPage() {
           <NextLinkFromReactRouter
             to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
           >
-            <ButtonV2 disabled={!isOwnNFT} variant="primary" onClick={() => {}}>
+            <ButtonV2 disabled={!isOwnNFT} variant="primary" onClick={saveBackToHref}>
               {t('Add')}
             </ButtonV2>
           </NextLinkFromReactRouter>
 
           {!removed && (
             <NextLinkFromReactRouter to={`/remove/${tokenId}`}>
-              <ButtonV2 disabled={!isOwnNFT} variant="subtle" onClick={() => {}}>
+              <ButtonV2 disabled={!isOwnNFT} variant="subtle" onClick={saveBackToHref}>
                 {t('Remove')}
               </ButtonV2>
             </NextLinkFromReactRouter>
           )}
         </div>
       ) : null,
-    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId],
+    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId, saveBackToHref],
   )
 
   const { farmsWithPositions: farmsV3, updateFarmsV3WithPositionsAndBooster } = useFarmsV3WithPositionsAndBooster()

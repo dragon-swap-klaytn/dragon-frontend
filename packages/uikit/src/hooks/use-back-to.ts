@@ -1,7 +1,7 @@
-import { useRouter } from 'next/router'
-import { useCallback } from 'react'
+import { useRouter } from "next/router";
+import { useCallback } from "react";
 
-const BACKTO_HISTORY_KEY = 'backToHistory'
+const BACKTO_HISTORY_KEY = "backToHistory";
 
 /**
  * Custom hook to manage navigation history using a stack stored in sessionStorage.
@@ -15,7 +15,7 @@ const BACKTO_HISTORY_KEY = 'backToHistory'
  *   const { saveBackToHref, getBackToHref, backTo } = useBackTo();
  */
 export function useBackTo() {
-  const router = useRouter()
+  const router = useRouter();
 
   /**
    * Push a URL onto the history stack stored in sessionStorage.
@@ -23,18 +23,18 @@ export function useBackTo() {
    * @param url - The URL to be added to the history stack.
    */
   const pushHistory = useCallback((url: string) => {
-    const existingStack = sessionStorage.getItem(BACKTO_HISTORY_KEY)
-    let stack: string[] = []
+    const existingStack = sessionStorage.getItem(BACKTO_HISTORY_KEY);
+    let stack: string[] = [];
     if (existingStack) {
       try {
-        stack = JSON.parse(existingStack)
+        stack = JSON.parse(existingStack);
       } catch {
-        stack = []
+        stack = [];
       }
     }
-    stack.push(url)
-    sessionStorage.setItem(BACKTO_HISTORY_KEY, JSON.stringify(stack))
-  }, [])
+    stack.push(url);
+    sessionStorage.setItem(BACKTO_HISTORY_KEY, JSON.stringify(stack));
+  }, []);
 
   /**
    * Pop the last URL from the history stack stored in sessionStorage.
@@ -42,25 +42,25 @@ export function useBackTo() {
    * @returns The last URL from the stack, or null if the stack is empty.
    */
   const popHistory = useCallback((): string | null => {
-    const existingStack = sessionStorage.getItem(BACKTO_HISTORY_KEY)
-    if (!existingStack) return null
-    let stack: string[] = []
+    const existingStack = sessionStorage.getItem(BACKTO_HISTORY_KEY);
+    if (!existingStack) return null;
+    let stack: string[] = [];
     try {
-      stack = JSON.parse(existingStack)
+      stack = JSON.parse(existingStack);
     } catch {
-      stack = []
+      stack = [];
     }
-    const url = stack.pop() || null
-    sessionStorage.setItem(BACKTO_HISTORY_KEY, JSON.stringify(stack))
-    return url
-  }, [])
+    const url = stack.pop() || null;
+    sessionStorage.setItem(BACKTO_HISTORY_KEY, JSON.stringify(stack));
+    return url;
+  }, []);
 
   /**
    * Save the current URL by pushing it onto the history stack.
    */
   const saveBackToHref = useCallback(() => {
-    pushHistory(router.asPath)
-  }, [pushHistory, router.asPath])
+    pushHistory(router.asPath);
+  }, [pushHistory, router.asPath]);
 
   /**
    * Retrieve the top URL from the history stack without removing it.
@@ -68,33 +68,33 @@ export function useBackTo() {
    * @returns The current top URL from the stack, or null if the stack is empty.
    */
   const getBackToHref = useCallback((): string | null => {
-    const existingStack = sessionStorage.getItem(BACKTO_HISTORY_KEY)
-    if (!existingStack) return null
-    let stack: string[] = []
+    const existingStack = sessionStorage.getItem(BACKTO_HISTORY_KEY);
+    if (!existingStack) return null;
+    let stack: string[] = [];
     try {
-      stack = JSON.parse(existingStack)
+      stack = JSON.parse(existingStack);
     } catch {
-      stack = []
+      stack = [];
     }
-    return stack.length > 0 ? stack[stack.length - 1] : null
-  }, [])
+    return stack.length > 0 ? stack[stack.length - 1] : null;
+  }, []);
 
   /**
    * Navigate back to the last URL saved in the history stack.
    * If the stack is empty, falls back to router.back().
    */
   const backTo = useCallback(() => {
-    const backToHref = popHistory()
+    const backToHref = popHistory();
     if (backToHref) {
-      router.push(backToHref)
+      router.push(backToHref);
     } else {
-      router.back()
+      router.back();
     }
-  }, [popHistory, router])
+  }, [popHistory, router]);
 
   return {
     saveBackToHref,
     getBackToHref,
     backTo,
-  }
+  };
 }

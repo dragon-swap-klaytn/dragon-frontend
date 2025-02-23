@@ -25,6 +25,7 @@ import { calculateSlippageAmount, useRouterContract } from 'utils/exchange'
 import { ArrowDown, ArrowRight } from '@phosphor-icons/react'
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
 import { CommonBasesType } from 'components/SearchModal/types'
+import { useBackTo } from 'hooks/use-back-to'
 import Link from 'next/link'
 import { Field } from 'state/burn/actions'
 import { useRemoveLiquidityV2FormState } from 'state/burn/reducer'
@@ -410,6 +411,8 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)
   const lpBalance = useCurrencyBalance(account ?? undefined, pair?.liquidityToken)
 
+  const { saveBackToHref } = useBackTo()
+
   return (
     <div className="p-5 md:p-8">
       <SectionTitle>{t('Amount')}</SectionTitle>
@@ -449,6 +452,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
                   currencyB?.isNative ? WNATIVE[chainId]?.address : currencyIdB
                 }`}
                 className="hover:opacity-70 underline underline-offset-2 flex items-center space-x-1"
+                onClick={saveBackToHref}
               >
                 <span>{t('Receive {{currency}}', { currency: WNATIVE[chainId]?.symbol })}</span>
                 <ArrowRight size={16} />
@@ -459,6 +463,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
                   currencyB && currencyB.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdB
                 }`}
                 className="hover:opacity-70 underline underline-offset-2 flex items-center space-x-1"
+                onClick={saveBackToHref}
               >
                 <span>{t('Receive {{currency}}', { currency: native?.symbol })}</span>
                 <ArrowRight size={12} />
@@ -576,22 +581,24 @@ export const RemoveLiquidityV2Layout = ({ currencyA, currencyB, children }) => {
 }
 
 export const RemoveLiquidityLayout = ({ currencyA, currencyB, children }) => {
-  const addressA = useMemo(() => {
-    if (!currencyA) return ''
-    return currencyA && 'isNative' in currencyA && currencyA.isNative ? currencyA.symbol : currencyA.address
-  }, [currencyA])
-  const addressB = useMemo(() => {
-    if (!currencyB) return ''
+  // const addressA = useMemo(() => {
+  //   if (!currencyA) return ''
+  //   return currencyA && 'isNative' in currencyA && currencyA.isNative ? currencyA.symbol : currencyA.address
+  // }, [currencyA])
+  // const addressB = useMemo(() => {
+  //   if (!currencyB) return ''
 
-    return currencyB && 'isNative' in currencyB && currencyB.isNative ? currencyB.symbol : currencyB.address
-  }, [currencyB])
+  //   return currencyB && 'isNative' in currencyB && currencyB.isNative ? currencyB.symbol : currencyB.address
+  // }, [currencyB])
+
   const { t } = useTranslation()
+  const { backTo } = useBackTo()
 
   return (
     <Page>
       <AppBody>
         <AppHeader
-          backTo={`/v2/pair/${addressA}/${addressB}`}
+          backTo={backTo}
           title={t('Remove {{assetA}}-{{assetB}} Liquidity', {
             assetA: currencyA?.symbol ?? '',
             assetB: currencyB?.symbol ?? '',

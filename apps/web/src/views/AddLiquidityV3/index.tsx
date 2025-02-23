@@ -265,8 +265,11 @@ export function UniversalAddLiquidity({
     [currencyIdA, currencyIdB, router, setSelectorType],
   )
 
+  const { saveBackToHref } = useBackTo()
+
   const handleSelectV2 = useCallback(() => {
     setSelectorType(SELECTOR_TYPE.V2)
+    saveBackToHref()
     router.replace(
       {
         pathname: router.pathname,
@@ -275,7 +278,7 @@ export function UniversalAddLiquidity({
       `/v2/add/${currencyIdA}/${currencyIdB}`,
       { shallow: true },
     )
-  }, [currencyIdA, currencyIdB, router, setSelectorType])
+  }, [currencyIdA, currencyIdB, router, setSelectorType, saveBackToHref])
 
   useEffect(() => {
     if (preferredFeeAmount && !feeAmountFromUrl && selectorType === SELECTOR_TYPE.V3) {

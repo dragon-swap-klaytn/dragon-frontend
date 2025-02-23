@@ -6,6 +6,7 @@ import { styled } from "styled-components";
 
 import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
 import { BIG_ONE_HUNDRED } from "@pancakeswap/utils/bigNumber";
+import { useBackTo } from "../../hooks/use-back-to";
 import { useTooltip } from "../../hooks/useTooltip";
 import { Box, Flex, Grid } from "../Box";
 import { ExpandableLabel } from "../Button";
@@ -105,6 +106,8 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
   const lpRewardsAPRDisplay = useMemo(() => {
     return isFarm ? (lpRewardsApr ? Math.max(lpRewardsApr).toFixed(2) : null) : null;
   }, [isFarm, lpRewardsApr]);
+
+  const { saveBackToHref } = useBackTo();
 
   return (
     <Footer p="16px" flexDirection="column">
@@ -241,7 +244,9 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
           </BulletList>
           {linkHref && (
             <Flex justifyContent="center" mt="24px">
-              <LinkExternal href={linkHref}>{linkLabel}</LinkExternal>
+              <LinkExternal href={linkHref} onClick={saveBackToHref}>
+                {linkLabel}
+              </LinkExternal>
             </Flex>
           )}
         </Box>

@@ -7,6 +7,7 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import { MinimalPositionCard } from 'components/PositionCard'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { BIG_INT_ZERO } from 'config/constants/exchange'
+import { useBackTo } from 'hooks/use-back-to'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { PairState, useV2Pair } from 'hooks/usePairs'
 import Link from 'next/link'
@@ -78,10 +79,12 @@ export default function PoolFinder() {
     [activeField, currency0, currency1],
   )
 
+  const { backTo, saveBackToHref } = useBackTo()
+
   return (
     <Page>
       <AppBody maxWidth="max-w-md">
-        <AppHeader title={t('Import Pool')} subtitle={t('Import an existing pool')} backTo="/liquidity" />
+        <AppHeader title={t('Import Pool')} subtitle={t('Import an existing pool')} backTo={backTo} />
         <div className="p-5 md:p-8">
           {!account ? (
             <div className="flex flex-col items-center space-y-4 mt-4">
@@ -145,14 +148,20 @@ export default function PoolFinder() {
                   hasPosition && pair ? (
                     <Wrapper>
                       <MinimalPositionCard pair={pair} />
-                      <NextLink href={`/v2/pair/${pair.token0.address}/${pair.token1.address}`}>
+                      <NextLink
+                        href={`/v2/pair/${pair.token0.address}/${pair.token1.address}`}
+                        onClick={saveBackToHref}
+                      >
                         {t('Manage this pair')}
                       </NextLink>
                     </Wrapper>
                   ) : (
                     <Wrapper>
                       <p className="text-center">{t('You don’t have liquidity in this pair yet.')}</p>
-                      <NextLink href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
+                      <NextLink
+                        href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}
+                        onClick={saveBackToHref}
+                      >
                         {t('Add Liquidity')}
                       </NextLink>
                     </Wrapper>
@@ -160,7 +169,10 @@ export default function PoolFinder() {
                 ) : validPairNoLiquidity ? (
                   <Wrapper>
                     <p className="text-sm text-on-surface text-center">{t('No pair found.')}</p>
-                    <NextLink href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
+                    <NextLink
+                      href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}
+                      onClick={saveBackToHref}
+                    >
                       {t('Create pair')}
                     </NextLink>
                   </Wrapper>
@@ -190,11 +202,12 @@ function Wrapper({ children }: PropsWithChildren) {
   )
 }
 
-function NextLink({ children, href }: PropsWithChildren<{ href: string }>) {
+function NextLink({ children, href, ...props }: PropsWithChildren<{ href: string; onClick?: () => void }>) {
   return (
     <Link
       href={href}
       className="rounded-[20px] bg-brand text-on-surface-inverse hover:opacity-70 px-4 py-2.5 text-sm mt-4 w-full inline-block text-center"
+      {...props}
     >
       {children}
     </Link>
