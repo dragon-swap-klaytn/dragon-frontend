@@ -8,6 +8,11 @@ const SS_PRICES_API = 'https://api.swapscanner.io/api/v1/tokens/prices'
 type PriceMap = { [address: Address]: number }
 async function fetchPricesFromSs() {
   const res = await fetch(SS_PRICES_API)
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch prices from SwapScanner')
+  }
+
   return res.json() as Promise<PriceMap>
 }
 
@@ -16,18 +21,14 @@ const getCahcedPricesFromSs = localCachedV2(fetchPricesFromSs, {
 }).cachedFetcher
 
 const handler: NextApiHandler = async (req, res) => {
-  if (req.method === 'GET') {
-    const priceMap = await getCahcedPricesFromSs()
+  const priceMap = await getCahcedPricesFromSs()
 
-    return res.status(200).json({
-      ...priceMap,
-      // WKLAY
-      ['0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432'.toLowerCase()]: priceMap[ZERO_ADDRESS],
-      KAIA: priceMap[ZERO_ADDRESS],
-    })
-  }
-
-  return res.status(405).end()
+  return res.json({
+    ...priceMap,
+    // WKLAY
+    ['0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432'.toLowerCase()]: priceMap[ZERO_ADDRESS],
+    KAIA: priceMap[ZERO_ADDRESS],
+  })
 }
 
 export default handler
