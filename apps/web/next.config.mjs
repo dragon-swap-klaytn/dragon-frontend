@@ -6,6 +6,7 @@ import smartRouterPkgs from '@pancakeswap/smart-router/package.json' assert { ty
 import { createVanillaExtractPlugin } from '@vanilla-extract/next-plugin'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import i18nConfig from './next-i18next.config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -45,7 +46,7 @@ const config = {
   typescript: {
     tsconfigPath: 'tsconfig.build.json',
   },
-  output: process.env.STANDALONE ? "standalone" : undefined,
+  output: process.env.STANDALONE ? 'standalone' : undefined,
   compiler: {
     styledComponents: true,
   },
@@ -79,6 +80,8 @@ const config = {
       },
     ],
   },
+  i18n: i18nConfig.i18n,
+  trailingSlash: true,
   async rewrites() {
     return [
       {
@@ -188,6 +191,11 @@ const config = {
         destination: 'https://farms-api.pancakeswap.com/v3/:chainId/liquidity/:address',
         permanent: false,
       },
+      {
+        source: '/dashboard',
+        destination: '/dashboard/v3',
+        permanent: false,
+      },
     ]
   },
   webpack: (webpackConfig, { webpack, isServer }) => {
@@ -220,7 +228,7 @@ const config = {
   },
 }
 
-let projectNextConfig 
+let projectNextConfig
 if (process.env.STANDALONE) {
   projectNextConfig = withVanillaExtract(withWebSecurityHeaders(config))
 } else {

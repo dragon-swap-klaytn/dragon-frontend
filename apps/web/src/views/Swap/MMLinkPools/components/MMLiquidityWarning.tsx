@@ -1,5 +1,5 @@
-import { Alert } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { Alert } from '@pancakeswap/uikit'
 
 export const MMLiquidityWarning: React.FC = () => {
   const { t } = useTranslation()

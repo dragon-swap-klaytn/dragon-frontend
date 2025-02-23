@@ -10,8 +10,8 @@ const Handle = styled.path<{ color: string }>`
   pointer-events: none;
 
   stroke-width: 3;
-  stroke: ${({ color }) => color};
-  fill: ${({ color }) => color};
+  stroke: #fb923c;
+  fill: #fb923c;
 `;
 
 const HandleAccent = styled.path`
@@ -19,23 +19,23 @@ const HandleAccent = styled.path`
   pointer-events: none;
 
   stroke-width: 1.5;
-  stroke: ${({ theme }) => theme.colors.background};
-  opacity: ${({ theme }) => theme.colors.background};
+  stroke: #fff;
+  opacity: 0.5;
 `;
 
-const LabelGroup = styled.g<{ visible: boolean }>`
-  opacity: ${({ visible }) => (visible ? "1" : "0")};
+const LabelGroup = styled.g<{ visible: "true" | "false" }>`
+  opacity: ${({ visible }) => (visible === "true" ? "1" : "0")};
   transition: opacity 300ms;
 `;
 
 const TooltipBackground = styled.rect`
-  fill: ${({ theme }) => theme.colors.secondary};
+  fill: #fb923c;
 `;
 
 const Tooltip = styled.text`
   text-anchor: middle;
   font-size: 13px;
-  fill: ${({ theme }) => theme.colors.background};
+  fill: #fff;
 `;
 
 // flips the handles draggers when close to the container edges
@@ -212,7 +212,7 @@ export const Brush = ({
 
                 <LabelGroup
                   transform={`translate(50,0), scale(${flipWestHandle ? "1" : "-1"}, 1)`}
-                  visible={showLabels || hovering}
+                  visible={showLabels || hovering ? "true" : "false"}
                 >
                   <TooltipBackground y="0" x="-30" height="30" width="60" rx="8" />
                   <Tooltip transform="scale(-1, 1)" y="15" dominantBaseline="middle">
@@ -232,7 +232,7 @@ export const Brush = ({
 
                 <LabelGroup
                   transform={`translate(50,0), scale(${flipEastHandle ? "-1" : "1"}, 1)`}
-                  visible={showLabels || hovering}
+                  visible={showLabels || hovering ? "true" : "false"}
                 >
                   <TooltipBackground y="0" x="-30" height="30" width="60" rx="8" />
                   <Tooltip y="15" dominantBaseline="middle">

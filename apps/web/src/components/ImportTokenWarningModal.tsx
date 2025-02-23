@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Token } from '@pancakeswap/sdk'
-import { Box, InjectedModalProps, Modal } from '@pancakeswap/uikit'
+import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
 import ImportToken from 'components/SearchModal/ImportToken'
 import { useUnsupportedTokens } from 'hooks/Tokens'
 import { useMemo } from 'react'
@@ -9,9 +9,15 @@ import { UnsupportedModal } from './UnsupportedModal'
 interface Props extends InjectedModalProps {
   tokens: Token[]
   onCancel: () => void
+  customOnDismiss?: () => void
 }
 
-const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({ tokens, onDismiss, onCancel }) => {
+const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({
+  tokens,
+  onDismiss,
+  onCancel,
+  customOnDismiss,
+}) => {
   const { t } = useTranslation()
 
   const unsupportedTokens = useUnsupportedTokens()
@@ -30,13 +36,13 @@ const ImportTokenWarningModal: React.FC<React.PropsWithChildren<Props>> = ({ tok
     <Modal
       title={t('Import Token')}
       onDismiss={() => {
+        if (customOnDismiss) customOnDismiss()
         onDismiss?.()
         onCancel()
       }}
     >
-      <Box maxWidth="380px">
-        <ImportToken tokens={tokens} handleCurrencySelect={onDismiss} />
-      </Box>
+      <span className="text-on-surface">asasdfasdf</span>
+      <ImportToken tokens={tokens} handleCurrencySelect={onDismiss} />
     </Modal>
   )
 }

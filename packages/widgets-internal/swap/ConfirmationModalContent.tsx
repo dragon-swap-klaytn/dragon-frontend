@@ -1,21 +1,16 @@
-import { styled } from "styled-components";
-import { Box } from "@pancakeswap/uikit";
-
-const Wrapper = styled.div`
-  width: 100%;
-`;
+import { ReactNode } from "react";
 
 export function ConfirmationModalContent({
   bottomContent,
   topContent,
 }: {
-  topContent: () => React.ReactNode;
-  bottomContent: () => React.ReactNode;
+  topContent: ReactNode;
+  bottomContent: ReactNode;
 }) {
   return (
-    <Wrapper>
-      <Box>{topContent()}</Box>
-      <Box>{bottomContent()}</Box>
-    </Wrapper>
+    <div className="w-full">
+      {topContent}
+      {bottomContent}
+    </div>
   );
 }

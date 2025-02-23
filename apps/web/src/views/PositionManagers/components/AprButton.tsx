@@ -55,14 +55,14 @@ export const AprButton = memo(function YieldInfo({
   const tokenBalanceMultiplier = useMemo(() => new BigNumber(10).pow(lpTokenDecimals), [lpTokenDecimals])
   const tokenBalance = useMemo(
     () =>
-      new BigNumber(Number(((userLpAmounts ?? 0n) * 10000n) / (precision ?? 1n)) / 10000 ?? 0).times(
+      new BigNumber(Number(((userLpAmounts ?? 0n) * 10000n) / (precision ?? 1n)) / 10000 || 0).times(
         tokenBalanceMultiplier,
       ),
     [userLpAmounts, precision, tokenBalanceMultiplier],
   )
 
   const tokenPrice = useMemo(
-    () => totalStakedInUsd / (Number(((totalSupplyAmounts ?? 0n) * 10000n) / (precision ?? 1n)) / 10000 ?? 0),
+    () => totalStakedInUsd / (Number(((totalSupplyAmounts ?? 0n) * 10000n) / (precision ?? 1n)) / 10000 || 0),
     [totalSupplyAmounts, precision, totalStakedInUsd],
   )
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
@@ -92,7 +92,7 @@ export const AprButton = memo(function YieldInfo({
 
       <Text lineHeight="120%" mt="20px">
         {aprTimeWindow > 0
-          ? t(`Calculated based on previous %days% days average data.`, { days: aprTimeWindow })
+          ? t(`Calculated based on previous {{days}} days average data.`, { days: aprTimeWindow })
           : t('Calculated based average data since vault inception.')}
       </Text>
     </>,
@@ -103,7 +103,7 @@ export const AprButton = memo(function YieldInfo({
 
   const [onPresentApyModal] = useModal(
     <RoiCalculatorModal
-      account={account ?? ''}
+      account={account}
       pid={Number(id)}
       linkLabel=""
       stakingTokenBalance={tokenBalance}

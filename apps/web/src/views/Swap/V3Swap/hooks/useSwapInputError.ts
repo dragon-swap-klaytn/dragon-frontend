@@ -1,11 +1,11 @@
+import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/sdk'
 import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { useTranslation } from '@pancakeswap/localization'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 
-import { safeGetAddress } from 'utils'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
+import { safeGetAddress } from 'utils'
 
 import { useAccount } from 'wagmi'
 import { useSlippageAdjustedAmounts } from './useSlippageAdjustedAmounts'
@@ -35,7 +35,7 @@ const BAD_RECIPIENT_ADDRESSES: string[] = [
 export function useSwapInputError(
   trade: SmartRouterTrade<TradeType> | null | undefined,
   currencyBalances: Balances,
-): string {
+): string | undefined {
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const { independentField, typedValue } = useSwapState()
@@ -76,7 +76,7 @@ export function useSwapInputError(
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-    inputError = t('Insufficient %symbol% balance', { symbol: amountIn.currency.symbol })
+    inputError = t('Insufficient {{symbol}} balance', { symbol: amountIn.currency.symbol })
   }
 
   return inputError

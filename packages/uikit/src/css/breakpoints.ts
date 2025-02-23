@@ -1,14 +1,17 @@
 export const breakpoints = {
-  xs: 370,
-  sm: 576,
-  md: 852,
-  lg: 968,
-  xl: 1080,
-  xxl: 1200,
+  xxs: 360,
+  xs: 480,
+  s: 640,
+  sm: 768,
+  md: 1024,
+  lg: 1280,
+  xl: 1536,
+  xxl: 1920,
 } as const;
 
 export const mediaQueries = {
-  xs: ``,
+  xxs: "",
+  xs: `@media screen and (min-width: ${breakpoints.xs}px)`,
   sm: `@media screen and (min-width: ${breakpoints.sm}px)`,
   md: `@media screen and (min-width: ${breakpoints.md}px)`,
   lg: `@media screen and (min-width: ${breakpoints.lg}px)`,

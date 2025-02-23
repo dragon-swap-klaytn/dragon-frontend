@@ -1,37 +1,39 @@
-import { useBCakeFarmBoosterContract, useMasterchef } from 'hooks/useContract'
-import BN from 'bignumber.js'
-import { useCallback } from 'react'
-import _toNumber from 'lodash/toNumber'
-import { Address, useAccount } from 'wagmi'
-import { publicClient } from 'utils/wagmi'
 import { ChainId } from '@pancakeswap/chains'
-import { bCakeFarmBoosterABI } from 'config/abi/bCakeFarmBooster'
 import { useQuery } from '@tanstack/react-query'
+import BN from 'bignumber.js'
+import { bCakeFarmBoosterABI } from 'config/abi/bCakeFarmBooster'
+import { useBCakeFarmBoosterContract, useMasterchef } from 'hooks/useContract'
+import _toNumber from 'lodash/toNumber'
+import { useCallback } from 'react'
+import { publicClient } from 'utils/wagmi'
+import { Address, useAccount } from 'wagmi'
 import { YieldBoosterState } from './useYieldBoosterState'
 
 const PRECISION_FACTOR = new BN('1000000000000') // 1e12
 
 async function getPublicMultiplier({ farmBoosterContract }): Promise<number> {
-  const [cAResult, caPercisionResult, boostPercisionResult] = await publicClient({ chainId: ChainId.BSC }).multicall({
-    contracts: [
-      {
-        address: farmBoosterContract.address,
-        abi: bCakeFarmBoosterABI,
-        functionName: 'cA',
-      },
-      {
-        address: farmBoosterContract.address,
-        abi: bCakeFarmBoosterABI,
-        functionName: 'CA_PRECISION',
-      },
-      {
-        address: farmBoosterContract.address,
-        abi: bCakeFarmBoosterABI,
-        functionName: 'BOOST_PRECISION',
-      },
-    ],
-    allowFailure: true,
-  })
+  const [cAResult, caPercisionResult, boostPercisionResult] = await publicClient({ chainId: ChainId.KLAYTN }).multicall(
+    {
+      contracts: [
+        {
+          address: farmBoosterContract.address,
+          abi: bCakeFarmBoosterABI,
+          functionName: 'cA',
+        },
+        {
+          address: farmBoosterContract.address,
+          abi: bCakeFarmBoosterABI,
+          functionName: 'CA_PRECISION',
+        },
+        {
+          address: farmBoosterContract.address,
+          abi: bCakeFarmBoosterABI,
+          functionName: 'BOOST_PRECISION',
+        },
+      ],
+      allowFailure: true,
+    },
+  )
 
   if (!cAResult.result || !caPercisionResult.result || !boostPercisionResult) return 0
 
@@ -48,7 +50,7 @@ async function getPublicMultiplier({ farmBoosterContract }): Promise<number> {
 }
 
 async function getUserMultiplier({ farmBoosterContract, account, pid }): Promise<number> {
-  const [multiplierResult, boostPrecisionResult] = await publicClient({ chainId: ChainId.BSC }).multicall({
+  const [multiplierResult, boostPrecisionResult] = await publicClient({ chainId: ChainId.KLAYTN }).multicall({
     contracts: [
       {
         address: farmBoosterContract.address,

@@ -1,5 +1,5 @@
-import BigNumber from "bignumber.js";
 import { useTranslation } from "@pancakeswap/localization";
+import BigNumber from "bignumber.js";
 import { Text, TextProps } from "../../components/Text";
 
 interface IfoPercentageOfTotalProps extends TextProps {
@@ -20,7 +20,7 @@ const IfoPercentageOfTotal: React.FC<React.PropsWithChildren<IfoPercentageOfTota
 
   return (
     <Text fontSize="14px" color="textSubtle" {...props}>
-      {t("%num% of total", { num: `${percentOfUserDisplay}%` })}
+      {t("{{num}} of total", { num: `${percentOfUserDisplay}%` })}
     </Text>
   );
 };

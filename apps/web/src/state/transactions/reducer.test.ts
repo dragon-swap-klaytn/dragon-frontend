@@ -3,9 +3,9 @@ import { createStore, Store } from 'redux'
 import {
   addTransaction,
   checkedTransaction,
+  clearAllChainTransactions,
   clearAllTransactions,
   finalizeTransaction,
-  clearAllChainTransactions,
 } from './actions'
 import reducer, { initialState, TransactionState } from './reducer'
 
@@ -21,7 +21,7 @@ describe('transaction reducer', () => {
       const beforeTime = Date.now()
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC,
+          chainId: ChainId.KLAYTN,
           summary: 'hello world',
           hash: '0x0',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -29,9 +29,9 @@ describe('transaction reducer', () => {
         }),
       )
       const txs = store.getState()
-      expect(txs[ChainId.BSC]).toBeTruthy()
-      expect(txs[ChainId.BSC]?.['0x0']).toBeTruthy()
-      const tx = txs[ChainId.BSC]?.['0x0']
+      expect(txs[ChainId.KLAYTN]).toBeTruthy()
+      expect(txs[ChainId.KLAYTN]?.['0x0']).toBeTruthy()
+      const tx = txs[ChainId.KLAYTN]?.['0x0']
       expect(tx).toBeTruthy()
       expect(tx?.hash).toEqual('0x0')
       expect(tx?.summary).toEqual('hello world')
@@ -45,7 +45,7 @@ describe('transaction reducer', () => {
     it('no op if not valid transaction', () => {
       store.dispatch(
         finalizeTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           hash: '0x0',
           receipt: {
             status: 1,
@@ -65,7 +65,7 @@ describe('transaction reducer', () => {
       store.dispatch(
         addTransaction({
           hash: '0x0',
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           approval: { spender: '0x0', tokenAddress: '0x0' },
           summary: 'hello world',
           from: '0x0',
@@ -74,7 +74,7 @@ describe('transaction reducer', () => {
       const beforeTime = Date.now()
       store.dispatch(
         finalizeTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           hash: '0x0',
           receipt: {
             status: 1,
@@ -88,7 +88,7 @@ describe('transaction reducer', () => {
           },
         }),
       )
-      const tx = store.getState()[ChainId.BSC_TESTNET]?.['0x0']
+      const tx = store.getState()[ChainId.KLAYTN_TESTNET]?.['0x0']
       expect(tx?.summary).toEqual('hello world')
       expect(tx?.confirmedTime).toBeGreaterThanOrEqual(beforeTime)
       expect(tx?.receipt).toEqual({
@@ -108,7 +108,7 @@ describe('transaction reducer', () => {
     it('no op if not valid transaction', () => {
       store.dispatch(
         checkedTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           hash: '0x0',
           blockNumber: 1,
         }),
@@ -119,7 +119,7 @@ describe('transaction reducer', () => {
       store.dispatch(
         addTransaction({
           hash: '0x0',
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           approval: { spender: '0x0', tokenAddress: '0x0' },
           summary: 'hello world',
           from: '0x0',
@@ -127,19 +127,19 @@ describe('transaction reducer', () => {
       )
       store.dispatch(
         checkedTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           hash: '0x0',
           blockNumber: 1,
         }),
       )
-      const tx = store.getState()[ChainId.BSC_TESTNET]?.['0x0']
+      const tx = store.getState()[ChainId.KLAYTN_TESTNET]?.['0x0']
       expect(tx?.lastCheckedBlockNumber).toEqual(1)
     })
     it('never decreases', () => {
       store.dispatch(
         addTransaction({
           hash: '0x0',
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           approval: { spender: '0x0', tokenAddress: '0x0' },
           summary: 'hello world',
           from: '0x0',
@@ -147,19 +147,19 @@ describe('transaction reducer', () => {
       )
       store.dispatch(
         checkedTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           hash: '0x0',
           blockNumber: 3,
         }),
       )
       store.dispatch(
         checkedTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           hash: '0x0',
           blockNumber: 1,
         }),
       )
-      const tx = store.getState()[ChainId.BSC_TESTNET]?.['0x0']
+      const tx = store.getState()[ChainId.KLAYTN_TESTNET]?.['0x0']
       expect(tx?.lastCheckedBlockNumber).toEqual(3)
     })
   })
@@ -168,7 +168,7 @@ describe('transaction reducer', () => {
     it('removes all transactions for the chain', () => {
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC,
+          chainId: ChainId.KLAYTN,
           summary: 'hello world',
           hash: '0x0',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -177,7 +177,7 @@ describe('transaction reducer', () => {
       )
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           summary: 'hello world',
           hash: '0x1',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -185,14 +185,14 @@ describe('transaction reducer', () => {
         }),
       )
       expect(Object.keys(store.getState())).toHaveLength(2)
-      expect(Object.keys(store.getState())).toEqual([String(ChainId.BSC), String(ChainId.BSC_TESTNET)])
-      expect(Object.keys(store.getState()[ChainId.BSC] ?? {})).toEqual(['0x0'])
-      expect(Object.keys(store.getState()[ChainId.BSC_TESTNET] ?? {})).toEqual(['0x1'])
-      store.dispatch(clearAllChainTransactions({ chainId: ChainId.BSC }))
+      expect(Object.keys(store.getState())).toEqual([String(ChainId.KLAYTN), String(ChainId.KLAYTN_TESTNET)])
+      expect(Object.keys(store.getState()[ChainId.KLAYTN] ?? {})).toEqual(['0x0'])
+      expect(Object.keys(store.getState()[ChainId.KLAYTN_TESTNET] ?? {})).toEqual(['0x1'])
+      store.dispatch(clearAllChainTransactions({ chainId: ChainId.KLAYTN }))
       expect(Object.keys(store.getState())).toHaveLength(2)
-      expect(Object.keys(store.getState())).toEqual([String(ChainId.BSC), String(ChainId.BSC_TESTNET)])
-      expect(Object.keys(store.getState()[ChainId.BSC] ?? {})).toEqual([])
-      expect(Object.keys(store.getState()[ChainId.BSC_TESTNET] ?? {})).toEqual(['0x1'])
+      expect(Object.keys(store.getState())).toEqual([String(ChainId.KLAYTN), String(ChainId.KLAYTN_TESTNET)])
+      expect(Object.keys(store.getState()[ChainId.KLAYTN] ?? {})).toEqual([])
+      expect(Object.keys(store.getState()[ChainId.KLAYTN_TESTNET] ?? {})).toEqual(['0x1'])
     })
   })
 
@@ -200,7 +200,7 @@ describe('transaction reducer', () => {
     it('removes all transactions for all chains', () => {
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC,
+          chainId: ChainId.KLAYTN,
           summary: 'hello world',
           hash: '0x0',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -209,7 +209,7 @@ describe('transaction reducer', () => {
       )
       store.dispatch(
         addTransaction({
-          chainId: ChainId.BSC_TESTNET,
+          chainId: ChainId.KLAYTN_TESTNET,
           summary: 'hello world',
           hash: '0x1',
           approval: { tokenAddress: 'abc', spender: 'def' },
@@ -217,9 +217,9 @@ describe('transaction reducer', () => {
         }),
       )
       expect(Object.keys(store.getState())).toHaveLength(2)
-      expect(Object.keys(store.getState())).toEqual([String(ChainId.BSC), String(ChainId.BSC_TESTNET)])
-      expect(Object.keys(store.getState()[ChainId.BSC] ?? {})).toEqual(['0x0'])
-      expect(Object.keys(store.getState()[ChainId.BSC_TESTNET] ?? {})).toEqual(['0x1'])
+      expect(Object.keys(store.getState())).toEqual([String(ChainId.KLAYTN), String(ChainId.KLAYTN_TESTNET)])
+      expect(Object.keys(store.getState()[ChainId.KLAYTN] ?? {})).toEqual(['0x0'])
+      expect(Object.keys(store.getState()[ChainId.KLAYTN_TESTNET] ?? {})).toEqual(['0x1'])
       store.dispatch(clearAllTransactions())
       expect(Object.keys(store.getState())).toHaveLength(0)
     })

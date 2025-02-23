@@ -1,6 +1,5 @@
 import { createFarmFetcher, SerializedFarm, SerializedFarmsState } from '@pancakeswap/farms'
 import { getFarmConfig } from '@pancakeswap/farms/constants'
-import { ChainId } from '@pancakeswap/chains'
 import { createAsyncThunk, createSlice, isAnyOf } from '@reduxjs/toolkit'
 import type {
   UnknownAsyncThunkFulfilledAction,
@@ -12,8 +11,8 @@ import stringify from 'fast-json-stable-stringify'
 import keyBy from 'lodash/keyBy'
 import type { AppState } from 'state'
 import { verifyBscNetwork } from 'utils/verifyBscNetwork'
-import { chains } from 'utils/wagmi'
 import { getViemClients } from 'utils/viem'
+import { chains } from 'utils/wagmi'
 import splitProxyFarms from 'views/Farms/components/YieldBooster/helpers/splitProxyFarms'
 import { Address } from 'wagmi'
 import { resetUserState } from '../global/actions'
@@ -39,6 +38,7 @@ const fetchFarmPublicDataPkg = async ({
     isTestnet: chain.testnet,
     farms: farmsCanFetch.concat(priceHelperLpsConfig),
   })
+
   return [farmsWithPrice, poolLength, regularCakePerBlock, totalRegularAllocPoint]
 }
 
@@ -63,15 +63,16 @@ export const fetchInitialFarmsData = createAsyncThunk<
 >('farms/fetchInitialFarmsData', async ({ chainId }) => {
   return getFarmConfig(chainId).then((farmDataList) => {
     return {
-      data: farmDataList.map((farm) => ({
-        ...farm,
-        userData: {
-          allowance: '0',
-          tokenBalance: '0',
-          stakedBalance: '0',
-          earnings: '0',
-        },
-      })),
+      data:
+        farmDataList?.map((farm) => ({
+          ...farm,
+          userData: {
+            allowance: '0',
+            tokenBalance: '0',
+            stakedBalance: '0',
+            earnings: '0',
+          },
+        })) ?? [],
       chainId,
     }
   })

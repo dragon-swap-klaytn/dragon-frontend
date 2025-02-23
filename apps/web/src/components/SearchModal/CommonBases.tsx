@@ -1,107 +1,89 @@
-import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
-import { AutoColumn, QuestionHelper, Text } from '@pancakeswap/uikit'
+import { QuestionHelper } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { styled } from 'styled-components'
 
-import { SUGGESTED_BASES } from 'config/constants/exchange'
-import { AutoRow } from '../Layout/Row'
+import useRecentSelectedCurrencies from 'hooks/use-recent-selected-currencies'
 import { CommonBasesType } from './types'
 
-const ButtonWrapper = styled.div`
-  display: inline-block;
-  vertical-align: top;
-  margin-right: 10px;
-`
-
-const BaseWrapper = styled.div<{ disable?: boolean }>`
-  border: 1px solid ${({ theme, disable }) => (disable ? 'transparent' : theme.colors.dropdown)};
-  border-radius: 10px;
-  display: flex;
-  padding: 6px;
-  align-items: center;
-  &:hover {
-    cursor: ${({ disable }) => !disable && 'pointer'};
-    background-color: ${({ theme, disable }) => !disable && theme.colors.background};
-  }
-  background-color: ${({ theme, disable }) => disable && theme.colors.dropdown};
-  opacity: ${({ disable }) => disable && '0.4'};
-`
-
-const RowWrapper = styled.div`
-  white-space: nowrap;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  &::-webkit-scrollbar {
-    display: none;
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-`
-
 export default function CommonBases({
-  chainId,
   onSelect,
   selectedCurrency,
   commonBasesType,
 }: {
-  chainId?: ChainId
-  commonBasesType
+  commonBasesType?: string
   selectedCurrency?: Currency | null
   onSelect: (currency: Currency) => void
 }) {
   const native = useNativeCurrency()
   const { t } = useTranslation()
-  const pinTokenDescText = commonBasesType === CommonBasesType.SWAP_LIMITORDER ? t('Common tokens') : t('Common bases')
+
+  const { recentSelectedCurrencies, setRecentSelectedCurrency } = useRecentSelectedCurrencies()
 
   return (
-    <AutoColumn gap="md">
-      <AutoRow>
-        <Text fontSize="14px">{pinTokenDescText}</Text>
+    <div className="pb-4 border-b border-border">
+      <div className="flex items-center space-x-1">
+        <h3 className="text-brand text-xs">{t('Recent tokens')}</h3>
+
         {commonBasesType === CommonBasesType.LIQUIDITY && (
           <QuestionHelper text={t('These tokens are commonly paired with other tokens.')} ml="4px" />
         )}
-      </AutoRow>
-      <RowWrapper>
-        <ButtonWrapper>
-          <BaseWrapper
-            onClick={() => {
-              if (!selectedCurrency || !selectedCurrency.isNative) {
-                onSelect(native)
-              }
-            }}
-            disable={selectedCurrency?.isNative}
-          >
-            <CurrencyLogo currency={native} style={{ marginRight: 8 }} />
-            <Text>{native?.symbol}</Text>
-          </BaseWrapper>
-        </ButtonWrapper>
-        {(chainId ? SUGGESTED_BASES[chainId] || [] : []).map((token: Token) => {
-          const selected = selectedCurrency?.equals(token)
+      </div>
+
+      <div className="flex items-center space-x-2 overflow-x-auto mt-2">
+        <RecentTokenButton
+          onClick={() => onSelect(native)}
+          currency={native}
+          selected={selectedCurrency === native}
+          symbol={native.symbol}
+        />
+
+        {recentSelectedCurrencies.map((currency) => {
+          const address = currency?.address
+          const selected = selectedCurrency?.wrapped?.address.toLocaleLowerCase() === address.toLowerCase()
+
           return (
-            <ButtonWrapper key={`buttonBase#${token.address}`}>
-              <BaseWrapper onClick={() => !selected && onSelect(token)} disable={selected}>
-                <CurrencyLogo currency={token} style={{ marginRight: 8, borderRadius: '50%' }} />
-                <Text>
-                  {token.address === '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'
-                    ? 'USDT(Wormhole)'
-                    : token.address === '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A'
-                    ? 'USDC(Wormhole)'
-                    : token.address === '0x9025095263d1E548dc890A7589A4C78038aC40ab'
-                    ? 'USDT(Stargate)'
-                    : token.address === '0xE2053BCf56D2030d2470Fb454574237cF9ee3D4B'
-                    ? 'USDC(Stargate)'
-                    : token.symbol}
-                </Text>
-              </BaseWrapper>
-            </ButtonWrapper>
+            <RecentTokenButton
+              key={`recentTokenButton:${address}`}
+              onClick={() => {
+                onSelect(currency)
+                setRecentSelectedCurrency(currency as Token)
+              }}
+              currency={currency}
+              address={address}
+              selected={selected}
+              symbol={currency.symbol}
+            />
           )
         })}
-      </RowWrapper>
-    </AutoColumn>
+      </div>
+    </div>
+  )
+}
+
+function RecentTokenButton({
+  onClick,
+  currency,
+  address,
+  selected,
+  symbol,
+}: {
+  onClick: () => void
+  currency?: Currency
+  address?: string
+  selected: boolean
+  symbol: string
+}) {
+  return (
+    <button
+      type="button"
+      className="pl-1 py-1 pr-3 bg-neutral rounded-[20px] hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+      onClick={onClick}
+      disabled={selected}
+    >
+      <CurrencyLogo currency={currency} address={address} />
+      <span className="text-[13px] text-on-surface whitespace-nowrap">{symbol}</span>
+    </button>
   )
 }

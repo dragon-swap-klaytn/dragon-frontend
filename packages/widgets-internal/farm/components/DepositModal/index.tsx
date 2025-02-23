@@ -25,9 +25,9 @@ import { getInterestBreakdown } from "@pancakeswap/utils/compoundApyHelpers";
 import { formatNumber, getDecimalAmount, getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
 import { trimTrailZero } from "@pancakeswap/utils/trimTrailZero";
 import BigNumber from "bignumber.js";
-import _toNumber from "lodash/toNumber";
 import { useCallback, useMemo, useState } from "react";
 import { styled } from "styled-components";
+import { Address } from "viem";
 
 const AnnualRoiContainer = styled(Flex)`
   cursor: pointer;
@@ -42,10 +42,10 @@ const AnnualRoiDisplay = styled(Text)`
 `;
 
 interface DepositModalProps {
-  account: string;
+  account?: Address;
   pid: number;
-  max: BigNumber;
-  stakedBalance: BigNumber;
+  max?: BigNumber;
+  stakedBalance?: BigNumber;
   multiplier?: string;
   lpPrice?: BigNumber;
   lpLabel?: string;
@@ -56,8 +56,7 @@ interface DepositModalProps {
   addLiquidityUrl?: string;
   cakePrice?: BigNumber;
   showActiveBooster?: boolean;
-  lpTotalSupply: BigNumber;
-  bCakeMultiplier?: number | null;
+  lpTotalSupply?: BigNumber;
   showCrossChainFarmWarning?: boolean;
   crossChainWarningText?: string;
   decimals: number;
@@ -71,13 +70,12 @@ interface DepositModalProps {
   onDismiss?: () => void;
   onConfirm: (amount: string) => void;
   handleApprove?: () => void;
-  bCakeCalculatorSlot?: (stakingTokenBalance: string) => React.ReactNode;
 }
 
 const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
   account,
-  max,
-  stakedBalance,
+  max = BIG_ZERO,
+  stakedBalance = BIG_ZERO,
   tokenName = "",
   multiplier,
   displayApr,
@@ -87,7 +85,6 @@ const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
   addLiquidityUrl = "",
   cakePrice = BIG_ZERO,
   showActiveBooster,
-  bCakeMultiplier,
   showCrossChainFarmWarning,
   crossChainWarningText,
   decimals,
@@ -179,15 +176,15 @@ const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
       <ModalV2 isOpen={showRoiCalculator}>
         <RoiCalculatorModal
           account={account}
-          linkLabel={t("Add %symbol%", { symbol: lpLabel })}
+          linkLabel={t("Add {{symbol}}", { symbol: lpLabel })}
           stakingTokenBalance={stakedBalance.plus(max)}
           stakingTokenDecimals={decimals}
           stakingTokenSymbol={tokenName}
           stakingTokenPrice={lpPrice.toNumber()}
           earningTokenPrice={cakePrice.toNumber()}
-          apr={bCakeMultiplier ? apr * bCakeMultiplier : apr}
+          apr={apr}
           multiplier={multiplier}
-          displayApr={bCakeMultiplier ? (_toNumber(displayApr) - apr + apr * bCakeMultiplier).toFixed(2) : displayApr}
+          displayApr={displayApr}
           linkHref={addLiquidityUrl}
           isFarm
           initialValue={val}
@@ -293,7 +290,7 @@ const DepositModal: React.FC<React.PropsWithChildren<DepositModalProps>> = ({
           )}
         </ModalActions>
         <LinkExternal href={addLiquidityUrl} style={{ alignSelf: "center" }}>
-          {t("Add %symbol%", { symbol: tokenName })}
+          {t("Add {{symbol}}", { symbol: tokenName })}
         </LinkExternal>
       </ModalBody>
     </Modal>

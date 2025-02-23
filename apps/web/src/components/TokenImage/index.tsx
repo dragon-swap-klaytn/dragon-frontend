@@ -6,7 +6,7 @@ import {
   TokenPairImage as UIKitTokenPairImage,
   TokenPairImageProps as UIKitTokenPairImageProps,
 } from '@pancakeswap/uikit'
-import getTokenIconSrcFromSs from '@pancakeswap/utils/getTokenIconSrcFromSs'
+import getTokenIconSrc from '@pancakeswap/utils/getTokenIconSrc'
 
 interface TokenPairImageProps extends Omit<UIKitTokenPairImageProps, 'primarySrc' | 'secondarySrc'> {
   primaryToken: Token
@@ -14,8 +14,6 @@ interface TokenPairImageProps extends Omit<UIKitTokenPairImageProps, 'primarySrc
 }
 
 export const tokenImageChainNameMapping = {
-  [ChainId.BSC]: '',
-  [ChainId.ETHEREUM]: 'eth/',
   [ChainId.KLAYTN]: 'klaytn/',
 }
 
@@ -26,8 +24,8 @@ export const TokenPairImage: React.FC<React.PropsWithChildren<TokenPairImageProp
 }) => {
   return (
     <UIKitTokenPairImage
-      primarySrc={getTokenIconSrcFromSs(primaryToken.address) || ''}
-      secondarySrc={getTokenIconSrcFromSs(secondaryToken.address) || ''}
+      primarySrc={getTokenIconSrc(primaryToken.address) || ''}
+      secondarySrc={getTokenIconSrc(secondaryToken.address) || ''}
       {...props}
     />
   )
@@ -38,5 +36,5 @@ interface TokenImageProps extends ImageProps {
 }
 
 export const TokenImage: React.FC<React.PropsWithChildren<TokenImageProps>> = ({ token, ...props }) => {
-  return <UIKitTokenImage src={getTokenIconSrcFromSs(token.address) || ''} {...props} />
+  return <UIKitTokenImage src={getTokenIconSrc(token.address) || ''} {...props} />
 }

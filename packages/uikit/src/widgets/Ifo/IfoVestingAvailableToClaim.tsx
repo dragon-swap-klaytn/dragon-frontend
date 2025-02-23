@@ -1,7 +1,7 @@
-import { useMemo } from "react";
-import BigNumber from "bignumber.js";
 import { useTranslation } from "@pancakeswap/localization";
 import { getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
+import BigNumber from "bignumber.js";
+import { useMemo } from "react";
 import { Text } from "../../components/Text";
 
 interface IfoVestingAvailableToClaimProps {
@@ -27,7 +27,7 @@ const IfoVestingAvailableToClaim: React.FC<React.PropsWithChildren<IfoVestingAva
 
   return (
     <Text fontSize="14px" color="textSubtle">
-      {t("~%num% available to claim at sales end", { num })}
+      {t("~{{num}} available to claim at sales end", { num })}
     </Text>
   );
 };

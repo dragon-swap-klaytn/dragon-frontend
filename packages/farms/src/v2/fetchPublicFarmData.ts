@@ -1,8 +1,8 @@
 import { ChainId } from '@pancakeswap/chains'
-import { Address, PublicClient } from 'viem'
 import chunk from 'lodash/chunk'
-import { SerializedFarmPublicData, SerializedFarmConfig } from '../types'
+import { Address, PublicClient } from 'viem'
 import { nonBSCVaultAddresses } from '../const'
+import { SerializedFarmConfig, SerializedFarmPublicData } from '../types'
 
 const abi = [
   {
@@ -75,7 +75,7 @@ const fetchFarmCalls = (farm: SerializedFarmPublicData, masterChefAddress: strin
 
 export const fetchPublicFarmsData = async (
   farms: SerializedFarmConfig[],
-  chainId = ChainId.BSC,
+  chainId = ChainId.KLAYTN,
   provider: ({ chainId }: { chainId: number }) => PublicClient,
   masterChefAddress: string,
 ) => {

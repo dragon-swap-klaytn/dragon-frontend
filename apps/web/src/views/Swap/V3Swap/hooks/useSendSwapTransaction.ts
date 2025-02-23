@@ -175,11 +175,11 @@ export default function useSendSwapTransaction(
             const translatableWithRecipient =
               trade.tradeType === TradeType.EXACT_OUTPUT
                 ? recipient === account
-                  ? 'Swap max. %inputAmount% %inputSymbol% for %outputAmount% %outputSymbol%'
-                  : 'Swap max. %inputAmount% %inputSymbol% for %outputAmount% %outputSymbol% to %recipientAddress%'
+                  ? 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}}'
+                  : 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
                 : recipient === account
-                ? 'Swap %inputAmount% %inputSymbol% for min. %outputAmount% %outputSymbol%'
-                : 'Swap %inputAmount% %inputSymbol% for min. %outputAmount% %outputSymbol% to %recipientAddress%'
+                ? 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}}'
+                : 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
             addTransaction(response, {
               summary: withRecipient,
               translatableSummary: {

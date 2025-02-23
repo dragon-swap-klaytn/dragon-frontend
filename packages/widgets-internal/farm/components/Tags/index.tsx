@@ -1,32 +1,32 @@
 import { useTranslation } from "@pancakeswap/localization";
-import React, { memo } from "react";
-import type { FeeAmount } from "@pancakeswap/v3-sdk";
 import {
-  Text,
-  TooltipText,
+  AlpIcon,
+  ArbitrumIcon,
+  AutoRenewIcon,
+  BaseIcon,
+  BinanceChainIcon,
+  BlockIcon,
+  CheckmarkCircleIcon,
+  CommunityIcon,
+  CurrencyIcon,
+  EthChainIcon,
+  LineaIcon,
+  LockIcon,
+  RefreshIcon,
+  RocketIcon,
   Tag,
   TagProps,
-  useTooltip,
-  AutoRenewIcon,
-  BlockIcon,
-  CommunityIcon,
-  RefreshIcon,
+  Text,
   TimerIcon,
+  TooltipText,
+  useTooltip,
   VerifiedIcon,
   VoteIcon,
-  LockIcon,
-  RocketIcon,
-  CheckmarkCircleIcon,
-  CurrencyIcon,
-  BinanceChainIcon,
-  EthChainIcon,
   ZkEVMIcon,
   ZkSyncIcon,
-  LineaIcon,
-  BaseIcon,
-  ArbitrumIcon,
-  AlpIcon,
 } from "@pancakeswap/uikit";
+import type { FeeAmount } from "@pancakeswap/v3-sdk";
+import React, { memo } from "react";
 
 const CoreTag: React.FC<React.PropsWithChildren<TagProps>> = (props) => {
   const { t } = useTranslation();

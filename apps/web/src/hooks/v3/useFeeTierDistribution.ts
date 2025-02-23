@@ -61,16 +61,15 @@ export function useFeeTierDistribution(
         ? {
             [FeeAmount.LOWEST]:
               poolStateVeryLow === PoolState.EXISTS ? (distributions[FeeAmount.LOWEST] ?? 0) * 100 : undefined,
-            [FeeAmount.LOW]:
-              poolStateLow === PoolState.EXISTS ? (distributions[FeeAmount.LOW] ?? 0) * 100 : undefined,
+            [FeeAmount.LOW]: poolStateLow === PoolState.EXISTS ? (distributions[FeeAmount.LOW] ?? 0) * 100 : undefined,
             [FeeAmount.MEDIUMLOW]:
               poolStateMediumLow === PoolState.EXISTS ? (distributions[FeeAmount.MEDIUMLOW] ?? 0) * 100 : undefined,
             [FeeAmount.MEDIUM]:
               poolStateMedium === PoolState.EXISTS ? (distributions[FeeAmount.MEDIUM] ?? 0) * 100 : undefined,
             [FeeAmount.HIGH]:
               poolStateHigh === PoolState.EXISTS ? (distributions[FeeAmount.HIGH] ?? 0) * 100 : undefined,
-          [FeeAmount.HIGHEST]:
-            poolStateHighest === PoolState.EXISTS ? (distributions[FeeAmount.HIGHEST] ?? 0) * 100 : undefined,
+            [FeeAmount.HIGHEST]:
+              poolStateHighest === PoolState.EXISTS ? (distributions[FeeAmount.HIGHEST] ?? 0) * 100 : undefined,
           }
         : undefined
 
@@ -151,17 +150,12 @@ function usePoolTVL(token0: Token | undefined, token1: Token | undefined) {
         tvlByFeeTier[FeeAmount.LOWEST][1],
         sumToken1Tvl,
       ),
-      [FeeAmount.LOW]: mean(
-        tvlByFeeTier[FeeAmount.LOW][0],
-        sumToken0Tvl,
-        tvlByFeeTier[FeeAmount.LOW][1],
-        sumToken1Tvl
-      ),
+      [FeeAmount.LOW]: mean(tvlByFeeTier[FeeAmount.LOW][0], sumToken0Tvl, tvlByFeeTier[FeeAmount.LOW][1], sumToken1Tvl),
       [FeeAmount.MEDIUMLOW]: mean(
         tvlByFeeTier[FeeAmount.MEDIUMLOW][0],
         sumToken0Tvl,
         tvlByFeeTier[FeeAmount.MEDIUMLOW][1],
-        sumToken1Tvl
+        sumToken1Tvl,
       ),
       [FeeAmount.MEDIUM]: mean(
         tvlByFeeTier[FeeAmount.MEDIUM][0],

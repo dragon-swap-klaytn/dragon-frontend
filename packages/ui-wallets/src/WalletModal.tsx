@@ -1,33 +1,21 @@
 import { usePreloadImages } from '@pancakeswap/hooks'
-import { useTranslation } from '@pancakeswap/localization'
+import { Trans, useTranslation } from '@pancakeswap/localization'
 import {
-  AtomBox,
-  Button,
-  Heading,
+  ConnectorId,
+  ConnectorIds,
   Image,
-  LinkExternal,
-  ModalV2,
+  Modal,
   ModalV2Props,
-  ModalWrapper,
-  MoreHorizontalIcon,
   SvgProps,
-  Tab,
-  TabMenu,
-  Text,
-  WarningIcon,
+  WalletId,
+  WalletIds,
 } from '@pancakeswap/uikit'
+import clsx from 'clsx'
 import { atom, useAtom } from 'jotai'
-import { PropsWithChildren, Suspense, lazy, useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import {
-  desktopWalletSelectionClass,
-  modalWrapperClass,
-  promotedGradientClass,
-  walletIconClass,
-  walletSelectWrapperClass,
-} from './WalletModal.css'
 
-const StepIntro = lazy(() => import('./components/Intro'))
+export const QR_TIMEOUT = 5 * 60
 
 const Qrcode = lazy(() => import('./components/QRCode'))
 
@@ -40,26 +28,26 @@ type DeviceLink = {
 
 type LinkOfDevice = string | DeviceLink
 
-export type WalletConfigV2<T = unknown> = {
-  id: string
+export type WalletConfigV2 = {
+  id: WalletId
   title: string
   icon: string | React.FC<React.PropsWithChildren<SvgProps>>
-  connectorId: T
+  connectorId: ConnectorId
   deepLink?: string
-  installed?: boolean
+  installed: boolean
   guide?: LinkOfDevice
-  downloadLink?: LinkOfDevice
+  downloadLink?: string
   mobileOnly?: boolean
-  qrCode?: () => Promise<string>
+  qrCode?: () => Promise<string | string[]>
+  cancelRequest?: (requestKey: string) => void
   isNotExtension?: boolean
 }
 
-interface WalletModalV2Props<T = unknown> extends ModalV2Props {
-  wallets: WalletConfigV2<T>[]
-  login: (connectorId: T) => Promise<any>
-  docLink: string
-  docText: string
+interface WalletModalV2Props extends ModalV2Props {
+  wallets: WalletConfigV2[]
+  login: (connectorId: ConnectorId) => Promise<any>
   onWalletConnectCallBack?: (walletTitle?: string) => void
+  walletConnectNoQrCodeConnector: any
 }
 
 export class WalletConnectorNotFoundError extends Error {}
@@ -68,233 +56,40 @@ export class WalletSwitchChainError extends Error {}
 
 const errorAtom = atom<string>('')
 
-const selectedWalletAtom = atom<WalletConfigV2<unknown> | null>(null)
+const selectedWalletAtom = atom<WalletConfigV2 | null>(null)
 
-export function useSelectedWallet<T>() {
-  // @ts-ignore
-  return useAtom<WalletConfigV2<T> | null>(selectedWalletAtom)
-}
-
-const TabContainer = ({ children, docLink, docText }: PropsWithChildren<{ docLink: string; docText: string }>) => {
-  const [index, setIndex] = useState(0)
-  const { t } = useTranslation()
-
-  return (
-    <AtomBox position="relative" zIndex="modal" className={modalWrapperClass}>
-      <AtomBox position="absolute" style={{ top: '-50px' }}>
-        {/* @ts-ignore */}
-        <TabMenu activeIndex={index} onItemClick={setIndex} gap="0px" isColorInverse isShowBorderBottom={false}>
-          <Tab>{t('Connect Wallet')}</Tab>
-        </TabMenu>
-      </AtomBox>
-      <AtomBox
-        display="flex"
-        position="relative"
-        background="gradientCardHeader"
-        borderRadius="card"
-        borderBottomRadius={{
-          xs: '0',
-          md: 'card',
-        }}
-        zIndex="modal"
-        width="100%"
-      >
-        {index === 0 && children}
-        {index === 1 && (
-          <Suspense>
-            <StepIntro docLink={docLink} docText={docText} />
-          </Suspense>
-        )}
-      </AtomBox>
-    </AtomBox>
-  )
+export function useSelectedWallet(): [WalletConfigV2 | null, Dispatch<SetStateAction<WalletConfigV2 | null>>] {
+  return useAtom(selectedWalletAtom)
 }
 
 const MOBILE_DEFAULT_DISPLAY_COUNT = 8
 
-function MobileModal<T>({
-  wallets,
-  connectWallet,
-  docLink,
-  docText,
-}: Pick<WalletModalV2Props<T>, 'wallets' | 'docLink' | 'docText'> & {
-  connectWallet: (wallet: WalletConfigV2<T>) => void
-}) {
-  const { t } = useTranslation()
-
-  const [selected] = useSelectedWallet()
-  const [error] = useAtom(errorAtom)
-
-  const installedWallets: WalletConfigV2<T>[] = wallets.filter((w) => w.installed)
-  const walletsToShow: WalletConfigV2<T>[] = wallets.filter((w) => {
-    if (installedWallets.length) {
-      return w.installed
-    }
-    return w.installed !== false || w.deepLink
-  })
-
-  return (
-    <AtomBox width="100%">
-      {error ? (
-        <AtomBox
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          style={{ gap: '24px' }}
-          textAlign="center"
-          p="24px"
-        >
-          {selected && typeof selected.icon === 'string' && <Image src={selected.icon} width={108} height={108} />}
-          <div style={{ maxWidth: '246px' }}>
-            <ErrorMessage message={error} />
-          </div>
-        </AtomBox>
-      ) : (
-        <Text color="textSubtle" small p="24px">
-          {t(
-            'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
-          )}
-        </Text>
-      )}
-      <AtomBox flex={1} py="16px" style={{ maxHeight: '230px' }} overflow="auto">
-        <WalletSelect
-          displayCount={MOBILE_DEFAULT_DISPLAY_COUNT}
-          wallets={wallets}
-          onClick={(wallet) => {
-            connectWallet(wallet)
-            if (wallet.deepLink && wallet.installed === false) {
-              window.open(wallet.deepLink)
-            }
-          }}
-        />
-      </AtomBox>
-      <AtomBox px="48px">
-        <Text color="textSubtle" small pt="24px" pb="32px">
-          By connecting a wallet, you agree to Dragonswap{' '}
-          <a href="/terms" style={{ fontWeight: 'bold' }}>
-            Terms of Service
-          </a>
-        </Text>
-      </AtomBox>
-      <AtomBox p="24px" borderTop="1">
-        <AtomBox>
-          <Text textAlign="center" color="textSubtle" as="p" mb="24px">
-            {t('Haven’t got a crypto wallet yet?')}
-          </Text>
-        </AtomBox>
-        <Button as="a" href={docLink} variant="subtle" width="100%" external>
-          {docText}
-        </Button>
-      </AtomBox>
-    </AtomBox>
-  )
+export enum WalletStorageKey {
+  WALLET = 'wallet',
+  CONNECTOR = 'connector',
+  ADDRESS = 'address',
 }
-
-function WalletSelect<T>({
-  wallets,
-  onClick,
-  displayCount = 9,
-}: {
-  wallets: WalletConfigV2<T>[]
-  onClick: (wallet: WalletConfigV2<T>) => void
-  displayCount?: number
-}) {
-  const { t } = useTranslation()
-  const [showMore, setShowMore] = useState(false)
-  const walletDisplayCount = wallets.length > displayCount ? displayCount - 1 : displayCount
-  const walletsToShow = showMore ? wallets : wallets.slice(0, walletDisplayCount)
-  const [selected] = useSelectedWallet()
-  return (
-    <AtomBox
-      display="grid"
-      overflowY="auto"
-      overflowX="hidden"
-      px={{ xs: '16px', sm: '48px' }}
-      pb="12px"
-      className={walletSelectWrapperClass}
-    >
-      {walletsToShow.map((wallet) => {
-        const isImage = typeof wallet.icon === 'string'
-        const Icon = wallet.icon
-
-        return (
-          <Button
-            key={wallet.id}
-            variant="text"
-            height="auto"
-            as={AtomBox}
-            display="flex"
-            alignItems="center"
-            style={{ justifyContent: 'flex-start', letterSpacing: 'normal', padding: '0' }}
-            flexDirection="column"
-            onClick={() => onClick(wallet)}
-          >
-            <AtomBox className={wallet.installed && promotedGradientClass} p="2px" borderRadius="12px" mb="4px">
-              <AtomBox
-                bgc="dropdown"
-                display="flex"
-                position="relative"
-                justifyContent="center"
-                alignItems="center"
-                className={walletIconClass}
-                style={{ borderRadius: '13px' }}
-                overflow="hidden"
-              >
-                {isImage ? (
-                  <Image src={Icon as string} width={50} height={50} />
-                ) : (
-                  <Icon width={24} height={24} color="textSubtle" />
-                )}
-                {wallet.id === selected?.id && (
-                  <AtomBox position="absolute" inset="0px" bgc="secondary" opacity="0.5" borderRadius="12px" />
-                )}
-              </AtomBox>
-            </AtomBox>
-            <Text fontSize="12px" textAlign="center">
-              {wallet.title}
-            </Text>
-          </Button>
-        )
-      })}
-      {!showMore && wallets.length > walletDisplayCount && (
-        <AtomBox display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-          <Button height="auto" variant="text" as={AtomBox} flexDirection="column" onClick={() => setShowMore(true)}>
-            <AtomBox
-              className={walletIconClass}
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              bgc="dropdown"
-            >
-              <MoreHorizontalIcon color="text" />
-            </AtomBox>
-            <Text fontSize="12px" textAlign="center" mt="4px">
-              {t('More')}
-            </Text>
-          </Button>
-        </AtomBox>
-      )}
-    </AtomBox>
-  )
-}
-
-export const walletLocalStorageKey = 'wallet'
-
-export const addressLocalStorageKey = 'address'
 
 const lastUsedWalletNameAtom = atom<string>('')
 
 lastUsedWalletNameAtom.onMount = (set) => {
-  const preferred = localStorage?.getItem(walletLocalStorageKey)
+  const preferred = localStorage?.getItem(WalletStorageKey.WALLET)
   if (preferred) {
     set(preferred)
   }
 }
 
-function sortWallets<T>(wallets: WalletConfigV2<T>[], lastUsedWalletName: string | null) {
+function sortWallets(wallets: WalletConfigV2[], lastUsedWalletName: string | null) {
   const sorted = [...wallets].sort((a, b) => {
-    if (a.installed === b.installed) return 0
-    return a.installed === true ? -1 : 1
+    if (!a.installed && b.installed) {
+      return 1
+    }
+
+    if ((!a.installed && !b.installed) || (a.installed && b.installed)) {
+      return a.title.localeCompare(b.title)
+    }
+
+    return -1
   })
 
   if (!lastUsedWalletName) {
@@ -305,115 +100,22 @@ function sortWallets<T>(wallets: WalletConfigV2<T>[], lastUsedWalletName: string
   return [foundLastUsedWallet, ...sorted.filter((w) => w.id !== foundLastUsedWallet.id)]
 }
 
-function DesktopModal<T>({
-  wallets: wallets_,
-  connectWallet,
-  docLink,
-  docText,
-}: Pick<WalletModalV2Props<T>, 'wallets' | 'docLink' | 'docText'> & {
-  connectWallet: (wallet: WalletConfigV2<T>) => void
-}) {
-  const wallets: WalletConfigV2<T>[] = wallets_.filter((w) => {
-    return w.installed !== false || (!w.installed && (w.guide || w.downloadLink || w.qrCode))
-  })
-
-  const [selected] = useSelectedWallet<T>()
-  const [error] = useAtom(errorAtom)
-  const [qrCode, setQrCode] = useState<string | undefined>(undefined)
-  const { t } = useTranslation()
-
-  const connectToWallet = (wallet: WalletConfigV2<T>) => {
-    connectWallet(wallet)
-  }
-
-  return (
-    <>
-      <AtomBox
-        display="flex"
-        flexDirection="column"
-        bg="backgroundAlt"
-        py="32px"
-        zIndex="modal"
-        borderRadius="card"
-        className={desktopWalletSelectionClass}
-      >
-        <AtomBox px="48px">
-          <Heading color="color" as="h4">
-            {t('Connect Wallet')}
-          </Heading>
-          <Text color="textSubtle" small pt="24px" pb="32px">
-            {t(
-              'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
-            )}
-          </Text>
-        </AtomBox>
-        <WalletSelect
-          wallets={wallets}
-          onClick={(w) => {
-            connectToWallet(w)
-            setQrCode(undefined)
-            if (w.qrCode) {
-              w.qrCode().then(
-                (uri) => {
-                  setQrCode(uri)
-                },
-                () => {
-                  // do nothing.
-                },
-              )
-            }
-          }}
-        />
-        <AtomBox px="48px">
-          <Text color="textSubtle" small pt="24px" pb="32px">
-            By connecting a wallet, you agree to Dragonswap{' '}
-            <a href="/terms" style={{ fontWeight: 'bold' }}>
-              Terms of Service
-            </a>
-          </Text>
-        </AtomBox>
-      </AtomBox>
-      <AtomBox
-        flex={1}
-        mx="24px"
-        display={{
-          xs: 'none',
-          sm: 'flex',
-        }}
-        justifyContent="center"
-        flexDirection="column"
-        alignItems="center"
-      >
-        <AtomBox display="flex" flexDirection="column" alignItems="center" style={{ gap: '24px' }} textAlign="center">
-          {!selected && <Intro docLink={docLink} docText={docText} />}
-          {selected && selected.installed !== false && (
-            <>
-              {typeof selected.icon === 'string' && <Image src={selected.icon} width={108} height={108} />}
-              <Heading as="h1" fontSize="20px" color="secondary">
-                {t('Opening')} {selected.title}
-              </Heading>
-              {error ? (
-                <ErrorContent message={error} onRetry={() => connectToWallet(selected)} />
-              ) : (
-                <Text>{t('Please confirm in %wallet%', { wallet: selected.title })}</Text>
-              )}
-            </>
-          )}
-          {selected && selected.installed === false && <NotInstalled qrCode={qrCode} wallet={selected} />}
-        </AtomBox>
-      </AtomBox>
-    </>
-  )
-}
-
-export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
-  const { wallets: _wallets, login, docLink, docText, onWalletConnectCallBack, ...rest } = props
-
+export function WalletModalV2(props: WalletModalV2Props) {
+  const {
+    wallets: _wallets,
+    login,
+    onWalletConnectCallBack,
+    onDismiss,
+    walletConnectNoQrCodeConnector,
+    ...rest
+  } = props
   const [lastUsedWalletName] = useAtom(lastUsedWalletNameAtom)
 
   const wallets = useMemo(() => sortWallets(_wallets, lastUsedWalletName), [_wallets, lastUsedWalletName])
-  const [, setSelected] = useSelectedWallet<T>()
-  const [, setError] = useAtom(errorAtom)
+  const [selected, setSelected] = useSelectedWallet()
+  const [error, setError] = useAtom(errorAtom)
+  const [qrCode, setQrCode] = useState<string | undefined>(undefined)
+  const requestKeyRef = useRef<string | undefined>(undefined)
   const { t } = useTranslation()
 
   const imageSources = useMemo(
@@ -421,23 +123,127 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
     [wallets],
   )
 
+  const init = useCallback(() => {
+    setSelected(null)
+    setQrCode(undefined)
+    setError('')
+    if (remainTimeIntervalIdRef.current) {
+      clearInterval(remainTimeIntervalIdRef.current)
+    }
+    setRemainTime(QR_TIMEOUT)
+
+    const klipWallet = wallets.find((w) => w.id === WalletIds.klip)
+    const requestKey = requestKeyRef.current
+    if (klipWallet && requestKey) {
+      klipWallet.cancelRequest?.(requestKey)
+    }
+
+    requestKeyRef.current = undefined
+  }, [setError, setQrCode, wallets, setSelected])
+
+  useEffect(() => {
+    return () => {
+      init()
+    }
+  }, [init])
+
   usePreloadImages(imageSources.slice(0, MOBILE_DEFAULT_DISPLAY_COUNT))
 
-  const connectWallet = (wallet: WalletConfigV2<T>) => {
-    setSelected(wallet)
-    setError('')
-    if (wallet.installed !== false || wallet.connectorId === 'klip') {
+  const remainTimeIntervalIdRef = useRef<NodeJS.Timeout | null>(null)
+  const [remainTime, setRemainTime] = useState(QR_TIMEOUT)
+
+  useEffect(() => {
+    if (!qrCode || !selected || !selected.qrCode) {
+      if (remainTimeIntervalIdRef.current) {
+        clearInterval(remainTimeIntervalIdRef.current)
+      }
+
+      return
+    }
+
+    let _timeout = QR_TIMEOUT
+
+    remainTimeIntervalIdRef.current = setInterval(() => {
+      if (_timeout <= 0) {
+        setQrCode(undefined)
+        setSelected(null)
+        clearInterval(remainTimeIntervalIdRef.current as NodeJS.Timeout)
+      }
+
+      setRemainTime(_timeout--)
+    }, 1_000)
+  }, [qrCode, selected, setSelected, setRemainTime])
+
+  const connectWithQrCode = useCallback(
+    (wallet: WalletConfigV2) => {
+      if (!wallet.qrCode) return
+
+      setError('')
+
+      wallet.qrCode().then(
+        (uri) => {
+          setSelected(wallet)
+          setQrCode(uri as string)
+
+          if (walletConnectNoQrCodeConnector) {
+            const removeListeners = () => {
+              walletConnectNoQrCodeConnector.removeListener('connect')
+              walletConnectNoQrCodeConnector.removeListener('error')
+            }
+
+            walletConnectNoQrCodeConnector.addListener('connect', (res: any) => {
+              const account = res?.account
+              if (!account) {
+                return
+              }
+
+              localStorage?.setItem(WalletStorageKey.WALLET, wallet.id)
+              localStorage?.setItem(WalletStorageKey.CONNECTOR, ConnectorIds.walletconnect)
+              localStorage?.setItem(WalletStorageKey.ADDRESS, account)
+
+              setSelected(null)
+              removeListeners()
+            })
+            walletConnectNoQrCodeConnector.addListener('error', (e: any) => {
+              console.error('[walletConnectNoQrCodeConnector] connect error', e)
+              setSelected(null)
+              removeListeners()
+            })
+          }
+        },
+        () => {
+          // do nothing.
+        },
+      )
+    },
+    [walletConnectNoQrCodeConnector, setQrCode, setSelected, setError],
+  )
+
+  const connectWallet = useCallback(
+    (wallet: WalletConfigV2) => {
       login(wallet.connectorId)
         .then((v) => {
+          requestKeyRef.current = undefined
           if (v) {
-            localStorage?.setItem(walletLocalStorageKey, wallet.title)
-            localStorage?.setItem(addressLocalStorageKey, v.account)
+            localStorage?.setItem(WalletStorageKey.WALLET, wallet.id)
+            localStorage?.setItem(WalletStorageKey.CONNECTOR, wallet.connectorId)
+            localStorage?.setItem(WalletStorageKey.ADDRESS, v.account)
 
             try {
               onWalletConnectCallBack?.(wallet.title)
+              onDismiss?.()
             } catch (e) {
               console.error(wallet.title, e)
+            } finally {
+              if (remainTimeIntervalIdRef.current) {
+                clearInterval(remainTimeIntervalIdRef.current)
+              }
+
+              setSelected(null)
+              setError('')
             }
+          } else {
+            init()
           }
         })
         .catch((err) => {
@@ -449,91 +255,234 @@ export function WalletModalV2<T = unknown>(props: WalletModalV2Props<T>) {
             setError(t('Error connecting, please authorize wallet to access.'))
           }
         })
-    }
-  }
-
-  return (
-    <ModalV2 closeOnOverlayClick disableOutsidePointerEvents={false} {...rest}>
-      <ModalWrapper onDismiss={props.onDismiss} style={{ overflow: 'visible', border: 'none' }}>
-        <AtomBox position="relative">
-          <TabContainer docLink={docLink} docText={docText}>
-            {isMobile ? (
-              <MobileModal connectWallet={connectWallet} wallets={wallets} docLink={docLink} docText={docText} />
-            ) : (
-              <DesktopModal connectWallet={connectWallet} wallets={wallets} docLink={docLink} docText={docText} />
-            )}
-          </TabContainer>
-        </AtomBox>
-      </ModalWrapper>
-    </ModalV2>
+    },
+    [init, login, onDismiss, onWalletConnectCallBack, setError, setSelected, t],
   )
-}
 
-const Intro = ({ docLink, docText }: { docLink: string; docText: string }) => {
-  const { t } = useTranslation()
-  return (
-    <>
-      <Heading as="h1" fontSize="20px" color="secondary">
-        {t('Haven’t got a wallet yet?')}
-      </Heading>
-      {/* <Image src="https://cdn.pancakeswap.com/wallets/wallet_intro.png" width={198} height={178} /> */}
-      <Button as={LinkExternal} color="backgroundAlt" variant="subtle" href={docLink}>
-        {docText}
-      </Button>
-    </>
+  const walletOnClick = useCallback(
+    (wallet: WalletConfigV2) => {
+      setSelected(wallet)
+      setError('')
+
+      if (!isMobile && !wallet.installed && wallet.downloadLink) {
+        window.open(getDesktopLink(wallet.downloadLink))
+        return
+      }
+
+      if (isMobile) {
+        switch (wallet.id) {
+          case WalletIds.okxwallet: {
+            const ua = navigator.userAgent
+            const isOKApp = /OKApp/i.test(ua)
+
+            if (isOKApp) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.open(wallet.deepLink)
+            }
+
+            break
+          }
+          case WalletIds.tokenpocket: {
+            if (window.tokenpocket) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.location.href = wallet.deepLink ?? ''
+
+              const clearTimers = () => {
+                clearInterval(check)
+                clearTimeout(timer)
+              }
+
+              const isHideWeb = () => {
+                if (
+                  ('webkitHidden' in document && document.webkitHidden) ||
+                  ('hidden' in document && document.hidden)
+                ) {
+                  clearTimers()
+                }
+              }
+
+              const check = setInterval(isHideWeb, 10)
+              const redirectStore = () => {
+                // eslint-disable-next-line
+                if (window.confirm(t('Would you like to proceed to the app installation page?'))) {
+                  window.open(wallet.downloadLink || '')
+                }
+              }
+
+              const timer = setTimeout(redirectStore, 1_000)
+            }
+            break
+          }
+          case WalletIds.metamask: {
+            if (window.ethereum) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.open(wallet.deepLink)
+            }
+
+            break
+          }
+          case WalletIds.kaiawallet: {
+            if (window.klaytn || window.caver) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else {
+              window.open(wallet.deepLink)
+            }
+
+            break
+          }
+          default: {
+            connectWallet(wallet)
+            setQrCode(undefined)
+          }
+        }
+      } else {
+        switch (wallet.id) {
+          case WalletIds.tokenpocket: {
+            if (window.tokenpocket) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else if (wallet.qrCode) {
+              connectWithQrCode(wallet)
+            }
+
+            break
+          }
+          case WalletIds.okxwallet: {
+            if (window.okxwallet) {
+              connectWallet(wallet)
+              setQrCode(undefined)
+            } else if (wallet.qrCode) {
+              connectWithQrCode(wallet)
+            }
+
+            break
+          }
+          case WalletIds.klip: {
+            connectWallet(wallet)
+            setQrCode(undefined)
+
+            if (wallet.qrCode) {
+              wallet.qrCode().then(
+                ([uri, _requestKey]) => {
+                  setQrCode(uri)
+                  requestKeyRef.current = _requestKey
+                },
+                () => {
+                  // do nothing.
+                },
+              )
+            }
+
+            break
+          }
+          default: {
+            connectWallet(wallet)
+            setQrCode(undefined)
+          }
+        }
+      }
+    },
+    [connectWallet, setQrCode, setSelected, t, connectWithQrCode, setError],
   )
-}
 
-const NotInstalled = ({ wallet, qrCode }: { wallet: WalletConfigV2; qrCode?: string }) => {
-  const { t } = useTranslation()
   return (
-    <>
-      <Heading as="h1" fontSize="20px" color="secondary">
-        {t('Please Scan the QR Code through %wallet%', { wallet: wallet.title })}
-      </Heading>
-      {qrCode && (
-        <Suspense>
-          <AtomBox overflow="hidden" borderRadius="card" style={{ width: '288px', height: '288px' }}>
-            <Qrcode url={qrCode} image={typeof wallet.icon === 'string' ? wallet.icon : undefined} />
-          </AtomBox>
-        </Suspense>
+    <Modal title={t('Connect Wallet')} onDismiss={onDismiss} {...rest}>
+      {!(qrCode && selected) && (
+        <p className="text-sm text-on-surface">
+          {t(
+            'Start by connecting with one of the wallets below. Be sure to store your private keys or seed phrase securely. Never share them with anyone.',
+          )}
+        </p>
       )}
-      {!qrCode && !wallet.isNotExtension && wallet.id !== 'klip' && (
-        <Text maxWidth="246px" m="auto">
-          {t('Please install the %wallet% browser extension to connect the %wallet% wallet.', {
-            wallet: wallet.title,
+
+      {qrCode && selected ? (
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex items-center justify-center">
+            <Suspense>
+              <div className="w-72 h-72 rounded-xl overflow-hidden">
+                <Qrcode url={qrCode} image={typeof selected.icon === 'string' ? selected.icon : undefined} />
+              </div>
+            </Suspense>
+          </div>
+
+          {remainTime > 7 && (
+            <p className="text-sm text-on-surface-brand text-center">{`${Math.floor(remainTime / 60)}:${String(
+              remainTime % 60,
+            ).padStart(2, '0')}`}</p>
+          )}
+
+          <button
+            type="button"
+            className="text-sm h-10 px-4 bg-neutral text-on-surface rounded-2xl self-end"
+            onClick={init}
+          >
+            {t('Cancel')}
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-col space-y-1 max-h-[300px] md:max-h-[80vh] overflow-y-auto">
+          {wallets.map((wallet) => {
+            const isImage = typeof wallet.icon === 'string'
+            const Icon = wallet.icon
+
+            return (
+              <button
+                key={wallet.title}
+                type="button"
+                className={clsx('p-3 flex items-center justify-between rounded-xl text-on-surface hover:opacity-70', {
+                  'bg-brand': selected?.id === wallet.id,
+                  'bg-neutral': selected?.id !== wallet.id,
+                })}
+                onClick={() => walletOnClick(wallet)}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-dropdown rounded-lg overflow-hidden">
+                    {isImage ? (
+                      <Image src={Icon as string} width={50} height={50} />
+                    ) : (
+                      <Icon width={24} height={24} color="textSubtle" />
+                    )}
+                  </div>
+
+                  <span>{wallet.title}</span>
+                </div>
+
+                {wallet.installed === false && wallet.downloadLink && (
+                  <div className="px-1.5 py-0.5 rounded-md bg-transparent border text-xs ml-1">
+                    {t('not installed')}
+                  </div>
+                )}
+              </button>
+            )
           })}
-        </Text>
+        </div>
       )}
-      {wallet.guide && (
-        <Button variant="subtle" as="a" href={getDesktopLink(wallet.guide)} external>
-          {getDesktopText(wallet.guide, t('Setup Guide'))}
-        </Button>
-      )}
-      {wallet.downloadLink && (
-        <Button variant="subtle" as="a" href={getDesktopLink(wallet.downloadLink)} external>
-          {getDesktopText(wallet.downloadLink, t('Install'))}
-        </Button>
-      )}
-    </>
-  )
-}
 
-const ErrorMessage = ({ message }: { message: string }) => (
-  <Text bold color="failure">
-    <WarningIcon width="16px" color="failure" style={{ verticalAlign: 'middle' }} /> {message}
-  </Text>
-)
+      {!(qrCode && selected) && (
+        <p className="text-sm text-on-surface mt-4">
+          <Trans
+            i18nKey="wallet-connect-terms"
+            t={t}
+            components={{
+              href: (
+                <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
+                  {t('Terms Of Service')}
+                </a>
+              ),
+            }}
+          />
+        </p>
+      )}
 
-const ErrorContent = ({ onRetry, message }: { onRetry: () => void; message: string }) => {
-  const { t } = useTranslation()
-  return (
-    <>
-      <ErrorMessage message={message} />
-      <Button variant="subtle" onClick={onRetry}>
-        {t('Retry')}
-      </Button>
-    </>
+      {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
+    </Modal>
   )
 }
 
@@ -543,10 +492,3 @@ const getDesktopLink = (linkDevice: LinkOfDevice) =>
     : typeof linkDevice.desktop === 'string'
     ? linkDevice.desktop
     : linkDevice.desktop?.url
-
-const getDesktopText = (linkDevice: LinkOfDevice, fallback: string) =>
-  typeof linkDevice === 'string'
-    ? fallback
-    : typeof linkDevice.desktop === 'string'
-    ? fallback
-    : linkDevice.desktop?.text ?? fallback

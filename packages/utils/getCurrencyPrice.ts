@@ -1,8 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
-
-const PRICE_API = 'https://alpha.wallet-api.pancakeswap.com/v1/prices/list/'
-
-const zeroAddress = '0x0000000000000000000000000000000000000000' as const
+import { ZERO_ADDRESS } from '@pancakeswap/uikit'
+import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 
 // duck typing for native currency, token, token info
 export type CurrencyParams =
@@ -26,7 +24,7 @@ export function getCurrencyKey(currencyParams?: CurrencyParams): CurrencyKey | u
   }
 
   if ('isNative' in currencyParams && currencyParams.isNative === true) {
-    return `${currencyParams.chainId}:${zeroAddress}`
+    return `${currencyParams.chainId}:${ZERO_ADDRESS}`
   }
   const { chainId, address } = currencyParams
   return `${chainId}:${address.toLowerCase()}`
@@ -44,35 +42,45 @@ export function getCurrencyListKey(currencyListParams?: CurrencyParams[]): strin
   return uniqueKeys.join(',')
 }
 
-function getRequestUrl(params?: CurrencyParams | CurrencyParams[]): string | undefined {
-  if (!params) {
-    return undefined
-  }
-  const infoList = Array.isArray(params) ? params : [params]
-  const key = getCurrencyListKey(infoList)
-  if (!key) {
-    return undefined
-  }
-  const encodedKey = encodeURIComponent(key)
-  return `${PRICE_API}${encodedKey}`
-}
-
 export async function getCurrencyUsdPrice(currencyParams?: CurrencyParams) {
   const prices = await getCurrencyListUsdPrice(currencyParams && [currencyParams])
   const key = getCurrencyKey(currencyParams)
   return (key && prices[key]) ?? 0
 }
 
+type PriceMap = Record<string, number>
+export async function fetchCurrencyPriceMap(): Promise<PriceMap> {
+  return getCachedTokenPrices()
+}
+
 export async function getCurrencyListUsdPrice(currencyListParams?: CurrencyParams[]): Promise<CurrencyUsdResult> {
-  const requestUrl = getRequestUrl(currencyListParams)
-  if (!requestUrl || !currencyListParams) {
-    throw new Error(`Invalid request for currency prices, request url: ${requestUrl}`)
+  if (!currencyListParams) {
+    const priceMap = await getCachedTokenPrices()
+    return priceMap
   }
 
-  /* TODO : API
-  const res = await fetch(requestUrl)
-  const data = await res.json()
-  */
+  if (currencyListParams.some((c) => c.chainId !== ChainId.KLAYTN)) {
+    throw new Error('Contains an invalid token')
+  }
 
-  return {}
+  const priceMap = await getCachedTokenPrices()
+
+  return currencyListParams.reduce((acc, currency) => {
+    const key = getCurrencyKey(currency)
+    if (!key) {
+      return acc
+    }
+
+    const [_, address] = key.split(':')
+
+    const price = priceMap[address]
+    if (!price) {
+      return acc
+    }
+
+    return {
+      ...acc,
+      [key]: price,
+    }
+  }, {} as CurrencyUsdResult)
 }

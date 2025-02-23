@@ -1,0 +1,5 @@
+{
+  "main": "../../dist/connectors/okxWallet.js",
+  "module": "../../dist/connectors/okxWallet.mjs",
+  "types": "../../dist/connectors/okxWallet.d.ts"
+}

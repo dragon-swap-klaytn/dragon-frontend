@@ -1,3 +1,4 @@
+import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { createAction } from '@reduxjs/toolkit'
 import { Hex } from 'viem'
 import { Address } from 'wagmi'
@@ -7,10 +8,9 @@ export interface Call {
   callData: Hex
 }
 
-const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 const LOWER_HEX_REGEX = /^0x[a-f0-9]*$/
 export function toCallKey(call: Call): string {
-  if (!ADDRESS_REGEX.test(call.address)) {
+  if (!VALID_ADDRESS_REGEX.test(call.address)) {
     throw new Error(`Invalid address: ${call.address}`)
   }
   if (!LOWER_HEX_REGEX.test(call.callData)) {

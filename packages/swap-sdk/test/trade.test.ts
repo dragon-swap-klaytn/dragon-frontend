@@ -1,14 +1,16 @@
-import { TradeType, Percent, Token, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
 import { ChainId } from '@pancakeswap/chains'
-import { Pair, Route, Trade, Native } from '../src/entities'
+import { CurrencyAmount, Percent, Token, TradeType } from '@pancakeswap/swap-sdk-core'
+import { describe, it } from 'node:test'
+import { expect } from 'vitest'
 import { WNATIVE } from '../src/constants'
+import { Native, Pair, Route, Trade } from '../src/entities'
 
 describe('Trade', () => {
-  const ETHER = Native.onChain(ChainId.BSC)
-  const token0 = new Token(ChainId.BSC, '0x0000000000000000000000000000000000000001', 18, 't0')
-  const token1 = new Token(ChainId.BSC, '0x0000000000000000000000000000000000000002', 18, 't1')
-  const token2 = new Token(ChainId.BSC, '0x0000000000000000000000000000000000000003', 18, 't2')
-  const token3 = new Token(ChainId.BSC, '0x0000000000000000000000000000000000000004', 18, 't3')
+  const ETHER = Native.onChain(ChainId.KLAYTN)
+  const token0 = new Token(ChainId.KLAYTN, '0x0000000000000000000000000000000000000001', 18, 't0')
+  const token1 = new Token(ChainId.KLAYTN, '0x0000000000000000000000000000000000000002', 18, 't1')
+  const token2 = new Token(ChainId.KLAYTN, '0x0000000000000000000000000000000000000003', 18, 't2')
+  const token3 = new Token(ChainId.KLAYTN, '0x0000000000000000000000000000000000000004', 18, 't3')
 
   const pair01 = new Pair(CurrencyAmount.fromRawAmount(token0, 1000n), CurrencyAmount.fromRawAmount(token1, 1000n))
   const pair02 = new Pair(CurrencyAmount.fromRawAmount(token0, 1000n), CurrencyAmount.fromRawAmount(token2, 1100n))
@@ -17,7 +19,7 @@ describe('Trade', () => {
   const pair13 = new Pair(CurrencyAmount.fromRawAmount(token1, 1200n), CurrencyAmount.fromRawAmount(token3, 1300n))
 
   const pairWeth0 = new Pair(
-    CurrencyAmount.fromRawAmount(WNATIVE[ChainId.BSC], 1000n),
+    CurrencyAmount.fromRawAmount(WNATIVE[ChainId.KLAYTN], 1000n),
     CurrencyAmount.fromRawAmount(token0, 1000n)
   )
 
@@ -26,7 +28,7 @@ describe('Trade', () => {
   it('can be constructed with ETHER as input', () => {
     const trade = new Trade(
       new Route([pairWeth0], ETHER, token0),
-      CurrencyAmount.fromRawAmount(Native.onChain(ChainId.BSC), 100n),
+      CurrencyAmount.fromRawAmount(Native.onChain(ChainId.KLAYTN), 100n),
       TradeType.EXACT_INPUT
     )
     expect(trade.inputAmount.currency).toEqual(ETHER)
@@ -45,7 +47,7 @@ describe('Trade', () => {
   it('can be constructed with ETHER as output', () => {
     const trade = new Trade(
       new Route([pairWeth0], token0, ETHER),
-      CurrencyAmount.fromRawAmount(Native.onChain(ChainId.BSC), 100n),
+      CurrencyAmount.fromRawAmount(Native.onChain(ChainId.KLAYTN), 100n),
       TradeType.EXACT_OUTPUT
     )
     expect(trade.inputAmount.currency).toEqual(token0)
@@ -133,15 +135,15 @@ describe('Trade', () => {
     it('works for ETHER currency input', () => {
       const result = Trade.bestTradeExactIn(
         [pairWeth0, pair01, pair03, pair13],
-        CurrencyAmount.fromRawAmount(Native.onChain(ChainId.BSC), 100n),
+        CurrencyAmount.fromRawAmount(Native.onChain(ChainId.KLAYTN), 100n),
         token3
       )
       expect(result).toHaveLength(2)
       expect(result[0].inputAmount.currency).toEqual(ETHER)
-      expect(result[0].route.path).toEqual([WNATIVE[ChainId.BSC], token0, token1, token3])
+      expect(result[0].route.path).toEqual([WNATIVE[ChainId.KLAYTN], token0, token1, token3])
       expect(result[0].outputAmount.currency).toEqual(token3)
       expect(result[1].inputAmount.currency).toEqual(ETHER)
-      expect(result[1].route.path).toEqual([WNATIVE[ChainId.BSC], token0, token3])
+      expect(result[1].route.path).toEqual([WNATIVE[ChainId.KLAYTN], token0, token3])
       expect(result[1].outputAmount.currency).toEqual(token3)
     })
     it('works for ETHER currency output', () => {
@@ -152,10 +154,10 @@ describe('Trade', () => {
       )
       expect(result).toHaveLength(2)
       expect(result[0].inputAmount.currency).toEqual(token3)
-      expect(result[0].route.path).toEqual([token3, token0, WNATIVE[ChainId.BSC]])
+      expect(result[0].route.path).toEqual([token3, token0, WNATIVE[ChainId.KLAYTN]])
       expect(result[0].outputAmount.currency).toEqual(ETHER)
       expect(result[1].inputAmount.currency).toEqual(token3)
-      expect(result[1].route.path).toEqual([token3, token1, token0, WNATIVE[ChainId.BSC]])
+      expect(result[1].route.path).toEqual([token3, token1, token0, WNATIVE[ChainId.KLAYTN]])
       expect(result[1].outputAmount.currency).toEqual(ETHER)
     })
   })
@@ -331,24 +333,24 @@ describe('Trade', () => {
       )
       expect(result).toHaveLength(2)
       expect(result[0].inputAmount.currency).toEqual(ETHER)
-      expect(result[0].route.path).toEqual([WNATIVE[ChainId.BSC], token0, token1, token3])
+      expect(result[0].route.path).toEqual([WNATIVE[ChainId.KLAYTN], token0, token1, token3])
       expect(result[0].outputAmount.currency).toEqual(token3)
       expect(result[1].inputAmount.currency).toEqual(ETHER)
-      expect(result[1].route.path).toEqual([WNATIVE[ChainId.BSC], token0, token3])
+      expect(result[1].route.path).toEqual([WNATIVE[ChainId.KLAYTN], token0, token3])
       expect(result[1].outputAmount.currency).toEqual(token3)
     })
     it('works for ETHER currency output', () => {
       const result = Trade.bestTradeExactOut(
         [pairWeth0, pair01, pair03, pair13],
         token3,
-        CurrencyAmount.fromRawAmount(Native.onChain(ChainId.BSC), 100n)
+        CurrencyAmount.fromRawAmount(Native.onChain(ChainId.KLAYTN), 100n)
       )
       expect(result).toHaveLength(2)
       expect(result[0].inputAmount.currency).toEqual(token3)
-      expect(result[0].route.path).toEqual([token3, token0, WNATIVE[ChainId.BSC]])
+      expect(result[0].route.path).toEqual([token3, token0, WNATIVE[ChainId.KLAYTN]])
       expect(result[0].outputAmount.currency).toEqual(ETHER)
       expect(result[1].inputAmount.currency).toEqual(token3)
-      expect(result[1].route.path).toEqual([token3, token1, token0, WNATIVE[ChainId.BSC]])
+      expect(result[1].route.path).toEqual([token3, token1, token0, WNATIVE[ChainId.KLAYTN]])
       expect(result[1].outputAmount.currency).toEqual(ETHER)
     })
   })

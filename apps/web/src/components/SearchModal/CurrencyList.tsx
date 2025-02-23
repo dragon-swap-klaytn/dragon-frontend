@@ -1,256 +1,136 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Currency, CurrencyAmount, Token } from '@pancakeswap/sdk'
-import { ArrowForwardIcon, Column, QuestionHelper, Text } from '@pancakeswap/uikit'
+import { Currency, Token } from '@pancakeswap/sdk'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
-import { LightGreyCard } from 'components/Card'
-import { FiatLogo } from 'components/Logo/CurrencyLogo'
-import { useActiveChainId } from 'hooks/useActiveChainId'
+import { Plus } from '@phosphor-icons/react'
+import clsx from 'clsx'
+import useRecentSelectedCurrencies from 'hooks/use-recent-selected-currencies'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { useRouter } from 'next/router'
-import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
-import { FixedSizeList } from 'react-window'
-import { styled } from 'styled-components'
-import { wrappedCurrency } from 'utils/wrappedCurrency'
-import { fiatCurrencyMap } from 'views/BuyCrypto/constants'
+import { useCallback, useMemo } from 'react'
 import { useAccount } from 'wagmi'
-import { useIsUserAddedToken } from '../../hooks/Tokens'
-import { useCombinedActiveList } from '../../state/lists/hooks'
+import { useIsTokenActive, useIsUserAddedToken } from '../../hooks/Tokens'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
-import { isTokenOnList } from '../../utils'
-import { RowBetween, RowFixed } from '../Layout/Row'
-import CircleLoader from '../Loader/CircleLoader'
-import ImportRow from './ImportRow'
-
-function currencyKey(currency: Currency): string {
-  return currency?.isToken ? currency.address : currency?.isNative ? currency.symbol : ''
-}
-
-const StyledBalanceText = styled(Text)`
-  white-space: nowrap;
-  overflow: hidden;
-  max-width: 5rem;
-  text-overflow: ellipsis;
-`
-
-const FixedContentRow = styled.div`
-  padding: 4px 20px;
-  height: 56px;
-  display: grid;
-  grid-gap: 16px;
-  align-items: center;
-`
-
-function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
-  return <StyledBalanceText title={balance.toExact()}>{formatAmount(balance, 4)}</StyledBalanceText>
-}
-
-const MenuItem = styled(RowBetween)<{ disabled: boolean; selected: boolean }>`
-  padding: 4px 20px;
-  height: 56px;
-  display: grid;
-  grid-template-columns: auto minmax(auto, 1fr) minmax(0, 72px);
-  grid-gap: 8px;
-  cursor: ${({ disabled }) => !disabled && 'pointer'};
-  pointer-events: ${({ disabled }) => disabled && 'none'};
-  &:hover {
-    background-color: ${({ theme, disabled }) => !disabled && theme.colors.background};
-  }
-  opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
-`
 
 function CurrencyRow({
   currency,
   onSelect,
   isSelected,
-  otherSelected,
-  style,
-  onRampFlow,
-  mode,
+  showImportView,
+  setImportToken,
 }: {
   currency: Currency
   onSelect: () => void
   isSelected: boolean
-  otherSelected: boolean
-  style: CSSProperties
-  onRampFlow: boolean
-  mode: string
+  showImportView: () => void
+  setImportToken: (token: Token) => void
 }) {
   const { address: account } = useAccount()
   const { t } = useTranslation()
-  const key = currencyKey(currency)
-  const selectedTokenList = useCombinedActiveList()
-  const isOnSelectedList = isTokenOnList(selectedTokenList, currency)
-  const customAdded = useIsUserAddedToken(currency)
-
   const balance = useCurrencyBalance(account ?? undefined, currency)
 
-  // only show add or remove buttons if not on selected list
-  return (
-    <MenuItem
-      style={style}
-      className={`token-item-${key}`}
-      onClick={() => (isSelected ? null : onSelect())}
-      disabled={isSelected}
-      selected={otherSelected}
-    >
-      {mode === 'onramp-input' ? (
-        <FiatLogo currency={currency} size="24px" />
-      ) : (
-        <CurrencyLogo currency={currency} size="24px" />
-      )}
+  const isAdded = useIsUserAddedToken(currency)
+  const isActive = useIsTokenActive(currency)
+  const needToImport = useMemo(() => !isAdded && !isActive, [isAdded, isActive])
 
-      <Column>
-        <Text bold>{currency?.symbol}</Text>
-        <Text color="textSubtle" small ellipsis maxWidth="200px">
-          {!isOnSelectedList && customAdded && `${t('Added by user')} •`} {currency?.name}
-        </Text>
-      </Column>
-      <RowFixed style={{ justifySelf: 'flex-end' }}>
-        {balance ? <Balance balance={balance} /> : account && !onRampFlow ? <CircleLoader /> : <ArrowForwardIcon />}
-      </RowFixed>
-    </MenuItem>
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if (isSelected) return
+
+        if (needToImport) {
+          setImportToken(currency as Token)
+          showImportView()
+        } else {
+          onSelect()
+        }
+      }}
+      disabled={isSelected}
+      className={clsx('flex items-center justify-between w-full py-2 pl-2 pr-4 hover:opacity-70 rounded-xl', {
+        'bg-neutral': isSelected,
+      })}
+    >
+      <div className="flex items-center space-x-2.5">
+        <CurrencyLogo currency={currency} size={24} />
+
+        <div className="flex flex-col items-start">
+          <span className="font-bold text-sm text-on-surface text-left line-clamp-1">{currency?.symbol}</span>
+
+          <span className="text-xs max-w-40 text-gray-400 whitespace-nowrap line-clamp-1">
+            {isAdded && `${t('Added by user')} •`} {currency?.name}
+          </span>
+        </div>
+      </div>
+
+      {needToImport ? (
+        <Plus size={16} className="text-gray-200" />
+      ) : (
+        balance && <span className="text-right text-on-surface text-sm">{formatAmount(balance, 4)}</span>
+      )}
+    </button>
   )
 }
 
 export default function CurrencyList({
-  height,
   currencies,
-  inactiveCurrencies,
   selectedCurrency,
   onCurrencySelect,
-  otherCurrency,
-  fixedListRef,
   showNative,
   showImportView,
   setImportToken,
-  breakIndex,
-  mode,
 }: {
-  height: number | string
   currencies: Currency[]
-  inactiveCurrencies: Currency[]
   selectedCurrency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
-  otherCurrency?: Currency | null
-  fixedListRef?: MutableRefObject<FixedSizeList | undefined>
   showNative: boolean
   showImportView: () => void
   setImportToken: (token: Token) => void
-  breakIndex: number | undefined
-  mode: string
 }) {
   const native = useNativeCurrency()
-  const { pathname } = useRouter()
-  const onRampFlow = pathname === '/buy-crypto'
 
   const itemData: (Currency | undefined)[] = useMemo(() => {
-    if (onRampFlow) return mode === 'onramp-output' ? [native, ...currencies] : [...currencies]
-    let formatted: (Currency | undefined)[] = showNative
-      ? [native, ...currencies, ...inactiveCurrencies]
-      : [...currencies, ...inactiveCurrencies]
-    if (breakIndex !== undefined) {
-      formatted = [...formatted.slice(0, breakIndex), undefined, ...formatted.slice(breakIndex, formatted.length)]
-    }
-    return formatted
-  }, [breakIndex, currencies, inactiveCurrencies, showNative, native, onRampFlow, mode])
+    const formatted: (Currency | undefined)[] = showNative ? [native, ...currencies] : [...currencies]
 
-  const { chainId } = useActiveChainId()
+    return formatted.sort((a, b) => {
+      if (!a || !b) return 0
 
-  const { t } = useTranslation()
+      return a.symbol.localeCompare(b.symbol)
+    })
+  }, [currencies, showNative, native])
+
+  const { setRecentSelectedCurrency } = useRecentSelectedCurrencies()
 
   const Row = useCallback(
-    ({ data, index, style }) => {
-      const currency: any = data[index]
-      const isFiat = Boolean(Object.keys(fiatCurrencyMap).includes(currency?.symbol))
+    ({ index }) => {
+      const currency = itemData[index] as Token | undefined
+      if (!currency) return null
 
       // the alternative to making a fiat currency token list
       // with class methods
-      let isSelected = false
-      let otherSelected = false
-      if (!isFiat && mode !== 'onramp-input') {
-        isSelected = Boolean(selectedCurrency && currency && selectedCurrency.equals(currency))
-        otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
-      } else {
-        isSelected = Boolean(selectedCurrency?.symbol && currency && selectedCurrency?.symbol === currency?.symbol)
-        otherSelected = Boolean(otherCurrency?.symbol && currency && otherCurrency?.symbol === currency?.symbol)
-      }
-      const handleSelect = () => onCurrencySelect(currency)
+      const isSelected = Boolean(selectedCurrency && currency && selectedCurrency?.equals(currency))
 
-      const token = wrappedCurrency(currency, chainId)
-
-      const showImport = index > currencies.length
-
-      if (index === breakIndex || !data) {
-        return (
-          <FixedContentRow style={style}>
-            <LightGreyCard padding="8px 12px" borderRadius="8px">
-              <RowBetween>
-                <Text small>{t('Expanded results from inactive Token Lists')}</Text>
-                <QuestionHelper
-                  text={t(
-                    "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists.",
-                  )}
-                  ml="4px"
-                />
-              </RowBetween>
-            </LightGreyCard>
-          </FixedContentRow>
-        )
+      const handleSelect = () => {
+        onCurrencySelect(currency)
+        setRecentSelectedCurrency(currency as Token)
       }
 
-      if (showImport && token) {
-        return (
-          <ImportRow
-            onCurrencySelect={handleSelect}
-            style={style}
-            token={token}
-            showImportView={showImportView}
-            setImportToken={setImportToken}
-            dim
-          />
-        )
-      }
       return (
         <CurrencyRow
-          style={style}
+          key={`currencyRow:${currency.address}`}
           currency={currency}
           isSelected={isSelected}
           onSelect={handleSelect}
-          otherSelected={otherSelected}
-          onRampFlow={onRampFlow}
-          mode={mode}
+          showImportView={showImportView}
+          setImportToken={setImportToken}
         />
       )
     },
-    [
-      selectedCurrency,
-      otherCurrency,
-      chainId,
-      currencies.length,
-      breakIndex,
-      onCurrencySelect,
-      t,
-      showImportView,
-      setImportToken,
-      onRampFlow,
-      mode,
-    ],
+    [selectedCurrency, onCurrencySelect, showImportView, setImportToken, itemData, setRecentSelectedCurrency],
   )
 
-  const itemKey = useCallback((index: number, data: any) => `${currencyKey(data[index])}-${index}`, [])
-
   return (
-    <FixedSizeList
-      height={height}
-      ref={fixedListRef as any}
-      width="100%"
-      itemData={itemData}
-      itemCount={itemData.length}
-      itemSize={56}
-      itemKey={itemKey}
-    >
-      {Row}
-    </FixedSizeList>
+    <div className="flex flex-col overflow-y-auto max-h-[400px] space-y-1">
+      {itemData.map((_, index) => Row({ index }))}
+    </div>
   )
 }

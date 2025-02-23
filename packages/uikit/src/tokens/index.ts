@@ -71,3 +71,4 @@ export type Mode = "light" | "dark";
 export type Tokens = typeof tokens;
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const WKAIA_ADDRESS = "0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432";

@@ -27,8 +27,6 @@ export const V3_BSC_INFO_CLIENT = `https://open-platform.nodereal.io/${
   process.env.NEXT_PUBLIC_NODE_REAL_API_INFO || process.env.NEXT_PUBLIC_NODE_REAL_API_ETH
 }/pancakeswap-v3/graphql`
 
-export const BLOCKS_CLIENT = BLOCKS_SUBGRAPHS[ChainId.BSC]
-export const BLOCKS_CLIENT_ETH = BLOCKS_SUBGRAPHS[ChainId.ETHEREUM]
 export const BLOCKS_CLIENT_KLAYTN = BLOCKS_SUBGRAPHS[ChainId.KLAYTN]
 export const BLOCKS_CLIENT_KLAYTN_TESTNET = BLOCKS_SUBGRAPHS[ChainId.KLAYTN_TESTNET]
 

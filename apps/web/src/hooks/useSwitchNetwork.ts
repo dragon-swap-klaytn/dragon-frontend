@@ -1,11 +1,11 @@
 /* eslint-disable consistent-return */
-import { useTranslation } from '@pancakeswap/localization'
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
+import { useTranslation } from '@pancakeswap/localization'
 import { useToast } from '@pancakeswap/uikit'
-import { useCallback, useMemo } from 'react'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
-import { useAccount, useSwitchNetwork as useSwitchNetworkWallet } from 'wagmi'
 import { CHAIN_QUERY_NAME } from 'config/chains'
+import { useCallback, useMemo } from 'react'
+import { useAccount, useSwitchNetwork as useSwitchNetworkWallet } from 'wagmi'
 import { useSessionChainId } from './useSessionChainId'
 import { useSwitchNetworkLoading } from './useSwitchNetworkLoading'
 
@@ -45,7 +45,7 @@ export function useSwitchNetwork() {
             // well token pocket
             if (window.ethereum?.isTokenPocket === true) {
               switchNetworkLocal(chainId)
-              window.location.reload()
+              // window.location.reload()
             }
             return c
           })

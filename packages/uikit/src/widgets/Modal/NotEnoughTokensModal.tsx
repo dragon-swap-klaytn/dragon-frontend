@@ -1,9 +1,8 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { styled, useTheme } from "styled-components";
-import getThemeValue from "../../util/getThemeValue";
-import Modal from "./Modal";
+import { Button, OpenNewIcon, Text } from "../../components";
 import { Link } from "../../components/Link";
-import { Text, Button, OpenNewIcon } from "../../components";
+import Modal from "./Modal";
 
 interface NotEnoughTokensModalProps {
   tokenSymbol: string;
@@ -26,17 +25,13 @@ const NotEnoughTokensModal: React.FC<React.PropsWithChildren<NotEnoughTokensModa
   const theme = useTheme();
 
   return (
-    <Modal
-      title={t("%symbol% required", { symbol: tokenSymbol })}
-      onDismiss={onDismiss}
-      headerBackground={getThemeValue(theme, "colors.gradientCardHeader")}
-    >
+    <Modal title={t("{{symbol}} required", { symbol: tokenSymbol })} onDismiss={onDismiss}>
       <Text color="failure" bold>
-        {t("Insufficient %symbol% balance", { symbol: tokenSymbol })}
+        {t("Insufficient {{symbol}} balance", { symbol: tokenSymbol })}
       </Text>
-      <Text mt="24px">{t("You’ll need %symbol% to stake in this pool!", { symbol: tokenSymbol })}</Text>
+      <Text mt="24px">{t("You’ll need {{symbol}} to stake in this pool!", { symbol: tokenSymbol })}</Text>
       <Text>
-        {t("Buy some %symbol%, or make sure your %symbol% isn’t in another pool or LP.", {
+        {t("Buy some {{symbol}}, or make sure your {{symbol}} isn’t in another pool or LP.", {
           symbol: tokenSymbol,
         })}
       </Text>

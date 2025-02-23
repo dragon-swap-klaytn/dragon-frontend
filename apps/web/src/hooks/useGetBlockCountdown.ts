@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { BSC_BLOCK_TIME } from 'config'
-import { publicClient } from 'utils/wagmi'
 import { ChainId } from '@pancakeswap/chains'
+import { BSC_BLOCK_TIME } from 'config'
+import { useEffect, useRef, useState } from 'react'
+import { publicClient } from 'utils/wagmi'
 
 /**
  * Returns a countdown in seconds of a given block
@@ -12,8 +12,8 @@ const useBlockCountdown = (blockNumber: number) => {
 
   useEffect(() => {
     const startCountdown = async () => {
-      const bscClient = publicClient({ chainId: ChainId.BSC })
-      const currentBlock = await bscClient.getBlockNumber()
+      const kaiaClient = publicClient({ chainId: ChainId.KLAYTN })
+      const currentBlock = await kaiaClient.getBlockNumber()
 
       if (blockNumber > currentBlock) {
         setSecondsRemaining((blockNumber - Number(currentBlock)) * BSC_BLOCK_TIME)

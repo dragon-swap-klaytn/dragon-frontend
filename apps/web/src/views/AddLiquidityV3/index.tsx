@@ -1,52 +1,42 @@
-import { CurrencySelect } from 'components/CurrencySelect'
-import { CommonBasesType } from 'components/SearchModal/types'
-
 import { Currency, NATIVE, WNATIVE } from '@pancakeswap/sdk'
-import {
-  FlexGap,
-  AutoColumn,
-  CardBody,
-  Card,
-  AddIcon,
-  PreTitle,
-  DynamicSection,
-  RefreshIcon,
-  IconButton,
-} from '@pancakeswap/uikit'
+import { Card, MenuIconButton } from '@pancakeswap/uikit'
 
 import { FeeAmount } from '@pancakeswap/v3-sdk'
-import { useCallback, useEffect, useMemo } from 'react'
+import { PropsWithChildren, useCallback, useEffect, useMemo } from 'react'
 
-import currencyId from 'utils/currencyId'
-import { useRouter } from 'next/router'
 import { Trans, useTranslation } from '@pancakeswap/localization'
+import { useRouter } from 'next/router'
+import currencyId from 'utils/currencyId'
 
-import Page from 'views/Page'
-import { AppHeader } from 'components/App'
-import { styled } from 'styled-components'
+import { AppBody, AppHeader } from 'components/App'
 import { atom, useAtom } from 'jotai'
+import { styled } from 'styled-components'
+import Page from 'views/Page'
 
-import { useCurrency } from 'hooks/Tokens'
-import useStableConfig, { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
-import AddStableLiquidity from 'views/AddLiquidity/AddStableLiquidity'
-import AddLiquidity from 'views/AddLiquidity'
 import { usePreviousValue } from '@pancakeswap/hooks'
+import { useCurrency } from 'hooks/Tokens'
+import AddLiquidity from 'views/AddLiquidity'
+import AddStableLiquidity from 'views/AddLiquidity/AddStableLiquidity'
+import useStableConfig, { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
 
-import noop from 'lodash/noop'
+import { ArrowClockwise, Plus } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useAddLiquidityV2FormDispatch } from 'state/mint/reducer'
+import noop from 'lodash/noop'
 import { resetMintState } from 'state/mint/actions'
+import { useAddLiquidityV2FormDispatch } from 'state/mint/reducer'
 import { safeGetAddress } from 'utils'
-import FeeSelector from './formViews/V3FormView/components/FeeSelector'
 
-import V3FormView from './formViews/V3FormView'
-import { HandleFeePoolSelectFn, SELECTOR_TYPE } from './types'
-import { StableV3Selector } from './components/StableV3Selector'
-import StableFormView from './formViews/StableFormView'
-import { V2Selector } from './components/V2Selector'
-import V2FormView from './formViews/V2FormView'
+import { CurrencySelect } from 'components/CurrencySelect'
+import { CommonBasesType } from 'components/SearchModal/types'
+import { useBackTo } from 'hooks/use-back-to'
 import { AprCalculator } from './components/AprCalculator'
+import { V2Selector } from './components/V2Selector'
+import StableFormView from './formViews/StableFormView'
+import V2FormView from './formViews/V2FormView'
+import V3FormView from './formViews/V3FormView'
 import { useCurrencyParams } from './hooks/useCurrencyParams'
+import { HandleFeePoolSelectFn, SELECTOR_TYPE } from './types'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -78,6 +68,7 @@ interface UniversalAddLiquidityPropsType {
   isV2?: boolean
   preferredSelectType?: SELECTOR_TYPE
   preferredFeeAmount?: FeeAmount
+  isModal?: boolean
 }
 
 export function UniversalAddLiquidity({
@@ -86,6 +77,7 @@ export function UniversalAddLiquidity({
   currencyIdB,
   preferredSelectType,
   preferredFeeAmount,
+  isModal = false,
 }: UniversalAddLiquidityPropsType) {
   const { chainId } = useActiveChainId()
   const { t } = useTranslation()
@@ -156,7 +148,7 @@ export function UniversalAddLiquidity({
             pathname: router.pathname,
             query: {
               ...router.query,
-              currency: [idA],
+              ...(idA ? { currency: [idA] } : {}),
             },
           },
           undefined,
@@ -168,7 +160,7 @@ export function UniversalAddLiquidity({
             pathname: router.pathname,
             query: {
               ...router.query,
-              currency: [idA, idB],
+              ...(idA ? { currency: [idA, idB] } : {}),
             },
           },
           undefined,
@@ -188,7 +180,7 @@ export function UniversalAddLiquidity({
             pathname: router.pathname,
             query: {
               ...router.query,
-              currency: [idB],
+              ...(idB ? { currency: [idB] } : {}),
             },
           },
           undefined,
@@ -200,7 +192,7 @@ export function UniversalAddLiquidity({
             pathname: router.pathname,
             query: {
               ...router.query,
-              currency: [idA, idB],
+              ...(idB ? { currency: [idA, idB] } : {}),
             },
           },
           undefined,
@@ -273,8 +265,11 @@ export function UniversalAddLiquidity({
     [currencyIdA, currencyIdB, router, setSelectorType],
   )
 
+  const { saveBackToHref } = useBackTo()
+
   const handleSelectV2 = useCallback(() => {
     setSelectorType(SELECTOR_TYPE.V2)
+    saveBackToHref()
     router.replace(
       {
         pathname: router.pathname,
@@ -283,7 +278,7 @@ export function UniversalAddLiquidity({
       `/v2/add/${currencyIdA}/${currencyIdB}`,
       { shallow: true },
     )
-  }, [currencyIdA, currencyIdB, router, setSelectorType])
+  }, [currencyIdA, currencyIdB, router, setSelectorType, saveBackToHref])
 
   useEffect(() => {
     if (preferredFeeAmount && !feeAmountFromUrl && selectorType === SELECTOR_TYPE.V3) {
@@ -292,12 +287,17 @@ export function UniversalAddLiquidity({
   }, [preferredFeeAmount, feeAmountFromUrl, handleFeePoolSelect, selectorType])
 
   return (
-    <>
-      <CardBody>
-        <ResponsiveTwoColumns>
-          <AutoColumn alignSelf="stretch">
-            <PreTitle mb="8px">{t('Choose Token Pair')}</PreTitle>
-            <FlexGap gap="4px" width="100%" mb="8px" alignItems="center">
+    <div
+      className={clsx('grid gap-4 grid-cols-1', {
+        'md:grid-cols-2': selectorType === SELECTOR_TYPE.V3 || selectorType === SELECTOR_TYPE.STABLE,
+        'p-5 md:p-8': !isModal,
+      })}
+    >
+      {selectorType === SELECTOR_TYPE.V2 && (
+        <>
+          <div>
+            <SectionTitle>{t('Choose Token Pair')}</SectionTitle>{' '}
+            <div className="flex items-center space-x-3 mt-2">
               <CurrencySelect
                 id="add-liquidity-select-tokena"
                 selectedCurrency={baseCurrency}
@@ -306,7 +306,9 @@ export function UniversalAddLiquidity({
                 commonBasesType={CommonBasesType.LIQUIDITY}
                 hideBalance
               />
-              <AddIcon color="textSubtle" />
+
+              <Plus size={16} className="text-on-surface shrink-0" />
+
               <CurrencySelect
                 id="add-liquidity-select-tokenb"
                 selectedCurrency={quoteCurrency}
@@ -315,73 +317,67 @@ export function UniversalAddLiquidity({
                 commonBasesType={CommonBasesType.LIQUIDITY}
                 hideBalance
               />
-            </FlexGap>
-            <DynamicSection disabled={!baseCurrency || !currencyB}>
-              {/* !isV2 &&
-                stableConfig.stableSwapConfig &&
-                [SELECTOR_TYPE.STABLE, SELECTOR_TYPE.V3].includes(selectorType) && (
-                  <StableV3Selector
-                    currencyA={baseCurrency ?? undefined}
-                    currencyB={quoteCurrency ?? undefined}
-                    feeAmount={feeAmount}
-                    selectorType={selectorType}
-                    handleFeePoolSelect={handleFeePoolSelect}
-                  />
-                ) */}
+            </div>
+          </div>
 
-              {((isV2 && selectorType !== SELECTOR_TYPE.V3) || selectorType === SELECTOR_TYPE.V2) && (
-                <V2Selector
-                  isStable={Boolean(stableConfig.stableSwapConfig)}
-                  selectorType={selectorType}
-                  handleFeePoolSelect={({ type }) => {
-                    // keep using state instead of replacing url in UniversalLiquidity
-                    handleFeePoolSelect({ type })
-                  }}
-                />
-              )}
-
-              {!stableConfig.stableSwapConfig && selectorType === SELECTOR_TYPE.V3 && (
-                <FeeSelector
-                  currencyA={baseCurrency ?? undefined}
-                  currencyB={quoteCurrency ?? undefined}
-                  handleFeePoolSelect={handleFeePoolSelect}
-                  feeAmount={feeAmount}
-                  handleSelectV2={handleSelectV2}
-                />
-              )}
-            </DynamicSection>
-          </AutoColumn>
-          {selectorType === SELECTOR_TYPE.STABLE && (
-            <StableConfigContext.Provider value={stableConfig}>
-              <AddStableLiquidity currencyA={baseCurrency} currencyB={quoteCurrency}>
-                {(props) => <StableFormView {...props} stableLpFee={stableConfig?.stableSwapConfig?.stableLpFee} />}
-              </AddStableLiquidity>
-            </StableConfigContext.Provider>
-          )}
-          {selectorType === SELECTOR_TYPE.V3 && (
-            <V3FormView
-              feeAmount={feeAmount}
-              baseCurrency={baseCurrency}
-              quoteCurrency={quoteCurrency}
-              currencyIdA={currencyIdA}
-              currencyIdB={currencyIdB}
+          <DynamicSection disabled={!baseCurrency || !quoteCurrency} className="flex flex-col space-y-8">
+            <V2Selector
+              isStable={Boolean(stableConfig.stableSwapConfig)}
+              selectorType={selectorType}
+              handleFeePoolSelect={({ type }) => {
+                // keep using state instead of replacing url in UniversalLiquidity
+                handleFeePoolSelect({ type })
+              }}
             />
-          )}
-          {selectorType === SELECTOR_TYPE.V2 && (
-            <AddLiquidity currencyA={baseCurrency} currencyB={quoteCurrency}>
+
+            <AddLiquidity currencyA={baseCurrency || undefined} currencyB={quoteCurrency || undefined}>
               {(props) => <V2FormView {...props} />}
             </AddLiquidity>
-          )}
-        </ResponsiveTwoColumns>
-      </CardBody>
-    </>
+          </DynamicSection>
+        </>
+      )}
+
+      {selectorType === SELECTOR_TYPE.STABLE && (
+        <StableConfigContext.Provider value={stableConfig}>
+          <AddStableLiquidity currencyA={baseCurrency || undefined} currencyB={quoteCurrency || undefined}>
+            {(props) => <StableFormView {...props} stableLpFee={stableConfig?.stableSwapConfig?.stableLpFee} />}
+          </AddStableLiquidity>
+        </StableConfigContext.Provider>
+      )}
+
+      {selectorType === SELECTOR_TYPE.V3 && (
+        <V3FormView
+          feeAmount={feeAmount}
+          baseCurrency={baseCurrency || undefined}
+          quoteCurrency={quoteCurrency || undefined}
+          currencyIdA={currencyIdA}
+          currencyIdB={currencyIdB}
+          handleCurrencyASelect={handleCurrencyASelect}
+          handleCurrencyBSelect={handleCurrencyBSelect}
+          handleFeePoolSelect={handleFeePoolSelect}
+          handleSelectV2={handleSelectV2}
+        />
+      )}
+    </div>
   )
 }
 
 const SELECTOR_TYPE_T = {
-  [SELECTOR_TYPE.STABLE]: <Trans>Add Stable Liquidity</Trans>,
-  [SELECTOR_TYPE.V2]: <Trans>Add V2 Liquidity</Trans>,
-  [SELECTOR_TYPE.V3]: <Trans>Add V3 Liquidity</Trans>,
+  [SELECTOR_TYPE.STABLE]: (
+    <h2 className="font-bold text-on-surface text-lg">
+      <Trans>Add Stable Liquidity</Trans>
+    </h2>
+  ),
+  [SELECTOR_TYPE.V2]: (
+    <h2 className="font-bold text-on-surface text-lg">
+      <Trans>Add V2 Liquidity</Trans>
+    </h2>
+  ),
+  [SELECTOR_TYPE.V3]: (
+    <h2 className="font-bold text-on-surface text-lg">
+      <Trans>Add V3 Liquidity</Trans>
+    </h2>
+  ),
 } as const satisfies Record<SELECTOR_TYPE, JSX.Element>
 
 export function AddLiquidityV3Layout({
@@ -395,6 +391,8 @@ export function AddLiquidityV3Layout({
 }) {
   const { t } = useTranslation()
 
+  const { backTo } = useBackTo()
+
   const [selectType] = useAtom(selectTypeAtom)
   const { currencyIdA, currencyIdB, feeAmount } = useCurrencyParams()
 
@@ -405,10 +403,12 @@ export function AddLiquidityV3Layout({
 
   return (
     <Page>
-      <BodyWrapper>
+      <AppBody
+        maxWidth={clsx({ 'max-w-md': selectType === SELECTOR_TYPE.V2, 'max-w-4xl': selectType !== SELECTOR_TYPE.V2 })}
+      >
         <AppHeader
           title={title}
-          backTo="/liquidity"
+          backTo={backTo}
           IconSlot={
             <>
               {selectType === SELECTOR_TYPE.V3 && (
@@ -417,18 +417,40 @@ export function AddLiquidityV3Layout({
                   baseCurrency={baseCurrency}
                   quoteCurrency={quoteCurrency}
                   feeAmount={feeAmount}
+                  className="mr-2"
                 />
               )}
+
               {showRefreshButton && (
-                <IconButton variant="text" scale="sm">
-                  <RefreshIcon onClick={handleRefresh || noop} color="textSubtle" height={24} width={24} />
-                </IconButton>
+                <MenuIconButton onClick={handleRefresh || noop}>
+                  <ArrowClockwise size={24} className="text-gray-50" weight="fill" />
+                </MenuIconButton>
               )}
             </>
           }
         />
         {children}
-      </BodyWrapper>
+      </AppBody>
     </Page>
+  )
+}
+
+export function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-xs text-on-surface-brand">{children}</h3>
+}
+
+export function DynamicSection({
+  children,
+  disabled,
+  className,
+}: PropsWithChildren<{ disabled?: boolean; className?: string }>) {
+  return (
+    <div
+      className={clsx('w-full', className, {
+        'opacity-50 pointer-events-none': disabled,
+      })}
+    >
+      {children}
+    </div>
   )
 }

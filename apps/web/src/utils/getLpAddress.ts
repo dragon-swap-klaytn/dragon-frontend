@@ -1,10 +1,14 @@
-import { ERC20Token, Pair } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
-import { safeGetAddress } from 'utils'
+import { ERC20Token, Pair } from '@pancakeswap/sdk'
 import memoize from 'lodash/memoize'
+import { safeGetAddress } from 'utils'
 
 const getLpAddress = memoize(
-  (token1: string | ERC20Token | undefined, token2: string | ERC20Token | undefined, chainId: number = ChainId.BSC) => {
+  (
+    token1: string | ERC20Token | undefined,
+    token2: string | ERC20Token | undefined,
+    chainId: number = ChainId.KLAYTN,
+  ) => {
     let token1AsTokenInstance = token1
     let token2AsTokenInstance = token2
     if (!token1 || !token2) {

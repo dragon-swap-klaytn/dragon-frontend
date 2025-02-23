@@ -1,25 +1,33 @@
+import getTokenIconSrc from "@pancakeswap/utils/getTokenIconSrc";
+import clsx from "clsx";
 import { useState } from "react";
-import { HelpFilledIcon, HelpIcon } from "../Svg";
 
 const BAD_SRCS: { [imageSrc: string]: true } = {};
 
 export interface TokenLogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+  size?: number;
   srcs: string[];
-  useFilledIcon?: boolean;
+  className?: string;
 }
 
 /**
  * Renders an image by sequentially trying a list of URIs, and then eventually a fallback triangle alert
  */
-const TokenLogo: React.FC<React.PropsWithChildren<TokenLogoProps>> = ({ srcs, useFilledIcon, alt, ...rest }) => {
+const TokenLogo: React.FC<React.PropsWithChildren<TokenLogoProps>> = ({ srcs, alt, size, className }) => {
   const [, refresh] = useState<number>(0);
 
-  const src: string | undefined = srcs.find((s) => !BAD_SRCS[s]);
+  const src = srcs.find((s) => !BAD_SRCS[s]) || (getTokenIconSrc("0x") as string);
 
-  if (src) {
-    return (
+  return (
+    <div
+      className={clsx("rounded-full overflow-hidden shrink-0", className)}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+      }}
+    >
       <img
-        {...rest}
+        className="w-full h-full"
         alt={alt}
         src={src}
         onError={() => {
@@ -27,11 +35,10 @@ const TokenLogo: React.FC<React.PropsWithChildren<TokenLogoProps>> = ({ srcs, us
           if (src) BAD_SRCS[src] = true;
           refresh((i) => i + 1);
         }}
+        loading="lazy"
       />
-    );
-  }
-
-  return useFilledIcon ? <HelpFilledIcon color="textSubtle" {...rest} /> : <HelpIcon {...rest} />;
+    </div>
+  );
 };
 
 export default TokenLogo;

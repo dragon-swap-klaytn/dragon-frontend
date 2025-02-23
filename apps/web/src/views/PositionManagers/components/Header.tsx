@@ -1,7 +1,7 @@
-import { memo } from 'react'
-import { PageHeader, Flex, Heading, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { Flex, Heading, PageHeader, useMatchBreakpoints } from '@pancakeswap/uikit'
 import Image from 'next/image'
+import { memo } from 'react'
 
 export const Header = memo(function Header() {
   const { t } = useTranslation()

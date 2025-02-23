@@ -21,18 +21,7 @@ import useRoiCalculatorReducer, {
   EditingCurrency,
 } from "./useRoiCalculatorReducer";
 
-const StyledModal = styled(Modal)`
-  & > :nth-child(2) {
-    padding: 0;
-  }
-
-  ${({ theme }) => theme.mediaQueries.md} {
-    width: 380px;
-  }
-`;
-
 export const ScrollableContainer = styled.div`
-  padding: 24px;
   max-height: 500px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -52,7 +41,7 @@ const FullWidthButtonMenu = styled(ButtonMenu)<{ disabled?: boolean }>`
 `;
 
 export interface RoiCalculatorModalProps {
-  account: string;
+  account?: `0x${string}`;
   pid?: number;
   earningTokenPrice: number;
   apr?: number;
@@ -155,7 +144,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
     isFarm
       ? t("“My Balance” here includes both LP Tokens in your wallet, and LP Tokens already staked in this farm.")
       : t(
-          "“My Balance” here includes both %assetSymbol% in your wallet, and %assetSymbol% already staked in this pool.",
+          "“My Balance” here includes both {{assetSymbol}} in your wallet, and {{assetSymbol}} already staked in this pool.",
           { assetSymbol: stakingTokenSymbol }
         ),
     { placement: "top-end", tooltipOffset: [20, 10] }
@@ -179,12 +168,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
   }, [account, stakingTokenBalance, stakingTokenPrice]);
 
   return (
-    <StyledModal
-      title={t("ROI Calculator")}
-      onDismiss={onBack || onDismiss}
-      onBack={onBack}
-      headerBackground="gradientCardHeader"
-    >
+    <Modal title={t("ROI Calculator")} onDismiss={onBack || onDismiss} onBack={onBack}>
       <ScrollableContainer>
         {strategy ? (
           strategy(state, dispatch)
@@ -201,7 +185,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
         {header}
         <Flex flexDirection="column" mb="8px">
           <Text color="secondary" bold fontSize="12px" textTransform="uppercase">
-            {t("%asset% staked", { asset: stakingTokenSymbol })}
+            {t("{{asset}} staked", { asset: stakingTokenSymbol })}
           </Text>
           <BalanceInput
             inputProps={{ scale: "sm" }}
@@ -323,7 +307,7 @@ const RoiCalculatorModal: React.FC<React.PropsWithChildren<RoiCalculatorModalPro
         totalMultipliers={totalMultipliers}
         dualTokenRewardApr={dualTokenRewardApr}
       />
-    </StyledModal>
+    </Modal>
   );
 };
 

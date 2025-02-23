@@ -1,4 +1,4 @@
-import { CurrencyAmount, Pair, Currency, pancakePairV2ABI } from '@pancakeswap/sdk'
+import { Currency, CurrencyAmount, Pair, pancakePairV2ABI } from '@pancakeswap/sdk'
 import { useMemo } from 'react'
 
 import { useMultipleContractSingleData } from '../state/multicall/hooks'
@@ -12,7 +12,9 @@ export enum PairState {
   INVALID,
 }
 
-export function useV2Pairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][] {
+export function useV2Pairs(
+  currencies: [Currency | undefined | null, Currency | undefined | null][],
+): [PairState, Pair | null][] {
   const { chainId } = useActiveChainId()
 
   const tokens = useMemo(
@@ -42,6 +44,7 @@ export function useV2Pairs(currencies: [Currency | undefined, Currency | undefin
       }),
     [tokens],
   )
+
   const results = useMultipleContractSingleData({
     addresses: pairAddresses,
     abi: pancakePairV2ABI,
@@ -70,7 +73,10 @@ export function useV2Pairs(currencies: [Currency | undefined, Currency | undefin
   }, [results, tokens])
 }
 
-export function useV2Pair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {
-  const pairCurrencies = useMemo<[Currency, Currency][]>(() => [[tokenA, tokenB]], [tokenA, tokenB])
+export function useV2Pair(tokenA?: Currency | null, tokenB?: Currency | null): [PairState, Pair | null] {
+  const pairCurrencies = useMemo<[Currency | null, Currency | null][]>(
+    () => [[tokenA || null, tokenB || null]],
+    [tokenA, tokenB],
+  )
   return useV2Pairs(pairCurrencies)[0]
 }

@@ -1,28 +1,28 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
-import { AutoColumn, Button, Dots, RowBetween, Text, Box, AutoRow, Flex, QuestionHelper } from '@pancakeswap/uikit'
+import { AutoColumn, AutoRow, Box, Button, Dots, Flex, QuestionHelper, RowBetween, Text } from '@pancakeswap/uikit'
 
 import { CommitButton } from 'components/CommitButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 
-import { Field } from 'state/mint/actions'
 import { ApprovalState } from 'hooks/useApproveCallback'
+import { Field } from 'state/mint/actions'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
 
-import { useIsExpertMode } from '@pancakeswap/utils/user'
-import useActiveWeb3React from 'hooks/useActiveWeb3React'
-import ConnectWalletButton from 'components/ConnectWalletButton'
 import { useTranslation } from '@pancakeswap/localization'
+import { useIsExpertMode } from '@pancakeswap/utils/user'
 import { LightGreyCard } from 'components/Card'
+import ConnectWalletButton from 'components/ConnectWalletButton'
+import useActiveWeb3React from 'hooks/useActiveWeb3React'
 
-import { CurrencyLogo } from 'components/Logo'
-import { useTotalUSDValue } from 'components/PositionCard'
 import { CurrencyAmount, Percent } from '@pancakeswap/sdk'
 import { BIG_ONE_HUNDRED } from '@pancakeswap/utils/bigNumber'
-import { AddStableChildrenProps } from 'views/AddLiquidity/AddStableLiquidity'
-import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
-import { FormattedSlippage } from 'views/AddLiquidity/AddStableLiquidity/components/FormattedSlippage'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
+import { CurrencyLogo } from 'components/Logo'
+import { useTotalUSDValue } from 'components/PositionCard'
+import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
+import { AddStableChildrenProps } from 'views/AddLiquidity/AddStableLiquidity'
+import { FormattedSlippage } from 'views/AddLiquidity/AddStableLiquidity/components/FormattedSlippage'
 
 import { RowFixed } from 'components/Layout/Row'
 
@@ -55,7 +55,7 @@ export default function StableFormView({
   price,
   maxAmounts,
 }: AddStableChildrenProps & {
-  stableLpFee: number
+  stableLpFee?: number
 }) {
   const addIsUnsupported = useIsTransactionUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
   const addIsWarning = useIsTransactionWarning(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
@@ -82,7 +82,7 @@ export default function StableFormView({
       </Button>
     )
   } else if (!account) {
-    buttons = <ConnectWalletButton width="100%" />
+    buttons = <ConnectWalletButton />
   } else if (isWrongNetwork) {
     buttons = <CommitButton />
   } else {
@@ -93,18 +93,18 @@ export default function StableFormView({
             {showFieldAApproval && (
               <Button onClick={approveACallback} disabled={approvalA === ApprovalState.PENDING} width="100%">
                 {approvalA === ApprovalState.PENDING ? (
-                  <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
+                  <Dots>{t('Enabling {{asset}}', { asset: currencies[Field.CURRENCY_A]?.symbol })}</Dots>
                 ) : (
-                  t('Enable %asset%', { asset: currencies[Field.CURRENCY_A]?.symbol })
+                  t('Enable {{asset}}', { asset: currencies[Field.CURRENCY_A]?.symbol })
                 )}
               </Button>
             )}
             {showFieldBApproval && (
               <Button onClick={approveBCallback} disabled={approvalB === ApprovalState.PENDING} width="100%">
                 {approvalB === ApprovalState.PENDING ? (
-                  <Dots>{t('Enabling %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
+                  <Dots>{t('Enabling {{asset}}', { asset: currencies[Field.CURRENCY_B]?.symbol })}</Dots>
                 ) : (
-                  t('Enable %asset%', { asset: currencies[Field.CURRENCY_B]?.symbol })
+                  t('Enable {{asset}}', { asset: currencies[Field.CURRENCY_B]?.symbol })
                 )}
               </Button>
             )}
@@ -230,7 +230,7 @@ export default function StableFormView({
 
               <Text>
                 {price?.toSignificant(6) ?? '-'}{' '}
-                {t('%assetA% per %assetB%', {
+                {t('{{assetA}} per {{assetB}}', {
                   assetB: currencies[Field.CURRENCY_B]?.symbol ?? '',
                   assetA: currencies[Field.CURRENCY_A]?.symbol ?? '',
                 })}

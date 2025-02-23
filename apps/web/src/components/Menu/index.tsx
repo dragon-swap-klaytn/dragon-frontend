@@ -1,90 +1,82 @@
-import { languageList, useTranslation } from '@pancakeswap/localization'
-import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
-import { Menu as UikitMenu, footerLinks, useModal } from '@pancakeswap/uikit'
-import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
-import USCitizenConfirmModal from 'components/Modal/USCitizenConfirmModal'
-import { NetworkSwitcher } from 'components/NetworkSwitcher'
-
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useCakePrice } from 'hooks/useCakePrice'
-import useTheme from 'hooks/useTheme'
-import { IdType } from 'hooks/useUserIsUsCitizenAcknowledgement'
-import { useWebNotifications } from 'hooks/useWebNotifications'
-import { useRouter } from 'next/router'
-import { useMemo } from 'react'
+import { List } from '@phosphor-icons/react'
+import { MobileSideBar } from 'components/Menu/MobileSideBar'
+import { DragonSwapLogo, DragonSwapTextLogo } from 'components/Vector'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import GlobalSettings from './GlobalSettings'
 import { SettingsMode } from './GlobalSettings/types'
 import UserMenu from './UserMenu'
-import { useMenuItems } from './hooks/useMenuItems'
-import { getActiveMenuItem, getActiveSubMenuItem } from './utils'
 
-// const Notifications = lazy(() => import('views/Notifications'))
+export const MENU_ITEMS = [
+  {
+    title: 'Swap',
+    href: '/swap',
+  },
+  {
+    title: 'Pools',
+    href: '/pools',
+  },
+  {
+    title: 'Dashboard',
+    href: '/dashboard/v3',
+  },
+]
 
-const LinkComponent = (linkProps) => {
-  return <NextLinkFromReactRouter to={linkProps.href} {...linkProps} prefetch={false} />
-}
+const Menu = () => {
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [globalSettingsOpen, setGlobalSettingsOpen] = useState(false)
 
-const Menu = (props) => {
-  const { enabled } = useWebNotifications()
-  const { chainId } = useActiveChainId()
-  const { isDark, setTheme } = useTheme()
-  const cakePrice = useCakePrice()
-  const { currentLanguage, setLanguage, t } = useTranslation()
-  const { pathname } = useRouter()
+  useEffect(() => {
+    if (!userMenuOpen) return
 
-  const [onUSCitizenModalPresent] = useModal(
-    <USCitizenConfirmModal title={t('PancakeSwap Perpetuals')} id={IdType.PERPETUALS} />,
-    false,
-    false,
-    'usCitizenConfirmModal',
-  )
+    setGlobalSettingsOpen(false)
+  }, [userMenuOpen, setGlobalSettingsOpen])
 
-  const menuItems = useMenuItems(onUSCitizenModalPresent)
+  useEffect(() => {
+    if (!globalSettingsOpen) return
 
-  const activeMenuItem = getActiveMenuItem({ menuConfig: menuItems, pathname })
-  const activeSubMenuItem = getActiveSubMenuItem({ menuItem: activeMenuItem, pathname })
+    setUserMenuOpen(false)
+  }, [globalSettingsOpen, setUserMenuOpen])
 
-  const toggleTheme = useMemo(() => {
-    return () => setTheme(isDark ? 'light' : 'dark')
-  }, [setTheme, isDark])
-
-  const getFooterLinks = useMemo(() => {
-    return footerLinks(t)
-  }, [t])
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
 
   return (
     <>
-      <UikitMenu
-        linkComponent={LinkComponent}
-        rightSide={
-          <>
-            <GlobalSettings mode={SettingsMode.GLOBAL} />
-            {/* {enabled && (
-              <Suspense fallback={null}>
-                <Notifications />
-              </Suspense>
-            )} */}
-            <NetworkSwitcher />
-            <UserMenu />
-          </>
-        }
-        chainId={chainId}
-        isDark={isDark}
-        toggleTheme={toggleTheme}
-        currentLang={currentLanguage.code}
-        langs={languageList}
-        setLang={setLanguage}
-        cakePriceUsd={cakePrice.eq(BIG_ZERO) ? undefined : cakePrice}
-        links={menuItems}
-        subLinks={activeMenuItem?.hideSubNav || activeSubMenuItem?.hideSubNav ? [] : activeMenuItem?.items}
-        footerLinks={getFooterLinks}
-        activeItem={activeMenuItem?.href}
-        activeSubItem={activeSubMenuItem?.href}
-        buyCakeLabel={t('Buy CAKE', { cake: CAKE_SYMBOL_VIEW })}
-        buyCakeLink="/swap?outputCurrency=KAIA&chainId=8217"
-        {...props}
-      />
+      <div className="fixed top-0 w-full z-header left-0 bg-surface flex items-center pl-5 pr-3 py-5 xs:pl-7 xs:pr-5 xs:py-5 md:p-8 justify-between">
+        <div className="md:hidden flex items-center space-x-4">
+          <Link href="/" className="hover:opacity-70">
+            <DragonSwapLogo />
+          </Link>
+
+          <button type="button" onClick={() => setShowMobileMenu(!showMobileMenu)} className="hover:opacity-70">
+            <List size={24} className="text-on-surface-subtle shrink-0" />
+          </button>
+        </div>
+
+        <div className="hidden md:flex items-center space-x-8">
+          <Link href="/" className="hover:opacity-70">
+            <DragonSwapTextLogo />
+          </Link>
+
+          {MENU_ITEMS.map((item) => (
+            <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface">
+              {item.title}
+            </Link>
+          ))}
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <UserMenu userMenuOpen={userMenuOpen} setUserMenuOpen={setUserMenuOpen} />
+
+          <GlobalSettings
+            mode={SettingsMode.GLOBAL}
+            globalSettingsOpen={globalSettingsOpen}
+            setGlobalSettingsOpen={setGlobalSettingsOpen}
+          />
+        </div>
+      </div>
+
+      <MobileSideBar isOpen={showMobileMenu} onDismiss={() => setShowMobileMenu(false)} />
     </>
   )
 }

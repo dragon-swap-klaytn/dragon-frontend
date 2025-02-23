@@ -1,15 +1,15 @@
-import { ReactElement, useCallback, useMemo, useState } from 'react'
+import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Percent, Price, Token } from '@pancakeswap/sdk'
 import { useModal } from '@pancakeswap/uikit'
-import { useTranslation } from '@pancakeswap/localization'
 import { useUserSlippage } from '@pancakeswap/utils/user'
+import { ReactElement, useCallback, useMemo, useState } from 'react'
 
 import { V2_ROUTER_ADDRESS } from 'config/constants/exchange'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import { useLPApr } from 'state/swap/useLPApr'
+import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { isUserRejected, logError } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { Hash } from 'viem'
 import { useWalletClient } from 'wagmi'
 import { SendTransactionResult } from 'wagmi/actions'
@@ -20,17 +20,17 @@ import { PairState } from 'hooks/usePairs'
 import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers } from 'state/mint/hooks'
 
+import { SettingsMode } from 'components/Menu/GlobalSettings/types'
+import { useAddLiquidityV2FormState } from 'state/mint/reducer'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useGasPrice, usePairAdder } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 import { calculateSlippageAmount, useRouterContract } from 'utils/exchange'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { SettingsMode } from 'components/Menu/GlobalSettings/types'
-import { useAddLiquidityV2FormState } from 'state/mint/reducer'
-import ConfirmAddLiquidityModal from './components/ConfirmAddLiquidityModal'
-import { useCurrencySelectRoute } from './useCurrencySelectRoute'
 import SettingsModal from '../../components/Menu/GlobalSettings/SettingsModal'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
+import ConfirmAddLiquidityModal from './components/ConfirmAddLiquidityModal'
+import { useCurrencySelectRoute } from './useCurrencySelectRoute'
 
 export interface LP2ChildrenProps {
   error?: string
@@ -60,14 +60,10 @@ export interface LP2ChildrenProps {
   } | null
   shouldShowApprovalGroup: boolean
   showFieldAApproval: boolean
-  approveACallback: () => Promise<SendTransactionResult>
-  revokeACallback: () => Promise<SendTransactionResult>
-  currentAllowanceA: CurrencyAmount<Currency> | undefined
+  approveACallback: () => Promise<SendTransactionResult | undefined>
   approvalA: ApprovalState
   showFieldBApproval: boolean
-  approveBCallback: () => Promise<SendTransactionResult>
-  revokeBCallback: () => Promise<SendTransactionResult>
-  currentAllowanceB: CurrencyAmount<Currency> | undefined
+  approveBCallback: () => Promise<SendTransactionResult | undefined>
   approvalB: ApprovalState
   onAdd: () => Promise<void>
   onPresentAddLiquidityModal: () => void
@@ -83,8 +79,8 @@ export default function AddLiquidity({
   currencyB,
   children,
 }: {
-  currencyA: Currency
-  currencyB: Currency
+  currencyA?: Currency
+  currencyB?: Currency
   children: (props: LP2ChildrenProps) => ReactElement
 }) {
   const { data: walletClient } = useWalletClient()
@@ -94,7 +90,7 @@ export default function AddLiquidity({
 
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const gasPrice = useGasPrice()
 
@@ -160,18 +156,14 @@ export default function AddLiquidity({
   )
 
   // check whether the user has approved the router on the tokens
-  const {
-    approvalState: approvalA,
-    approveCallback: approveACallback,
-    revokeCallback: revokeACallback,
-    currentAllowance: currentAllowanceA,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_A], chainId ? V2_ROUTER_ADDRESS[chainId] : undefined)
-  const {
-    approvalState: approvalB,
-    approveCallback: approveBCallback,
-    revokeCallback: revokeBCallback,
-    currentAllowance: currentAllowanceB,
-  } = useApproveCallback(parsedAmounts[Field.CURRENCY_B], chainId && V2_ROUTER_ADDRESS[chainId])
+  const { approvalState: approvalA, approveCallback: approveACallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_A],
+    chainId ? V2_ROUTER_ADDRESS[chainId] : undefined,
+  )
+  const { approvalState: approvalB, approveCallback: approveBCallback } = useApproveCallback(
+    parsedAmounts[Field.CURRENCY_B],
+    chainId && V2_ROUTER_ADDRESS[chainId],
+  )
 
   const addTransaction = useTransactionAdder()
 
@@ -250,7 +242,7 @@ export default function AddLiquidity({
             {
               summary: `Add ${amountA} ${symbolA} and ${amountB} ${symbolB}`,
               translatableSummary: {
-                text: 'Add %amountA% %symbolA% and %amountB% %symbolB%',
+                text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
                 data: { amountA, symbolA, amountB, symbolB },
               },
               type: 'add-liquidity',
@@ -271,14 +263,14 @@ export default function AddLiquidity({
           attemptingTxn: false,
           liquidityErrorMessage:
             err && !isUserRejected(err)
-              ? t('Add liquidity failed: %message%', { message: transactionErrorToUserReadableMessage(err, t) })
+              ? t('Add liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
               : undefined,
           txHash: undefined,
         })
       })
   }
 
-  const pendingText = t('Supplying %amountA% %symbolA% and %amountB% %symbolB%', {
+  const pendingText = t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
     amountA: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_A], 4, locale),
     symbolA: currencies[Field.CURRENCY_A]?.symbol ?? '',
     amountB: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_B], 4, locale),
@@ -316,6 +308,19 @@ export default function AddLiquidity({
     true,
     true,
     'addLiquidityModal',
+    [
+      noLiquidity,
+      attemptingTxn,
+      txHash,
+      pair?.liquidityToken,
+      allowedSlippage,
+      parsedAmounts,
+      currencies,
+      price,
+      noLiquidity,
+      poolTokenPercentage,
+      liquidityMinted,
+    ],
   )
 
   const onPresentAddLiquidityModal = useCallback(() => {
@@ -361,13 +366,9 @@ export default function AddLiquidity({
     showFieldAApproval,
     approveACallback,
     approvalA,
-    revokeACallback,
-    currentAllowanceA,
     showFieldBApproval,
     approveBCallback,
     approvalB,
-    revokeBCallback,
-    currentAllowanceB,
     onAdd,
     onPresentAddLiquidityModal,
     buttonDisabled,

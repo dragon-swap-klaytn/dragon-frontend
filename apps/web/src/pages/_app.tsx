@@ -1,11 +1,9 @@
-import { ResetCSS, ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
+import { ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { ErrorBoundary } from 'components/ErrorBoundary'
-import GlobalCheckClaimStatus from 'components/GlobalCheckClaimStatus'
 import { PageMeta } from 'components/Layout/Page'
 import { NetworkModal } from 'components/NetworkModal'
 import { FixedSubgraphHealthIndicator } from 'components/SubgraphHealthIndicator/FixedSubgraphHealthIndicator'
-import TransactionsDetailModal from 'components/TransactionDetailModal'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
 // import useEagerConnectMP from 'hooks/useEagerConnect.bmp'
 import useLockedEndNotification from 'hooks/useLockedEndNotification'
@@ -21,6 +19,9 @@ import { Fragment } from 'react'
 import { PersistGate } from 'redux-persist/integration/react'
 
 // import { useDataDogRUM } from 'hooks/useDataDogRUM'
+import { ChainId } from '@pancakeswap/chains'
+import { appWithTranslation } from '@pancakeswap/localization'
+import Footer from 'components/Menu/Footer'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
 import { persistor, useStore } from 'state'
@@ -29,7 +30,7 @@ import { Blocklist, Updaters } from '..'
 import { SEO } from '../../next-seo.config'
 import Providers from '../Providers'
 import Menu from '../components/Menu'
-import GlobalStyle from '../style/Global'
+import '../style/global.css'
 
 // This config is required for number formatting
 BigNumber.config({
@@ -83,9 +84,7 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
         )}
         <Blocklist>
           {(Component as NextPageWithLayout).mp ? <MPGlobalHooks /> : <GlobalHooks />}
-          <ResetCSS />
-          <GlobalStyle />
-          <GlobalCheckClaimStatus excludeLocations={[]} />
+          {/* <ResetCSS /> */}
           <PersistGate loading={null} persistor={persistor}>
             <Updaters />
             <App {...props} />
@@ -117,9 +116,9 @@ type NextPageWithLayout = NextPage & {
   mp?: boolean
   /**
    * allow chain per page, empty array bypass chain block modal
-   * @default [ChainId.BSC]
+   * @default [ChainId.Klaytn]
    * */
-  chains?: number[]
+  chains?: ChainId[]
   isShowScrollToTopButton?: true
   /**
    * Meta component for page, hacky solution for static build page to avoid `PersistGate` which blocks the page from rendering
@@ -140,23 +139,23 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
 
   // Use the layout defined at the page level, if available
   const Layout = Component.Layout || Fragment
-  const ShowMenu = Component.mp ? Fragment : Menu
   const isShowScrollToTopButton = Component.isShowScrollToTopButton || true
 
   return (
     <ProductionErrorBoundary>
-      <ShowMenu>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </ShowMenu>
+      <Menu />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+
+      <Footer />
+
       <ToastListener />
       <FixedSubgraphHealthIndicator />
       <NetworkModal pageSupportedChains={Component.chains} />
-      <TransactionsDetailModal />
       {isShowScrollToTopButton && <ScrollToTopButtonV2 />}
     </ProductionErrorBoundary>
   )
 }
 
-export default MyApp
+export default appWithTranslation(MyApp)

@@ -1,5 +1,6 @@
-import { Text, AtomBox, SwapCSS } from "@pancakeswap/uikit";
+import { AtomBox, SwapCSS, Text } from "@pancakeswap/uikit";
 
+import clsx from "clsx";
 import { NumericalInput, NumericalInputProps } from "./NumericalInput";
 
 interface CurrencyInputPanelProps extends Omit<NumericalInputProps, "onBlur"> {
@@ -33,13 +34,17 @@ export function CurrencyInputPanel({
         position="relative"
         backgroundColor="formBackground"
         zIndex="1"
+        className="bg-neutral rounded-2xl"
       >
         <AtomBox
           as="label"
-          className={SwapCSS.inputContainerVariants({
-            showBridgeWarning: !!showBridgeWarning,
-            error: Boolean(error),
-          })}
+          className={clsx(
+            SwapCSS.inputContainerVariants({
+              showBridgeWarning: !!showBridgeWarning,
+              error: Boolean(error),
+            }),
+            "bg-neutral"
+          )}
         >
           <AtomBox
             display="flex"
@@ -55,12 +60,10 @@ export function CurrencyInputPanel({
               error={Boolean(error)}
               disabled={disabled}
               loading={loading}
-              className="token-amount-input"
+              className="token-amount-input text-on-surface text-lg"
               value={value}
               onBlur={onInputBlur}
-              onUserInput={(val) => {
-                onUserInput(val);
-              }}
+              onUserInput={onUserInput}
             />
           </AtomBox>
           {bottom}

@@ -1,5 +1,4 @@
 import { NextRouter, useRouter } from 'next/router'
-import { useTranslation, languageList } from '@pancakeswap/localization'
 import { useEffect, useState } from 'react'
 /* eslint-disable no-console */
 const cbList = {}
@@ -147,29 +146,29 @@ export const useInterceptLink = () => {
     }
   }, [router])
 }
-const code2Lang = languageList.reduce((prev, next) => {
-  // eslint-disable-next-line no-param-reassign
-  prev[next.code.toLowerCase()] = next
-  return prev
-}, {})
+// const code2Lang = languageList.reduce((prev, next) => {
+//   // eslint-disable-next-line no-param-reassign
+//   prev[next.code.toLowerCase()] = next
+//   return prev
+// }, {})
 
 export const useInjectI18n = () => {
   const [injected, setInjected] = useState(false)
   const systemInfo = useSystemInfo()
-  const { setLanguage } = useTranslation()
+  // const { setLanguage } = useTranslation()
   useEffect(() => {
     const main = async () => {
       if (systemInfo) {
-        const { language } = systemInfo
-        const currLanguage = code2Lang[language.toLowerCase()]
-        if (currLanguage) {
-          await setLanguage(currLanguage)
-        }
+        // const { language } = systemInfo
+        // const currLanguage = code2Lang[language.toLowerCase()]
+        // if (currLanguage) {
+        //   await setLanguage(currLanguage)
+        // }
         setInjected(true)
       }
     }
     main()
-  }, [systemInfo, setLanguage])
+  }, [systemInfo])
   return { injected }
 }
 export default getWeb3Provider

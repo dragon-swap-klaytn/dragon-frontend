@@ -1,48 +1,39 @@
+import { Currency, Token } from '@pancakeswap/swap-sdk-core'
 import { CSSProperties } from 'react'
-import { Token, Currency } from '@pancakeswap/swap-sdk-core'
-import { TokenRowButton } from '@pancakeswap/widgets-internal'
 import TokenRowWithCurrencyLogo from './TokenRowWithCurrencyLogo'
 
 interface ImportTokenRowProps {
   token: Token
   style?: CSSProperties
-  dim?: boolean
   onCurrencySelect?: (currency: Currency) => void
-  list: any
   isActive: boolean
   isAdded: boolean
   setImportToken: (token: Token) => void
   showImportView: () => void
+  className?: string
 }
 
 const ImportTokenRow: React.FC<React.PropsWithChildren<ImportTokenRowProps>> = ({
   token,
   style,
-  dim,
-  list,
   onCurrencySelect,
   isActive,
   isAdded,
   setImportToken,
   showImportView,
+  className,
 }) => {
   return (
     <TokenRowWithCurrencyLogo
       style={style}
       token={token}
-      dim={dim}
-      list={list}
       onCurrencySelect={onCurrencySelect}
       isActive={isActive}
-    >
-      <TokenRowButton<Token>
-        token={token}
-        isActive={isActive}
-        isAdded={isAdded}
-        setImportToken={setImportToken}
-        showImportView={showImportView}
-      />
-    </TokenRowWithCurrencyLogo>
+      isAdded={isAdded}
+      setImportToken={setImportToken as any}
+      showImportView={showImportView}
+      className={className}
+    />
   )
 }
 

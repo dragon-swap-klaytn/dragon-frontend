@@ -1,15 +1,18 @@
+import clsx from "clsx";
 import { PropsWithChildren, ReactNode } from "react";
 import { SpaceProps } from "styled-system";
 
-import { Box, Text } from "@pancakeswap/uikit";
-
-export function Section({ title, children, ...rest }: { title?: ReactNode } & PropsWithChildren & SpaceProps) {
+export function Section({
+  title,
+  children,
+  className,
+  mb = "mb-4",
+}: { title?: ReactNode; className?: string; mb?: string } & PropsWithChildren & SpaceProps) {
   return (
-    <Box mb="24px" width="100%" {...rest}>
-      <Text color="secondary" bold fontSize="12px" textTransform="uppercase" mb="16px">
-        {title}
-      </Text>
+    <div className={clsx("w-full", className, mb)}>
+      <h3 className="text-xs text-on-surface-brand self-start mb-2">{title}</h3>
+
       {children}
-    </Box>
+    </div>
   );
 }

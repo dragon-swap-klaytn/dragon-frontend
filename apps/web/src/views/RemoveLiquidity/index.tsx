@@ -1,82 +1,52 @@
-import { useCallback, useMemo, useState } from 'react'
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import { styled } from 'styled-components'
-import { useRouter } from 'next/router'
-import { Currency, Percent, WNATIVE } from '@pancakeswap/sdk'
-import {
-  Button,
-  Text,
-  AddIcon,
-  ArrowDownIcon,
-  CardBody,
-  Slider,
-  Box,
-  Flex,
-  useModal,
-  TooltipText,
-  useTooltip,
-  useToast,
-  useMatchBreakpoints,
-  IconButton,
-  PencilIcon,
-  AutoColumn,
-  ColumnCenter,
-} from '@pancakeswap/uikit'
-import { useDebouncedChangeHandler } from '@pancakeswap/hooks'
-import { useSignTypedData } from 'wagmi'
-import useNativeCurrency from 'hooks/useNativeCurrency'
-import { CommitButton } from 'components/CommitButton'
 import { useTranslation } from '@pancakeswap/localization'
+import { Percent, WNATIVE } from '@pancakeswap/sdk'
+import { Box, ButtonV2, CurrencyLogoWithAmount, useModal, useToast, useTooltip } from '@pancakeswap/uikit'
 import { useUserSlippage } from '@pancakeswap/utils/user'
-import { V2_ROUTER_ADDRESS } from 'config/constants/exchange'
-import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import { useLPApr } from 'state/swap/useLPApr'
+import { CommitButton } from 'components/CommitButton'
 import { formattedCurrencyAmount } from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
+import { V2_ROUTER_ADDRESS } from 'config/constants/exchange'
+import useNativeCurrency from 'hooks/useNativeCurrency'
+import { useRouter } from 'next/router'
+import { useCallback, useMemo, useState } from 'react'
+import { useLPApr } from 'state/swap/useLPApr'
+import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
+import { useSignTypedData } from 'wagmi'
 // import { splitSignature } from 'utils/splitSignature'
 import { Hash } from 'viem'
 
-import { MinimalPositionCard } from 'components/PositionCard'
-import { RowBetween } from 'components/Layout/Row'
-import { LightGreyCard } from 'components/Card'
-
 import { usePairContract } from 'hooks/useContract'
 
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { useBurnActionHandlers, useDerivedBurnInfo } from 'state/burn/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { calculateSlippageAmount, useRouterContract } from 'utils/exchange'
-import { currencyId } from 'utils/currencyId'
-import { useApproveCallback, ApprovalState } from 'hooks/useApproveCallback'
-import { useBurnActionHandlers, useDerivedBurnInfo } from 'state/burn/hooks'
 
-import { Field } from 'state/burn/actions'
-import { useGasPrice } from 'state/user/hooks'
-import { isUserRejected, logError } from 'utils/sentry'
-import { CommonBasesType } from 'components/SearchModal/types'
+import { ArrowDown, ArrowRight } from '@phosphor-icons/react'
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
+import { CommonBasesType } from 'components/SearchModal/types'
+import { useBackTo } from 'hooks/use-back-to'
+import Link from 'next/link'
+import { Field } from 'state/burn/actions'
 import { useRemoveLiquidityV2FormState } from 'state/burn/reducer'
+import { useGasPrice } from 'state/user/hooks'
+import { useCurrencyBalance } from 'state/wallet/hooks'
+import { isUserRejected, logError } from 'utils/sentry'
+import { SectionTitle } from 'views/AddLiquidityV3'
+import { AppBody, AppHeader } from '../../components/App'
+import ConnectWalletButton from '../../components/ConnectWalletButton'
+import CurrencyInputPanel from '../../components/CurrencyInputPanel'
+import Dots from '../../components/Loader/Dots'
+import SettingsModal from '../../components/Menu/GlobalSettings/SettingsModal'
+import useActiveWeb3React from '../../hooks/useActiveWeb3React'
+import useTransactionDeadline from '../../hooks/useTransactionDeadline'
+import { formatAmount } from '../../utils/formatInfoNumbers'
 import Page from '../Page'
 import ConfirmLiquidityModal from '../Swap/components/ConfirmRemoveLiquidityModal'
-import { formatAmount } from '../../utils/formatInfoNumbers'
-import SettingsModal from '../../components/Menu/GlobalSettings/SettingsModal'
-import Dots from '../../components/Loader/Dots'
-import StyledInternalLink from '../../components/Links'
-import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import useActiveWeb3React from '../../hooks/useActiveWeb3React'
-import { CurrencyLogo } from '../../components/Logo'
-import ConnectWalletButton from '../../components/ConnectWalletButton'
-import { AppHeader, AppBody } from '../../components/App'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-
-const BorderCard = styled.div`
-  border: solid 1px ${({ theme }) => theme.colors.cardBorder};
-  border-radius: 16px;
-  padding: 16px;
-`
 
 export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, currencyIdB }) {
   const router = useRouter()
   const native = useNativeCurrency()
-  const { isMobile } = useMatchBreakpoints()
 
   const { account, chainId, isWrongNetwork } = useActiveWeb3React()
   const { signTypedDataAsync } = useSignTypedData()
@@ -89,6 +59,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
   // burn state
   const { independentField, typedValue } = useRemoveLiquidityV2FormState()
   const { pair, parsedAmounts, error } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined)
+
   const poolData = useLPApr(pair)
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     t(`Based on last 7 days' performance. Does not account for impermanent loss`),
@@ -100,7 +71,6 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
   const isValid = !error
 
   // modal and loading
-  const [showDetailed, setShowDetailed] = useState<boolean>(false)
   const [{ attemptingTxn, liquidityErrorMessage, txHash }, setLiquidityState] = useState<{
     attemptingTxn: boolean
     liquidityErrorMessage: string | undefined
@@ -154,7 +124,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
       throw new Error('missing liquidity amount')
     }
 
-    return approveCallback()
+    return approveCallback().catch(() => {})
 
     // // try to gather a signature for permission
     // const nonce = await pairContractRead.read.nonces([account])
@@ -223,8 +193,6 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
   )
 
   const onLiquidityInput = useCallback((value: string): void => onUserInput(Field.LIQUIDITY, value), [onUserInput])
-  const onCurrencyAInput = useCallback((value: string): void => onUserInput(Field.CURRENCY_A, value), [onUserInput])
-  const onCurrencyBInput = useCallback((value: string): void => onUserInput(Field.CURRENCY_B, value), [onUserInput])
 
   // tx sending
   const addTransaction = useTransactionAdder()
@@ -368,7 +336,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
             {
               summary: `Remove ${amountA} ${currencyA?.symbol} and ${amountB} ${currencyB?.symbol}`,
               translatableSummary: {
-                text: 'Remove %amountA% %symbolA% and %amountB% %symbolB%',
+                text: 'Remove {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
                 data: { amountA, symbolA: currencyA?.symbol, amountB, symbolB: currencyB?.symbol },
               },
               type: 'remove-liquidity',
@@ -389,7 +357,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
             attemptingTxn: false,
             liquidityErrorMessage:
               err && !isUserRejected(err)
-                ? t('Remove liquidity failed: %message%', { message: transactionErrorToUserReadableMessage(err, t) })
+                ? t('Remove liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
                 : undefined,
             txHash: undefined,
           })
@@ -397,45 +365,17 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
     }
   }
 
-  const pendingText = t('Removing %amountA% %symbolA% and %amountB% %symbolB%', {
+  const pendingText = t('Removing {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
     amountA: parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '',
     symbolA: currencyA?.symbol ?? '',
     amountB: parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '',
     symbolB: currencyB?.symbol ?? '',
   })
 
-  const liquidityPercentChangeCallback = useCallback(
-    (value: number) => {
-      onUserInput(Field.LIQUIDITY_PERCENT, value.toString())
-    },
-    [onUserInput],
-  )
-
   const oneCurrencyIsNative = currencyA?.isNative || currencyB?.isNative
   const oneCurrencyIsWNative = Boolean(
     chainId &&
       ((currencyA && WNATIVE[chainId]?.equals(currencyA)) || (currencyB && WNATIVE[chainId]?.equals(currencyB))),
-  )
-
-  const handleSelectCurrencyA = useCallback(
-    (currency: Currency) => {
-      if (currencyIdB && currencyId(currency) === currencyIdB) {
-        router.replace(`/v2/remove/${currencyId(currency)}/${currencyIdA}`, undefined, { shallow: true })
-      } else {
-        router.replace(`/v2/remove/${currencyId(currency)}/${currencyIdB}`, undefined, { shallow: true })
-      }
-    },
-    [currencyIdA, currencyIdB, router],
-  )
-  const handleSelectCurrencyB = useCallback(
-    (currency: Currency) => {
-      if (currencyIdA && currencyId(currency) === currencyIdA) {
-        router.replace(`/v2/remove/${currencyIdB}/${currencyId(currency)}`, undefined, { shallow: true })
-      } else {
-        router.replace(`/v2/remove/${currencyIdA}/${currencyId(currency)}`, undefined, { shallow: true })
-      }
-    },
-    [currencyIdA, currencyIdB, router],
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -445,16 +385,6 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
       onUserInput(Field.LIQUIDITY_PERCENT, '0')
     }
   }, [onUserInput, txHash])
-
-  const [innerLiquidityPercentage, setInnerLiquidityPercentage] = useDebouncedChangeHandler(
-    Number.parseInt(parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0)),
-    liquidityPercentChangeCallback,
-  )
-
-  const handleChangePercent = useCallback(
-    (value: any) => setInnerLiquidityPercentage(Math.ceil(value)),
-    [setInnerLiquidityPercentage],
-  )
 
   const [onPresentRemoveLiquidity] = useModal(
     <ConfirmLiquidityModal
@@ -467,8 +397,6 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
       pendingText={pendingText}
       approval={approvalState}
       signatureData={signatureData}
-      tokenA={tokenA}
-      tokenB={tokenB}
       liquidityErrorMessage={liquidityErrorMessage}
       parsedAmounts={parsedAmounts}
       currencyA={currencyA}
@@ -477,233 +405,137 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
     true,
     true,
     'removeLiquidityModal',
+    [txHash, allowedSlippage, attemptingTxn, approvalState, signatureData, parsedAmounts, currencyA, currencyB],
   )
 
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)
+  const lpBalance = useCurrencyBalance(account ?? undefined, pair?.liquidityToken)
+
+  const { saveBackToHref } = useBackTo()
 
   return (
-    <CardBody>
-      <AutoColumn gap="20px">
-        <RowBetween>
-          <Text>{t('Amount')}</Text>
-          <Button variant="text" scale="sm" onClick={() => setShowDetailed(!showDetailed)}>
-            {showDetailed ? t('Simple') : t('Detailed')}
-          </Button>
-        </RowBetween>
-        {!showDetailed && (
-          <BorderCard style={{ padding: isMobile ? '8px' : '16px' }}>
-            <Text fontSize="40px" bold mb="16px" style={{ lineHeight: 1 }}>
-              {formattedAmounts[Field.LIQUIDITY_PERCENT]}%
-            </Text>
-            <Slider
-              name="lp-amount"
-              min={0}
-              max={100}
-              value={innerLiquidityPercentage}
-              onValueChanged={handleChangePercent}
-              mb="16px"
-            />
-            <Flex flexWrap="wrap" justifyContent="space-evenly">
-              <Button variant="tertiary" scale="sm" onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>
-                25%
-              </Button>
-              <Button variant="tertiary" scale="sm" onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>
-                50%
-              </Button>
-              <Button variant="tertiary" scale="sm" onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>
-                75%
-              </Button>
-              <Button variant="tertiary" scale="sm" onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '100')}>
-                {t('Max')}
-              </Button>
-            </Flex>
-          </BorderCard>
-        )}
-      </AutoColumn>
-      {!showDetailed && (
-        <>
-          <ColumnCenter>
-            <ArrowDownIcon color="textSubtle" width="24px" my="16px" />
-          </ColumnCenter>
-          <AutoColumn gap="12px">
-            <Text bold color="secondary" fontSize="12px" textTransform="uppercase">
-              {t('Receive')}
-            </Text>
-            <LightGreyCard>
-              <Flex justifyContent="space-between" mb="8px" as="label" alignItems="center">
-                <Flex alignItems="center">
-                  <CurrencyLogo currency={currencyA} />
-                  <Text small color="textSubtle" id="remove-liquidity-tokena-symbol" ml="4px">
-                    {currencyA?.symbol}
-                  </Text>
-                </Flex>
-                <Flex>
-                  <Text small bold>
-                    {formattedAmounts[Field.CURRENCY_A] || '0'}
-                  </Text>
-                  <Text small ml="4px">
-                    (50%)
-                  </Text>
-                </Flex>
-              </Flex>
-              <Flex justifyContent="space-between" as="label" alignItems="center">
-                <Flex alignItems="center">
-                  <CurrencyLogo currency={currencyB} />
-                  <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                    {currencyB?.symbol}
-                  </Text>
-                </Flex>
-                <Flex>
-                  <Text bold small>
-                    {formattedAmounts[Field.CURRENCY_B] || '0'}
-                  </Text>
-                  <Text small ml="4px">
-                    (50%)
-                  </Text>
-                </Flex>
-              </Flex>
-              {chainId && (oneCurrencyIsWNative || oneCurrencyIsNative) ? (
-                <RowBetween style={{ justifyContent: 'flex-end', fontSize: '14px' }}>
-                  {oneCurrencyIsNative ? (
-                    <StyledInternalLink
-                      href={`/v2/remove/${currencyA?.isNative ? WNATIVE[chainId]?.address : currencyIdA}/${
-                        currencyB?.isNative ? WNATIVE[chainId]?.address : currencyIdB
-                      }`}
-                    >
-                      {t('Receive %currency%', { currency: WNATIVE[chainId]?.symbol })}
-                    </StyledInternalLink>
-                  ) : oneCurrencyIsWNative ? (
-                    <StyledInternalLink
-                      href={`/v2/remove/${
-                        currencyA && currencyA.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdA
-                      }/${currencyB && currencyB.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdB}`}
-                    >
-                      {t('Receive %currency%', { currency: native?.symbol })}
-                    </StyledInternalLink>
-                  ) : null}
-                </RowBetween>
-              ) : null}
-            </LightGreyCard>
-          </AutoColumn>
-        </>
+    <div className="p-5 md:p-8">
+      <SectionTitle>{t('Amount')}</SectionTitle>
+
+      <CurrencyInputPanel
+        className="mt-2"
+        value={formattedAmounts[Field.LIQUIDITY]}
+        onUserInput={onLiquidityInput}
+        showMaxButton
+        maxAmount={lpBalance}
+        onMax={() => {
+          onUserInput(Field.LIQUIDITY_PERCENT, '100')
+        }}
+        showQuickInputButton
+        onPercentInput={(percent) => {
+          onUserInput(Field.LIQUIDITY_PERCENT, percent.toString())
+        }}
+        disableCurrencySelect
+        currency={pair?.liquidityToken}
+        pair={pair}
+        id="liquidity-amount"
+        onCurrencySelect={() => null}
+        showCommonBases
+        commonBasesType={CommonBasesType.LIQUIDITY}
+      />
+
+      <ArrowDown size={24} className="text-on-surface mx-auto my-6" />
+
+      <div className="flex items-center space-x-2 justify-between w-full">
+        <SectionTitle>{t('Receive')}</SectionTitle>
+
+        {chainId && (oneCurrencyIsWNative || oneCurrencyIsNative) ? (
+          <div className="flex items-center justify-end space-x-2 text-xs text-on-surface-subtle w-full">
+            {oneCurrencyIsNative ? (
+              <Link
+                href={`/v2/remove/${currencyA?.isNative ? WNATIVE[chainId]?.address : currencyIdA}/${
+                  currencyB?.isNative ? WNATIVE[chainId]?.address : currencyIdB
+                }`}
+                className="hover:opacity-70 underline underline-offset-2 flex items-center space-x-1"
+                onClick={saveBackToHref}
+              >
+                <span>{t('Receive {{currency}}', { currency: WNATIVE[chainId]?.symbol })}</span>
+                <ArrowRight size={16} />
+              </Link>
+            ) : oneCurrencyIsWNative ? (
+              <Link
+                href={`/v2/remove/${currencyA && currencyA.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdA}/${
+                  currencyB && currencyB.equals(WNATIVE[chainId]) ? native?.symbol : currencyIdB
+                }`}
+                className="hover:opacity-70 underline underline-offset-2 flex items-center space-x-1"
+                onClick={saveBackToHref}
+              >
+                <span>{t('Receive {{currency}}', { currency: native?.symbol })}</span>
+                <ArrowRight size={12} />
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-2">
+        <CurrencyLogoWithAmount
+          currencyA={currencyA}
+          symbol={currencyA?.symbol}
+          amount={`${formattedAmounts[Field.CURRENCY_A] || '0'}`}
+          className="py-3 border-y border-border"
+        />
+
+        <CurrencyLogoWithAmount
+          currencyA={currencyB}
+          symbol={currencyB?.symbol}
+          amount={`${formattedAmounts[Field.CURRENCY_B] || '0'}`}
+          className="py-3 border-b border-border"
+        />
+      </div>
+
+      {pair && (
+        <div className="flex items-start space-x-2 w-full justify-between text-[13px] text-on-surface mt-2">
+          <h5>{t('Prices')}</h5>
+
+          <div className="flex flex-col items-end space-y-1">
+            <span>
+              1 {currencyA?.symbol} = {tokenA ? pair.priceOf(tokenA).toSignificant(6) : '-'} {currencyB?.symbol}
+            </span>
+            <span>
+              1 {currencyB?.symbol} = {tokenB ? pair.priceOf(tokenB).toSignificant(6) : '-'} {currencyA?.symbol}
+            </span>
+          </div>
+        </div>
       )}
 
-      {showDetailed && (
-        <Box my="16px">
-          <CurrencyInputPanel
-            value={formattedAmounts[Field.LIQUIDITY]}
-            onUserInput={onLiquidityInput}
-            onPercentInput={(percent) => {
-              onUserInput(Field.LIQUIDITY_PERCENT, percent.toString())
-            }}
-            onMax={() => {
-              onUserInput(Field.LIQUIDITY_PERCENT, '100')
-            }}
-            showQuickInputButton
-            showMaxButton
-            lpPercent={formattedAmounts[Field.LIQUIDITY_PERCENT]}
-            disableCurrencySelect
-            currency={pair?.liquidityToken}
-            pair={pair}
-            id="liquidity-amount"
-            onCurrencySelect={() => null}
-            showCommonBases
-            commonBasesType={CommonBasesType.LIQUIDITY}
-          />
-          <ColumnCenter>
-            <ArrowDownIcon width="24px" my="16px" />
-          </ColumnCenter>
-          <CurrencyInputPanel
-            hideBalance
-            value={formattedAmounts[Field.CURRENCY_A]}
-            onUserInput={onCurrencyAInput}
-            onMax={() => onUserInput(Field.LIQUIDITY_PERCENT, '100')}
-            showMaxButton
-            lpPercent={formattedAmounts[Field.LIQUIDITY_PERCENT]}
-            currency={currencyA}
-            label={t('Output')}
-            onCurrencySelect={handleSelectCurrencyA}
-            id="remove-liquidity-tokena"
-            showCommonBases
-            commonBasesType={CommonBasesType.LIQUIDITY}
-          />
-          <ColumnCenter>
-            <AddIcon width="24px" my="16px" />
-          </ColumnCenter>
-          <CurrencyInputPanel
-            hideBalance
-            value={formattedAmounts[Field.CURRENCY_B]}
-            onUserInput={onCurrencyBInput}
-            showMaxButton={false}
-            currency={currencyB}
-            label={t('Output')}
-            onCurrencySelect={handleSelectCurrencyB}
-            id="remove-liquidity-tokenb"
-            showCommonBases
-            commonBasesType={CommonBasesType.LIQUIDITY}
-          />
-        </Box>
-      )}
-      {pair && (
-        <AutoColumn gap="12px" style={{ marginTop: '16px' }}>
-          <Text bold color="secondary" fontSize="12px" textTransform="uppercase">
-            {t('Prices')}
-          </Text>
-          <LightGreyCard>
-            <Flex justifyContent="space-between">
-              <Text small color="textSubtle">
-                1 {currencyA?.symbol} =
-              </Text>
-              <Text small>
-                {tokenA ? pair.priceOf(tokenA).toSignificant(6) : '-'} {currencyB?.symbol}
-              </Text>
-            </Flex>
-            <Flex justifyContent="space-between">
-              <Text small color="textSubtle">
-                1 {currencyB?.symbol} =
-              </Text>
-              <Text small>
-                {tokenB ? pair.priceOf(tokenB).toSignificant(6) : '-'} {currencyA?.symbol}
-              </Text>
-            </Flex>
-          </LightGreyCard>
-        </AutoColumn>
-      )}
-      <RowBetween mt="16px">
-        <Text bold color="secondary" fontSize="12px">
-          {t('Slippage Tolerance')}
-          <IconButton scale="sm" variant="text" onClick={onPresentSettingsModal}>
-            <PencilIcon color="primary" width="10px" />
-          </IconButton>
-        </Text>
-        <Text bold color="primary">
-          {allowedSlippage / 100}%
-        </Text>
-      </RowBetween>
+      <button
+        type="button"
+        className="flex items-center w-full justify-between hover:opacity-70 text-[13px] text-on-surface mt-2"
+        onClick={onPresentSettingsModal}
+      >
+        <h5 className="text-[13px]">{t('Slippage Tolerance')}</h5>
+
+        <span>{allowedSlippage / 100}%</span>
+      </button>
+
       {poolData && (
-        <RowBetween mt="16px">
-          <TooltipText ref={targetRef} bold fontSize="12px" color="secondary">
-            {t('LP reward APR')}
-          </TooltipText>
+        <div className="flex items-start space-x-2 w-full justify-between text-[13px] text-on-surface mt-2">
+          <span ref={targetRef}>{t('LP reward APR')}</span>
+
           {tooltipVisible && tooltip}
-          <Text bold color="primary">
-            {formatAmount(poolData.lpApr7d)}%
-          </Text>
-        </RowBetween>
+          <span>{formatAmount(poolData.lpApr7d)}%</span>
+        </div>
       )}
+
       <Box position="relative" mt="16px">
         {!account ? (
-          <ConnectWalletButton width="100%" />
+          <ConnectWalletButton />
         ) : isWrongNetwork ? (
           <CommitButton width="100%" />
         ) : (
-          <RowBetween>
-            <Button
-              variant={approvalState === ApprovalState.APPROVED || signatureData !== null ? 'success' : 'primary'}
+          <div className="w-full flex items-center space-x-2">
+            <ButtonV2
+              // variant={approvalState === ApprovalState.APPROVED || signatureData !== null ? 'success' : 'primary'}
+              variant="primary"
               onClick={onAttemptToApprove}
               disabled={approvalState !== ApprovalState.NOT_APPROVED || signatureData !== null}
-              width="100%"
-              mr="0.5rem"
+              fullWidth
             >
               {approvalState === ApprovalState.PENDING ? (
                 <Dots>{t('Enabling')}</Dots>
@@ -712,12 +544,13 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
               ) : (
                 t('Enable')
               )}
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={
-                !isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]
-                  ? 'danger'
-                  : 'primary'
+                // !isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]
+                //   ? 'danger'
+                //   : 'primary'
+                'primary'
               }
               onClick={() => {
                 setLiquidityState({
@@ -727,47 +560,50 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
                 })
                 onPresentRemoveLiquidity()
               }}
-              width="100%"
+              fullWidth
               disabled={!isValid || (signatureData === null && approvalState !== ApprovalState.APPROVED)}
             >
               {error || t('Remove')}
-            </Button>
-          </RowBetween>
+            </ButtonV2>
+          </div>
         )}
       </Box>
-    </CardBody>
+    </div>
   )
 }
 
 export const RemoveLiquidityV2Layout = ({ currencyA, currencyB, children }) => {
-  const { pair } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined)
-
   return (
-    <RemoveLiquidityLayout currencyA={currencyA} currencyB={currencyB} pair={pair}>
+    <RemoveLiquidityLayout currencyA={currencyA} currencyB={currencyB}>
       {children}
     </RemoveLiquidityLayout>
   )
 }
 
-export const RemoveLiquidityLayout = ({ currencyA, currencyB, children, pair }) => {
-  const { t } = useTranslation()
-  const { chainId } = useActiveChainId()
+export const RemoveLiquidityLayout = ({ currencyA, currencyB, children }) => {
+  // const addressA = useMemo(() => {
+  //   if (!currencyA) return ''
+  //   return currencyA && 'isNative' in currencyA && currencyA.isNative ? currencyA.symbol : currencyA.address
+  // }, [currencyA])
+  // const addressB = useMemo(() => {
+  //   if (!currencyB) return ''
 
-  const oneCurrencyIsWNative = Boolean(
-    chainId &&
-      ((currencyA && WNATIVE[chainId]?.equals(currencyA)) || (currencyB && WNATIVE[chainId]?.equals(currencyB))),
-  )
+  //   return currencyB && 'isNative' in currencyB && currencyB.isNative ? currencyB.symbol : currencyB.address
+  // }, [currencyB])
+
+  const { t } = useTranslation()
+  const { backTo } = useBackTo()
 
   return (
     <Page>
       <AppBody>
         <AppHeader
-          backTo={`/v2/pair/${currencyA?.address}/${currencyB?.address}`}
-          title={t('Remove %assetA%-%assetB% Liquidity', {
+          backTo={backTo}
+          title={t('Remove {{assetA}}-{{assetB}} Liquidity', {
             assetA: currencyA?.symbol ?? '',
             assetB: currencyB?.symbol ?? '',
           })}
-          subtitle={t('To receive %assetA% and %assetB%', {
+          subtitle={t('To receive {{assetA}} and {{assetB}}', {
             assetA: currencyA?.symbol ?? '',
             assetB: currencyB?.symbol ?? '',
           })}
@@ -775,11 +611,11 @@ export const RemoveLiquidityLayout = ({ currencyA, currencyB, children, pair }) 
         />
         {children}
       </AppBody>
-      {pair ? (
-        <AutoColumn style={{ minWidth: '20rem', width: '100%', maxWidth: '400px', marginTop: '1rem' }}>
+      {/* {pair ? (
+        <div className="flex flex-col items-center space-y-3">
           <MinimalPositionCard showUnwrapped={oneCurrencyIsWNative} pair={pair} />
-        </AutoColumn>
-      ) : null}
+        </div>
+      ) : null} */}
     </Page>
   )
 }

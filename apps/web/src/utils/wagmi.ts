@@ -1,7 +1,8 @@
-import { KaikasConnector } from '@pancakeswap/wagmi/connectors/kaikas'
+import { KaiaWalletConnector } from '@pancakeswap/wagmi/connectors/kaiaWallet'
 import { KlipConnector } from '@pancakeswap/wagmi/connectors/klip'
+import { OKXWalletConnector } from '@pancakeswap/wagmi/connectors/okxWallet'
+import { TokenPocketConnector } from '@pancakeswap/wagmi/connectors/tokenPocket'
 import memoize from 'lodash/memoize'
-import { klaytn } from 'viem/chains'
 import { createConfig, createStorage } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
@@ -41,7 +42,9 @@ export const metaMaskConnector = new MetaMaskConnector({
   },
 })
 
-const kaikasConnector = new KaikasConnector({ chains })
+const kaiaWalletConnector = new KaiaWalletConnector({ chains })
+const okxWalletConnector = new OKXWalletConnector({ chains })
+const tokenPocketConnector = new TokenPocketConnector({ chains })
 
 export const klipConnector = new KlipConnector({
   chains,
@@ -49,7 +52,8 @@ export const klipConnector = new KlipConnector({
     chainId: 8217,
     rpc: {
       custom: {
-        8217: klaytn.rpcUrls.public.http[0],
+        // 8217: klaytn.rpcUrls.public.http[0],
+        8217: 'https://public-en.node.kaia.io',
       },
     },
     others: {
@@ -75,8 +79,17 @@ export const wagmiConfig = createConfig({
     metaMaskConnector,
     injectedConnector,
     ...(walletConnectConnector ? [walletConnectConnector as any] : []),
-    ...(kaikasConnector ? [kaikasConnector as any] : []),
+    ...(kaiaWalletConnector ? [kaiaWalletConnector as any] : []),
     ...(klipConnector ? [klipConnector as any] : []),
+    ...(okxWalletConnector ? [okxWalletConnector as any] : []),
+    ...(tokenPocketConnector ? [tokenPocketConnector as any] : []),
+    // new InjectedConnector({
+    //   chains,
+    //   options: {
+    //     name: 'OKX Wallet',
+    //     getProvider: () => (typeof window !== 'undefined' ? window.okxwallet : undefined),
+    //   },
+    // }),
     // @ts-ignore FIXME: wagmi
   ],
 })

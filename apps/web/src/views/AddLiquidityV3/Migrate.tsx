@@ -116,7 +116,7 @@ function V2PairMigrate({
 }) {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const { account, chainId } = useAccountActiveChain()
   const { balance: pairBalance } = useTokenBalance(v2PairAddress)
@@ -494,7 +494,7 @@ function V2PairMigrate({
               {
                 type: 'migrate-v3',
                 translatableSummary: {
-                  text: 'Migrated %symbolA% %symbolB% V2 liquidity to V3',
+                  text: 'Migrated {{symbolA}} {{symbolB}} V2 liquidity to V3',
                   data: { symbolA: currency0?.symbol, symbolB: currency1?.symbol },
                 },
               },

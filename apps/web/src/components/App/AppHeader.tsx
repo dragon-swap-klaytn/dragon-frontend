@@ -1,17 +1,10 @@
-import { styled, css } from 'styled-components'
-import {
-  Text,
-  Flex,
-  Heading,
-  IconButton,
-  ArrowBackIcon,
-  NotificationDot,
-  QuestionHelper,
-  AutoRow,
-} from '@pancakeswap/uikit'
+import { AutoRow, NotificationDot, QuestionHelper } from '@pancakeswap/uikit'
 import { useExpertMode } from '@pancakeswap/utils/user'
+import { ArrowLeft } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import GlobalSettings from 'components/Menu/GlobalSettings'
 import Link from 'next/link'
+import { styled } from 'styled-components'
 import { SettingsMode } from '../Menu/GlobalSettings/types'
 
 interface Props {
@@ -26,20 +19,6 @@ interface Props {
   shouldCenter?: boolean
   borderHidden?: boolean
 }
-
-const AppHeaderContainer = styled(Flex)<{ borderHidden?: boolean }>`
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px;
-  width: 100%;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.cardBorder};
-
-  ${({ borderHidden }) =>
-    borderHidden &&
-    css`
-      border-bottom: 1px solid transparent;
-    `}
-`
 
 const FilterSection = styled(AutoRow)`
   padding-top: 16px;
@@ -57,61 +36,68 @@ const AppHeader: React.FC<React.PropsWithChildren<Props>> = ({
   buttons,
   filter,
   shouldCenter = false,
-  borderHidden = false,
 }) => {
   const [expertMode] = useExpertMode()
 
   return (
-    <AppHeaderContainer borderHidden={borderHidden}>
-      <Flex alignItems="center" width="100%" style={{ gap: '16px' }}>
-        {backTo &&
-          (typeof backTo === 'string' ? (
-            <Link legacyBehavior passHref href={backTo}>
-              <IconButton as="a" scale="sm">
-                <ArrowBackIcon width="32px" />
-              </IconButton>
-            </Link>
-          ) : (
-            <IconButton scale="sm" variant="text" onClick={backTo}>
-              <ArrowBackIcon width="32px" />
-            </IconButton>
-          ))}
-        <Flex pr={backTo && shouldCenter ? '48px' : ''} flexDirection="column" width="100%" marginTop="4px">
-          <Flex mb="8px" alignItems="center" flexWrap="wrap" justifyContent="space-between" style={{ gap: '16px' }}>
-            <Flex flex={1} justifyContent={shouldCenter ? 'center' : ''}>
-              {typeof title === 'string' ? <Heading as="h2">{title}</Heading> : title}
+    <div className="px-5 md:px-8 md:pt-8 w-full flex flex-col items-start space-y-7">
+      {backTo &&
+        (typeof backTo === 'string' ? (
+          <Link legacyBehavior passHref href={backTo}>
+            <div className="flex items-center space-x-1 cursor-pointer hover:opacity-70">
+              <ArrowLeft size={16} className="text-on-surface shrink-0" />
+
+              <span className="text-sm text-on-surface">Back</span>
+            </div>
+          </Link>
+        ) : (
+          <button type="button" onClick={backTo} className="hover:opacity-70 flex items-center space-x-1">
+            <ArrowLeft size={16} className="text-on-surface" />
+
+            <span className="text-sm text-on-surface ">Back</span>
+          </button>
+        ))}
+
+      <div className="flex items-center space-x-3 w-full justify-between">
+        <div className="flex items-center gap-2 w-full justify-between flex-wrap">
+          <div className="flex flex-col items-start">
+            <div
+              className={clsx('flex items-center space-x-1', {
+                'justify-center': shouldCenter,
+              })}
+            >
+              {typeof title === 'string' ? <h2 className="font-bold text-on-surface text-lg">{title}</h2> : title}
               {helper && <QuestionHelper text={helper} ml="4px" placement="top" />}
-            </Flex>
-            {!noConfig && (
-              <Flex alignItems="flex-end">
-                {IconSlot}
-                <NotificationDot show={expertMode}>
-                  <GlobalSettings mode={SettingsMode.SWAP_LIQUIDITY} />
-                </NotificationDot>
-              </Flex>
-            )}
-            {noConfig && buttons && (
-              <Flex alignItems="center" mr="16px">
-                {buttons}
-              </Flex>
-            )}
-            {noConfig && IconSlot && <Flex alignItems="center">{IconSlot}</Flex>}
-          </Flex>
-          {subtitle && (
-            <Flex alignItems="center" justifyContent={shouldCenter ? 'center' : ''}>
-              <Text textAlign={shouldCenter ? 'center' : 'inherit'} color="textSubtle" fontSize="14px">
-                {subtitle}
-              </Text>
-            </Flex>
+            </div>
+
+            {subtitle && <h4 className="text-sm text-on-surface-subtlest mt-0.5">{subtitle}</h4>}
+          </div>
+
+          {!noConfig && (
+            <div className="flex items-center">
+              {IconSlot}
+              <NotificationDot show={expertMode}>
+                <GlobalSettings mode={SettingsMode.SWAP_LIQUIDITY} />
+              </NotificationDot>
+            </div>
           )}
-          {filter && (
-            <FilterSection justifyContent="space-between" gap="8px">
-              {filter}
-            </FilterSection>
-          )}
-        </Flex>
-      </Flex>
-    </AppHeaderContainer>
+
+          {(noConfig && buttons) ||
+            (noConfig && IconSlot && (
+              <div className="flex items-center space-x-2">
+                {noConfig && buttons && <div className="flex items-center space-x-2">{buttons}</div>}
+                {noConfig && IconSlot && <div className="flex items-center space-x-2">{IconSlot}</div>}
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {filter && (
+        <FilterSection justifyContent="space-between" gap="8px">
+          {filter}
+        </FilterSection>
+      )}
+    </div>
   )
 }
 

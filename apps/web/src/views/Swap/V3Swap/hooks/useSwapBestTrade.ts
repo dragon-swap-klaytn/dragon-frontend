@@ -16,9 +16,22 @@ import {
 
 interface Options {
   maxHops?: number
+  // skip?: boolean
 }
 
 export function useSwapBestTrade({ maxHops }: Options = {}) {
+  // if (skip) {
+  //   return {
+  //     isLoading: false,
+  //     trade: undefined,
+  //     refresh: () => Promise<void>,
+  //     syncing: false,
+  //     isStale: false,
+  //     error: undefined,
+  //     dataUpdatedAt: undefined,
+  //   }
+  // }
+
   const {
     independentField,
     typedValue,
@@ -39,7 +52,7 @@ export function useSwapBestTrade({ maxHops }: Options = {}) {
   const [v3Swap] = useUserV3SwapEnable()
   const [stableSwap] = useUserStableSwapEnable()
 
-  const { isLoading, trade, refresh, syncing, isStale, error } = useBestAMMTrade({
+  const { isLoading, trade, refresh, syncing, isStale, error, dataUpdatedAt } = useBestAMMTrade({
     amount,
     currency: dependentCurrency,
     baseCurrency: independentCurrency,
@@ -60,5 +73,6 @@ export function useSwapBestTrade({ maxHops }: Options = {}) {
     error,
     isLoading: useDeferredValue(Boolean(isLoading || (typedValue && !trade && !error))),
     trade: typedValue ? trade : undefined,
+    dataUpdatedAt,
   }
 }

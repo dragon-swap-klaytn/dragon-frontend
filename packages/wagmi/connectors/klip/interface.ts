@@ -336,7 +336,7 @@ class KlipProvider implements IEthereumProvider {
     const prevAccount = localStorage.getItem('address') ?? ''
 
     // if address cached
-    if (localStorage.getItem('wallet') === 'Klip' && prevAccount !== '') {
+    if (localStorage.getItem('wallet') === 'klip' && prevAccount !== '') {
       this.accounts = [localStorage.getItem('address') ?? '']
       eventBus.finish([this.accounts])
     } else {
@@ -376,7 +376,7 @@ class KlipProvider implements IEthereumProvider {
 
   // ---------- Klip Original ----------------------------------------------- //
   // @ts-ignore
-  private cancel(requestKey: string) {
+  public cancel(requestKey: string) {
     this.events.emit('cancelRequest', requestKey)
   }
 
@@ -517,6 +517,7 @@ class KlipProvider implements IEthereumProvider {
       }, 1000)
 
       const onCancelRequest = (_requestKey: string) => {
+        this.isRequestEnable = false
         if (_requestKey !== requestKey) {
           return
         }

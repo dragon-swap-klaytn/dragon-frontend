@@ -7,26 +7,23 @@ import {
   IPendingCakeByTokenId,
   PositionDetails,
   SerializedFarmsV3Response,
-  bCakeSupportedChainId,
   createFarmFetcherV3,
   supportedChainIdV3,
 } from '@pancakeswap/farms'
-import { priceHelperTokens } from '@pancakeswap/farms/constants/common'
 import { farmsV3ConfigChainMap, farmsV3FinishedConfigChainMap } from '@pancakeswap/farms/constants/v3'
-import { bCakeFarmBoosterVeCakeABI } from '@pancakeswap/farms/constants/v3/abi/bCakeFarmBoosterVeCake'
-import { TvlMap, fetchCommonTokenUSDValue } from '@pancakeswap/farms/src/fetchFarmsV3'
+import { TvlMap, fetchTokenUSDValues } from '@pancakeswap/farms/src/fetchFarmsV3'
+import { usePreviousValue } from '@pancakeswap/hooks'
 import { deserializeToken } from '@pancakeswap/token-lists'
 import { useQuery } from '@tanstack/react-query'
-import { usePreviousValue } from '@pancakeswap/hooks'
 import { FAST_INTERVAL } from 'config/constants'
 import { gql } from 'graphql-request'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
-import { useBCakeFarmBoosterVeCakeContract, useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
+import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useV3PositionsFromTokenIds, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import toLower from 'lodash/toLower'
-import { useMemo, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { useCallback, useEffect, useMemo } from 'react'
 import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
 import { publicClient } from 'utils/wagmi'
@@ -78,16 +75,19 @@ export const useFarmsV3Public = () => {
       const isFinished = window.location.pathname === '/farms/finished'
 
       // direct copy from api routes, the client side fetch is preventing cache due to migration phase we want fresh data
-      const farms = isFinished ? farmsV3FinishedConfigChainMap[chainId as ChainId] : farmsV3ConfigChainMap[chainId as ChainId]
+      const farms = isFinished
+        ? farmsV3FinishedConfigChainMap[chainId as ChainId]
+        : farmsV3ConfigChainMap[chainId as ChainId]
 
-      const commonPrice = await fetchCommonTokenUSDValue(priceHelperTokens[chainId ?? -1])
+      const currencies = farms.flatMap((f) => [f.token0, f.token1])
+      const commonPrice = await fetchTokenUSDValues(currencies)
 
       try {
         const data = await farmFetcherV3.fetchFarms({
           chainId: chainId ?? -1,
           farms,
           commonPrice,
-          isFinished
+          isFinished,
         })
 
         return data
@@ -225,6 +225,7 @@ export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
     }, [chainId, data, farmV3.data, farmV3.isLoading]),
     isLoading: farmV3.isLoading,
     error: farmV3.error,
+    updateFarmsV3: refetch,
   }
 }
 
@@ -261,16 +262,18 @@ export const useStakedPositionsByUser = (stakedTokenIds: bigint[], isFinished?: 
         return emptyResult
       }
 
-      const res = await publicClient({ chainId }).multicall({
-        contracts: callDatas
-      }).catch(() => {
-        return [{ status: 'error' }]
-      })
+      const res = await publicClient({ chainId })
+        .multicall({
+          contracts: callDatas,
+        })
+        .catch(() => {
+          return [{ status: 'error' }]
+        })
       const rewards: bigint[] = []
 
       for (const call of res) {
         // @ts-ignore
-        rewards.push(call.status !== 'success' ? 0n : (call?.result ?? 0n))
+        rewards.push(call.status !== 'success' ? 0n : call?.result ?? 0n)
       }
 
       return rewards
@@ -286,7 +289,7 @@ export const useStakedPositionsByUser = (stakedTokenIds: bigint[], isFinished?: 
 
 const usePositionsByUserFarms = (
   farmsV3: FarmV3DataWithPrice[],
-  isFinished?: boolean
+  isFinished?: boolean,
 ): {
   farmsWithPositions: FarmV3DataWithPriceAndUserInfo[]
   userDataLoaded: boolean
@@ -379,69 +382,31 @@ const usePositionsByUserFarms = (
   }
 }
 
-export function useFarmsV3WithPositionsAndBooster(options: UseFarmsOptions = {}, isFinished?: boolean): {
+export function useFarmsV3WithPositionsAndBooster(
+  options: UseFarmsOptions = {},
+  isFinished?: boolean,
+): {
   farmsWithPositions: FarmV3DataWithPriceAndUserInfo[]
   userDataLoaded: boolean
   cakePerSecond: string
   poolLength: number
   isLoading: boolean
+  updateFarmsV3WithPositionsAndBooster: () => void
 } {
-  const { data, error: _error, isLoading } = useFarmsV3(options)
-  const { data: boosterWhitelist } = useV3BoostedFarm(data?.farmsWithPrice?.map((f) => f.pid))
+  const { data, error: _error, isLoading, updateFarmsV3 } = useFarmsV3(options)
+
+  const updateFarmsV3WithPositionsAndBooster = useCallback(() => {
+    updateFarmsV3()
+  }, [updateFarmsV3])
 
   return {
     ...usePositionsByUserFarms(
-      data.farmsWithPrice?.map((d, index) => ({ ...d, boosted: boosterWhitelist?.[index]?.boosted })),
+      data.farmsWithPrice?.map((d) => ({ ...d, boosted: false })),
       isFinished,
     ),
     poolLength: data.poolLength,
     cakePerSecond: data.cakePerSecond,
     isLoading,
+    updateFarmsV3WithPositionsAndBooster,
   }
-}
-
-const useV3BoostedFarm = (pids?: number[]) => {
-  const { chainId } = useActiveChainId()
-  const farmBoosterVeCakeContract = useBCakeFarmBoosterVeCakeContract()
-
-  const { data } = useQuery(
-    ['v3/boostedFarm', chainId, pids?.join('-')],
-    () =>
-      getV3FarmBoosterWhiteList({
-        farmBoosterContract: farmBoosterVeCakeContract,
-        chainId: chainId ?? -1,
-        pids: pids ?? [],
-      }),
-    {
-      enabled: Boolean(chainId && pids && pids.length > 0 && bCakeSupportedChainId.includes(chainId)),
-      retry: 3,
-      retryDelay: 3000,
-    },
-  )
-  return { data }
-}
-
-export async function getV3FarmBoosterWhiteList({
-  farmBoosterContract,
-  chainId,
-  pids,
-}: {
-  farmBoosterContract: ReturnType<typeof useBCakeFarmBoosterVeCakeContract>
-  chainId: ChainId
-  pids: number[]
-}): Promise<{ pid: number; boosted: boolean }[]> {
-  const contracts = pids?.map((pid) => {
-    return {
-      address: farmBoosterContract.address,
-      functionName: 'whiteList',
-      abi: bCakeFarmBoosterVeCakeABI,
-      args: [BigInt(pid)],
-    } as const
-  })
-  const whiteList = await publicClient({ chainId }).multicall({
-    contracts,
-  })
-
-  if (!whiteList || whiteList?.length !== pids?.length) return []
-  return pids?.map((d, index) => ({ pid: d, boosted: whiteList[index].result ?? false }))
 }

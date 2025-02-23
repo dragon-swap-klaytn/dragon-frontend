@@ -1,3 +1,4 @@
+import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Price, Token } from '@pancakeswap/swap-sdk-core'
 import {
   encodeSqrtRatioX96,
@@ -9,20 +10,22 @@ import {
   TICK_SPACINGS,
   TickMath,
 } from '@pancakeswap/v3-sdk'
+import { BIG_INT_ZERO } from 'config/constants/exchange'
+import { Bound } from 'config/constants/types'
 import { ReactNode, useMemo } from 'react'
 import { Field } from 'state/mint/actions'
-import tryParseCurrencyAmount from 'utils/tryParseCurrencyAmount'
-import { BIG_INT_ZERO } from 'config/constants/exchange'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { useTranslation } from '@pancakeswap/localization'
-import { Bound } from 'config/constants/types'
+import tryParseCurrencyAmount from 'utils/tryParseCurrencyAmount'
 import { MintState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 
+import { toChecksumCurrency } from 'utils/toChecksumCurrency'
+import { toChecksumCurrencyAmount } from 'utils/toChecksumCurrencyAmount'
+import { toChecksumToken } from 'utils/toChecksumToken'
 import { useAccount } from 'wagmi'
-import { tryParseTick } from './utils'
-import { usePool } from './usePools'
-import { getTickToPrice } from './utils/getTickToPrice'
 import { PoolState } from './types'
+import { usePool } from './usePools'
+import { tryParseTick } from './utils'
+import { getTickToPrice } from './utils/getTickToPrice'
 
 export default function useV3DerivedInfo(
   currencyA?: Currency,
@@ -83,8 +86,8 @@ export default function useV3DerivedInfo(
     () =>
       tokenA && tokenB && !tokenA.equals(tokenB)
         ? tokenA.sortsBefore(tokenB)
-          ? [tokenA, tokenB]
-          : [tokenB, tokenA]
+          ? [toChecksumToken(tokenA), toChecksumToken(tokenB)]
+          : [toChecksumToken(tokenB), toChecksumToken(tokenA)]
         : [undefined, undefined],
     [tokenA, tokenB],
   )
@@ -227,11 +230,17 @@ export default function useV3DerivedInfo(
 
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     // we wrap the currencies just to get the price in terms of the other token
-    const wrappedIndependentAmount = independentAmount?.wrapped
+    if (!independentAmount?.wrapped) {
+      return undefined
+    }
+
+    const checksumWrappedIndependentAmount = toChecksumCurrencyAmount(independentAmount.wrapped)
     const dependentCurrency = dependentField === Field.CURRENCY_B ? currencyB : currencyA
+    const dependentChecksumCurrency = dependentCurrency ? toChecksumCurrency(dependentCurrency) : undefined
+
     if (
       independentAmount &&
-      wrappedIndependentAmount &&
+      checksumWrappedIndependentAmount &&
       typeof tickLower === 'number' &&
       typeof tickUpper === 'number' &&
       poolForPosition
@@ -241,7 +250,7 @@ export default function useV3DerivedInfo(
         return undefined
       }
 
-      const position: Position | undefined = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
+      const position: Position | undefined = checksumWrappedIndependentAmount.currency.equals(poolForPosition.token0)
         ? Position.fromAmount0({
             pool: poolForPosition,
             tickLower,
@@ -256,10 +265,13 @@ export default function useV3DerivedInfo(
             amount1: independentAmount.quotient,
           })
 
-      const dependentTokenAmount = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
+      const dependentTokenAmount = checksumWrappedIndependentAmount.currency.equals(poolForPosition.token0)
         ? position.amount1
         : position.amount0
-      return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
+      return (
+        dependentChecksumCurrency &&
+        CurrencyAmount.fromRawAmount(dependentChecksumCurrency, dependentTokenAmount.quotient)
+      )
     }
 
     return undefined
@@ -375,14 +387,14 @@ export default function useV3DerivedInfo(
     currencyAAmount &&
     (currencyAAmount?.equalTo(0) || currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount))
   ) {
-    errorMessage = t('Insufficient %symbol% balance', { symbol: currencies[Field.CURRENCY_A]?.symbol ?? '' })
+    errorMessage = t('Insufficient {{symbol}} balance', { symbol: currencies[Field.CURRENCY_A]?.symbol ?? '' })
   }
 
   if (
     currencyBAmount &&
     (currencyBAmount?.equalTo(0) || currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount))
   ) {
-    errorMessage = t('Insufficient %symbol% balance', { symbol: currencies[Field.CURRENCY_B]?.symbol ?? '' })
+    errorMessage = t('Insufficient {{symbol}} balance', { symbol: currencies[Field.CURRENCY_B]?.symbol ?? '' })
   }
 
   const invalidPool = poolState === PoolState.INVALID

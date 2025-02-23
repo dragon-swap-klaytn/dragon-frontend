@@ -1,5 +1,6 @@
 import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import KlipProvider from '@pancakeswap/wagmi/connectors/klip/interface'
+import useKlip from 'hooks/useKlip'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { klipConnector } from 'utils/wagmi'
 import { useAccount } from 'wagmi'
@@ -10,7 +11,6 @@ const useA2AConnectorQRUri = () => {
   const a2aProviderRef = useRef<KlipProvider | null>(null)
 
   const { connector } = useAccount()
-
   const { isMobile } = useMatchBreakpoints()
 
   const [qrUri, setQrUri] = useState('')
@@ -20,11 +20,11 @@ const useA2AConnectorQRUri = () => {
     return connector?.id === 'klip'
   }, [connector])
 
-  const displayUriHandler = useCallback((uri) => {
+  const displayUriHandler = useCallback((uri: string) => {
     setQrUri(uri)
   }, [])
 
-  const requestKeyHandler = useCallback((key) => {
+  const requestKeyHandler = useCallback((key: string) => {
     setRequestKey(key)
   }, [])
 
@@ -66,7 +66,18 @@ const useA2AConnectorQRUri = () => {
     }
   }, [a2aProviderRef, requestKey, displayUriHandler, requestKeyHandler])
 
-  return qrUri
+  const klip = useKlip()
+  const cancelKlipRequest = useCallback(() => {
+    if (!klip) return
+    if (!isA2AConnector || !connector || !requestKey) return
+    if (!klip.cancelRequest) return
+
+    klip.cancelRequest(requestKey)
+    setRequestKey('')
+    setQrUri('')
+  }, [klip, isA2AConnector, connector, requestKey, setRequestKey, setQrUri])
+
+  return { qrUri, requestKey, isA2AConnector, connector, cancelKlipRequest }
 }
 
 export default useA2AConnectorQRUri

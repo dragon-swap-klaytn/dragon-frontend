@@ -1,8 +1,8 @@
-import { useCallback } from 'react'
 import { Currency } from '@pancakeswap/sdk'
 import { useAtom } from 'jotai'
+import { useCallback } from 'react'
 import { swapReducerAtom } from 'state/swap/reducer'
-import { Field, selectCurrency, switchCurrencies, typeInput, setRecipient } from './actions'
+import { Field, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 
 export function useSwapActionHandlers(): {
   onCurrencySelection: (field: Field, currency: Currency) => void

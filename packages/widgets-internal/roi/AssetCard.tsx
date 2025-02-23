@@ -1,46 +1,28 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { Currency, Percent } from "@pancakeswap/sdk";
-import { memo, PropsWithChildren, ReactNode, useCallback, Ref, MouseEvent } from "react";
+import { formatAmount } from "@pancakeswap/utils/formatInfoNumbers";
+import { memo, MouseEvent, PropsWithChildren, ReactNode, Ref, useCallback } from "react";
 import { styled } from "styled-components";
 import { SpaceProps } from "styled-system";
-import { formatAmount } from "@pancakeswap/utils/formatInfoNumbers";
 
-import {
-  Flex,
-  Box,
-  Card,
-  Row,
-  RowBetween,
-  RowFixed,
-  Table,
-  Td,
-  Text,
-  Th,
-  PencilIcon,
-  useMatchBreakpoints,
-  Tag,
-  TagProps,
-} from "@pancakeswap/uikit";
+import { NumberFormat, RowBetween, Tag, TagProps, useMatchBreakpoints } from "@pancakeswap/uikit";
+import { Pencil } from "@phosphor-icons/react";
+import clsx from "clsx";
 import { CurrencyLogo } from "../components/CurrencyLogo";
 
-import { StyledInput } from "./StyledInput";
 import { toSignificant } from "./utils";
 
-export function CardSection({ header, children, ...rest }: { header?: ReactNode } & PropsWithChildren & SpaceProps) {
-  return (
-    <Box mb="24px" {...rest}>
-      <RowBetween mb="12px">{header}</RowBetween>
-      {children}
-    </Box>
-  );
-}
+// export function CardSection({ header, children, ...rest }: { header?: ReactNode } & PropsWithChildren & SpaceProps) {
+//   return (
+//     <Box mb="24px" {...rest}>
+//       <RowBetween mb="12px">{header}</RowBetween>
+//       {children}
+//     </Box>
+//   );
+// }
 
 export function SectionTitle({ children }: PropsWithChildren) {
-  return (
-    <Text color="secondary" bold fontSize="12px" textTransform="uppercase">
-      {children}
-    </Text>
-  );
+  return <h4 className="text-xs text-on-surface-brand">{children}</h4>;
 }
 
 export interface AssetCardProps extends SpaceProps {
@@ -78,14 +60,11 @@ export const CurrencyLogoDisplay = memo(function CurrencyLogoDisplay({
   name?: string;
 }) {
   return (
-    <Flex>
-      <Flex flexShrink="0" alignItems="center">
-        {logo}
-      </Flex>
-      <Text ml="4px" style={{ whiteSpace: "nowrap" }}>
-        {name}
-      </Text>
-    </Flex>
+    <div className="flex items-center space-x-2">
+      {logo}
+
+      <span className="text-sm text-on-surface">{name}</span>
+    </div>
   );
 });
 
@@ -137,43 +116,34 @@ export const AssetCard = memo(function AssetCard({
       decimals={18}
       priceEditable={priceEditable}
       priceChanged={priceChanged}
-      name={
-        isMobile ? (
-          currency.symbol
-        ) : (
-          <CurrencyLogoDisplay logo={<CurrencyLogo currency={currency} />} name={currency.symbol} />
-        )
-      }
+      name={<CurrencyLogoDisplay logo={<CurrencyLogo currency={currency} />} name={currency.symbol} />}
       onPriceChange={(newPrice) => onAssetPriceChange(newPrice, index)}
     />
   ));
 
   return (
-    <Box {...rest}>
-      {header && <RowBetween mb="8px">{header}</RowBetween>}
-      <Card isActive={isActive} style={{ overflowX: "auto" }}>
-        <Table style={{ tableLayout: "fixed" }}>
-          <colgroup>
-            <col />
-            {showPrice && <col width="30%" />}
-            <col />
-            <col />
-          </colgroup>
+    <div>
+      {header}
+
+      <div className="rounded-2xl border">
+        <table className="w-full">
           <thead>
             <tr>
-              <Th textAlign="left">{t("Asset")}</Th>
-              {showPrice && <Th textAlign="left">{t("Price")}</Th>}
-              <Th textAlign="left">{t("Balance")}</Th>
-              <Th textAlign="left">{t("Value")}</Th>
+              <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Asset")}</th>
+              {showPrice && (
+                <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Price")}</th>
+              )}
+              <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Balance")}</th>
+              <th className="text-left font-bold text-on-surface px-3 pt-2 pb-4 text-sm">{t("Value")}</th>
             </tr>
           </thead>
           <tbody>
             {assetNodes}
             {extraRows}
           </tbody>
-        </Table>
-      </Card>
-    </Box>
+        </table>
+      </div>
+    </div>
   );
 });
 
@@ -218,40 +188,36 @@ export const AssetRow = memo(function AssetRow({
     }
   }, []);
 
-  const textColor = priceChanged ? "primary" : "textSubtle";
-
   return (
     <tr>
-      <Td>
-        <Row>{name}</Row>
-      </Td>
+      <td className="px-3 pb-3">{name}</td>
       {showPrice && (
-        <Td style={{ minWidth: "98px" }}>
-          <Row>
-            <Text color={textColor}>$</Text>
-            <StyledInput
+        <td className="px-3">
+          <div className="flex items-center space-x-1">
+            <span className="text-sm text-on-surface">$</span>
+
+            <NumberFormat
               ref={priceInputRef}
-              pattern={`^[0-9]*[.,]?[0-9]{0,${decimals}}$`}
-              inputMode="decimal"
-              min="0"
-              color={textColor}
+              className="text-on-surface w-16 text-sm bg-transparent text-left focus:outline-none"
               value={price}
-              onMouseDown={onMouseDown}
               onChange={onPriceUpdate}
+              onMouseDown={onMouseDown}
+              thousandSeparator
+              allowNegative={false}
+              placeholder="0"
+              pattern={`^[0-9]*[.,]?[0-9]{0,${decimals}}$`}
+              min={0}
               disabled={!priceEditable}
             />
-            {priceChanged && <PencilIcon width="10px" color="primary" ml="0.25em" />}
-          </Row>
-        </Td>
+
+            {priceChanged && <Pencil size={12} className="text-on-surface" />}
+          </div>
+        </td>
       )}
-      <Td>
-        <Row>{amount && <Text ellipsis>{formatAmount(+amount)}</Text>}</Row>
-      </Td>
-      <Td>
-        <Row>
-          <Text ellipsis>${formatAmount(+value)}</Text>
-        </Row>
-      </Td>
+      <td className="px-3 text-sm text-on-surface">{amount && <span>{formatAmount(+amount)}</span>}</td>
+      <td className="px-3">
+        <span className="text-sm text-on-surface">${formatAmount(+value)}</span>
+      </td>
     </tr>
   );
 });
@@ -263,22 +229,12 @@ interface InterestDisplayProps {
 
 export const InterestDisplay = memo(function InterestDisplay({ amount, interest }: InterestDisplayProps) {
   return (
-    <RowFixed
-      display="grid"
-      style={{
-        gridTemplateColumns: "auto auto",
-      }}
-    >
-      {amount && (
-        <Text bold ellipsis>
-          ${toSignificant(amount)}
-        </Text>
-      )}
+    <div className="flex items-center space-x-1 text-sm">
+      {amount && <span className="text-on-surface">${toSignificant(amount)}</span>}
+
       {interest && (
-        <Text
-          ml="4px"
-          color={typeof interest === "number" ? "success" : interest.lessThan(0) ? "failure" : "success"}
-          ellipsis
+        <span
+          className={clsx(typeof interest === "number" || !interest.lessThan(0) ? "text-teal-400" : "text-red-400")}
         >
           (
           {typeof interest === "number"
@@ -288,9 +244,9 @@ export const InterestDisplay = memo(function InterestDisplay({ amount, interest 
                 maximumFractionDigits: 2,
               })}
           %)
-        </Text>
+        </span>
       )}
-    </RowFixed>
+    </div>
   );
 });
 
@@ -302,9 +258,21 @@ const ActiveTag = styled(Tag)`
   background: ${({ theme }) => theme.colors.gradientBold};
 `;
 
-export const CardTag = memo(function CardTag({ isActive, ...rest }: PropsWithChildren<CardTagProps>) {
-  if (isActive) {
-    return <ActiveTag {...rest} />;
-  }
-  return <Tag variant="textSubtle" outline {...rest} />;
+export const CardTag = memo(function CardTag({ isActive, children, ...rest }: PropsWithChildren<CardTagProps>) {
+  // if (isActive) {
+  //   return <ActiveTag {...rest} />;
+  // }
+  // return <Tag variant="textSubtle" outline {...rest} />;
+
+  return (
+    <div
+      className={clsx("text-xs font-bold", {
+        "text-on-surface-subtle": !isActive,
+        "bg-gradient-to-br from-surface-orange via-on-surface-accentSubtle to-surface-orange text-on-surface text-transparent bg-clip-text":
+          isActive,
+      })}
+    >
+      {children}
+    </div>
+  );
 });

@@ -1,12 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { SendTransactionResult } from 'wagmi/actions'
 import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
-import { AutoColumn, Button } from '@pancakeswap/uikit'
+import { ButtonV2 } from '@pancakeswap/uikit'
+import clsx from 'clsx'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { ReactNode, useMemo } from 'react'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
+import { SendTransactionResult } from 'wagmi/actions'
 import { Field } from '../formViews/V3FormView/form/actions'
 
 interface V3SubmitButtonProps {
@@ -18,16 +19,12 @@ interface V3SubmitButtonProps {
   approvalB: ApprovalState
   isValid: boolean
   showApprovalA: boolean
-  approveACallback: () => Promise<SendTransactionResult>
-  currentAllowanceA: CurrencyAmount<Currency> | undefined
-  revokeACallback: () => Promise<SendTransactionResult>
+  approveACallback: () => Promise<SendTransactionResult | undefined>
   currencies: {
     CURRENCY_A?: Currency
     CURRENCY_B?: Currency
   }
-  approveBCallback: () => Promise<SendTransactionResult>
-  currentAllowanceB: CurrencyAmount<Currency> | undefined
-  revokeBCallback: () => Promise<SendTransactionResult>
+  approveBCallback: () => Promise<SendTransactionResult | undefined>
   showApprovalB: boolean
   parsedAmounts: {
     CURRENCY_A?: CurrencyAmount<Currency>
@@ -39,6 +36,7 @@ interface V3SubmitButtonProps {
   buttonText: string
   depositADisabled: boolean
   depositBDisabled: boolean
+  className?: string
 }
 
 export function V3SubmitButton({
@@ -51,12 +49,8 @@ export function V3SubmitButton({
   isValid,
   showApprovalA,
   approveACallback,
-  currentAllowanceA,
-  revokeACallback,
   currencies,
   approveBCallback,
-  currentAllowanceB,
-  revokeBCallback,
   showApprovalB,
   parsedAmounts,
   onClick,
@@ -65,6 +59,7 @@ export function V3SubmitButton({
   buttonText,
   depositADisabled,
   depositBDisabled,
+  className,
 }: V3SubmitButtonProps) {
   const { t } = useTranslation()
 
@@ -81,17 +76,17 @@ export function V3SubmitButton({
   let buttons: ReactNode = null
   if (addIsUnsupported || addIsWarning) {
     buttons = (
-      <Button disabled mb="4px">
+      <ButtonV2 disabled variant="primary" onClick={() => {}} fullWidth className={className}>
         {t('Unsupported Asset')}
-      </Button>
+      </ButtonV2>
     )
   } else if (!account) {
-    buttons = <ConnectWalletButton width="100%" />
+    buttons = <ConnectWalletButton className={className} />
   } else if (isWrongNetwork) {
-    buttons = <CommitButton />
+    buttons = <CommitButton className={className} />
   } else {
     buttons = (
-      <AutoColumn gap="md">
+      <div className={clsx('flex flex-col space-y-3 w-full', className)}>
         <ApproveLiquidityTokens
           approvalA={approvalA}
           approvalB={approvalB}
@@ -99,11 +94,7 @@ export function V3SubmitButton({
           showFieldBApproval={showApprovalB}
           approveACallback={approveACallback}
           approveBCallback={approveBCallback}
-          revokeACallback={revokeACallback}
-          revokeBCallback={revokeBCallback}
           currencies={currencies}
-          currentAllowanceA={currentAllowanceA}
-          currentAllowanceB={currentAllowanceB}
           shouldShowApprovalGroup={shouldShowApprovalGroup}
         />
         <CommitButton
@@ -120,7 +111,7 @@ export function V3SubmitButton({
         >
           {errorMessage || buttonText}
         </CommitButton>
-      </AutoColumn>
+      </div>
     )
   }
 

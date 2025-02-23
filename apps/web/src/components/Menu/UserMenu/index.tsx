@@ -1,134 +1,160 @@
+import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { ChainId } from '@pancakeswap/chains'
-import {
-  Box,
-  Flex,
-  LogoutIcon,
-  RefreshIcon,
-  useModal,
-  UserMenu as UIKitUserMenu,
-  UserMenuDivider,
-  UserMenuItem,
-  UserMenuVariant,
-} from '@pancakeswap/uikit'
+import { WalletStorageKey } from '@pancakeswap/ui-wallets'
+import { useMatchBreakpoints, useModal, WalletId } from '@pancakeswap/uikit'
+import { CaretDown } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import Trans from 'components/Trans'
+import WalletModal from 'components/Menu/UserMenu/WalletModal'
+import { DEFAULT_WALLET_ICON, getWalletIcon } from 'config/wallet'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
-// import NextLink from 'next/link'
-import { useEffect, useState, useCallback } from 'react'
-import { useProfile } from 'state/profile/hooks'
-import { usePendingTransactions } from 'state/transactions/hooks'
+import { useSwitchNetworkLocal } from 'hooks/useSwitchNetwork'
+import { useWindowSize } from 'hooks/useWindowSize'
+import { usePathname } from 'next/navigation'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
-import { useDomainNameForAddress } from 'hooks/useDomain'
-// import useAirdropModalStatus from 'components/GlobalCheckClaimStatus/hooks/useAirdropModalStatus'
-// import ProfileUserMenuItem from './ProfileUserMenuItem'
-import WalletModal, { WalletView } from './WalletModal'
-import WalletUserMenuItem from './WalletUserMenuItem'
-// import ClaimYourNFT from './ClaimYourNFT'
 
-const UserMenuItems = () => {
+const UserMenu = ({
+  userMenuOpen,
+  setUserMenuOpen,
+}: {
+  userMenuOpen: boolean
+  setUserMenuOpen: Dispatch<SetStateAction<boolean>>
+}) => {
   const { t } = useTranslation()
-  const { chainId, isWrongNetwork } = useActiveChainId()
-  const { logout } = useAuth()
   const { address: account } = useAccount()
-  const { hasPendingTransactions } = usePendingTransactions()
-  const { isInitialized, isLoading, profile } = useProfile()
+  const { isWrongNetwork } = useActiveChainId()
+  const switchNetworkLocal = useSwitchNetworkLocal()
 
-  const [onPresentWalletModal] = useModal(<WalletModal initialView={WalletView.WALLET_INFO} />)
-  const [onPresentTransactionModal] = useModal(<WalletModal initialView={WalletView.TRANSACTIONS} />)
-  const [onPresentWrongNetworkModal] = useModal(<WalletModal initialView={WalletView.WRONG_NETWORK} />)
-  const hasProfile = isInitialized && !!profile
+  const pathname = usePathname()
+  const pathnameRef = useRef(pathname)
+  useEffect(() => {
+    if (!pathnameRef.current) return
+    if (pathnameRef.current !== pathname) {
+      setUserMenuOpen(false)
+    }
+
+    pathnameRef.current = pathname
+  }, [pathname, setUserMenuOpen])
+
+  const { width } = useWindowSize()
+  const accountEllipsis = useMemo(
+    () => (account ? `${account.substring(0, 4)}...${account.substring(account.length - 4)}` : null),
+    [account],
+  )
+  const { connector } = useAccount()
+  const { logout } = useAuth()
+
+  const [onPresentWalletModal] = useModal(<WalletModal initialView="Wallet" />)
+  const [onPresentTransactionModal] = useModal(<WalletModal initialView="Transactions" />)
 
   const onClickWalletMenu = useCallback((): void => {
-    if (isWrongNetwork) {
-      onPresentWrongNetworkModal()
-    } else {
-      onPresentWalletModal()
-    }
-  }, [isWrongNetwork, onPresentWalletModal, onPresentWrongNetworkModal])
+    onPresentWalletModal()
+    setUserMenuOpen(false)
+  }, [onPresentWalletModal, setUserMenuOpen])
 
-  return (
-    <>
-      <WalletUserMenuItem isWrongNetwork={isWrongNetwork} onPresentWalletModal={onClickWalletMenu} />
-      <UserMenuItem as="button" disabled={isWrongNetwork} onClick={onPresentTransactionModal}>
-        {t('Recent Transactions')}
-        {hasPendingTransactions && <RefreshIcon spin />}
-      </UserMenuItem>
-      <UserMenuDivider />
-      {/*
-      <NextLink href={`/profile/${account?.toLowerCase()}`} passHref>
-        <UserMenuItem disabled={isWrongNetwork || chainId !== ChainId.BSC}>{t('Your NFTs')}</UserMenuItem>
-      </NextLink>
-      {shouldShowModal && <ClaimYourNFT />}
-      <ProfileUserMenuItem
-        isLoading={isLoading}
-        hasProfile={hasProfile}
-        disabled={isWrongNetwork || chainId !== ChainId.BSC}
-      />
-      <UserMenuDivider />
-      */}
-      <UserMenuItem as="button" onClick={logout}>
-        <Flex alignItems="center" justifyContent="space-between" width="100%">
-          {t('Disconnect')}
-          <LogoutIcon />
-        </Flex>
-      </UserMenuItem>
-    </>
-  )
-}
-
-const UserMenu = () => {
-  const { t } = useTranslation()
-  const { address: account } = useAccount()
-  const { domainName, avatar } = useDomainNameForAddress(account)
-  const { isWrongNetwork } = useActiveChainId()
-  const { hasPendingTransactions, pendingNumber } = usePendingTransactions()
-  const { profile } = useProfile()
-  const avatarSrc = profile?.nft?.image?.thumbnail ?? avatar
-  const [userMenuText, setUserMenuText] = useState<string>('')
-  const [userMenuVariable, setUserMenuVariable] = useState<UserMenuVariant>('default')
-
+  const [connectedWalletId, setConnectedWalletId] = useState<WalletId | null>(null)
   useEffect(() => {
-    if (hasPendingTransactions) {
-      setUserMenuText(t('%num% Pending', { num: pendingNumber }))
-      setUserMenuVariable('pending')
-    } else {
-      setUserMenuText('')
-      setUserMenuVariable('default')
+    if (!connector) {
+      return
     }
-  }, [hasPendingTransactions, pendingNumber, t])
+
+    let safeCount = 0
+    const intervalId = setInterval(() => {
+      const recentConnectorId = localStorage.getItem(WalletStorageKey.CONNECTOR)
+
+      if (!connector || !recentConnectorId || connector.id !== recentConnectorId) {
+        setConnectedWalletId(null)
+      } else {
+        const recentWalletId = localStorage.getItem(WalletStorageKey.WALLET)
+        if (recentWalletId) {
+          setConnectedWalletId(recentWalletId as WalletId)
+          clearInterval(intervalId)
+        }
+      }
+
+      safeCount++
+      if (safeCount > 100) {
+        clearInterval(intervalId)
+      }
+    }, 10)
+  }, [connector])
+  const { isMobile } = useMatchBreakpoints()
 
   if (account) {
     return (
-      <UIKitUserMenu
-        account={domainName || account}
-        ellipsis={!domainName}
-        avatarSrc={avatarSrc}
-        text={userMenuText}
-        variant={userMenuVariable}
-      >
-        {({ isOpen }) => (isOpen ? <UserMenuItems /> : null)}
-      </UIKitUserMenu>
-    )
-  }
+      <div className="relative mr-2">
+        <button
+          type="button"
+          className="flex items-center space-x-2 hover:opacity-70 text-on-surface-inverse pl-1 pr-1.5 py-1 md:pl-1.5 md:pr-2 md:py-2 bg-brand rounded-3xl"
+          onClick={() => setUserMenuOpen((prev) => !prev)}
+        >
+          <div className="w-6 h-6 shrink-0 rounded-full overflow-hidden">
+            <img
+              src={connectedWalletId ? getWalletIcon(connectedWalletId as WalletId) : DEFAULT_WALLET_ICON}
+              alt={`${connectedWalletId || 'wallet'} icon`}
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
 
-  if (isWrongNetwork) {
-    return (
-      <UIKitUserMenu text={t('Network')} variant="danger">
-        {({ isOpen }) => (isOpen ? <UserMenuItems /> : null)}
-      </UIKitUserMenu>
+          <span className="text-sm">{accountEllipsis}</span>
+          <CaretDown size={16} className="inline-block" />
+        </button>
+
+        <div
+          className={clsx('absolute top-12 right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50', {
+            'opacity-100': userMenuOpen,
+            'opacity-0 pointer-events-none': !userMenuOpen,
+          })}
+        >
+          <h3 className="text-on-surface font-bold text-lg">{t('Preferences')}</h3>
+
+          <div className="mt-[30px] flex flex-col items-start space-y-6 text-on-surface">
+            <button
+              type="button"
+              className="text-sm whitespace-nowrap"
+              onClick={() => {
+                onClickWalletMenu()
+                setUserMenuOpen(false)
+              }}
+            >
+              {t('Wallet')}
+            </button>
+            <button
+              type="button"
+              className="text-sm whitespace-nowrap"
+              onClick={() => {
+                onPresentTransactionModal()
+                setUserMenuOpen(false)
+              }}
+            >
+              {t('Recent Transactions')}
+            </button>
+            <button
+              type="button"
+              className="text-sm whitespace-nowrap"
+              onClick={() => {
+                logout().then(() => {
+                  if (isWrongNetwork) {
+                    switchNetworkLocal(DEFAULT_CHAIN_ID)
+                  }
+                })
+
+                setUserMenuOpen(false)
+              }}
+            >
+              {t('Disconnect')}
+            </button>
+          </div>
+        </div>
+      </div>
     )
   }
 
   return (
-    <ConnectWalletButton scale="sm">
-      <Box display={['none', , , 'block']}>
-        <Trans>Connect Wallet</Trans>
-      </Box>
-      <Box display={['block', , , 'none']}>
-        <Trans>Connect</Trans>
-      </Box>
+    <ConnectWalletButton scale={isMobile ? 'sm' : 'md'}>
+      <span className="text-sm">{width < 768 ? t('Connect') : t('Connect Wallet')}</span>
     </ConnectWalletButton>
   )
 }

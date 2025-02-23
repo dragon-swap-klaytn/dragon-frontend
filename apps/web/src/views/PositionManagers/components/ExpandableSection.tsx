@@ -1,7 +1,7 @@
-import { SpaceProps } from 'styled-system'
-import { PropsWithChildren, memo, useCallback, useState } from 'react'
-import { Flex, ExpandableLabel, Text } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
+import { ExpandableLabel, Flex, Text } from '@pancakeswap/uikit'
+import { PropsWithChildren, memo, useCallback, useState } from 'react'
+import { SpaceProps } from 'styled-system'
 
 export const ExpandableSection = memo(function ExpandableSection({
   children,

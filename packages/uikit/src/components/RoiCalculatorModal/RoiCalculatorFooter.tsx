@@ -6,6 +6,7 @@ import { styled } from "styled-components";
 
 import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
 import { BIG_ONE_HUNDRED } from "@pancakeswap/utils/bigNumber";
+import { useBackTo } from "../../hooks/use-back-to";
 import { useTooltip } from "../../hooks/useTooltip";
 import { Box, Flex, Grid } from "../Box";
 import { ExpandableLabel } from "../Button";
@@ -106,6 +107,8 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
     return isFarm ? (lpRewardsApr ? Math.max(lpRewardsApr).toFixed(2) : null) : null;
   }, [isFarm, lpRewardsApr]);
 
+  const { saveBackToHref } = useBackTo();
+
   return (
     <Footer p="16px" flexDirection="column">
       <ExpandableLabel expanded={isExpanded} onClick={() => setIsExpanded((prev) => !prev)}>
@@ -133,7 +136,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
                   {displayApr}%
                 </Text>
                 <Text color="textSubtle" small>
-                  {`*${t("Base APR (%symbol% yield only)", { symbol: CAKE_SYMBOL_VIEW })}`}
+                  {`*${t("Base APR ({{symbol}} yield only)", { symbol: CAKE_SYMBOL_VIEW })}`}
                 </Text>
                 <Text small textAlign="right">
                   {`${cakeRewardAPRDisplay?.toLocaleString("en-US", {
@@ -162,7 +165,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
             )}
             {!Number.isFinite(apy) && (
               <Text color="textSubtle" small>
-                {t("APY (%compoundTimes%x daily compound)", {
+                {t("APY ({{compoundTimes}}x daily compound)", {
                   compoundTimes: autoCompoundFrequency > 0 ? autoCompoundFrequency : 1,
                 })}
               </Text>
@@ -202,7 +205,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
               <>
                 <li>
                   <Text fontSize="12px" textAlign="center" color="textSubtle" display="inline">
-                    {t("LP rewards: %percent%% trading fees, distributed proportionally among LP token holders.", {
+                    {t("LP rewards: {{percent}}% trading fees, distributed proportionally among LP token holders.", {
                       percent: stableSwapAddress && stableLpFee ? BIG_ONE_HUNDRED.times(stableLpFee).toNumber() : 0.3,
                     })}
                   </Text>
@@ -232,7 +235,7 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
             {performanceFee > 0 && (
               <li>
                 <Text mt="14px" fontSize="12px" textAlign="center" color="textSubtle" display="inline">
-                  {t("All estimated rates take into account this pool’s %fee%% performance fee", {
+                  {t("All estimated rates take into account this pool’s {{fee}}% performance fee", {
                     fee: performanceFee,
                   })}
                 </Text>
@@ -241,7 +244,9 @@ const RoiCalculatorFooter: React.FC<React.PropsWithChildren<RoiCalculatorFooterP
           </BulletList>
           {linkHref && (
             <Flex justifyContent="center" mt="24px">
-              <LinkExternal href={linkHref}>{linkLabel}</LinkExternal>
+              <LinkExternal href={linkHref} onClick={saveBackToHref}>
+                {linkLabel}
+              </LinkExternal>
             </Flex>
           )}
         </Box>

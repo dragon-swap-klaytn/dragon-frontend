@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { useTranslation } from "@pancakeswap/localization";
-import { Text, Button, AtomBox } from "@pancakeswap/uikit";
+import { AtomBox, Button, Text } from "@pancakeswap/uikit";
+import Link from "next/link";
 
 export function FindOtherLP({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();

@@ -1,14 +1,17 @@
 import { useEffect } from 'react'
-import { useConfig, useConnect } from 'wagmi'
+import { useAccount, useConfig, useConnect } from 'wagmi'
 
+import { WalletStorageKey } from '@pancakeswap/ui-wallets'
+import { WalletIds } from '@pancakeswap/uikit'
 import { CHAINS } from 'config/chains'
+import { getConnectorId } from 'config/wallet'
 import useAuth from 'hooks/useAuth'
-import { ConnectorNames } from 'config/wallet'
 
 const useEagerConnect = () => {
   const config = useConfig()
-  const { connectAsync, connectors } = useConnect()
-  const { login } = useAuth()
+  const { connectAsync } = useConnect()
+  const { login, logout } = useAuth()
+  const { address: account } = useAccount()
 
   useEffect(() => {
     if (
@@ -26,21 +29,35 @@ const useEagerConnect = () => {
       return
     }
 
-    if (config.storage.getItem('wallet') === ConnectorNames.Klip) {
-      const prevAccount = localStorage.getItem('address') ?? ''
+    if (config.storage.getItem(WalletStorageKey.WALLET) === WalletIds.klip) {
+      const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
 
       if (prevAccount !== '') {
-        login(ConnectorNames.Klip).catch(() => {
-          localStorage.removeItem('wallet')
-          localStorage.removeItem('address')
+        login(getConnectorId(WalletIds.klip)).catch(() => {
+          localStorage.removeItem(WalletStorageKey.WALLET)
+          localStorage.removeItem(WalletStorageKey.CONNECTOR)
+          localStorage.removeItem(WalletStorageKey.ADDRESS)
         })
       }
 
       return
     }
 
-    config.autoConnect()
-  }, [config, connectAsync, connectors])
+    const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
+    if (!prevAccount) {
+      return
+    }
+
+    config.autoConnect().then((res) => {
+      const connectedAccount = res?.account
+      if (!connectedAccount) {
+        return
+      }
+      if (connectedAccount?.toLocaleLowerCase() !== prevAccount.toLocaleLowerCase()) {
+        logout()
+      }
+    })
+  }, [config, connectAsync, login, logout, account])
 }
 
 export default useEagerConnect

@@ -1,11 +1,7 @@
-import { ReactElement } from "react";
 import { useTranslation } from "@pancakeswap/localization";
-import { styled } from "styled-components";
-import { AutoColumn, ErrorIcon, Text, Flex, Button } from "@pancakeswap/uikit";
-
-const Wrapper = styled.div`
-  width: 100%;
-`;
+import { ButtonV2 } from "@pancakeswap/uikit";
+import { XCircle } from "@phosphor-icons/react";
+import { ReactElement } from "react";
 
 export function TransactionErrorContent({
   message,
@@ -16,19 +12,19 @@ export function TransactionErrorContent({
 }) {
   const { t } = useTranslation();
   return (
-    <Wrapper>
-      <AutoColumn justify="center">
-        <ErrorIcon color="failure" width="64px" />
-        <Text color="failure" style={{ textAlign: "center", width: "85%", wordBreak: "break-word" }}>
-          {message}
-        </Text>
-      </AutoColumn>
+    <div className="w-full">
+      <div className="flex flex-col items-center space-y-7">
+        <XCircle size={100} className="text-red-400" weight="light" />
 
-      {onDismiss ? (
-        <Flex justifyContent="center" pt="24px">
-          <Button onClick={onDismiss}>{t("Dismiss")}</Button>
-        </Flex>
-      ) : null}
-    </Wrapper>
+        <p className="text-center break-keep text-on-surface">{message}</p>
+
+        {onDismiss ? (
+          // TODO: need to replace with Button component in web
+          <ButtonV2 onClick={onDismiss} variant="subtle" fullWidth>
+            {t("Dismiss")}
+          </ButtonV2>
+        ) : null}
+      </div>
+    </div>
   );
 }

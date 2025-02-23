@@ -2,52 +2,12 @@ import { ChainId } from '@pancakeswap/chains'
 import { BIG_TWO, BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { CurrencyParams, getCurrencyKey, getCurrencyListUsdPrice } from '@pancakeswap/utils/getCurrencyPrice'
 import BN from 'bignumber.js'
-import { Address, PublicClient, formatUnits } from 'viem'
-import { FarmV2SupportedChainId, supportedChainIdV2 } from '../const'
-import { SerializedFarmConfig, isStableFarm } from '../types'
+import { Address, PublicClient } from 'viem'
+import { supportedChainIdV2 } from '../const'
+import { SerializedFarmConfig } from '../types'
 import { getFarmLpTokenPrice, getFarmsPricesFromSubgraph } from './farmPrices'
 import { fetchPublicFarmsData } from './fetchPublicFarmData'
 import { getFullDecimalMultiplier } from './getFullDecimalMultiplier'
-
-const evmNativeStableLpMap: Record<
-  FarmV2SupportedChainId,
-  {
-    address: Address
-    wNative: string
-    stable: string
-  }
-> = {
-  [ChainId.ETHEREUM]: {
-    address: '0x2E8135bE71230c6B1B4045696d41C09Db0414226',
-    wNative: 'WETH',
-    stable: 'USDC',
-  },
-  [ChainId.GOERLI]: {
-    address: '0xf5bf0C34d3c428A74Ceb98d27d38d0036C587200',
-    wNative: 'WETH',
-    stable: 'tUSDC',
-  },
-  [ChainId.BSC]: {
-    address: '0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16',
-    wNative: 'WBNB',
-    stable: 'BUSD',
-  },
-  [ChainId.BSC_TESTNET]: {
-    address: '0x4E96D2e92680Ca65D58A0e2eB5bd1c0f44cAB897',
-    wNative: 'WBNB',
-    stable: 'BUSD',
-  },
-  [ChainId.KLAYTN]: {
-    address: '0x',
-    wNative: 'WKLAY',
-    stable: 'oUSDT',
-  },
-  [ChainId.KLAYTN_TESTNET]: {
-    address: '0x',
-    wNative: 'WKLAY',
-    stable: 'oUSDT',
-  },
-}
 
 export const getTokenAmount = (balance: BN, decimals: number) => {
   return balance.div(getFullDecimalMultiplier(decimals))
@@ -75,8 +35,6 @@ export async function farmV2FetchFarms({
   if (!supportedChainIdV2.includes(chainId)) {
     return []
   }
-
-  const stableFarms = farms.filter(isStableFarm)
 
   const [poolInfos, lpDataResults] = await Promise.all([
     // fetchStableFarmData(stableFarms, chainId, provider),
@@ -126,11 +84,7 @@ export async function farmV2FetchFarms({
   })
 
   const decimals = 18
-  const farmsDataWithPrices = await getFarmsPricesFromSubgraph(
-    chainId as number,
-    farmsData,
-    decimals,
-  )
+  const farmsDataWithPrices = await getFarmsPricesFromSubgraph(chainId as number, farmsData, decimals)
 
   const tokensWithoutPrice = farmsDataWithPrices.reduce<Map<string, CurrencyParams>>((acc, cur) => {
     if (cur.tokenPriceBusd === '0') {
@@ -313,65 +267,6 @@ export const fetchMasterChefV2Data = async ({
   } catch (error) {
     console.error('Get MasterChef data error', error)
     throw error
-  }
-}
-
-type StableLpData = [balanceResponse, balanceResponse, balanceResponse, balanceResponse]
-
-type FormatStableFarmResponse = {
-  tokenBalanceLP: BN
-  quoteTokenBalanceLP: BN
-  price1: bigint
-}
-
-const formatStableFarm = (stableFarmData: StableLpData): FormatStableFarmResponse => {
-  const [balance1, balance2, _, _price1] = stableFarmData
-  return {
-    tokenBalanceLP: new BN(balance1.toString()),
-    quoteTokenBalanceLP: new BN(balance2.toString()),
-    price1: _price1,
-  }
-}
-
-const getStableFarmDynamicData = ({
-  lpTokenBalanceMC,
-  lpTotalSupply,
-  quoteTokenBalanceLP,
-  tokenBalanceLP,
-  token0Decimals,
-  token1Decimals,
-  price1,
-}: FormatClassicFarmResponse & {
-  token1Decimals: number
-  token0Decimals: number
-  price1: bigint
-}) => {
-  // Raw amount of token in the LP, including those not staked
-  const tokenAmountTotal = getTokenAmount(tokenBalanceLP, token0Decimals)
-  const quoteTokenAmountTotal = getTokenAmount(quoteTokenBalanceLP, token1Decimals)
-
-  // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
-  const lpTokenRatio =
-    !lpTotalSupply.isZero() && !lpTokenBalanceMC.isZero() ? lpTokenBalanceMC.div(lpTotalSupply) : BIG_ZERO
-
-  const tokenPriceVsQuote = formatUnits(price1, token0Decimals)
-
-  // Amount of quoteToken in the LP that are staked in the MC
-  const quoteTokenAmountMcFixed = quoteTokenAmountTotal.times(lpTokenRatio)
-
-  // Amount of token in the LP that are staked in the MC
-  const tokenAmountMcFixed = tokenAmountTotal.times(lpTokenRatio)
-
-  const quoteTokenAmountMcFixedByTokenAmount = tokenAmountMcFixed.times(tokenPriceVsQuote)
-
-  const lpTotalInQuoteToken = quoteTokenAmountMcFixed.plus(quoteTokenAmountMcFixedByTokenAmount)
-
-  return {
-    tokenAmountTotal: tokenAmountTotal.toString(),
-    quoteTokenAmountTotal: quoteTokenAmountTotal.toString(),
-    lpTotalSupply: lpTotalSupply.toString(),
-    lpTotalInQuoteToken: lpTotalInQuoteToken.toString(),
-    tokenPriceVsQuote,
   }
 }
 

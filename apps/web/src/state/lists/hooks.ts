@@ -6,7 +6,6 @@ import { enumValues } from '@pancakeswap/utils/enumValues'
 import {
   DEFAULT_LIST_OF_LISTS,
   MULTI_CHAIN_LIST_URLS,
-  OFFICIAL_LISTS,
   UNSUPPORTED_LIST_URLS,
   WARNING_LIST_URLS,
 } from 'config/constants/lists'
@@ -18,10 +17,6 @@ import mapValues from 'lodash/mapValues'
 import _pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 import { useMemo } from 'react'
-import DEFAULT_TOKEN_LIST from '../../config/constants/tokenLists/pancake-default.tokenlist.json'
-import ONRAMP_TOKEN_LIST from '../../config/constants/tokenLists/pancake-supported-onramp-currency-list.json'
-import UNSUPPORTED_TOKEN_LIST from '../../config/constants/tokenLists/pancake-unsupported.tokenlist.json'
-import WARNING_TOKEN_LIST from '../../config/constants/tokenLists/pancake-warning.tokenlist.json'
 import { safeGetAddress } from '../../utils'
 import { listsAtom } from './lists'
 
@@ -53,22 +48,12 @@ const activeListUrlsAtom = atom((get) => {
   return urls?.filter((url) => !UNSUPPORTED_LIST_URLS.includes(url))
 })
 
-const combineTokenMapsWithDefault = (lists: ListsState['byUrl'], urls: string[]) => {
-  const defaultTokenMap = listToTokenMap(DEFAULT_TOKEN_LIST as TokenList, 'address')
-  if (!urls) return defaultTokenMap
-  return combineMaps(combineTokenMaps(lists, urls), defaultTokenMap)
+const combineTokenMapsWithDefault = (lists: ListsState['byUrl'], urls?: string[]) => {
+  if (!urls) return EMPTY_LIST
+  return combineTokenMaps(lists, urls)
 }
 
-const combineTokenMapsWithOnRamp = () => {
-  const onRampTokens = listToTokenMap(ONRAMP_TOKEN_LIST as TokenList, 'symbol')
-  return onRampTokens
-}
-
-export const combinedCurrenciesMapFromActiveUrlsAtom = atom(() => {
-  return combineTokenMapsWithOnRamp()
-})
-
-const combineTokenMaps = (lists: ListsState['byUrl'], urls: string[]): any => {
+const combineTokenMaps = (lists: ListsState['byUrl'], urls?: string[]): any => {
   if (!urls) return EMPTY_LIST
   return (
     [...urls]
@@ -76,6 +61,7 @@ const combineTokenMaps = (lists: ListsState['byUrl'], urls: string[]): any => {
       .sort(sortByListPriority)
       .reduce((allTokens, currentUrl) => {
         const current = lists[currentUrl]?.current
+
         if (!current) return allTokens
         try {
           const newTokens = Object.assign(listToTokenMap(current, 'address'))
@@ -105,48 +91,27 @@ export const combinedTokenMapFromInActiveUrlsAtom = atom((get) => {
 
 export const combinedTokenMapFromOfficialsUrlsAtom = atom((get) => {
   const lists = get(selectorByUrlsAtom)
-  return combineTokenMapsWithDefault(lists, OFFICIAL_LISTS)
-})
-
-export const tokenListFromOfficialsUrlsAtom = atom((get) => {
-  const lists: ListsState['byUrl'] = get(selectorByUrlsAtom)
-
-  const mergedTokenLists: TokenInfo[] = OFFICIAL_LISTS.reduce((acc, url) => {
-    if (lists?.[url]?.current?.tokens) {
-      acc.push(...(lists?.[url]?.current?.tokens || []))
-    }
-    return acc
-  }, [])
-
-  const mergedList =
-    mergedTokenLists.length > 0 ? [...DEFAULT_TOKEN_LIST.tokens, ...mergedTokenLists] : DEFAULT_TOKEN_LIST.tokens
-  return mapValues(
-    groupBy(
-      uniqBy(mergedList, (tokenInfo) => `${tokenInfo.chainId}#${tokenInfo.address}`),
-      'chainId',
-    ),
-    (tokenInfos) => keyBy(tokenInfos, 'address'),
-  )
+  return combineTokenMaps(lists)
 })
 
 export const combinedTokenMapFromUnsupportedUrlsAtom = atom((get) => {
   const lists = get(selectorByUrlsAtom)
   // get hard coded unsupported tokens
-  const localUnsupportedListMap = listToTokenMap(UNSUPPORTED_TOKEN_LIST as TokenList, 'address')
+  // const localUnsupportedListMap = listToTokenMap(UNSUPPORTED_TOKEN_LIST as TokenList, 'address')
   // get any loaded unsupported tokens
   const loadedUnsupportedListMap = combineTokenMaps(lists, UNSUPPORTED_LIST_URLS)
 
-  return combineMaps(localUnsupportedListMap, loadedUnsupportedListMap)
+  return loadedUnsupportedListMap
 })
 
 export const combinedTokenMapFromWarningUrlsAtom = atom((get) => {
   const lists = get(selectorByUrlsAtom)
   // get hard coded unsupported tokens
-  const localUnsupportedListMap = listToTokenMap(WARNING_TOKEN_LIST as TokenList, 'address')
+  // const localUnsupportedListMap = listToTokenMap(WARNING_TOKEN_LIST as TokenList, 'address')
   // get any loaded unsupported tokens
   const loadedUnsupportedListMap = combineTokenMaps(lists, WARNING_LIST_URLS)
 
-  return combineMaps(localUnsupportedListMap, loadedUnsupportedListMap)
+  return loadedUnsupportedListMap
 })
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
   typeof WeakMap !== 'undefined' ? new WeakMap<TokenList, TokenAddressMap>() : null
@@ -155,10 +120,7 @@ export function listToTokenMap(list: TokenList, key?: string): TokenAddressMap {
   const result = listCache?.get(list)
   if (result) return result
 
-  const tokenMap: WrappedTokenInfo[] = uniqBy(
-    list.tokens,
-    (tokenInfo: TokenInfo) => `${tokenInfo.chainId}#${tokenInfo.address}`,
-  )
+  const tokenMap = uniqBy(list.tokens, (tokenInfo: TokenInfo) => `${tokenInfo.chainId}#${tokenInfo.address}`)
     .map((tokenInfo) => {
       const checksummedAddress = safeGetAddress(tokenInfo.address)
       if (checksummedAddress) {
@@ -166,7 +128,7 @@ export function listToTokenMap(list: TokenList, key?: string): TokenAddressMap {
       }
       return null
     })
-    .filter(Boolean)
+    .filter(Boolean) as WrappedTokenInfo[]
 
   const groupedTokenMap: { [chainId: string]: WrappedTokenInfo[] } = groupBy(tokenMap, 'chainId')
 

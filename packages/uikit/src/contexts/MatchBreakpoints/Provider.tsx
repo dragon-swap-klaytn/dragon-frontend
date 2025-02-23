@@ -7,6 +7,10 @@ type State = {
 };
 
 export type BreakpointChecks = {
+  isBelowS: boolean;
+  isBelowSm: boolean;
+  isBelowMd: boolean;
+  isBelowLg: boolean;
   isMobile: boolean;
   isTablet: boolean;
   isDesktop: boolean;
@@ -61,6 +65,10 @@ const getState = (): State => {
 };
 
 export const MatchBreakpointsContext = createContext<BreakpointChecks>({
+  isBelowS: false,
+  isBelowSm: false,
+  isBelowMd: false,
+  isBelowLg: false,
   isMobile: false,
   isTablet: false,
   isDesktop: false,
@@ -69,9 +77,13 @@ export const MatchBreakpointsContext = createContext<BreakpointChecks>({
 export const getBreakpointChecks = (state: State): BreakpointChecks => {
   return {
     ...state,
-    isMobile: state.isXs || state.isSm,
-    isTablet: state.isMd || state.isLg,
-    isDesktop: state.isXl || state.isXxl,
+    isBelowS: state.isXxs || state.isXs,
+    isBelowSm: state.isXxs || state.isXs || state.isS,
+    isBelowMd: state.isXxs || state.isXs || state.isS || state.isSm,
+    isBelowLg: state.isXxs || state.isXs || state.isS || state.isSm || state.isMd,
+    isMobile: state.isXxs || state.isXs || state.isS || state.isSm,
+    isTablet: state.isMd,
+    isDesktop: state.isLg || state.isXl || state.isXxl,
   };
 };
 

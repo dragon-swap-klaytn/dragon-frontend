@@ -1,4 +1,4 @@
-import { ChainId } from '@pancakeswap/chains'
+import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { NATIVE } from '@pancakeswap/sdk'
 import {
@@ -65,7 +65,7 @@ const WrongNetworkSelect = ({ switchNetwork, chainId }) => {
   const { t } = useTranslation()
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     t(
-      'The URL you are accessing (Chain id: %chainId%) belongs to %network%; mismatching your wallet’s network. Please switch the network to continue.',
+      'The URL you are accessing (Chain id: {{chainId}}) belongs to {{network}}; mismatching your wallet’s network. Please switch the network to continue.',
       {
         chainId,
         network: chains.find((c) => c.id === chainId)?.name ?? 'Unknown network',
@@ -77,7 +77,7 @@ const WrongNetworkSelect = ({ switchNetwork, chainId }) => {
     },
   )
   const { chain } = useNetwork()
-  const localChainId = useLocalNetworkChain() || ChainId.KLAYTN
+  const localChainId = useLocalNetworkChain() || DEFAULT_CHAIN_ID
   const [, setSessionChainId] = useSessionChainId()
 
   const localChainName = chains.find((c) => c.id === localChainId)?.name ?? 'KLAYTN'
@@ -117,10 +117,6 @@ const WrongNetworkSelect = ({ switchNetwork, chainId }) => {
 }
 
 const SHORT_SYMBOL = {
-  [ChainId.ETHEREUM]: 'ETH',
-  [ChainId.BSC]: 'BNB',
-  [ChainId.BSC_TESTNET]: 'tBNB',
-  [ChainId.GOERLI]: 'GOR',
   [ChainId.KLAYTN]: 'Kaia',
   [ChainId.KLAYTN_TESTNET]: 'tKlaytn',
 } as const satisfies Record<ChainId, string>

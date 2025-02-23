@@ -1,21 +1,27 @@
 /* eslint-disable */
 import { Currency } from '@pancakeswap/sdk'
-import { AutoRow, Box, Button, Card, CardBody, Flex, Heading, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+import {
+  ButtonV2,
+  Card,
+  CurrencyLogoWithAmount,
+  CurrencyLogoWithSymbol,
+  TagV2,
+  useMatchBreakpoints,
+} from '@pancakeswap/uikit'
 import { NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 import { useMemo } from 'react'
 
-import { AppHeader } from 'components/App'
+import { AppBody, AppHeader } from 'components/App'
 
-import { CurrencyLogo, DoubleCurrencyLogo } from 'components/Logo'
 import { styled } from 'styled-components'
-import { CHAIN_IDS } from 'utils/wagmi'
 import Page from 'views/Page'
 
 import { getFarmConfig } from '@pancakeswap/farms/constants'
 import { useTranslation } from '@pancakeswap/localization'
-import { LightGreyCard } from 'components/Card'
+import clsx from 'clsx'
 import { usePoolTokenPercentage, useTokensDeposited, useTotalUSDValue } from 'components/PositionCard'
 import { useCurrency } from 'hooks/Tokens'
+import { useBackTo } from 'hooks/use-back-to'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMasterchef } from 'hooks/useContract'
 import { useV2Pair } from 'hooks/usePairs'
@@ -25,6 +31,7 @@ import { useLPApr } from 'state/swap/useLPApr'
 import { useTokenBalance } from 'state/wallet/hooks'
 import useSWRImmutable from 'swr/immutable'
 import { formatAmount } from 'utils/formatInfoNumbers'
+import { getDefaultStaticPaths, getDefaultStaticProps } from 'utils/pageUtils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { useAccount } from 'wagmi'
 
@@ -43,6 +50,8 @@ export default function PoolV2Page() {
 
   const router = useRouter()
   const { address: account } = useAccount()
+
+  const { backTo, saveBackToHref } = useBackTo()
 
   const [currencyIdA, currencyIdB] = router?.query?.currency ? router.query.currency : []
 
@@ -69,11 +78,13 @@ export default function PoolV2Page() {
   const masterchefV2Contract = useMasterchef()
 
   const { data: isFarmExistActiveForPair } = useSWRImmutable(
-    chainId && pair && masterchefV2Contract && ['isFarmExistActiveForPair', chainId, pair.liquidityToken.address],
+    Boolean(chainId) &&
+      pair &&
+      masterchefV2Contract && ['isFarmExistActiveForPair', chainId, pair.liquidityToken.address],
     async () => {
       const farmsConfig = (await getFarmConfig(chainId)) || []
       const farmPair = farmsConfig.find(
-        (farm) => farm.lpAddress.toLowerCase() === pair.liquidityToken.address.toLowerCase(),
+        (farm) => farm.lpAddress.toLowerCase() === pair?.liquidityToken.address.toLowerCase(),
       )
       if (farmPair) {
         const poolInfo = await masterchefV2Contract.read.poolInfo([BigInt(farmPair.pid)])
@@ -89,7 +100,10 @@ export default function PoolV2Page() {
   const poolData = useLPApr(pair)
 
   const tokens: PairTokens = useMemo(() => {
-    return [unwrappedToken(pair?.token0), unwrappedToken(pair?.token1)]
+    return [
+      pair?.token0 ? unwrappedToken(pair.token0) : undefined,
+      pair?.token1 ? unwrappedToken(pair.token1) : undefined,
+    ]
   }, [pair, chainId])
   const tokenLabels: string[] = useMemo(() => {
     return [
@@ -100,123 +114,121 @@ export default function PoolV2Page() {
     ]
   }, [tokens])
 
+  const buttons = useMemo(() => {
+    return (
+      <div className="flex items-center space-x-2 mt-6">
+        <NextLinkFromReactRouter
+          to={`/v2/add/${tokenLabels[0]}/${tokenLabels[1]}`}
+          className={clsx({ 'w-full': isMobile })}
+          onClick={saveBackToHref}
+        >
+          <ButtonV2 disabled={!pair} variant="primary" onClick={() => {}} fullWidth={isMobile}>
+            {t('Add')}
+          </ButtonV2>
+        </NextLinkFromReactRouter>
+        <NextLinkFromReactRouter
+          to={`/v2/remove/${tokenLabels[0]}/${tokenLabels[1]}`}
+          className={clsx({ 'w-full': isMobile })}
+          onClick={saveBackToHref}
+        >
+          <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile}>
+            {t('Remove')}
+          </ButtonV2>
+        </NextLinkFromReactRouter>
+        {isFarmExistActiveForPair === 'notexist' && (
+          <NextLinkFromReactRouter
+            to={`/v2/migrate/${pair?.liquidityToken?.address}`}
+            className={clsx({ 'w-full': isMobile })}
+          >
+            <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile}>
+              {t('Migrate')}
+            </ButtonV2>
+          </NextLinkFromReactRouter>
+        )}
+      </div>
+    )
+  }, [isMobile, pair, t, tokenLabels, isFarmExistActiveForPair])
+
   return (
     <Page>
-      <BodyWrapper>
+      <AppBody>
         <AppHeader
           title={
-            <Flex justifyContent="center" alignItems="center">
-              <DoubleCurrencyLogo size={24} currency0={tokens[0]} currency1={tokens[1]} />
-              <Heading as="h2" ml="8px">
-                {tokens[0]?.symbol}-{tokens[1]?.symbol} LP
-              </Heading>
-            </Flex>
+            <div className="flex items-center space-x-2 w-full justify-between">
+              <CurrencyLogoWithSymbol
+                currencyA={tokens[0]}
+                currencyB={tokens[1]}
+                symbol={`${tokens[0]?.symbol}-${tokens[1]?.symbol}`}
+                symbolClassName="text-lg font-bold text-on-surface"
+              />
+
+              <TagV2>{t('V2')}</TagV2>
+            </div>
           }
-          backTo="/liquidity"
+          backTo={backTo}
           noConfig
-          buttons={
-            !isMobile && (
-              <>
-                <NextLinkFromReactRouter to={`/v2/add/${tokenLabels[0]}/${tokenLabels[1]}`}>
-                  <Button width="100%" disabled={!pair}>
-                    {t('Add')}
-                  </Button>
-                </NextLinkFromReactRouter>
-                <NextLinkFromReactRouter
-                  to={`/v2/remove/${tokenLabels[0]}/${tokenLabels[1]}`}
-                  style={{ margin: '0px 8px' }}
-                >
-                  <Button variant="secondary" width="100%" disabled={!pair}>
-                    {t('Remove')}
-                  </Button>
-                </NextLinkFromReactRouter>
-                {isFarmExistActiveForPair === 'notexist' && (
-                  <NextLinkFromReactRouter to={`/v2/migrate/${pair?.liquidityToken?.address}`}>
-                    <Button variant="secondary" width="100%" disabled={!pair}>
-                      {t('Migrate')}
-                    </Button>
-                  </NextLinkFromReactRouter>
-                )}
-              </>
-            )
-          }
         />
-        <CardBody>
-          {isMobile && (
-            <>
-              <NextLinkFromReactRouter to={`/v2/add/${tokenLabels[0]}/${tokenLabels[1]}`}>
-                <Button width="100%" mb="8px" disabled={!pair}>
-                  {t('Add')}
-                </Button>
-              </NextLinkFromReactRouter>
-              <NextLinkFromReactRouter to={`/v2/remove/${tokenLabels[0]}/${tokenLabels[1]}`}>
-                <Button variant="secondary" width="100%" mb="8px" disabled={!pair}>
-                  {t('Remove')}
-                </Button>
-              </NextLinkFromReactRouter>
-              {isFarmExistActiveForPair === 'notexist' && (
-                <NextLinkFromReactRouter to={`/v2/migrate/${pair.liquidityToken.address}`}>
-                  <Button variant="secondary" width="100%" mb="8px" disabled={!pair}>
-                    {t('Migrate')}
-                  </Button>
-                </NextLinkFromReactRouter>
-              )}
-            </>
-          )}
-          <AutoRow>
-            <Flex alignItems="center" justifyContent="space-between" width="100%" mb="8px">
-              <Box width="100%" mr="4px">
-                <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-                  {t('Liquidity')}
-                </Text>
-                <Text fontSize="24px" fontWeight={600}>
-                  $
-                  {totalUSDValue
-                    ? totalUSDValue.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    : '-'}
-                </Text>
-                <LightGreyCard mr="4px">
-                  <AutoRow justifyContent="space-between" mb="8px">
-                    <Flex>
-                      <CurrencyLogo currency={tokens[0]} />
-                      <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                        {tokens[0]?.symbol}
-                      </Text>
-                    </Flex>
-                    <Flex justifyContent="center">
-                      <Text mr="4px">{token0Deposited?.toSignificant(4)}</Text>
-                    </Flex>
-                  </AutoRow>
-                  <AutoRow justifyContent="space-between" mb="8px">
-                    <Flex>
-                      <CurrencyLogo currency={tokens[1]} />
-                      <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                        {tokens[1]?.symbol}
-                      </Text>
-                    </Flex>
-                    <Flex justifyContent="center">
-                      <Text mr="4px">{token1Deposited?.toSignificant(4)}</Text>
-                    </Flex>
-                  </AutoRow>
-                </LightGreyCard>
-              </Box>
-            </Flex>
-          </AutoRow>
-          {poolData && (
-            <Text>
-              {t('LP reward APR')}: {formatAmount(poolData.lpApr7d)}%
-            </Text>
-          )}
-          <Text>
-            {t('Your share in pool')}: {poolTokenPercentage ? `${poolTokenPercentage.toFixed(8)}%` : '-'}
-          </Text>
-        </CardBody>
-      </BodyWrapper>
+        <div className="p-5 md:p-8">
+          <h3 className="text-xs text-on-surface-brand">{t('Liquidity')}</h3>
+
+          <p className="mt-2 font-bold text-on-surface text-xl">
+            $
+            {totalUSDValue
+              ? totalUSDValue.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              : '-'}
+          </p>
+
+          <CurrencyWithAmount
+            a={{ currency: tokens[0], symbol: tokens[0]?.symbol, amount: token0Deposited?.toSignificant(4) }}
+            b={{ currency: tokens[1], symbol: tokens[1]?.symbol, amount: token1Deposited?.toSignificant(4) }}
+          />
+
+          <div className="flex flex-col items-start space-y-0.5 mt-1.5 text-on-surface-subtle text-[13px]">
+            {poolData && (
+              <p>
+                {t('LP reward APR')}: {formatAmount(poolData?.lpApr7d)}%
+              </p>
+            )}
+
+            <p>
+              {t('Your share in pool')}: {poolTokenPercentage ? `${poolTokenPercentage.toFixed(8)}%` : '-'}
+            </p>
+          </div>
+
+          {buttons}
+        </div>
+      </AppBody>
     </Page>
   )
 }
 
-PoolV2Page.chains = CHAIN_IDS
+type CurrencyWithAmountProps = {
+  currency: Currency | undefined
+  symbol?: string
+  amount?: string
+}
+
+function CurrencyWithAmount({ a, b }: { a: CurrencyWithAmountProps; b: CurrencyWithAmountProps }) {
+  return (
+    <div className="mt-2">
+      <CurrencyLogoWithAmount
+        currencyA={a.currency}
+        symbol={a.symbol}
+        amount={a.amount}
+        className="py-3 border-y border-border"
+      />
+      <CurrencyLogoWithAmount
+        currencyA={b.currency}
+        symbol={b.symbol}
+        amount={b.amount}
+        className="py-3 border-b border-border"
+      />
+    </div>
+  )
+}
+
+export const getStaticPaths = getDefaultStaticPaths
+export const getStaticProps = getDefaultStaticProps(['common'])

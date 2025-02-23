@@ -1,115 +1,52 @@
 /* eslint-disable no-restricted-syntax */
-import { Currency, Token } from '@pancakeswap/sdk'
-import { Box, Input, Text, useMatchBreakpoints, AutoColumn, Column } from '@pancakeswap/uikit'
-import { KeyboardEvent, RefObject, useCallback, useMemo, useRef, useState, useEffect } from 'react'
+import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { useDebounce, useSortedTokensByQuery } from '@pancakeswap/hooks'
-import useNativeCurrency from 'hooks/useNativeCurrency'
-import { FixedSizeList } from 'react-window'
-import { useAllLists, useInactiveListUrls } from 'state/lists/hooks'
-import { WrappedTokenInfo, createFilterToken } from '@pancakeswap/token-lists'
+import { Currency, Token } from '@pancakeswap/sdk'
+import { SearchBar, Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { useAudioPlay } from '@pancakeswap/utils/user'
+import useNativeCurrency from 'hooks/useNativeCurrency'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FixedSizeList } from 'react-window'
 import { safeGetAddress } from 'utils'
-import { useActiveChainId } from 'hooks/useActiveChainId'
-import { whiteListedFiatCurrenciesMap } from 'views/BuyCrypto/constants'
-import { isAddress } from 'viem'
-import { useAllTokens, useIsUserAddedToken, useToken } from '../../hooks/Tokens'
-import Row from '../Layout/Row'
+import { useTokenMap, useTokens } from '../../hooks/Tokens'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
 import useTokenComparator from './sorting'
 import { getSwapSound } from './swapSound'
 
-import ImportRow from './ImportRow'
-
 interface CurrencySearchProps {
   selectedCurrency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
-  otherSelectedCurrency?: Currency | null
   showSearchInput?: boolean
   showCommonBases?: boolean
   commonBasesType?: string
   showImportView: () => void
   setImportToken: (token: Token) => void
-  height?: number
   tokensToShow?: Token[]
-  mode?: string
-  onRampFlow?: boolean
-}
-
-function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
-  const lists = useAllLists()
-  const inactiveUrls = useInactiveListUrls()
-  const { chainId } = useActiveChainId()
-  const activeTokens = useAllTokens()
-  return useMemo(() => {
-    if (!search || search.trim().length === 0) return []
-    const filterToken = createFilterToken(search, (address) => isAddress(address))
-    const exactMatches: WrappedTokenInfo[] = []
-    const rest: WrappedTokenInfo[] = []
-    const addressSet: { [address: string]: true } = {}
-    const trimmedSearchQuery = search.toLowerCase().trim()
-    for (const url of inactiveUrls) {
-      const list = lists[url]?.current
-      // eslint-disable-next-line no-continue
-      if (!list) continue
-      for (const tokenInfo of list.tokens) {
-        if (
-          tokenInfo.chainId === chainId &&
-          !(tokenInfo.address in activeTokens) &&
-          !addressSet[tokenInfo.address] &&
-          filterToken(tokenInfo)
-        ) {
-          const wrapped: WrappedTokenInfo = new WrappedTokenInfo({
-            ...tokenInfo,
-            address: safeGetAddress(tokenInfo.address) || tokenInfo.address,
-          })
-          addressSet[wrapped.address] = true
-          if (
-            tokenInfo.name?.toLowerCase() === trimmedSearchQuery ||
-            tokenInfo.symbol?.toLowerCase() === trimmedSearchQuery
-          ) {
-            exactMatches.push(wrapped)
-          } else {
-            rest.push(wrapped)
-          }
-        }
-      }
-    }
-    return [...exactMatches, ...rest].slice(0, minResults)
-  }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
 }
 
 function CurrencySearch({
   selectedCurrency,
   onCurrencySelect,
-  otherSelectedCurrency,
   showCommonBases,
   commonBasesType,
   showSearchInput = true,
   showImportView,
   setImportToken,
-  height,
   tokensToShow,
-  mode,
-  onRampFlow,
 }: CurrencySearchProps) {
   const { t } = useTranslation()
-  const { chainId } = useActiveChainId()
 
   // refs for fixed size lists
   const fixedList = useRef<FixedSizeList>()
 
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const debouncedQuery = useDebounce(searchQuery, 200)
+  const debouncedQuery = useDebounce(searchQuery, 500)
 
   const [invertSearchOrder] = useState<boolean>(false)
 
-  const allTokens = useAllTokens()
-
-  // if they input an address, use it
-  const searchToken = useToken(debouncedQuery)
-  const searchTokenIsAdded = useIsUserAddedToken(searchToken)
+  const { tokenMap: onlyPoolTokenMap } = useTokenMap({ poolOnly: true })
+  const searchTokens = useTokens(debouncedQuery)
 
   const { isMobile } = useMatchBreakpoints()
   const [audioPlay] = useAudioPlay()
@@ -117,29 +54,22 @@ function CurrencySearch({
   const native = useNativeCurrency()
 
   const showNative: boolean = useMemo(() => {
-    if (tokensToShow || mode === 'onramp-input') return false
+    if (tokensToShow) return false
     const s = debouncedQuery.toLowerCase().trim()
     return native && native.symbol?.toLowerCase?.()?.indexOf(s) !== -1
-  }, [debouncedQuery, native, tokensToShow, mode])
-
-  const filteredTokens: Token[] = useMemo(() => {
-    const filterToken = createFilterToken(debouncedQuery, (address) => isAddress(address))
-    return Object.values(tokensToShow || allTokens).filter(filterToken)
-  }, [tokensToShow, allTokens, debouncedQuery])
-
-  const queryTokens = useSortedTokensByQuery(filteredTokens, debouncedQuery)
-  const filteredQueryTokens = useMemo(() => {
-    if (!chainId) return queryTokens
-    return mode === 'onramp-input'
-      ? queryTokens.filter((curr) => whiteListedFiatCurrenciesMap[chainId].includes(curr.symbol))
-      : queryTokens
-  }, [mode, queryTokens, chainId])
+  }, [debouncedQuery, native, tokensToShow])
 
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
-  const filteredSortedTokens: Token[] = useMemo(() => {
-    return onRampFlow ? [...filteredQueryTokens] : [...filteredQueryTokens].sort(tokenComparator)
-  }, [filteredQueryTokens, tokenComparator, onRampFlow])
+  const sortedTokens = useMemo(() => {
+    if (!searchTokens && !onlyPoolTokenMap) {
+      return null
+    }
+
+    const _tokens = searchTokens || (onlyPoolTokenMap ? Object.values(onlyPoolTokenMap) : ([] as Token[]))
+
+    return _tokens.sort(tokenComparator)
+  }, [searchTokens, onlyPoolTokenMap, tokenComparator])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
@@ -165,117 +95,47 @@ function CurrencySearch({
     fixedList.current?.scrollTo(0)
   }, [])
 
-  const handleEnter = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        const s = debouncedQuery.toLowerCase().trim()
-        if (s === native.symbol.toLowerCase().trim()) {
-          handleCurrencySelect(native)
-        } else if (filteredSortedTokens.length > 0) {
-          if (
-            filteredSortedTokens[0].symbol?.toLowerCase() === debouncedQuery.trim().toLowerCase() ||
-            filteredSortedTokens.length === 1
-          ) {
-            handleCurrencySelect(filteredSortedTokens[0])
-          }
-        }
-      }
-    },
-    [debouncedQuery, filteredSortedTokens, handleCurrencySelect, native],
-  )
-
-  // if no results on main list, show option to expand into inactive
-  const filteredInactiveTokens = useSearchInactiveTokenLists(debouncedQuery)
-
-  const hasFilteredInactiveTokens = Boolean(filteredInactiveTokens?.length)
-
   const getCurrencyListRows = useCallback(() => {
-    if (searchToken && !searchTokenIsAdded && !hasFilteredInactiveTokens) {
-      return (
-        <Column style={{ padding: '20px 0', height: '100%' }}>
-          <ImportRow
-            onCurrencySelect={handleCurrencySelect}
-            token={searchToken}
-            showImportView={showImportView}
-            setImportToken={setImportToken}
-          />
-        </Column>
-      )
-    }
-
-    return Boolean(filteredSortedTokens?.length) || hasFilteredInactiveTokens || mode === 'onramp-output' ? (
-      <Box mx="-24px" my="24px">
-        <CurrencyList
-          height={isMobile ? (showCommonBases ? height || 250 : height ? height + 80 : 350) : 390}
-          showNative={showNative}
-          currencies={filteredSortedTokens}
-          inactiveCurrencies={mode === 'onramp-input' ? [] : filteredInactiveTokens}
-          breakIndex={
-            Boolean(filteredInactiveTokens?.length) && filteredSortedTokens ? filteredSortedTokens.length : undefined
-          }
-          onCurrencySelect={handleCurrencySelect}
-          otherCurrency={otherSelectedCurrency}
-          selectedCurrency={selectedCurrency}
-          fixedListRef={fixedList}
-          showImportView={showImportView}
-          setImportToken={setImportToken}
-          mode={mode as string}
-        />
-      </Box>
+    return !sortedTokens ? (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Spinner />
+      </div>
+    ) : sortedTokens.length > 0 ? (
+      <CurrencyList
+        showNative={showNative}
+        currencies={sortedTokens}
+        onCurrencySelect={handleCurrencySelect}
+        selectedCurrency={selectedCurrency}
+        showImportView={showImportView}
+        setImportToken={setImportToken}
+      />
     ) : (
-      <Column style={{ padding: '20px', height: '100%' }}>
-        <Text color="textSubtle" textAlign="center" mb="20px">
-          {t('No results found.')}
-        </Text>
-      </Column>
+      <p className="text-center py-4 text-on-surface text-sm">{t('No results found.')}</p>
     )
-  }, [
-    filteredInactiveTokens,
-    filteredSortedTokens,
-    handleCurrencySelect,
-    hasFilteredInactiveTokens,
-    otherSelectedCurrency,
-    searchToken,
-    searchTokenIsAdded,
-    selectedCurrency,
-    setImportToken,
-    showNative,
-    showImportView,
-    t,
-    showCommonBases,
-    isMobile,
-    height,
-    mode,
-  ])
+  }, [sortedTokens, handleCurrencySelect, selectedCurrency, setImportToken, showNative, showImportView, t])
+
+  const searchBarRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (!searchBarRef.current) return
+    if (!showSearchInput) return
+
+    searchBarRef.current.focus()
+  }, [showSearchInput])
 
   return (
-    <>
-      <AutoColumn gap="16px">
-        {showSearchInput && (
-          <Row>
-            <Input
-              id="token-search-input"
-              placeholder={t(onRampFlow ? 'Search name' : 'Search name or paste address')}
-              scale="lg"
-              autoComplete="off"
-              value={searchQuery}
-              ref={inputRef as RefObject<HTMLInputElement>}
-              onChange={handleInput}
-              onKeyDown={handleEnter}
-            />
-          </Row>
-        )}
-        {showCommonBases && (
-          <CommonBases
-            chainId={chainId}
-            onSelect={handleCurrencySelect}
-            selectedCurrency={selectedCurrency}
-            commonBasesType={commonBasesType}
-          />
-        )}
-      </AutoColumn>
+    <div className="flex flex-col space-y-4">
+      {showSearchInput && <SearchBar ref={searchBarRef} value={searchQuery} onChange={handleInput} fullWidth />}
+
+      {showCommonBases && (
+        <CommonBases
+          onSelect={handleCurrencySelect}
+          selectedCurrency={selectedCurrency}
+          commonBasesType={commonBasesType}
+        />
+      )}
+
       {getCurrencyListRows()}
-    </>
+    </div>
   )
 }
 

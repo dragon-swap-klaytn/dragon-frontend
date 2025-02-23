@@ -1,9 +1,5 @@
 import { ChainId } from '@pancakeswap/chains'
 
-import { livePools as ethLivePools, pools as ethPools } from './1'
-import { livePools as bscLivePools, pools as bscPools } from './56'
-import { livePools as bscTestnetLivePools, pools as bscTestnetPools } from './97'
-
 import { SerializedPool } from '../../types'
 import { isPoolsSupported } from '../../utils/isPoolsSupported'
 import { SupportedChainId } from '../supportedChains'
@@ -13,17 +9,11 @@ export type PoolsConfigByChain<TChainId extends ChainId> = {
 }
 
 export const POOLS_CONFIG_BY_CHAIN = {
-  [ChainId.ETHEREUM]: ethPools,
-  [ChainId.BSC]: bscPools,
-  [ChainId.BSC_TESTNET]: bscTestnetPools,
   [ChainId.KLAYTN]: [],
   [ChainId.KLAYTN_TESTNET]: [],
 } as PoolsConfigByChain<SupportedChainId>
 
 export const LIVE_POOLS_CONFIG_BY_CHAIN = {
-  [ChainId.ETHEREUM]: ethLivePools,
-  [ChainId.BSC]: bscLivePools,
-  [ChainId.BSC_TESTNET]: bscTestnetLivePools,
   [ChainId.KLAYTN]: [],
   [ChainId.KLAYTN_TESTNET]: [],
 } as PoolsConfigByChain<SupportedChainId>

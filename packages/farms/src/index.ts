@@ -72,7 +72,7 @@ export function createFarmFetcher(provider: ({ chainId }: { chainId: FarmV2Suppo
     fetchFarms,
     isChainSupported: (chainId: number) => supportedChainIdV2.includes(chainId),
     supportedChainId: supportedChainIdV2,
-    isTestnet: (chainId: number) => ![ChainId.BSC, ChainId.ETHEREUM, ChainId.KLAYTN].includes(chainId),
+    isTestnet: (chainId: number) => ![ChainId.KLAYTN].includes(chainId),
   }
 }
 
@@ -81,11 +81,11 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
     farms,
     chainId,
     commonPrice,
-    isFinished
+    isFinished,
   }: {
     farms: ComputedFarmConfigV3[]
     chainId: FarmV3SupportedChainId
-    commonPrice: CommonPrice,
+    commonPrice: CommonPrice
     isFinished?: boolean
   }) => {
     const masterChefAddress = isFinished ? masterChefV3FinishedAddresses[chainId] : masterChefV3Addresses[chainId]
@@ -102,7 +102,6 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
       })
 
       const cakePerSecond = new BigNumber(latestPeriodCakePerSecond.toString()).div(1e18).div(1e12).toString()
-
       const farmsWithPrice = await farmV3FetchFarms({
         farms,
         chainId,
@@ -145,7 +144,7 @@ export function createFarmFetcherV3(provider: ({ chainId }: { chainId: number })
     getCakeAprAndTVL,
     isChainSupported: (chainId: number): chainId is FarmV3SupportedChainId => supportedChainIdV3.includes(chainId),
     supportedChainId: supportedChainIdV3,
-    isTestnet: (chainId: number) => ![ChainId.BSC, ChainId.ETHEREUM].includes(chainId),
+    isTestnet: (chainId: number) => ![ChainId.KLAYTN].includes(chainId),
   }
 }
 
@@ -159,4 +158,10 @@ export type { FarmWithPrices } from './v2/farmPrices'
 export * from './v2/farmsPriceHelpers'
 export * from './v2/filterFarmsByQuery'
 
-export { fetchCommonTokenUSDValue, fetchTokenUSDValues, masterChefAddresses, masterChefV3Addresses, masterChefV3FinishedAddresses }
+export {
+  fetchCommonTokenUSDValue,
+  fetchTokenUSDValues,
+  masterChefAddresses,
+  masterChefV3Addresses,
+  masterChefV3FinishedAddresses,
+}

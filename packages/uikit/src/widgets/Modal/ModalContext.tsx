@@ -1,26 +1,10 @@
-import { DismissableLayer } from "@radix-ui/react-dismissable-layer";
-import { AnimatePresence, LazyMotion, m } from "framer-motion";
-import React, { createContext, useCallback, useMemo, useRef, useState } from "react";
-import { isMobile } from "react-device-detect";
-import { createPortal } from "react-dom";
-import { styled } from "styled-components";
 import get from "lodash/get";
-import { mountAnimation, unmountAnimation } from "../../components/BottomDrawer/styles";
+import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Overlay } from "../../components/Overlay";
 import { useIsomorphicEffect } from "../../hooks";
-import {
-  animationHandler,
-  animationMap,
-  animationVariants,
-  appearAnimation,
-  disappearAnimation,
-} from "../../util/animationToolkit";
 import getPortalRoot from "../../util/getPortalRoot";
-import { ModalContainer } from "./styles";
 import { Handler } from "./types";
-
-const DomMax = () => import("./motionDomMax").then((mod) => mod.default);
-const DomAnimation = () => import("./motionDomAnimation").then((mod) => mod.default);
 
 interface ModalsContext {
   isOpen: boolean;
@@ -30,39 +14,6 @@ interface ModalsContext {
   onPresent: (node: React.ReactNode, newNodeId: string, closeOverlayClick: boolean) => void;
   onDismiss: Handler;
 }
-
-export const StyledModalWrapper = styled(m.div)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: ${({ theme }) => theme.zIndices.modal - 1};
-  will-change: opacity;
-  opacity: 0;
-  &.appear {
-    animation: ${appearAnimation} 0.3s ease-in-out forwards;
-    ${ModalContainer} {
-      animation: ${mountAnimation} 0.3s ease-in-out forwards;
-      ${({ theme }) => theme.mediaQueries.md} {
-        animation: none;
-      }
-    }
-  }
-  &.disappear {
-    animation: ${disappearAnimation} 0.3s ease-in-out forwards;
-    ${ModalContainer} {
-      animation: ${unmountAnimation} 0.3s ease-in-out forwards;
-      ${({ theme }) => theme.mediaQueries.md} {
-        animation: none;
-      }
-    }
-  }
-` as typeof m.div;
 
 export const Context = createContext<ModalsContext>({
   isOpen: false,
@@ -78,7 +29,6 @@ const ModalProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [modalNode, setModalNode] = useState<React.ReactNode>();
   const [nodeId, setNodeId] = useState("");
   const [closeOnOverlayClick, setCloseOnOverlayClick] = useState(true);
-  const animationRef = useRef<HTMLDivElement>(null);
 
   useIsomorphicEffect(() => {
     const setViewportHeight = () => {
@@ -116,42 +66,35 @@ const ModalProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     return { isOpen, nodeId, modalNode, setModalNode, onPresent: handlePresent, onDismiss: handleDismiss };
   }, [isOpen, nodeId, modalNode, setModalNode, handlePresent, handleDismiss]);
 
-  const handleAnimationStart = useCallback(() => animationHandler(animationRef.current), []);
+  const [portal, setPortal] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const portalRoot = getPortalRoot();
+    if (!portalRoot) return;
 
-  const portal = useMemo(() => getPortalRoot(), []);
+    setPortal(portalRoot);
+  }, []);
+
+  if (!portal) return null;
 
   return (
     <Context.Provider value={providerValue}>
-      {portal &&
+      {isOpen &&
         createPortal(
-          <LazyMotion features={isMobile ? DomMax : DomAnimation}>
-            <AnimatePresence>
-              {isOpen && (
-                <DismissableLayer
-                  role="dialog"
-                  disableOutsidePointerEvents={false}
-                  onEscapeKeyDown={handleOverlayDismiss}
-                >
-                  <StyledModalWrapper
-                    ref={animationRef}
-                    onAnimationStart={handleAnimationStart}
-                    {...animationMap}
-                    variants={animationVariants}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Overlay onClick={handleOverlayDismiss} />
-                    {React.isValidElement(modalNode) &&
-                      React.cloneElement(modalNode, {
-                        // @ts-ignore
-                        onDismiss: handleDismiss,
-                      })}
-                  </StyledModalWrapper>
-                </DismissableLayer>
-              )}
-            </AnimatePresence>
-          </LazyMotion>,
+          <div className="flex flex-col justify-center items-center fixed inset-0 z-overlay">
+            <Overlay onClick={handleOverlayDismiss} />
+
+            {React.isValidElement(modalNode) &&
+              React.cloneElement(modalNode, {
+                // @ts-ignore
+                onDismiss: () => {
+                  handleDismiss();
+                  modalNode.props.onDismiss?.();
+                },
+              })}
+          </div>,
           portal
         )}
+
       {children}
     </Context.Provider>
   );

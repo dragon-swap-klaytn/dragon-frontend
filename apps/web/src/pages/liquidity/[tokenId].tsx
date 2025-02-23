@@ -1,99 +1,78 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { ChainId } from '@pancakeswap/chains'
-import { isActiveV3Farm } from '@pancakeswap/farms'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@pancakeswap/sdk'
 import {
-  AtomBox,
-  AutoColumn,
-  AutoRow,
-  Box,
-  Button,
-  Card,
-  CardBody,
-  ExpandableLabel,
-  Flex,
-  Heading,
-  Message,
+  ButtonV2,
+  ContainerV2,
+  CurrencyLogoWithAmount,
+  CurrencyLogoWithSymbol,
+  ExternalLink,
   NotFound,
-  PreTitle,
-  RowBetween,
-  ScanLink,
   Spinner,
-  SyncAltIcon,
-  Tag,
-  Text,
-  Toggle,
+  TagV2,
+  ToggleSwitch,
   useMatchBreakpoints,
   useModal,
 } from '@pancakeswap/uikit'
 
 import { ConfirmationModalContent, NextLinkFromReactRouter } from '@pancakeswap/widgets-internal'
 
+import { DEFAULT_LANGUAGE, Locale, Trans, useTranslation } from '@pancakeswap/localization'
 import { MasterChefV3, NonfungiblePositionManager, Pool, Position, isPoolTickInRange } from '@pancakeswap/v3-sdk'
-import { AppHeader } from 'components/App'
-import { useToken } from 'hooks/Tokens'
-import { useStablecoinPrice } from 'hooks/useBUSDPrice'
-import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { useFarm } from 'hooks/useFarm'
-import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
-import { usePool } from 'hooks/v3/usePools'
-import { NextSeo } from 'next-seo'
-// import { usePositionTokenURI } from 'hooks/v3/usePositionTokenURI'
-import { Trans, useTranslation } from '@pancakeswap/localization'
-import { LightGreyCard } from 'components/Card'
+import { useQuery } from '@tanstack/react-query'
+import clsx from 'clsx'
+import { AppBody, AppHeader } from 'components/App'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
-import { CurrencyLogo, DoubleCurrencyLogo } from 'components/Logo'
+import { CurrencyLogo } from 'components/Logo'
 import { RangePriceSection } from 'components/RangePriceSection'
 import { RangeTag } from 'components/RangeTag'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
+import { MASTERCHEFV3_ADDRESS } from 'const'
 import dayjs from 'dayjs'
 import { gql } from 'graphql-request'
+import { useToken } from 'hooks/Tokens'
+import { useBackTo } from 'hooks/use-back-to'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { useStablecoinPrice } from 'hooks/useBUSDPrice'
+import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { PoolState } from 'hooks/v3/types'
+import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
+import { usePool } from 'hooks/v3/usePools'
 import { useV3PositionFees } from 'hooks/v3/useV3PositionFees'
 import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
-import { GetStaticPaths, GetStaticProps } from 'next'
+import { GetStaticPaths } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { NextSeo } from 'next-seo'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ReactNode, memo, useCallback, useMemo, useState } from 'react'
-import { ChainLinkSupportChains } from 'state/info/constant'
+import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useMemo, useState } from 'react'
+import { useFarmsV3WithPositionsAndBooster } from 'state/farmsV3/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
-import { styled } from 'styled-components'
 import { calculateGasMargin, getBlockExploreLink } from 'utils'
 import currencyId from 'utils/currencyId'
 import { formatCurrencyAmount, formatPrice } from 'utils/formatCurrencyAmount'
 import { v3Clients } from 'utils/graphql'
+import { isUserRejected } from 'utils/sentry'
+import { toChecksumToken } from 'utils/toChecksumToken'
+import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { getViemClients } from 'utils/viem'
-import { CHAIN_IDS } from 'utils/wagmi'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { hexToBigInt } from 'viem'
 import { AprCalculator } from 'views/AddLiquidityV3/components/AprCalculator'
 import RateToggle from 'views/AddLiquidityV3/formViews/V3FormView/components/RateToggle'
+import { useIsBoostedPool, useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
+import { useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
+import { V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
 import Page from 'views/Page'
+import BoostingCard from 'views/PoolsV2/components/BoostingCard'
 import { useSendTransaction, useWalletClient } from 'wagmi'
-/*
-import { MerklSection } from 'components/Merkl/MerklSection'
-import { MerklTag } from 'components/Merkl/MerklTag'
-import { useMerklInfo } from 'hooks/useMerkl'
-*/
-import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
-import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
-import { isUserRejected } from 'utils/sentry'
-import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-
-export const BodyWrapper = styled(Card)`
-  border-radius: 24px;
-  max-width: 858px;
-  width: 100%;
-  z-index: 1;
-`
 
 const useInverter = ({
   priceLower,
@@ -125,9 +104,7 @@ function PositionPriceSection({
   priceUpper,
   currencyQuote,
   currencyBase,
-  isMobile,
   priceLower,
-  inverted,
   pool,
   tickAtLimit,
   setManuallyInverted,
@@ -135,47 +112,49 @@ function PositionPriceSection({
 }) {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   return (
     <>
-      <AutoRow justifyContent="space-between" mb="16px" mt="24px">
-        <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-          {t('Price Range')}
-        </Text>
+      <div className="flex items-center space-x-2 w-full justify-between mt-8">
+        <SectionTitle>{t('Price Range')}</SectionTitle>
+
         {currencyBase && currencyQuote && (
           <RateToggle currencyA={currencyBase} handleRateToggle={() => setManuallyInverted(!manuallyInverted)} />
         )}
-      </AutoRow>
-      <AutoRow mb="8px">
-        <Flex alignItems="center" justifyContent="space-between" width="100%" flexWrap={['wrap', 'wrap', 'nowrap']}>
-          <RangePriceSection
-            mr={['0', '0', '16px']}
-            mb={['8px', '8px', '0']}
-            title={t('Min Price')}
-            price={formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
-            currency0={currencyQuote}
-            currency1={currencyBase}
-          />
-          {isMobile ? null : <SyncAltIcon width="24px" mx="16px" />}
-          <RangePriceSection
-            ml={['0', '0', '16px']}
-            title={t('Max Price')}
-            price={formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
-            currency0={currencyQuote}
-            currency1={currencyBase}
-          />
-        </Flex>
-      </AutoRow>
-      {pool && currencyQuote && currencyBase ? (
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
         <RangePriceSection
-          title={t('Current Price')}
-          currency0={currencyQuote}
-          currency1={currencyBase}
-          price={formatPrice(inverted ? pool.token1Price : pool.token0Price, 6, locale)}
+          title={t('Min Price')}
+          price={formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
+          currency0={manuallyInverted ? currencyQuote : currencyBase}
+          currency1={manuallyInverted ? currencyBase : currencyQuote}
         />
-      ) : null}
+
+        <RangePriceSection
+          title={t('Max Price')}
+          price={formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
+          currency0={manuallyInverted ? currencyQuote : currencyBase}
+          currency1={manuallyInverted ? currencyBase : currencyQuote}
+        />
+
+        <div className="flex items-center col-span-2 md:col-span-1">
+          <hr className="border-r border-border w-px mr-4 h-[120px] hidden md:block" />
+
+          {pool && currencyQuote && currencyBase ? (
+            <RangePriceSection
+              className="pl-4"
+              title={t('Current Price')}
+              titleColor="text-on-surface-brand"
+              currency0={manuallyInverted ? currencyQuote : currencyBase}
+              currency1={manuallyInverted ? currencyBase : currencyQuote}
+              price={formatPrice(manuallyInverted ? pool.token0Price : pool.token1Price, 6, locale)}
+            />
+          ) : null}
+        </div>
+      </div>
     </>
   )
 }
@@ -183,8 +162,10 @@ function PositionPriceSection({
 export default function PoolPage() {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
+
+  const { backTo } = useBackTo()
 
   const [collecting, setCollecting] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
@@ -213,17 +194,12 @@ export default function PoolPage() {
     tokenId,
   } = positionDetails || {}
 
-  const removed = liquidity === 0n
+  const tokenIdStr = tokenId?.toString() || ''
 
-  // const metadata = usePositionTokenURI(parsedTokenId)
+  const removed = liquidity === 0n
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
-  const { data: farmDetail } = useFarm({ currencyA: token0, currencyB: token1, feeAmount })
-  const hasActiveFarm = useMemo(
-    () => farmDetail && isActiveV3Farm(farmDetail.farm, farmDetail.poolLength),
-    [farmDetail],
-  )
 
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
@@ -258,16 +234,6 @@ export default function PoolPage() {
   const currencyQuote = inverted ? currency0 : currency1
   const currencyBase = inverted ? currency1 : currency0
 
-  // const ratio = useMemo(() => {
-  //   return priceLower && pool && priceUpper
-  //     ? getRatio(
-  //         inverted ? priceUpper.invert() : priceLower,
-  //         pool.token0Price,
-  //         inverted ? priceLower.invert() : priceUpper,
-  //       )
-  //     : undefined
-  // }, [inverted, pool, priceLower, priceUpper])
-
   // fees
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, positionDetails?.tokenId, receiveWNATIVE)
 
@@ -286,8 +252,8 @@ export default function PoolPage() {
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
 
   // usdc prices always in terms of tokens
-  const price0 = useStablecoinPrice(token0 ?? undefined, { enabled: !!feeValue0 })
-  const price1 = useStablecoinPrice(token1 ?? undefined, { enabled: !!feeValue1 })
+  const price0 = useStablecoinPrice(token0 ? toChecksumToken(token0) : undefined, { enabled: !!feeValue0 })
+  const price1 = useStablecoinPrice(token1 ? toChecksumToken(token1) : undefined, { enabled: !!feeValue1 })
 
   const fiatValueOfFees: CurrencyAmount<Currency> | null = useMemo(() => {
     if (!price0 || !price1 || !feeValue0 || !feeValue1) return null
@@ -315,19 +281,16 @@ export default function PoolPage() {
 
   const positionManager = useV3NFTPositionManagerContract()
   const masterchefV3 = useMasterchefV3()
-  const { tokenIds: stakedTokenIds, loading: tokenIdsInMCv3Loading } = useV3TokenIdsByAccount(
-    masterchefV3?.address,
-    account,
-  )
+  const {
+    tokenIds: stakedTokenIds,
+    loading: tokenIdsInMCv3Loading,
+    refetchAll,
+  } = useV3TokenIdsByAccount(MASTERCHEFV3_ADDRESS, account)
 
-  const isStakedInMCv3 = tokenId && Boolean(stakedTokenIds.find((id) => id === tokenId))
+  const isStakedInMCv3 = !!tokenId && Boolean(stakedTokenIds.find((id) => id === tokenId))
 
   const manager = isStakedInMCv3 ? masterchefV3 : positionManager
   const interfaceManager = isStakedInMCv3 ? MasterChefV3 : NonfungiblePositionManager
-
-  const handleDismissConfirmation = useCallback(() => {
-    setErrorMessage(undefined)
-  }, [])
 
   const collect = useCallback(() => {
     if (
@@ -444,33 +407,60 @@ export default function PoolPage() {
       !collectMigrationHash,
   )
 
-  const modalHeader = () => (
-    <>
-      <LightGreyCard mb="16px">
-        <AutoRow justifyContent="space-between" mb="8px">
-          <Flex>
-            <CurrencyLogo currency={feeValueUpper?.currency} size="24px" />
-            <Text color="textSubtle" ml="4px">
-              {feeValueUpper?.currency?.symbol}
-            </Text>
-          </Flex>
-          <Text>{feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}</Text>
-        </AutoRow>
-        <AutoRow justifyContent="space-between">
-          <Flex>
-            <CurrencyLogo currency={feeValueLower?.currency} size="24px" />
-            <Text color="textSubtle" ml="4px">
-              {feeValueLower?.currency?.symbol}
-            </Text>
-          </Flex>
-          <Text>{feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}</Text>
-        </AutoRow>
-      </LightGreyCard>
-      <Text mb="16px" px="16px">
-        {t('Collecting fees will withdraw currently available fees for you')}
-      </Text>
-    </>
+  const isLoading = loading || poolState === PoolState.LOADING || poolState === PoolState.INVALID || !feeAmount
+  const isOwnNFT = isStakedInMCv3 || ownsNFT
+
+  // const { hasMerkl } = useMerklInfo(poolAddress)
+
+  const { saveBackToHref } = useBackTo()
+
+  const buttons = useMemo(
+    () =>
+      currency0 && currency1 ? (
+        <div className="flex items-center space-x-2 mt-2">
+          <NextLinkFromReactRouter
+            to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
+          >
+            <ButtonV2 disabled={!isOwnNFT} variant="primary" onClick={saveBackToHref}>
+              {t('Add')}
+            </ButtonV2>
+          </NextLinkFromReactRouter>
+
+          {!removed && (
+            <NextLinkFromReactRouter to={`/remove/${tokenId}`}>
+              <ButtonV2 disabled={!isOwnNFT} variant="subtle" onClick={saveBackToHref}>
+                {t('Remove')}
+              </ButtonV2>
+            </NextLinkFromReactRouter>
+          )}
+        </div>
+      ) : null,
+    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId, saveBackToHref],
   )
+
+  const { farmsWithPositions: farmsV3, updateFarmsV3WithPositionsAndBooster } = useFarmsV3WithPositionsAndBooster()
+  const farmsLP = useMemo(() => farmsV3.map((f) => ({ ...f, version: 3 } as V3FarmWithoutStakedValue)), [farmsV3])
+  const farm = useMemo(
+    () => farmsLP.find((f) => f.lpAddress.toLowerCase() === poolAddress?.toLowerCase()),
+    [farmsLP, poolAddress],
+  )
+
+  const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenIdStr)
+  const { updateUserPositionInfo } = useUserPositionInfo(tokenIdStr)
+  const { updateStatus } = useBoostStatus(farm?.pid || 0, tokenIdStr)
+
+  const onDone = useCallback(() => {
+    updateIsBoostedPool()
+    updateUserPositionInfo()
+    updateStatus()
+    updateFarmsV3WithPositionsAndBooster()
+    refetchAll()
+  }, [updateIsBoostedPool, updateUserPositionInfo, updateStatus, updateFarmsV3WithPositionsAndBooster, refetchAll])
+
+  const handleDismissConfirmation = useCallback(() => {
+    setErrorMessage(undefined)
+    setCollecting(false)
+  }, [])
 
   const [onClaimFee] = useModal(
     <TransactionConfirmationModal
@@ -479,30 +469,24 @@ export default function PoolPage() {
       customOnDismiss={handleDismissConfirmation}
       hash={collectMigrationHash ?? ''}
       errorMessage={errorMessage}
-      content={() => (
+      content={
         <ConfirmationModalContent
-          topContent={modalHeader}
-          bottomContent={() => (
-            <Button width="100%" onClick={collect}>
-              {t('Collect')}
-            </Button>
-          )}
+          topContent={<ModalHeader feeValueUpper={feeValueUpper} feeValueLower={feeValueLower} locale={locale} />}
+          bottomContent={
+            <ButtonV2 variant="primary" fullWidth onClick={collect}>
+              {t('Claim')}
+            </ButtonV2>
+          }
         />
-      )}
-      pendingText={t('Collecting fees')}
+      }
+      pendingText={t('claim fees')}
+      maxWidth="max-w-[400px]"
     />,
     true,
     true,
     'TransactionConfirmationModalCollectFees',
+    [collecting, collectMigrationHash, feeValueUpper, feeValueLower, locale],
   )
-
-  const isLoading = loading || poolState === PoolState.LOADING || poolState === PoolState.INVALID || !feeAmount
-
-  const { isMobile } = useMatchBreakpoints()
-
-  const isOwnNFT = isStakedInMCv3 || ownsNFT
-
-  // const { hasMerkl } = useMerklInfo(poolAddress)
 
   if (!isLoading && poolState === PoolState.NOT_EXISTS) {
     return (
@@ -512,356 +496,183 @@ export default function PoolPage() {
     )
   }
 
-  const farmingTips =
-    inRange && ownsNFT && hasActiveFarm && !isStakedInMCv3 ? (
-      <Message variant="primary" mb="2em">
-        <Box>
-          <Text display="inline" bold mr="0.25em">{`${currencyQuote?.symbol}-${currencyBase?.symbol}`}</Text>
-          <Text display="inline">
-            {t(
-              'has an active DragonSwap farm. Stake your position in the farm to start earning with the indicated APR with %cake% farming.',
-              {
-                cake: CAKE_SYMBOL_VIEW,
-              },
-            )}
-          </Text>
-          <NextLinkFromReactRouter to="/farms">
-            <Text display="inline" bold ml="0.25em" style={{ textDecoration: 'underline' }}>
-              {t('Go to Farms')} {' >>'}
-            </Text>
-          </NextLinkFromReactRouter>
-        </Box>
-      </Message>
-    ) : null
-
   return (
     <Page>
       {!isLoading && <NextSeo title={`${currencyQuote?.symbol}-${currencyBase?.symbol} V3 LP #${tokenIdFromUrl}`} />}
-      <BodyWrapper>
+      <AppBody maxWidth="max-w-[900px]">
         {isLoading ? (
-          <Flex width="100%" justifyContent="center" alignItems="center" minHeight="200px" mb="32px">
+          <div className="mx-auto h-[450px] flex items-center justify-center">
             <Spinner />
-          </Flex>
+          </div>
         ) : (
           <>
             <AppHeader
               title={
-                <Box mb={['8px', '8px', 0]} width="100%" style={{ flex: 1 }} minWidth={['auto', 'auto', 'max-content']}>
-                  <Flex alignItems="center">
-                    <DoubleCurrencyLogo size={24} currency0={currencyQuote} currency1={currencyBase} />
-                    <Heading as="h2" ml="8px">
-                      {currencyQuote?.symbol}-{currencyBase?.symbol}
-                    </Heading>
-                    {!isMobile && (
-                      <>
-                        {isStakedInMCv3 && (
-                          <Tag ml="8px" outline variant="warning">
-                            {t('Farming')}
-                          </Tag>
-                        )}
-                        <RangeTag ml="8px" removed={removed} outOfRange={!inRange} />
-                      </>
-                    )}
-                    {/* <MerklTag poolAddress={poolAddress} /> */}
-                  </Flex>
-                  <RowBetween gap="16px" flexWrap="nowrap">
-                    <Text fontSize="14px" color="textSubtle" style={{ wordBreak: 'break-word' }}>
-                      V3 LP #{tokenIdFromUrl} / {new Percent(feeAmount || 0, 1_000_000).toSignificant()}%{' '}
-                      {t('fee tier')}
-                    </Text>
-                    {isMobile && (
-                      <Flex>
-                        {isStakedInMCv3 ? (
-                          <Tag mr="8px" outline variant="warning">
-                            {t('Farming')}
-                          </Tag>
-                        ) : null}
-                        <RangeTag removed={removed} outOfRange={!inRange} />
-                      </Flex>
-                    )}
-                  </RowBetween>
-                </Box>
-              }
-              backTo="/liquidity"
-              noConfig
-              buttons={
-                !isMobile &&
-                currency0 &&
-                currency1 && (
-                  <>
-                    <div
-                      style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        window.location.href = `/increase/${currencyId(currency0)}/${currencyId(
-                          currency1,
-                        )}/${feeAmount}/${tokenId}`
-                      }}
-                    >
-                      <Button disabled={!isOwnNFT} width="100%">
-                        {t('Add')}
-                      </Button>
-                    </div>
-                    {!removed && (
-                      <div
-                        style={{ cursor: 'pointer' }}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          window.location.href = `/remove/${tokenId}`
-                        }}
-                      >
-                        <Button disabled={!isOwnNFT} ml="4px" variant="secondary" width="100%">
-                          {t('Remove')}
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                )
-              }
-            />
-            <CardBody>
-              {isMobile && (
-                <>
-                  <div
-                    style={{ cursor: 'pointer' }}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      window.location.href = `/increase/${currencyId(currency0)}/${currencyId(
-                        currency1,
-                      )}/${feeAmount}/${tokenId}`
-                    }}
-                  >
-                    <Button disabled={!isOwnNFT} width="100%" mb="8px">
-                      {t('Add')}
-                    </Button>
+                <div className="flex flex-col items-start space-y-2 w-full">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <CurrencyLogoWithSymbol
+                      currencyA={currencyQuote}
+                      currencyB={currencyBase}
+                      symbol={`${currencyQuote?.symbol}-${currencyBase?.symbol}`}
+                      symbolClassName="text-lg font-bold text-on-surface"
+                    />
+
+                    {Boolean(isStakedInMCv3) && <TagV2 color="orange">{t('Farming')}</TagV2>}
+                    <RangeTag removed={removed} outOfRange={!inRange} />
                   </div>
-                  {!removed && (
-                    <div
-                      style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        window.location.href = `/remove/${tokenId}`
-                      }}
-                    >
-                      <Button disabled={!isOwnNFT} variant="secondary" width="100%" mb="8px">
-                        {t('Remove')}
-                      </Button>
-                    </div>
-                  )}
+
+                  <span className="text-sm text-on-surface-subtlest">
+                    V3 LP #{tokenIdFromUrl} / {new Percent(feeAmount || 0, 1_000_000).toSignificant()}% {t('fee tier')}
+                  </span>
+                </div>
+              }
+              backTo={backTo}
+              noConfig
+            />
+
+            <div className="p-5 md:p-8">
+              {!!tokenId && isOwnNFT && !!farm?.lpAddress && (
+                <>
+                  <SectionTitle>{t('Boosts')}</SectionTitle>
+
+                  <BoostingCard
+                    poolId={farm.lpAddress}
+                    positionId={Number(tokenId)}
+                    isStaked={isStakedInMCv3}
+                    onDone={onDone}
+                    className="mb-8 mt-2"
+                  />
                 </>
               )}
-              {farmingTips}
-              <AutoRow>
-                <Flex
-                  alignItems="center"
-                  justifyContent="space-between"
-                  width="100%"
-                  mb="8px"
-                  style={{ gap: '16px' }}
-                  flexWrap={['wrap', 'wrap', 'nowrap']}
-                >
-                  <Box width="100%" mb={['8px', '8px', 0]} position="relative">
-                    <Flex position="absolute" right={0}>
-                      <AprCalculator
-                        allowApply={false}
-                        showQuestion
-                        baseCurrency={currencyBase}
-                        quoteCurrency={currencyQuote}
-                        feeAmount={feeAmount}
-                        positionDetails={positionDetails}
-                        defaultDepositUsd={fiatValueOfLiquidity?.toFixed(2)}
-                        tokenAmount0={inRange ? position?.amount0 : undefined}
-                        tokenAmount1={inRange ? position?.amount1 : undefined}
-                      />
-                    </Flex>
-                    <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-                      {t('Liquidity')}
-                    </Text>
 
-                    <Text fontSize="24px" fontWeight={600} mb="8px">
+              <div className="grid gap-8 w-full md:grid-flow-col md:grid-cols-2 md:gap-[60px] mt-8">
+                <div className="w-full">
+                  <SectionTitle>{t('Liquidity')}</SectionTitle>
+
+                  <div className="w-full flex flex-wrap items-center gap-2 justify-between mt-3 border-b border-border pb-2">
+                    <span className="font-bold text-on-surface text-xl">
                       $
                       {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100))
                         ? fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })
                         : '-'}
-                    </Text>
-                    <LightGreyCard
-                      mr="4px"
-                      style={{
-                        padding: '16px 8px',
-                      }}
-                    >
-                      <AutoRow justifyContent="space-between" mb="8px">
-                        <Flex>
-                          <CurrencyLogo currency={currencyQuote} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {unwrappedToken(positionValueUpper?.currency)?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small mr="4px">
-                            <FormattedCurrencyAmount currencyAmount={positionValueUpper} />
-                          </Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" mr="4px">
-                            {positionValueUpper && priceValueUpper
-                              ? `~$${priceValueUpper
-                                  .quote(positionValueUpper?.wrapped)
-                                  .toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                      <AutoRow justifyContent="space-between">
-                        <Flex>
-                          <CurrencyLogo currency={currencyBase} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {unwrappedToken(positionValueLower?.currency)?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small mr="4px">
-                            <FormattedCurrencyAmount currencyAmount={positionValueLower} />
-                          </Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" mr="4px">
-                            {positionValueLower && priceValueLower
-                              ? `~$${priceValueLower
-                                  .quote(positionValueLower?.wrapped)
-                                  .toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                    </LightGreyCard>
-                  </Box>
-                  <Box width="100%">
-                    <Text fontSize="12px" color="secondary" bold textTransform="uppercase">
-                      {t('Unclaimed Fees')}
-                    </Text>
-                    <AutoRow justifyContent="space-between" mb="8px">
-                      <Text fontSize="24px" fontWeight={600}>
-                        $
-                        {fiatValueOfFees?.greaterThan(new Fraction(1, 100))
-                          ? fiatValueOfFees.toFixed(2, { groupSeparator: ',' })
-                          : '-'}
-                      </Text>
-
-                      <Button
-                        scale="sm"
-                        disabled={
-                          !isOwnNFT ||
-                          collecting ||
-                          isCollectPending ||
-                          !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
-                        }
-                        onClick={onClaimFee}
-                      >
-                        {!!collectMigrationHash && !isCollectPending
-                          ? t('Collected')
-                          : isCollectPending || collecting
-                          ? t('Collecting...')
-                          : t('Collect')}
-                      </Button>
-                    </AutoRow>
-                    <LightGreyCard
-                      mr="4px"
-                      style={{
-                        padding: '16px 8px',
-                      }}
-                    >
-                      <AutoRow justifyContent="space-between" mb="8px">
-                        <Flex>
-                          <CurrencyLogo currency={feeValueUpper?.currency} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {feeValueUpper?.currency?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small>{feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}</Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" ml="4px">
-                            {feeValueUpper && priceValueUpper
-                              ? `~$${priceValueUpper.quote(feeValueUpper?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                      <AutoRow justifyContent="space-between">
-                        <Flex>
-                          <CurrencyLogo currency={feeValueLower?.currency} />
-                          <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                            {feeValueLower?.currency?.symbol}
-                          </Text>
-                        </Flex>
-                        <Flex justifyContent="center">
-                          <Text small>{feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}</Text>
-                        </Flex>
-                        <RowBetween justifyContent="flex-end">
-                          <Text fontSize="10px" color="textSubtle" ml="4px">
-                            {feeValueLower && priceValueLower
-                              ? `~$${priceValueLower.quote(feeValueLower?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                              : ''}
-                          </Text>
-                        </RowBetween>
-                      </AutoRow>
-                    </LightGreyCard>
-                  </Box>
-                </Flex>
-              </AutoRow>
-              {showCollectAsWNative && (
-                <Flex mb="8px">
-                  <Flex ml="auto" alignItems="center">
-                    <Text mr="8px">
-                      {t('Collect as')} {nativeWrappedSymbol}
-                    </Text>
-                    <Toggle
-                      id="receive-as-wnative"
-                      scale="sm"
-                      checked={receiveWNATIVE}
-                      onChange={() => setReceiveWNATIVE((prevState) => !prevState)}
+                    </span>
+                    <AprCalculator
+                      allowApply={false}
+                      showQuestion
+                      baseCurrency={currencyBase}
+                      quoteCurrency={currencyQuote}
+                      feeAmount={feeAmount}
+                      positionDetails={positionDetails}
+                      defaultDepositUsd={fiatValueOfLiquidity?.toFixed(2)}
+                      tokenAmount0={inRange ? position?.amount0 : undefined}
+                      tokenAmount1={inRange ? position?.amount1 : undefined}
                     />
-                  </Flex>
-                </Flex>
-              )}
-              <Flex flexWrap={['wrap', 'wrap', 'wrap', 'nowrap']}>
-                <Box width="100%">
-                  <PositionPriceSection
-                    manuallyInverted={manuallyInverted}
-                    setManuallyInverted={setManuallyInverted}
-                    currencyQuote={currencyQuote}
-                    currencyBase={currencyBase}
-                    isMobile={isMobile}
-                    priceLower={priceLower}
-                    inverted={inverted}
-                    pool={pool}
-                    priceUpper={priceUpper}
-                    tickAtLimit={tickAtLimit}
-                  />
-                </Box>
+                  </div>
 
-                {/*
-                <MerklSection
-                  disabled={!isOwnNFT}
-                  outRange={!inRange}
-                  isStakedInMCv3={Boolean(isStakedInMCv3)}
-                  notEnoughLiquidity={Boolean(
-                    fiatValueOfLiquidity
-                      ? fiatValueOfLiquidity.lessThan(
-                          // NOTE: if Liquidity is lessage 20$, can't participate in Merkl
-                          new Fraction(
-                            BigInt(20) * fiatValueOfLiquidity.decimalScale * fiatValueOfLiquidity.denominator,
-                            fiatValueOfLiquidity?.denominator,
-                          ),
-                        )
-                      : false,
-                  )}
-                  poolAddress={poolAddress}
-                />
-                */}
-              </Flex>
+                  <CurrencyWithValue
+                    a={{
+                      currency: currencyQuote,
+                      symbol: unwrappedToken(positionValueUpper?.currency)?.symbol,
+                      amount: positionValueUpper,
+                      value:
+                        positionValueUpper && priceValueUpper
+                          ? `~$${priceValueUpper
+                              .quote(positionValueUpper?.wrapped)
+                              .toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                    b={{
+                      currency: currencyBase,
+                      symbol: unwrappedToken(positionValueLower?.currency)?.symbol,
+                      amount: positionValueLower,
+                      value:
+                        positionValueLower && priceValueLower
+                          ? `~$${priceValueLower
+                              .quote(positionValueLower?.wrapped)
+                              .toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                  />
+
+                  {buttons}
+                </div>
+
+                <div className="w-full">
+                  <SectionTitle>{t('Unclaimed Fees')}</SectionTitle>
+
+                  <p className="font-bold text-on-surface text-xl mt-3 border-b border-border pb-2">
+                    $
+                    {fiatValueOfFees?.greaterThan(new Fraction(1, 100))
+                      ? fiatValueOfFees.toFixed(2, { groupSeparator: ',' })
+                      : '-'}
+                  </p>
+
+                  <CurrencyWithValue
+                    a={{
+                      currency: feeValueUpper?.currency,
+                      symbol: feeValueUpper?.currency?.symbol,
+                      amount: feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-',
+                      value:
+                        feeValueUpper && priceValueUpper
+                          ? `~$${priceValueUpper.quote(feeValueUpper?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                    b={{
+                      currency: feeValueLower?.currency,
+                      symbol: feeValueLower?.currency?.symbol,
+                      amount: feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-',
+                      value:
+                        feeValueLower && priceValueLower
+                          ? `~$${priceValueLower.quote(feeValueLower?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+                          : '',
+                    }}
+                  />
+
+                  <div className="flex w-full items-center space-x-2 justify-between mt-2">
+                    <ButtonV2
+                      disabled={
+                        !isOwnNFT ||
+                        collecting ||
+                        isCollectPending ||
+                        !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
+                      }
+                      onClick={onClaimFee}
+                      variant="primary"
+                    >
+                      {!!collectMigrationHash && !isCollectPending
+                        ? t('Collected')
+                        : isCollectPending || collecting
+                        ? t('Collecting...')
+                        : t('Collect')}
+                    </ButtonV2>
+
+                    {showCollectAsWNative && (
+                      <div className="w-full flex items-center space-x-2 justify-end">
+                        <span className="text-sm text-on-surface">
+                          {t('Collect as')} {nativeWrappedSymbol}
+                        </span>
+
+                        <ToggleSwitch
+                          activated={receiveWNATIVE}
+                          setActivated={() => setReceiveWNATIVE((prevState) => !prevState)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <PositionPriceSection
+                manuallyInverted={manuallyInverted}
+                setManuallyInverted={setManuallyInverted}
+                currencyQuote={currencyQuote}
+                currencyBase={currencyBase}
+                priceLower={priceLower}
+                pool={pool}
+                priceUpper={priceUpper}
+                tickAtLimit={tickAtLimit}
+              />
+
               {positionDetails && currency0 && currency1 && (
                 <PositionHistory
                   tokenId={positionDetails.tokenId.toString()}
@@ -869,15 +680,13 @@ export default function PoolPage() {
                   currency1={currency1}
                 />
               )}
-            </CardBody>
+            </div>
           </>
         )}
-      </BodyWrapper>
+      </AppBody>
     </Page>
   )
 }
-
-PoolPage.chains = CHAIN_IDS
 
 type PositionTX = {
   id: string
@@ -910,7 +719,6 @@ function PositionHistory_({
   currency1: Currency
 }) {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded] = useState(false)
   const { chainId } = useActiveChainId()
   const client = v3Clients[chainId as ChainId]
   const { data, isLoading } = useQuery(
@@ -970,26 +778,22 @@ function PositionHistory_({
   }
 
   return (
-    <AtomBox textAlign="center" pt="16px">
-      <ExpandableLabel
-        expanded={isExpanded}
-        onClick={() => {
-          setIsExpanded(!isExpanded)
-        }}
-      >
-        {isExpanded ? t('Hide') : t('History')}
-      </ExpandableLabel>
-      {isExpanded && (
-        <AtomBox display="grid" gap="16px">
-          <AtomBox display="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }} alignItems="center">
-            <PreTitle>{t('Timestamp')}</PreTitle>
-            <PreTitle>{t('Action')}</PreTitle>
-            <PreTitle>{t('Token Transferred')}</PreTitle>
-          </AtomBox>
+    <div className="mt-8">
+      <SectionTitle>{`${t('History')}(Transaction)`}</SectionTitle>
 
+      <table className="w-full rounded-2xl overflow-hidden mt-3 bg-surface-overlay">
+        <thead>
+          <tr className="text-sm text-on-surface-subtlest bg-neutral border-b border-border h-10">
+            <th className="text-left px-4 font-normal">{t('Timestamp')}</th>
+            <th className="text-left px-3 font-normal">{t('Action')}</th>
+            <th className="text-left px-3 font-normal">{t('Token Transferred')}</th>
+          </tr>
+        </thead>
+
+        <tbody>
           {data.map((d) => {
             return (
-              <AutoColumn key={d.id} gap="16px">
+              <Fragment key={d.id}>
                 {d.transaction.mints.map((positionTx) => (
                   <PositionHistoryRow
                     chainId={chainId}
@@ -1027,8 +831,8 @@ function PositionHistory_({
                   .map((positionTx) => (
                     <PositionHistoryRow
                       chainId={chainId}
-                      positionTx={positionTx}
-                      key={positionTx.id}
+                      positionTx={positionTx as PositionTX}
+                      key={positionTx?.id}
                       type="collect"
                       currency0={currency0}
                       currency1={currency1}
@@ -1044,12 +848,12 @@ function PositionHistory_({
                     currency1={currency1}
                   />
                 ))}
-              </AutoColumn>
+              </Fragment>
             )
           })}
-        </AtomBox>
-      )}
-    </AtomBox>
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -1106,109 +910,170 @@ function PositionHistoryRow({
 
   if (isMobile) {
     return (
-      <Box>
-        <AutoRow>
-          <ScanLink
-            useBscCoinFallback={chainId ? ChainLinkSupportChains.includes(chainId) : false}
-            href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+      <tr className="border-b border-border">
+        <td className="p-3">
+          <ExternalLink
+            href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction')}
+            className="text-on-surface col-span-1"
           >
-            <Flex flexDirection="column" alignItems="center">
-              <Text ellipsis>{mobileDate}</Text>
-              <Text fontSize="12px">{mobileTime}</Text>
-            </Flex>
-          </ScanLink>
-        </AutoRow>
-        <Text>{positionHistoryTypeText[type]}</Text>
-        <AutoColumn gap="4px">
-          {+positionTx.amount0 > 0 && (
-            <AutoRow flexWrap="nowrap" gap="12px" justifyContent="space-between">
-              <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-                <AtomBox minWidth="24px">
-                  <CurrencyLogo currency={currency0} />
-                </AtomBox>
-                <Text display={['none', 'none', 'block']}>{currency0.symbol}</Text>
-              </AutoRow>
-              <Text bold ellipsis title={positionTx.amount0}>
-                {isPlus ? '+' : '-'} {position0AmountString}
-              </Text>
-            </AutoRow>
-          )}
-          {+positionTx.amount1 > 0 && (
-            <AutoRow flexWrap="nowrap" gap="12px" justifyContent="space-between">
-              <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-                <AtomBox minWidth="24px">
-                  <CurrencyLogo currency={currency1} />
-                </AtomBox>
-                <Text display={['none', 'none', 'block']}>{currency1.symbol}</Text>
-              </AutoRow>
-              <Text bold ellipsis title={positionTx.amount1}>
-                {isPlus ? '+' : '-'} {position1AmountString}
-              </Text>
-            </AutoRow>
-          )}
-        </AutoColumn>
-      </Box>
+            {mobileDate} {mobileTime}
+          </ExternalLink>
+        </td>
+
+        <td className="p-3">
+          <span className="text-sm text-on-surface col-span-1">{positionHistoryTypeText[type]}</span>
+        </td>
+        <td className="p-3">
+          <div className="flex flex-col items-end space-y-1.5 col-span-2">
+            {+positionTx.amount0 > 0 && (
+              <div className="flex items-center space-x-1 text-sm text-on-surface">
+                <span>
+                  {isPlus ? '+' : '-'}{' '}
+                  {position0AmountString
+                    ? Number(position0AmountString).toLocaleString(undefined, {
+                        maximumFractionDigits: 3,
+                        maximumSignificantDigits: 3,
+                      })
+                    : '-'}
+                </span>
+                <CurrencyLogo currency={currency0} />
+              </div>
+            )}
+            {+positionTx.amount1 > 0 && (
+              <div className="flex items-center space-x-1 text-sm text-on-surface">
+                <span>
+                  {isPlus ? '+' : '-'}{' '}
+                  {position1AmountString
+                    ? Number(position1AmountString).toLocaleString(undefined, {
+                        maximumFractionDigits: 3,
+                        maximumSignificantDigits: 3,
+                      })
+                    : '-'}
+                </span>
+                <CurrencyLogo currency={currency1} />
+              </div>
+            )}
+          </div>
+        </td>
+      </tr>
     )
   }
 
   return (
-    <AtomBox
-      display="grid"
-      style={{ gridTemplateColumns: '1fr 1fr 1fr' }}
-      gap="16px"
-      alignItems="center"
-      borderTop="1"
-      p="16px"
-    >
-      <AutoRow justifyContent="center">
-        <ScanLink
-          useBscCoinFallback={chainId ? ChainLinkSupportChains.includes(chainId) : false}
-          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction', chainId)}
+    <tr className="border-b border-border">
+      <td className="p-3">
+        <ExternalLink
+          href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction')}
+          className="text-on-surface"
         >
-          <Text ellipsis>{desktopDate}</Text>
-        </ScanLink>
-      </AutoRow>
-      <Text>{positionHistoryTypeText[type]}</Text>
-      <AutoColumn gap="4px">
-        {+positionTx.amount0 > 0 && (
-          <AutoRow flexWrap="nowrap" justifyContent="flex-end" gap="12px">
-            <Text bold ellipsis title={positionTx.amount0}>
-              {isPlus ? '+' : '-'} {position0AmountString}
-            </Text>
-            <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-              <AtomBox minWidth="24px">
-                <CurrencyLogo currency={currency0} />
-              </AtomBox>
-              <Text display={['none', 'none', 'block']}>{currency0.symbol}</Text>
-            </AutoRow>
-          </AutoRow>
-        )}
-        {+positionTx.amount1 > 0 && (
-          <AutoRow flexWrap="nowrap" justifyContent="flex-end" gap="12px">
-            <Text bold ellipsis title={positionTx.amount1}>
-              {isPlus ? '+' : '-'} {position1AmountString}
-            </Text>
-            <AutoRow width="auto" flexWrap="nowrap" gap="4px">
-              <AtomBox minWidth="24px">
-                <CurrencyLogo currency={currency1} />
-              </AtomBox>
-              <Text display={['none', 'none', 'block']}>{currency1.symbol}</Text>
-            </AutoRow>
-          </AutoRow>
-        )}
-      </AutoColumn>
-    </AtomBox>
+          {desktopDate}
+        </ExternalLink>
+      </td>
+      <td className="p-3">
+        <span className="text-sm text-on-surface">{positionHistoryTypeText[type]}</span>
+      </td>
+      <td className="p-3">
+        <div className="flex flex-col items-start space-y-1.5">
+          {+positionTx.amount0 > 0 && (
+            <div className="flex items-center space-x-1 text-sm text-on-surface">
+              <span>
+                {isPlus ? '+' : '-'} {position0AmountString}
+              </span>
+
+              <CurrencyLogoWithSymbol currencyA={currency0} symbol={currency0.symbol} />
+            </div>
+          )}
+          {+positionTx.amount1 > 0 && (
+            <div className="flex items-center space-x-1 text-sm text-on-surface">
+              <span>
+                {isPlus ? '+' : '-'} {position1AmountString}
+              </span>
+
+              <CurrencyLogoWithSymbol currencyA={currency1} symbol={currency1.symbol} />
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
+  )
+}
+
+export function SectionTitle({ children, className }: PropsWithChildren<{ className?: string }>) {
+  return <h3 className={clsx('text-xs text-on-surface-brand', className)}>{children}</h3>
+}
+
+type CurrencyWithValueProps = {
+  currency: Currency | undefined
+  symbol?: string
+  amount?: CurrencyAmount<Token> | string
+  value: string
+}
+
+function CurrencyWithValue({ a, b }: { a: CurrencyWithValueProps; b: CurrencyWithValueProps }) {
+  return (
+    <>
+      <CurrencyLogoWithAmount
+        className="py-2 border-b border-border"
+        currencyA={a.currency}
+        symbol={a.symbol}
+        amount={typeof a.amount === 'string' ? a.amount : <FormattedCurrencyAmount currencyAmount={a.amount} />}
+        value={a.value || '0'}
+      />
+      <CurrencyLogoWithAmount
+        className="py-2 border-b border-border"
+        currencyA={b.currency}
+        symbol={b.symbol}
+        amount={typeof b.amount === 'string' ? b.amount : <FormattedCurrencyAmount currencyAmount={b.amount} />}
+        value={b.value || '0'}
+      />
+    </>
+  )
+}
+
+function ModalHeader({
+  feeValueUpper,
+  feeValueLower,
+  locale,
+}: {
+  feeValueUpper?: CurrencyAmount<Currency> | null
+  feeValueLower?: CurrencyAmount<Currency> | null
+  locale: string
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <ContainerV2>
+        <CurrencyLogoWithAmount
+          className="pb-2 border-b border-border"
+          currencyA={feeValueUpper?.currency}
+          symbol={feeValueUpper?.currency?.symbol}
+          amount={feeValueUpper ? formatCurrencyAmount(feeValueUpper, 4, locale) : '-'}
+        />
+
+        <CurrencyLogoWithAmount
+          className="pt-2"
+          currencyA={feeValueLower?.currency}
+          symbol={feeValueLower?.currency?.symbol}
+          amount={feeValueLower ? formatCurrencyAmount(feeValueLower, 4, locale) : '-'}
+        />
+      </ContainerV2>
+
+      <p className="my-4 text-sm text-on-surface text-center">
+        {t('Collecting fees will withdraw currently available fees for you')}
+      </p>
+    </>
   )
 }
 
 export const getStaticPaths: GetStaticPaths = () => {
   return {
     paths: [],
-    fallback: true,
+    fallback: false,
   }
 }
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps = async ({ params, locale }: { params: any; locale: Locale }) => {
   const tokenId = params?.tokenId
 
   const isNumberReg = /^\d+$/
@@ -1223,6 +1088,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   return {
-    props: {},
+    props: {
+      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
+    },
   }
 }

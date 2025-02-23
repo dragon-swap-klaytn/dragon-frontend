@@ -1,67 +1,53 @@
-import { useTranslation } from '@pancakeswap/localization'
 import { WalletModalV2 } from '@pancakeswap/ui-wallets'
-import { Button, ButtonProps, useMatchBreakpoints } from '@pancakeswap/uikit'
-import { createWallets, getDocLink } from 'config/wallet'
-import { useActiveChainId } from 'hooks/useActiveChainId'
+
 import useAuth from 'hooks/useAuth'
 // @ts-ignore
 // eslint-disable-next-line import/extensions
-import { useActiveHandle } from 'hooks/useEagerConnect.bmp.ts'
-import { useMemo, useState } from 'react'
+import { ButtonV2, ButtonV2Scale, useModal } from '@pancakeswap/uikit'
+import useWallets from 'hooks/useWallets'
+import { PropsWithChildren } from 'react'
 import { logGTMWalletConnectEvent } from 'utils/customGTMEventTracking'
-import { useConnect } from 'wagmi'
+import { walletConnectNoQrCodeConnector } from 'utils/wagmi'
 import Trans from './Trans'
 
-const ConnectWalletButton = ({ children, ...props }: ButtonProps) => {
-  const { isMobile } = useMatchBreakpoints()
-  const handleActive = useActiveHandle()
+const ConnectWalletButton = ({
+  children,
+  fullWidth = true,
+  className,
+  disabled,
+  scale = 'md',
+}: PropsWithChildren<{ fullWidth?: boolean; className?: string; disabled?: boolean; scale?: ButtonV2Scale }>) => {
   const { login } = useAuth()
-  const {
-    t,
-    currentLanguage: { code },
-  } = useTranslation()
-  const { connectAsync } = useConnect()
-  const { chainId } = useActiveChainId()
-  const [open, setOpen] = useState(false)
+  const wallets = useWallets()
 
-  const docLink = useMemo(() => getDocLink(code), [code])
-
-  const handleClick = () => {
-    if (typeof __NEZHA_BRIDGE__ !== 'undefined' && !window.ethereum) {
-      handleActive()
-    } else {
-      setOpen(true)
-    }
-  }
-
-  const wallets = useMemo(
-    () =>
-      isMobile
-        ? createWallets(chainId, connectAsync).filter(({ id }) => id !== 'injected' && id !== 'Kaikas')
-        : createWallets(chainId, connectAsync),
-    [chainId, connectAsync, isMobile],
+  const [onPresentConnectWalletModal] = useModal(
+    <WalletModalV2
+      wallets={wallets}
+      login={login}
+      onWalletConnectCallBack={logGTMWalletConnectEvent}
+      walletConnectNoQrCodeConnector={walletConnectNoQrCodeConnector}
+    />,
   )
 
   return (
     <>
-      <Button onClick={handleClick} {...props}>
+      <ButtonV2
+        variant="primary"
+        onClick={onPresentConnectWalletModal}
+        className={className}
+        disabled={disabled}
+        fullWidth={fullWidth}
+        scale={scale}
+      >
         {children || <Trans>Connect Wallet</Trans>}
-      </Button>
+      </ButtonV2>
+
       <style jsx global>{`
-        w3m-modal {
+        wcm-modal {
           position: relative;
-          z-index: 99;
+          z-index: 9999;
         }
       `}</style>
-      <WalletModalV2
-        docText={t('Learn How to Connect')}
-        docLink={docLink}
-        isOpen={open}
-        wallets={wallets}
-        login={login}
-        onDismiss={() => setOpen(false)}
-        onWalletConnectCallBack={logGTMWalletConnectEvent}
-      />
     </>
   )
 }

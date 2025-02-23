@@ -1,14 +1,12 @@
-import { ChainId, STABLESWAP_SUBGRAPHS } from '@pancakeswap/chains'
-import { INFO_CLIENT, INFO_CLIENT_ETH, INFO_CLIENT_WITH_CHAIN, V3_SUBGRAPH_URLS } from 'config/constants/endpoints'
+import { ChainId } from '@pancakeswap/chains'
 import { ONE_DAY_UNIX, ONE_HOUR_SECONDS } from 'config/constants/info'
 import dayjs from 'dayjs'
 import request from 'graphql-request'
 import mapValues from 'lodash/mapValues'
 import orderBy from 'lodash/orderBy'
-import { multiChainName } from 'state/info/constant'
-import { Block } from 'state/info/types'
 import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
-import { multiQuery } from 'views/Info/utils/infoQueryHelpers'
+import { Block } from 'views/Dashboard/types'
+import multiQuery from 'views/Dashboard/utils/multiQuery'
 import { getDerivedPrices, getDerivedPricesQueryConstructor, getTVL } from '../queries/getDerivedPrices'
 import { PairDataTimeWindowEnum } from '../types'
 
@@ -18,20 +16,9 @@ type Protocol = (typeof PROTOCOL)[number]
 type ProtocolEndpoint = Record<Protocol, string>
 
 // DEV_NOTE [체인설정]_10-1 : swap info subgraph url
-const SWAP_INFO_BY_CHAIN = {
-  [ChainId.BSC]: {
-    v2: INFO_CLIENT,
-    stable: STABLESWAP_SUBGRAPHS[ChainId.BSC],
-    // v3: V3_SUBGRAPH_URLS[ChainId.BSC],
-  },
-  [ChainId.ETHEREUM]: {
-    v2: INFO_CLIENT_ETH,
-    // v3: V3_SUBGRAPH_URLS[ChainId.ETHEREUM],
-  },
-  [ChainId.BSC_TESTNET]: {
-    v3: V3_SUBGRAPH_URLS[ChainId.BSC_TESTNET],
-  },
-  [ChainId.GOERLI]: {},
+const SWAP_INFO_BY_CHAIN: {
+  [chainId in ChainId]: Partial<ProtocolEndpoint>
+} = {
   [ChainId.KLAYTN]: {},
   [ChainId.KLAYTN_TESTNET]: {},
 } satisfies Record<ChainId, Partial<ProtocolEndpoint>>
@@ -157,7 +144,7 @@ const fetchDerivedPriceData = async (
   }
 
   try {
-    const blocks = await getBlocksFromTimestamps(timestamps, 'asc', 500, multiChainName[chainId])
+    const blocks = await getBlocksFromTimestamps(timestamps, 'asc', 500)
     if (!blocks || blocks.length === 0) {
       console.error('Error fetching blocks for timestamps', timestamps)
       return null

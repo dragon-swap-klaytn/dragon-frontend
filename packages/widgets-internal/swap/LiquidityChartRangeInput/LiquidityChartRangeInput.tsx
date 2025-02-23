@@ -1,24 +1,14 @@
 import { useTranslation } from "@pancakeswap/localization";
 import { Currency, Price } from "@pancakeswap/swap-sdk-core";
-import { AutoColumn, ChartDisableIcon, LineGraphIcon } from "@pancakeswap/uikit";
 import { FeeAmount } from "@pancakeswap/v3-sdk";
 import * as Sentry from "@sentry/nextjs";
 import { format } from "d3";
-import { saturate } from "polished";
 import { useCallback, useMemo } from "react";
-import { styled, useTheme } from "styled-components";
 
+import { Empty, QuestionMark } from "@phosphor-icons/react";
 import { Chart } from "./Chart";
 import { InfoBox } from "./InfoBox";
-import Loader from "./Loader";
 import { Bound, ChartEntry, TickDataRaw, ZOOM_LEVELS, ZoomLevels } from "./types";
-
-const ChartWrapper = styled.div`
-  position: relative;
-
-  justify-content: center;
-  align-content: center;
-`;
 
 export function LiquidityChartRangeInput({
   currencyA,
@@ -47,8 +37,8 @@ export function LiquidityChartRangeInput({
   liquidity?: bigint;
   isLoading?: boolean;
   error?: Error;
-  currencyA?: Currency;
-  currencyB?: Currency;
+  currencyA?: Currency | null;
+  currencyB?: Currency | null;
   feeAmount?: FeeAmount;
   ticks?: TickDataRaw[];
   ticksAtLimit?: { [bound in Bound]?: boolean };
@@ -63,11 +53,6 @@ export function LiquidityChartRangeInput({
   formattedData: ChartEntry[] | undefined;
 }) {
   const { t } = useTranslation();
-  const theme = useTheme();
-
-  // Get token color
-  const tokenAColor = "#7645D9";
-  const tokenBColor = "#7645D9";
 
   const isSorted = useMemo(
     () => currencyA && currencyB && currencyA?.wrapped.sortsBefore(currencyB?.wrapped),
@@ -141,51 +126,37 @@ export function LiquidityChartRangeInput({
   const isUninitialized = !currencyA || !currencyB || (formattedData === undefined && !isLoading);
 
   return (
-    <AutoColumn gap="md" style={{ minHeight: "200px", width: "100%", marginBottom: "16px" }}>
+    <div className="flex flex-col w-full items-center relative mt-2 mb-10">
       {isUninitialized ? (
-        <InfoBox
-          message={t("Your position will appear here.")}
-          icon={
-            <img
-              src={`/images/decorations/dgs-${theme.isDark ? "white" : "dark"}.png`}
-              style={{ width: "80px", height: "80px" }}
-              alt="dragon logo"
-            />
-          }
-        />
+        <InfoBox className="mt-5" message={t("Your position will appear here.")} />
       ) : isLoading ? (
-        <InfoBox icon={<Loader size="40px" stroke={theme.colors.text} />} />
+        <InfoBox className="mt-5" />
       ) : error ? (
-        <InfoBox message={t("Liquidity data not available.")} icon={<ChartDisableIcon width="40px" />} />
+        <InfoBox
+          className="mt-5"
+          message={t("Liquidity data not available.")}
+          icon={<QuestionMark size={32} className="text-on-surface opacity-70" />}
+        />
       ) : !formattedData || formattedData.length === 0 || !price ? (
-        <InfoBox message={t("There is no liquidity data.")} icon={<LineGraphIcon width="40px" />} />
+        <InfoBox
+          className="mt-5"
+          message={t("There is no liquidity data.")}
+          icon={<Empty size={32} className="text-on-surface opacity-70" />}
+        />
       ) : (
-        <ChartWrapper>
-          <Chart
-            key={`${feeAmount ?? FeeAmount.MEDIUM}`}
-            data={{ series: formattedData, current: price }}
-            dimensions={{ width: 400, height: 200 }}
-            margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
-            styles={{
-              area: {
-                selection: theme.colors.text,
-              },
-              brush: {
-                handle: {
-                  west: saturate(0.1, tokenAColor) ?? theme.colors.text,
-                  east: saturate(0.1, tokenBColor) ?? theme.colors.text,
-                },
-              },
-            }}
-            interactive={interactive && Boolean(formattedData?.length)}
-            brushLabels={brushLabelValue}
-            brushDomain={brushDomain}
-            onBrushDomainChange={onBrushDomainChangeEnded}
-            zoomLevels={zoomLevel ?? ZOOM_LEVELS[feeAmount ?? FeeAmount.MEDIUM]}
-            ticksAtLimit={ticksAtLimit}
-          />
-        </ChartWrapper>
+        <Chart
+          key={`${feeAmount ?? FeeAmount.MEDIUM}`}
+          data={{ series: formattedData, current: price }}
+          dimensions={{ width: 400, height: 200 }}
+          margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
+          interactive={interactive && Boolean(formattedData?.length)}
+          brushLabels={brushLabelValue}
+          brushDomain={brushDomain}
+          onBrushDomainChange={onBrushDomainChangeEnded}
+          zoomLevels={zoomLevel ?? ZOOM_LEVELS[feeAmount ?? FeeAmount.MEDIUM]}
+          ticksAtLimit={ticksAtLimit}
+        />
       )}
-    </AutoColumn>
+    </div>
   );
 }

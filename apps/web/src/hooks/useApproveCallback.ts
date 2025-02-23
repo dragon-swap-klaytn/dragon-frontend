@@ -11,7 +11,6 @@ import { getViemErrorMessage } from 'utils/errors'
 import { isUserRejected, logError } from 'utils/sentry'
 import { Address, useAccount } from 'wagmi'
 import { SendTransactionResult } from 'wagmi/actions'
-import useGelatoLimitOrdersLib from './limitOrders/useGelatoLimitOrdersLib'
 import { useCallWithGasPrice } from './useCallWithGasPrice'
 import { useTokenContract } from './useContract'
 import useTokenAllowance from './useTokenAllowance'
@@ -45,8 +44,8 @@ export function useApproveCallback(
   },
 ): {
   approvalState: ApprovalState
-  approveCallback: () => Promise<SendTransactionResult>
-  revokeCallback: () => Promise<SendTransactionResult>
+  approveCallback: () => Promise<SendTransactionResult | undefined>
+  revokeCallback: () => Promise<SendTransactionResult | undefined>
   currentAllowance: CurrencyAmount<Currency> | undefined
   isPendingError: boolean
 } {
@@ -63,15 +62,12 @@ export function useApproveCallback(
 
   const [onPresentApprovalConfirmModal, onDismissApprovalConfirmModal] = useModal(
     createElement(ApprovalConfirmationModal, {
-      minWidth: ['100%', null, '420px'],
       title: 'Confirm Approval',
       content: () => '',
-      hash: undefined,
       attemptingTxn: true,
     }),
-
     true,
-    true,
+    false,
     'ApprovalConfirmationModal',
   )
 
@@ -104,7 +100,7 @@ export function useApproveCallback(
   const addTransaction = useTransactionAdder()
 
   const approve = useCallback(
-    async (overrideAmountApprove?: bigint): Promise<SendTransactionResult> => {
+    async (overrideAmountApprove?: bigint): Promise<SendTransactionResult | undefined> => {
       if (approvalState !== ApprovalState.NOT_APPROVED && isUndefinedOrNull(overrideAmountApprove)) {
         toastError(t('Error'), t('Approve was called unnecessarily'))
         console.error('approve was called unnecessarily')
@@ -118,7 +114,10 @@ export function useApproveCallback(
       }
 
       if (!tokenContract) {
-        toastError(t('Error'), t('Cannot find contract of the token %tokenAddress%', { tokenAddress: token?.address }))
+        toastError(
+          t('Error'),
+          t('Cannot find contract of the token {{tokenAddress}}', { tokenAddress: token?.address }),
+        )
         console.error('tokenContract is null')
         setIsPendingError(true)
         return undefined
@@ -210,10 +209,10 @@ export function useApproveCallback(
             addTransaction(response, {
               summary: `Approve ${overrideAmountApprove ?? amountToApprove?.currency?.symbol}`,
               translatableSummary: {
-                text: 'Approve %symbol%',
+                text: 'Approve {{symbol}}',
                 data: { symbol: overrideAmountApprove?.toString() ?? amountToApprove?.currency?.symbol },
               },
-              approval: { tokenAddress: token?.address, spender },
+              approval: { tokenAddress: token?.address ?? '', spender },
               type: 'approve',
             })
           }
@@ -225,6 +224,9 @@ export function useApproveCallback(
           console.error('Failed to approve token', error)
           if (!isUserRejected(error)) {
             toastError(t('Error'), getViemErrorMessage(error))
+          }
+          if (options?.useA2AQr) {
+            onDismissApprovalConfirmModal({ force: true })
           }
           throw error
         })
@@ -284,7 +286,5 @@ export function useApproveCallbackFromAmount({
 
 // Wraps useApproveCallback in the context of a Gelato Limit Orders
 export function useApproveCallbackFromInputCurrencyAmount(currencyAmountIn: CurrencyAmount<Currency> | undefined) {
-  const gelatoLibrary = useGelatoLimitOrdersLib()
-
-  return useApproveCallback(currencyAmountIn, gelatoLibrary?.erc20OrderRouter?.address ?? undefined)
+  return useApproveCallback(currencyAmountIn)
 }

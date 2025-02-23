@@ -1,4 +1,4 @@
-import { bscTokens } from '@pancakeswap/tokens'
+import { klaytnTokens } from '@pancakeswap/tokens'
 import Trans from 'components/Trans'
 import { VaultKey } from 'state/types'
 
@@ -9,7 +9,7 @@ export const vaultPoolConfig = {
     autoCompoundFrequency: 5000,
     gasLimit: 380000n,
     tokenImage: {
-      primarySrc: `/images/tokens/${bscTokens.cake.address}.png`,
+      primarySrc: `/images/tokens/${klaytnTokens.cake.address}.png`,
       secondarySrc: '/images/autorenew.svg',
     },
   },
@@ -39,7 +39,7 @@ export const vaultPoolConfig = {
     autoCompoundFrequency: 1,
     gasLimit: 500000n,
     tokenImage: {
-      primarySrc: `/images/tokens/${bscTokens.cake.address}.png`,
+      primarySrc: `/images/tokens/${klaytnTokens.cake.address}.png`,
       secondarySrc: `/images/ifo-pool-icon.svg`,
     },
   },

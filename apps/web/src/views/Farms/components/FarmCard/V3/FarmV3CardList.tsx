@@ -5,7 +5,7 @@ import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
 import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import { usePool } from 'hooks/v3/usePools'
 import partition_ from 'lodash/partition'
-import { useCallback } from 'react'
+import { Fragment, useCallback } from 'react'
 import { V3Farm } from 'views/Farms/FarmsV3'
 import SingleFarmV3Card from 'views/Farms/components/FarmCard/V3/SingleFarmV3Card'
 import { useFarmsV3BatchHarvest } from 'views/Farms/hooks/v3/useFarmV3Actions'
@@ -26,22 +26,26 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
   showHarvestAll,
 }) => {
   const { t } = useTranslation()
-  const { onHarvestAll, harvesting: v3BatchHarvesting } = useFarmsV3BatchHarvest()
+  const { onHarvestAll, harvesting: v3BatchHarvesting, onDismissHarvestAll } = useFarmsV3BatchHarvest()
   const { stakedPositions, unstakedPositions, lpSymbol, token, quoteToken, pendingCakeByTokenIds, multiplier } = farm
   const [, pool] = usePool(farm.token, farm.quoteToken, farm.feeAmount)
+
+  const handleDismiss = useCallback(() => {
+    onDismissHarvestAll()
+    onDismiss?.()
+  }, [onDismissHarvestAll, onDismiss])
 
   const showKlipQr = useKlipQrCondition()
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
     <ApprovalConfirmationModal
-      minWidth={['100%', null, '420px']}
-      title="Confirm Transaction"
+      title={t('Confirm Transaction')}
       content={() => ''}
       pendingText="wating confirm..."
-      hash={undefined}
       attemptingTxn
+      customOnDismiss={handleDismiss}
     />,
     true,
-    true,
+    false,
     'TxConfirmationModal',
   )
 
@@ -61,20 +65,20 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
       {multiplier !== '0X' && unstakedPositions.length > 0 && (
         <Flex flexDirection="column" width="100%" mb="24px" id={`${farm.pid}-farm-v3-available`}>
           <PreTitle fontSize="12px" color="textSubtle" m="0 0 8px 0">
-            {t('%totalAvailableFarm% LP Available for Farming', { totalAvailableFarm: unstakedPositions.length })}
+            {t('{{totalAvailableFarm}} LP Available for Farming', { totalAvailableFarm: unstakedPositions.length })}
           </PreTitle>
           <AutoRow width="100%" gap="16px" flexDirection="column" alignItems="flex-start">
             {partition_(unstakedPositions, (position) => !isPositionOutOfRange(pool?.tickCurrent, position))
               .flat()
               .map((position) => (
-                <>
+                <Fragment key={`unstakedPositions:${position.tokenId}`}>
                   <SingleFarmV3Card
                     farm={farm}
                     style={{
                       minWidth: '49%',
                       width: '100%',
                     }}
-                    pool={pool}
+                    pool={pool || undefined}
                     flex={1}
                     direction={direction}
                     positionType="unstaked"
@@ -84,9 +88,9 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
                     token={token}
                     quoteToken={quoteToken}
                     pendingCakeByTokenIds={pendingCakeByTokenIds}
-                    onDismiss={onDismiss}
+                    onDismiss={handleDismiss}
                   />
-                </>
+                </Fragment>
               ))}
           </AutoRow>
         </Flex>
@@ -94,14 +98,14 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
       {stakedPositions.length > 0 && (
         <Flex flexDirection="column" width="100%" mb="24px" id={`${farm.pid}-farm-v3-staking`}>
           <PreTitle color="textSubtle" m="0 0 8px 0">
-            {t('%totalStakedFarm% Staked Farming', { totalStakedFarm: stakedPositions.length })}
+            {t('{{totalStakedFarm}} Staked Farming', { totalStakedFarm: stakedPositions.length })}
           </PreTitle>
           <Flex flexWrap="wrap" width="100%">
             {stakedPositions.map((position) => (
-              <>
+              <Fragment key={`stakedPositions:${position.tokenId}`}>
                 <SingleFarmV3Card
                   harvesting={harvesting}
-                  pool={pool}
+                  pool={pool || undefined}
                   width="100%"
                   direction={direction}
                   positionType="staked"
@@ -112,9 +116,9 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
                   token={token}
                   quoteToken={quoteToken}
                   pendingCakeByTokenIds={pendingCakeByTokenIds}
-                  onDismiss={onDismiss}
+                  onDismiss={handleDismiss}
                 />
-              </>
+              </Fragment>
             ))}
             {showHarvestAll && stakedPositions.length > 1 && (
               <Button

@@ -6,19 +6,18 @@ import {
   Button,
   ButtonMenu,
   ButtonMenuItem,
-  CardBody,
   CardFooter,
   Checkbox,
   Dots,
   Flex,
-  HistoryIcon,
-  IconButton,
   Link,
-  Tag,
+  MenuIconButton,
+  TagV2,
   Text,
   useModal,
 } from '@pancakeswap/uikit'
 import { Liquidity } from '@pancakeswap/widgets-internal'
+import { ClockCounterClockwise } from '@phosphor-icons/react'
 import { AppBody, AppHeader } from 'components/App'
 import TransactionsModal from 'components/App/Transactions/TransactionsModal'
 import { RangeTag } from 'components/RangeTag'
@@ -31,8 +30,8 @@ import { useAtom } from 'jotai'
 import NextLink from 'next/link'
 import { useRouter } from 'next/router'
 import { useMemo, useState } from 'react'
-import { styled } from 'styled-components'
 import atomWithStorageWithErrorCatch from 'utils/atomWithStorageWithErrorCatch'
+import { getDefaultStaticProps } from 'utils/pageUtils'
 import { CHAIN_IDS } from 'utils/wagmi'
 import { LiquidityCardRow } from 'views/AddLiquidity/components/LiquidityCardRow'
 import { StablePairCard } from 'views/AddLiquidityV3/components/StablePairCard'
@@ -44,10 +43,6 @@ import useStableConfig, {
   StableConfigContext,
   useLPTokensWithBalanceByAccount,
 } from 'views/Swap/hooks/useStableConfig'
-
-const Body = styled(CardBody)`
-  background-color: ${({ theme }) => theme.colors.dropdownDeep};
-`
 
 export const StableContextProvider = (props: { pair: LPStablePair; account: string | undefined }) => {
   const stableConfig = useStableConfig({
@@ -154,14 +149,10 @@ export default function PoolListPage() {
                   !token0Symbol || !token1Symbol ? <Dots>{t('Loading')}</Dots> : `${token0Symbol}-${token1Symbol} LP`
                 }
                 tags={
-                  <>
-                    {p.isStaked && (
-                      <Tag outline variant="warning" mr="8px">
-                        {t('Farming')}
-                      </Tag>
-                    )}
+                  <div className="flex items-center space-x-2">
+                    {p.isStaked && <TagV2 color="orange">{t('Farming')}</TagV2>}
                     {token0Symbol && token1Symbol ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
-                  </>
+                  </div>
                 }
                 subtitle={subtitle}
                 onSwitch={() => setInverted((prev) => !prev)}
@@ -284,18 +275,14 @@ export default function PoolListPage() {
 
   return (
     <Page>
-      <AppBody
-        style={{
-          maxWidth: '854px',
-        }}
-      >
+      <AppBody maxWidth="max-w-4xl">
         <AppHeader
           title={t('Your Liquidity')}
           subtitle={t('List of your liquidity positions')}
           IconSlot={
-            <IconButton onClick={onPresentTransactionsModal} variant="text" scale="sm">
-              <HistoryIcon color="textSubtle" width="24px" />
-            </IconButton>
+            <MenuIconButton onClick={onPresentTransactionsModal}>
+              <ClockCounterClockwise size={24} className="text-gray-50" weight="fill" />
+            </MenuIconButton>
           }
           filter={
             <>
@@ -329,7 +316,7 @@ export default function PoolListPage() {
             </>
           }
         />
-        <Body style={{ height: 'max-content' }}>
+        <div>
           {mainSection}
           {selectedTypeIndex === FILTER.V2 ? (
             <>
@@ -354,7 +341,7 @@ export default function PoolListPage() {
               </Button>
             </Flex>
           )}
-        </Body>
+        </div>
         <CardFooter style={{ textAlign: 'center' }}>
           <NextLink href="/add" passHref>
             <Button id="join-pool-button" width="100%" startIcon={<AddIcon color="white" />}>
@@ -369,3 +356,5 @@ export default function PoolListPage() {
 }
 
 PoolListPage.chains = CHAIN_IDS
+
+export const getStaticProps = getDefaultStaticProps(['common'])

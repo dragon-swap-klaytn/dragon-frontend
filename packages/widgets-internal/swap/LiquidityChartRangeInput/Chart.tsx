@@ -1,7 +1,6 @@
-import { useTheme } from "@pancakeswap/hooks";
 import { max, scaleLinear, ZoomTransform } from "d3";
-import { useEffect, useMemo, useRef, useState } from "react";
 import partition from "lodash/partition";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Area } from "./Area";
 import { AxisBottom } from "./AxisBottom";
@@ -17,7 +16,6 @@ export function Chart({
   id = "liquidityChartRangeInput",
   data: { series, current },
   ticksAtLimit,
-  styles,
   dimensions: { width, height },
   margins,
   interactive = true,
@@ -28,7 +26,6 @@ export function Chart({
   showZoomButtons = true,
 }: LiquidityChartRangeInputProps) {
   const zoomRef = useRef<SVGRectElement | null>(null);
-  const { theme } = useTheme();
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null);
 
@@ -104,16 +101,6 @@ export function Chart({
       )}
       <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} style={{ overflow: "visible" }}>
         <defs>
-          <linearGradient id="green-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={theme.colors.success} stopOpacity={1} />
-            <stop offset="100%" stopColor={theme.colors.success} stopOpacity={0.2} />
-          </linearGradient>
-          <linearGradient id="red-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={theme.colors.failure} stopOpacity={1} />
-            <stop offset="100%" stopColor={theme.colors.failure} stopOpacity={0.2} />
-          </linearGradient>
-        </defs>
-        <defs>
           <clipPath id={`${id}-chart-clip`}>
             <rect x="0" y="0" width={innerWidth} height={height} />
           </clipPath>
@@ -141,7 +128,7 @@ export function Chart({
               xValue={xAccessor}
               yValue={yAccessor}
               opacity={0.5}
-              fill="url(#red-gradient)"
+              fill="#F43F5E"
             />
             <Area
               series={rightSeries}
@@ -150,7 +137,7 @@ export function Chart({
               xValue={xAccessor}
               yValue={yAccessor}
               opacity={0.5}
-              fill="url(#green-gradient)"
+              fill="#10B981"
             />
 
             {brushDomain && (
@@ -184,8 +171,8 @@ export function Chart({
             innerWidth={innerWidth}
             innerHeight={innerHeight}
             setBrushExtent={onBrushDomainChange}
-            westHandleColor={styles.brush.handle.west}
-            eastHandleColor={styles.brush.handle.east}
+            westHandleColor="#F97316"
+            eastHandleColor="#F97316"
           />
         </g>
       </svg>

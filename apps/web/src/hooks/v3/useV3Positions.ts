@@ -1,9 +1,10 @@
 /* eslint-disable */
 import { PositionDetails } from '@pancakeswap/farms'
 import { masterChefV3ABI } from '@pancakeswap/v3-sdk'
+import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Address, useContractRead, useContractReads } from 'wagmi'
 
 interface UseV3PositionsResults {
@@ -48,7 +49,7 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
         positions
           .filter((p) => p.status === 'success')
           .map((p) => {
-            const r = p.result
+            const r = p.result as any
             return {
               nonce: r[0],
               operator: r[1],
@@ -72,7 +73,7 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
                 }
               : null,
           )
-          .filter(Boolean),
+          .filter(Boolean) as PositionDetails[],
       [inputs, positions],
     ),
   }
@@ -90,25 +91,24 @@ export function useV3PositionFromTokenId(tokenId: bigint | undefined): UseV3Posi
   )
 }
 
-export function useV3TokenIdsByAccount(
-  contractAddress?: Address,
-  account?: Address | null | undefined,
-): { tokenIds: bigint[]; loading: boolean } {
-  if (!contractAddress || contractAddress === '0x') {
-    return { tokenIds: [], loading: false }
-  }
+export function useV3TokenIdsByAccount(contractAddress?: Address, account?: Address | null | undefined) {
+  const { chainId, isWrongNetwork } = useActiveChainId()
 
-  const { chainId } = useActiveChainId()
+  const enabled = useMemo(
+    () => !!account && !!contractAddress && contractAddress !== '0x' && !isWrongNetwork,
+    [account, contractAddress, isWrongNetwork],
+  )
+
   const {
     isLoading: balanceLoading,
     data: accountBalance,
     refetch: refetchBalance,
   } = useContractRead({
     abi: masterChefV3ABI,
-    address: contractAddress as `0x${string}`,
-    args: [account ?? undefined],
+    address: contractAddress as Address,
+    args: [account || '0x'],
     functionName: 'balanceOf',
-    enabled: !!account && !!contractAddress,
+    enabled,
     watch: true,
     chainId,
   })
@@ -125,7 +125,7 @@ export function useV3TokenIdsByAccount(
       for (let i = 0; i < accountBalance; i++) {
         tokenRequests.push({
           abi: masterChefV3ABI,
-          address: contractAddress as `0x${string}`,
+          address: contractAddress as Address,
           functionName: 'tokenOfOwnerByIndex',
           args: [account, i],
           chainId,
@@ -157,12 +157,37 @@ export function useV3TokenIdsByAccount(
     }
   }, [account, refetchBalance, refetchTokenIds])
 
+  const refetchAll = useCallback(() => {
+    refetchBalance()
+    refetchTokenIds()
+  }, [refetchBalance, refetchTokenIds])
+
   return {
     tokenIds: useMemo(
-      () => tokenIds.map((r) => (r.status === 'success' ? r.result : null)).filter(Boolean) as bigint[],
-      [tokenIds],
+      () =>
+        !enabled ? [] : (tokenIds.map((r) => (r.status === 'success' ? r.result : null)).filter(Boolean) as bigint[]),
+      [tokenIds, enabled],
     ),
-    loading: someTokenIdsLoading || balanceLoading,
+    loading: !enabled ? false : someTokenIdsLoading || balanceLoading,
+    refetchAll,
+  }
+}
+
+export function useV3TokenIdsByAccountV2(account?: Address) {
+  const { portfolio, mutatePortfolio, isLoading } = usePortfolio({ account }, { paused: !account })
+
+  const positions = useMemo(() => {
+    if (!portfolio) return []
+    return Object.values(portfolio)
+      .filter((pool) => pool.type === 'v3')
+      .map((pool) => (pool as PortfolioV3DataBigInt).positions)
+      .flat()
+  }, [portfolio])
+
+  return {
+    tokenIds: positions.filter((p) => p.isStaked).map((p) => p.positionId),
+    loading: isLoading,
+    mutateTokenIds: mutatePortfolio,
   }
 }
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { SpaceProps } from "styled-system";
 
+import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { ChevronDownIcon, ChevronUpIcon } from "../Svg";
-import Button from "./Button";
 import IconButton from "./IconButton";
 
 interface Props extends SpaceProps {
@@ -27,18 +27,15 @@ ExpandableButton.defaultProps = {
   expanded: false,
 };
 
-export const ExpandableLabel: React.FC<React.PropsWithChildren<Props>> = ({ onClick, expanded, children, ...rest }) => {
+export const ExpandableLabel: React.FC<React.PropsWithChildren<Props>> = ({ onClick, expanded, children }) => {
   return (
-    <Button
-      pr={0}
-      variant="text"
-      aria-label="Hide or show expandable content"
+    <button
+      type="button"
+      className="hover:opacity-70 font-bold text-on-surface-brand flex items-center space-x-2 mx-auto text-xs"
       onClick={onClick}
-      endIcon={expanded ? <ChevronUpIcon color="primary" /> : <ChevronDownIcon color="primary" />}
-      {...rest}
     >
-      {children}
-    </Button>
+      <span>{children}</span> {expanded ? <CaretUp size={16} /> : <CaretDown size={16} />}
+    </button>
   );
 };
 ExpandableLabel.defaultProps = {

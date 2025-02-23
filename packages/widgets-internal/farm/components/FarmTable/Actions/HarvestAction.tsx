@@ -1,7 +1,7 @@
 import { useTranslation } from "@pancakeswap/localization";
+import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
 import { Balance, Button, Heading, Skeleton, Text, TooltipText, useTooltip } from "@pancakeswap/uikit";
 import BigNumber from "bignumber.js";
-import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
 
 import { FARMS_SMALL_AMOUNT_THRESHOLD } from "../../../constants";
 import { ActionContainer, ActionContent, ActionTitles } from "./styles";

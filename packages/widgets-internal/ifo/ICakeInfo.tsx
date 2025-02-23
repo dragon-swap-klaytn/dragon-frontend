@@ -1,9 +1,9 @@
-import { ReactNode, useMemo } from "react";
-import { FlexGap, Text, useTooltip } from "@pancakeswap/uikit";
-import { SpaceProps } from "styled-system";
 import { useTranslation } from "@pancakeswap/localization";
+import { FlexGap, Text, useTooltip } from "@pancakeswap/uikit";
 import { formatUnixTimestamp } from "@pancakeswap/utils/formatTimestamp";
+import { ReactNode, useMemo } from "react";
 import styled from "styled-components";
+import { SpaceProps } from "styled-system";
 
 type Props = {
   // Unix timestamp of the snapshot

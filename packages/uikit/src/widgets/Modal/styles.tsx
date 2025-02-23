@@ -1,9 +1,14 @@
-import React, { MouseEvent } from "react";
+import { X } from "@phosphor-icons/react";
+import clsx from "clsx";
+import { m as motion, MotionProps } from "framer-motion";
+import React, { forwardRef, HTMLAttributes, MouseEvent, PropsWithChildren, useEffect } from "react";
 import { styled } from "styled-components";
-import Flex from "../../components/Box/Flex";
 import { MotionBox } from "../../components/Box";
-import { ArrowBackIcon, CloseIcon } from "../../components/Svg";
+import Flex from "../../components/Box/Flex";
 import { IconButton } from "../../components/Button";
+import { ArrowBackIcon } from "../../components/Svg";
+import { WindowSize } from "../../consts";
+import { useWindowSize } from "../../hooks/useWindowSize";
 import { ModalProps } from "./types";
 
 export const mobileFooterHeight = 73;
@@ -40,16 +45,17 @@ export const ModalCloseButton: React.FC<React.PropsWithChildren<{ onDismiss: Mod
   onDismiss,
 }) => {
   return (
-    <IconButton
-      variant="text"
+    <button
+      type="button"
       onClick={(e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         onDismiss?.();
       }}
       aria-label="Close the dialog"
+      className="hover:opacity-70 fixed right-6 top-6 z-50"
     >
-      <CloseIcon color="primary" />
-    </IconButton>
+      <X height={20} width={20} className="text-on-surface-subtlest" />
+    </button>
   );
 };
 
@@ -63,7 +69,7 @@ export const ModalBackButton: React.FC<React.PropsWithChildren<{ onBack: ModalPr
 
 export const ModalContainer = styled(MotionBox)`
   overflow: hidden;
-  background: ${({ theme }) => theme.modal.background};
+  background: #222;
   box-shadow: 0px 20px 36px -8px rgba(14, 14, 44, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.05);
   border: 1px solid ${({ theme }) => theme.colors.cardBorder};
   border-radius: 32px 32px 0px 0px;
@@ -83,3 +89,39 @@ export const ModalContainer = styled(MotionBox)`
     max-height: 100vh;
   }
 ` as typeof MotionBox;
+
+export const ModalContainerV3 = forwardRef<
+  HTMLDivElement,
+  PropsWithChildren<
+    MotionProps & HTMLAttributes<HTMLElement> & { maxWidth?: string; onDismiss: ModalProps["onDismiss"] }
+  >
+>(({ children, maxWidth = "max-w-md", onDismiss, ...rest }, ref) => {
+  const { width } = useWindowSize();
+  useEffect(() => {
+    if (width < WindowSize.mobile) return;
+
+    onDismiss?.();
+  }, [onDismiss, width]);
+
+  return (
+    <motion.div
+      ref={ref}
+      className={clsx(
+        "overflow-hidden bg-gray-850 z-modal w-full",
+        "px-6 pb-6 absolute bottom-0 min-h-[300px] rounded-t-2xl max-h-[80vh]",
+        "md:p-6 md:rounded-2xl md:max-h-fit md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
+        {
+          [maxWidth]: width >= 768,
+        }
+      )}
+      {...rest}
+    >
+      <button
+        className="w-10 h-1 bg-neutral rounded mt-2 mb-6 flex justify-center mx-auto md:hidden"
+        type="button"
+        onClick={onDismiss}
+      />
+      {children}
+    </motion.div>
+  );
+});

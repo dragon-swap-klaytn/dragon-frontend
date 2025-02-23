@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
+import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { RoiCalculatorModal, Text, TooltipText, useModal, useTooltip } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
-import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import BigNumber from 'bignumber.js'
 import _toNumber from 'lodash/toNumber'
 import { MouseEvent, useContext, useState } from 'react'
@@ -79,7 +79,7 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
     <RoiCalculatorModal
       account={account}
       pid={pid}
-      linkLabel={t('Add %symbol%', { symbol: lpLabel })}
+      linkLabel={t('Add {{symbol}}', { symbol: lpLabel })}
       stakingTokenBalance={userBalanceInFarm}
       stakingTokenDecimals={18}
       stakingTokenSymbol={lpSymbol}
@@ -99,6 +99,24 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
     false,
     true,
     `FarmModal${pid}`,
+    [
+      account,
+      pid,
+      lpLabel,
+      userBalanceInFarm,
+      lpSymbol,
+      lpTokenPrice,
+      cakePrice,
+      apr,
+      multiplier,
+      displayApr,
+      lpRewardsApr,
+      addLiquidityUrl,
+      stableSwapAddress,
+      stableLpFee,
+      farmCakePerSecond,
+      totalMultipliers,
+    ],
   )
 
   const handleClickButton = (event: MouseEvent): void => {
@@ -136,11 +154,13 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
         <Text>
           {t('Available Boosted')}:{' '}
           <Text color="secondary" style={{ display: 'inline-block' }}>
-            {t('Up to %boostMultiplier%x', { boostMultiplier: boostMultiplierDisplay })}
+            {t('Up to {{boostMultiplier}}x', { boostMultiplier: boostMultiplierDisplay })}
           </Text>
         </Text>
       )}
-      {strikethrough && <Text color="secondary">{t('Boost only applies to base APR (CAKE yield)', { cake: CAKE_SYMBOL_VIEW })}</Text>}
+      {strikethrough && (
+        <Text color="secondary">{t('Boost only applies to base APR (CAKE yield)', { cake: CAKE_SYMBOL_VIEW })}</Text>
+      )}
     </>,
     {
       placement: 'top',

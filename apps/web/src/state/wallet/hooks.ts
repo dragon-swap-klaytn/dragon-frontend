@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Native, Token } from '@pancakeswap/sdk'
 import { multicallABI } from 'config/abi/Multicall'
-import { useAllTokens } from 'hooks/Tokens'
+import { useTokenMap } from 'hooks/Tokens'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import orderBy from 'lodash/orderBy'
 import { useMemo } from 'react'
@@ -58,7 +58,7 @@ export function useTokenBalancesWithLoadingIndicator(
   tokens?: (Token | undefined)[],
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const validatedTokens: Token[] = useMemo(
-    () => tokens?.filter((t?: Token): t is Token => t && isAddress(t.address)) ?? [],
+    () => tokens?.filter((t?: Token): t is Token => !!t && isAddress(t.address)) ?? [],
     [tokens],
   )
 
@@ -154,8 +154,8 @@ export function useCurrencyBalance(account?: string, currency?: Currency | null)
 // mimics useAllBalances
 export function useAllTokenBalances(): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
   const { address: account } = useAccount()
-  const allTokens = useAllTokens()
-  const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
+  const { tokenMap } = useTokenMap()
+  const allTokensArray = useMemo(() => Object.values(tokenMap ?? {}), [tokenMap])
   const balances = useTokenBalances(account ?? undefined, allTokensArray)
   return balances ?? {}
 }

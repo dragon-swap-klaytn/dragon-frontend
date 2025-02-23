@@ -1,11 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { AddCircleIcon, AutoColumn, AutoRow, IconButton, RemoveIcon } from '@pancakeswap/uikit'
-import { NumericalInput } from '@pancakeswap/widgets-internal'
+import { Currency, Price, Token } from '@pancakeswap/swap-sdk-core'
+import { NumberFormat } from '@pancakeswap/uikit'
 import { FeeAmount } from '@pancakeswap/v3-sdk'
-import { LightGreyCard } from 'components/Card'
-import { ReactNode, useCallback, useEffect, useState } from 'react'
-import { Price, Token, Currency } from '@pancakeswap/swap-sdk-core'
+import { Minus, Plus } from '@phosphor-icons/react'
 import { tryParsePrice } from 'hooks/v3/utils'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
 
 interface StepCounterProps {
   value: string
@@ -86,46 +85,63 @@ const StepCounter = ({
   }, [localValue, useLocalValue, value])
 
   return (
-    <LightGreyCard padding="0">
-      <AutoColumn py="16px" textAlign="center" gap="8px" width="100%" onFocus={handleOnFocus} onBlur={handleOnBlur}>
-        {title}
-        <AutoRow>
-          {!locked && (
-            <IconButton
-              onClick={handleDecrement}
-              disabled={decrementDisabled}
-              scale="xs"
-              variant="text"
-              style={{ width: 20, padding: 16 }}
-            >
-              <RemoveIcon color="primary" width={20} height={20} />
-            </IconButton>
-          )}
+    <div
+      className="bg-neutral px-4 py-3 rounded-xl w-full flex items-center justify-between space-x-3"
+      onFocus={handleOnFocus}
+      onBlur={handleOnBlur}
+    >
+      <div className="flex flex-col items-start space-y-2">
+        <span className="text-xs text-on-surface-subtlest">{title}</span>
 
-          <NumericalInput
-            value={localValue}
-            fontSize="20px"
-            align="center"
-            disabled={locked}
-            onUserInput={setLocalValue}
-          />
+        {/* <NumericalInput
+          value={localValue}
+          fontSize="20px"
+          align="center"
+          disabled={locked}
+          onUserInput={setLocalValue}
+        /> */}
 
-          {!locked && (
-            <IconButton
-              px="16px"
-              onClick={handleIncrement}
-              disabled={incrementDisabled}
-              scale="xs"
-              variant="text"
-              style={{ width: 20, padding: 16 }}
-            >
-              <AddCircleIcon color="primary" width={20} height={20} />
-            </IconButton>
-          )}
-        </AutoRow>
-        {tokenA && tokenB && t('%assetA% per %assetB%', { assetA: tokenB?.symbol, assetB: tokenA?.symbol })}
-      </AutoColumn>
-    </LightGreyCard>
+        <NumberFormat
+          disabled={locked}
+          className="text-on-surface w-full focus:outline-none font-bold bg-transparent"
+          value={localValue}
+          onChange={(e) => {
+            setLocalValue(e.target.value.replace(/,/g, ''))
+          }}
+          thousandSeparator
+          allowNegative={false}
+          decimalScale={20}
+          placeholder="0.00"
+        />
+
+        <span className="text-xs text-on-surface-subtlest">
+          {tokenA && tokenB && t('{{assetA}} per {{assetB}}', { assetA: tokenB?.symbol, assetB: tokenA?.symbol })}
+        </span>
+      </div>
+      <div className="flex flex-col items-center space-y-3">
+        {!locked && (
+          <button
+            type="button"
+            className="p-1.5 rounded-full bg-surface-raised "
+            onClick={handleIncrement}
+            disabled={incrementDisabled}
+          >
+            <Plus className="text-on-surface" size={16} />
+          </button>
+        )}
+
+        {!locked && (
+          <button
+            type="button"
+            className="p-1.5 rounded-full bg-surface-raised "
+            onClick={handleDecrement}
+            disabled={decrementDisabled}
+          >
+            <Minus className="text-on-surface" size={16} />
+          </button>
+        )}
+      </div>
+    </div>
   )
 }
 

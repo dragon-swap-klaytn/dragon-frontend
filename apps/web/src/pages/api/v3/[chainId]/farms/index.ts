@@ -1,7 +1,6 @@
-import { createFarmFetcherV3, fetchCommonTokenUSDValue } from '@pancakeswap/farms'
-import { priceHelperTokens } from '@pancakeswap/farms/constants/common'
-import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { ChainId } from '@pancakeswap/chains'
+import { createFarmFetcherV3, fetchTokenUSDValues } from '@pancakeswap/farms'
+import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { NextApiHandler } from 'next'
 import { getViemClients } from 'utils/viem.server'
 import { nativeEnum as zNativeEnum } from 'zod'
@@ -23,8 +22,8 @@ const handler: NextApiHandler = async (req, res) => {
     return res.status(400).json({ error: 'Chain not supported' })
   }
   const farms = farmsV3ConfigChainMap[chainId]
-
-  const commonPrice = await fetchCommonTokenUSDValue(priceHelperTokens[chainId])
+  const currencies = farms.flatMap((f) => [f.token0, f.token1])
+  const commonPrice = await fetchTokenUSDValues(currencies)
 
   const data = await farmFetcherV3.fetchFarms({
     chainId,

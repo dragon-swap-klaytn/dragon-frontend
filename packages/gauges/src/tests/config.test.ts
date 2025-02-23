@@ -1,4 +1,4 @@
-import { chainNames } from '@pancakeswap/chains'
+import { ChainId, chainNames } from '@pancakeswap/chains'
 import { FACTORY_ADDRESS_MAP, Token, computePairAddress } from '@pancakeswap/sdk'
 import { DEPLOYER_ADDRESSES, computePoolAddress } from '@pancakeswap/v3-sdk'
 import groupBy from 'lodash/groupBy'
@@ -7,7 +7,7 @@ import { CONFIG_PROD } from '../constants/config/prod'
 import { GaugeType } from '../types'
 
 describe('Gauges Config', () => {
-  const chainName = chainNames[1]
+  const chainName = chainNames[1 as ChainId]
 
   const gidGroups = groupBy(CONFIG_PROD, 'gid')
   Object.entries(gidGroups).forEach(([gid, gauge]) => {

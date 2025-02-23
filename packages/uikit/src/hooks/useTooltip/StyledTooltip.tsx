@@ -1,5 +1,5 @@
-import { styled } from "styled-components";
 import { m as Motion } from "framer-motion";
+import { styled } from "styled-components";
 
 export const Arrow = styled.div`
   &,
@@ -24,7 +24,7 @@ export const StyledTooltip = styled(Motion.div)`
   line-height: 130%;
   border-radius: 16px;
   max-width: 320px;
-  z-index: 101;
+  z-index: 9999;
   background: ${({ theme }) => theme.tooltip.background};
   color: ${({ theme }) => theme.tooltip.text};
   box-shadow: ${({ theme }) => theme.tooltip.boxShadow};

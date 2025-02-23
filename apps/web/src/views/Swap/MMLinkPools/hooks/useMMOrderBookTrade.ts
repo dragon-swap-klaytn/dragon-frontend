@@ -1,12 +1,12 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, TradeType } from '@pancakeswap/sdk'
+import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useQuery } from '@tanstack/react-query'
 import { MutableRefObject, useMemo, useRef } from 'react'
 import { Field } from 'state/swap/actions'
-import { useCurrencyBalances } from 'state/wallet/hooks'
 import { useMMLinkedPoolByDefault } from 'state/user/mmLinkedPool'
-import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
+import { useCurrencyBalances } from 'state/wallet/hooks'
 
 import { safeGetAddress } from 'utils'
 
@@ -14,8 +14,8 @@ import { useAccount } from 'wagmi'
 import { getMMOrderBook } from '../apis'
 import { MMOrderBookTrade, OrderBookRequest, OrderBookResponse } from '../types'
 import { parseMMTrade } from '../utils/exchange'
-import { useMMParam } from './useMMParam'
 import { useIsMMQuotingPair } from './useIsMMQuotingPair'
+import { useMMParam } from './useMMParam'
 
 // TODO: update
 const BAD_RECIPIENT_ADDRESSES: string[] = [
@@ -182,7 +182,7 @@ export const useMMTrade = (
     }
 
     if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-      result = t('Insufficient %symbol% balance', { symbol: amountIn.currency.symbol })
+      result = t('Insufficient {{symbol}} balance', { symbol: amountIn.currency.symbol })
     }
     if (mmQuote?.message?.error) {
       result = mmQuote?.message?.error

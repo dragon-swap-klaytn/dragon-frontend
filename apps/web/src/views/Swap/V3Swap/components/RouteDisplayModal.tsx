@@ -1,22 +1,10 @@
-import { Route, SmartRouter } from '@pancakeswap/smart-router/evm'
 import { useTranslation } from '@pancakeswap/localization'
-import {
-  Modal,
-  ModalV2,
-  QuestionHelper,
-  Text,
-  Flex,
-  useTooltip,
-  AutoColumn,
-  UseModalV2Props,
-  AtomBox,
-} from '@pancakeswap/uikit'
-import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { Currency } from '@pancakeswap/sdk'
-import { useMemo, memo } from 'react'
+import { Route, SmartRouter } from '@pancakeswap/smart-router/evm'
+import { Modal, ModalV2, QuestionHelper, Text, UseModalV2Props, useTooltip } from '@pancakeswap/uikit'
+import { CurrencyLogo } from '@pancakeswap/widgets-internal'
+import { memo, useMemo } from 'react'
 
-import { RoutingSettingsButton } from 'components/Menu/GlobalSettings/SettingsModal'
-import { RouterBox, RouterPoolBox, RouterTypeText, CurrencyLogoWrapper } from 'views/Swap/components/RouterViewer'
 import { v3FeeToPercent } from '../utils/exchange'
 
 type Pair = [Currency, Currency]
@@ -28,28 +16,25 @@ interface Props extends UseModalV2Props {
 export const RouteDisplayModal = memo(function RouteDisplayModal({ isOpen, onDismiss, routes }: Props) {
   const { t } = useTranslation()
   return (
-    <ModalV2 closeOnOverlayClick isOpen={isOpen} onDismiss={onDismiss} minHeight="0">
+    <ModalV2 closeOnOverlayClick isOpen={isOpen} onDismiss={onDismiss}>
       <Modal
         title={
-          <Flex justifyContent="center">
-            {t('Route')}{' '}
+          <div className="flex items-center space-x-1">
+            <span>{t('Route')}</span>
+
             <QuestionHelper
               text={t('Routing through these tokens resulted in the best price for your trade.')}
               ml="4px"
               placement="top-start"
             />
-          </Flex>
+          </div>
         }
-        style={{ minHeight: '0' }}
-        bodyPadding="24px"
       >
-        <AutoColumn gap="48px">
-          {routes.map((route, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <RouteDisplay key={i} route={route} />
-          ))}
-          <RoutingSettingsButton />
-        </AutoColumn>
+        {routes.map((route, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <RouteDisplay key={`route:${i}`} route={route} />
+        ))}
+        {/* <RoutingSettingsButton /> */}
       </Modal>
     </ModalV2>
   )
@@ -104,77 +89,45 @@ export const RouteDisplay = memo(function RouteDisplay({ route }: RouteDisplayPr
           const tooltipText = `${input.symbol}/${output.symbol}${
             isV3Pool ? ` (${v3FeeToPercent(pool.fee).toSignificant(6)}%)` : ''
           }`
-          return (
-            <PairNode pair={p} key={key} text={text} className={isV3Pool && 'highlight'} tooltipText={tooltipText} />
-          )
+          return <PairNode pair={p} key={key} text={text} tooltipText={tooltipText} />
         })
       : null
 
   return (
-    <AutoColumn gap="24px">
-      <RouterBox justifyContent="space-between" alignItems="center">
-        <CurrencyLogoWrapper
-          size={{
-            xs: '32px',
-            md: '48px',
-          }}
-          ref={targetRef}
-        >
-          <CurrencyLogo size="100%" currency={inputCurrency} />
-          <RouterTypeText fontWeight="bold">{route.percent}%</RouterTypeText>
-        </CurrencyLogoWrapper>
-        {tooltipVisible && tooltip}
-        {pairNodes}
-        <CurrencyLogoWrapper
-          size={{
-            xs: '32px',
-            md: '48px',
-          }}
-          ref={outputTargetRef}
-        >
-          <CurrencyLogo size="100%" currency={outputCurrency} />
-        </CurrencyLogoWrapper>
-        {outputTooltipVisible && outputTooltip}
-      </RouterBox>
-    </AutoColumn>
+    <div className="relative flex flex-row before:absolute before:top-[16px] md:before:top-5 before:left-0 before:w-[96%] before:mx-2 before:h-[3px] before:border-t-2 before:border-dotted before:border-backgroundDisabled before:transform before:-translate-y-1/2 before:z-[1] md:min-w-[400px] justify-between">
+      <div className="flex flex-col items-center space-y-1">
+        <div ref={targetRef} className="z-10">
+          <CurrencyLogo size={40} currency={inputCurrency} />
+        </div>
+
+        <span className="text-sm text-on-surface">{route.percent}%</span>
+      </div>
+      {tooltipVisible && tooltip}
+      {pairNodes}
+      <div ref={outputTargetRef} className="z-10">
+        <CurrencyLogo size={40} currency={outputCurrency} />
+      </div>
+      {outputTooltipVisible && outputTooltip}
+    </div>
   )
 })
 
-function PairNode({
-  pair,
-  text,
-  className,
-  tooltipText,
-}: {
-  pair: Pair
-  text: string
-  className: string
-  tooltipText: string
-}) {
+function PairNode({ pair, text, tooltipText }: { pair: Pair; text: string; tooltipText: string }) {
   const [input, output] = pair
 
   const tooltip = useTooltip(tooltipText)
 
   return (
-    <RouterPoolBox className={className} ref={tooltip.targetRef}>
-      {tooltip.tooltipVisible && tooltip.tooltip}
-      <AtomBox
-        size={{
-          xs: '24px',
-          md: '32px',
-        }}
-      >
-        <CurrencyLogo size="100%" currency={input} />
-      </AtomBox>
-      <AtomBox
-        size={{
-          xs: '24px',
-          md: '32px',
-        }}
-      >
-        <CurrencyLogo size="100%" currency={output} />
-      </AtomBox>
-      <RouterTypeText>{text}</RouterTypeText>
-    </RouterPoolBox>
+    <div className="flex flex-col items-center space-y-1">
+      <div className="flex items-center space-x-1 z-50 px-1 py-1 rounded-[20px] bg-neutral" ref={tooltip.targetRef}>
+        {tooltip.tooltipVisible && tooltip.tooltip}
+        <div className="flex items-center space-x-1">
+          <CurrencyLogo size={32} currency={input} />
+          <CurrencyLogo size={32} currency={output} />
+        </div>
+      </div>
+
+      <span className="text-sm text-on-surface">{text}</span>
+    </div>
   )
 }

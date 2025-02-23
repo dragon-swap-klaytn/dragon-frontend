@@ -1,8 +1,8 @@
-import { styled } from 'styled-components'
-import { Text, Button, Input, InputProps, Flex, Link } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
-import { parseUnits } from 'viem'
+import { Button, Flex, Input, InputProps, Link, Text } from '@pancakeswap/uikit'
 import { formatBigInt } from '@pancakeswap/utils/formatBalance'
+import { styled } from 'styled-components'
+import { parseUnits } from 'viem'
 
 interface ModalInputProps {
   max: string
@@ -76,7 +76,9 @@ const ModalInput: React.FC<React.PropsWithChildren<ModalInputProps>> = ({
       <StyledTokenInput isWarning={isBalanceZero}>
         <Flex justifyContent="space-between" pl="16px">
           <Text fontSize="14px">{inputTitle}</Text>
-          <Text fontSize="14px">{t('Balance: %balance%', { balance: displayBalance(max as `${number}`) })}</Text>
+          <Text fontSize="14px">
+            {t('Balance: {{balance}}', { balance: displayBalance(max as `${number}`) ?? t('Loading') })}
+          </Text>
         </Flex>
         <Flex alignItems="flex-end" justifyContent="space-around">
           <StyledInput
@@ -98,7 +100,7 @@ const ModalInput: React.FC<React.PropsWithChildren<ModalInputProps>> = ({
         <StyledErrorMessage fontSize="14px" color="failure">
           {t('No tokens to stake')}:{' '}
           <Link fontSize="14px" bold={false} href={addLiquidityUrl} external color="failure">
-            {t('Add %symbol%', { symbol })}
+            {t('Add {{symbol}}', { symbol })}
           </Link>
         </StyledErrorMessage>
       )}

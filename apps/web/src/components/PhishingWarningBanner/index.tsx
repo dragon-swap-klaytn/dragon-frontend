@@ -1,8 +1,8 @@
+import { useTranslation } from '@pancakeswap/localization'
+import { Box, CloseIcon, DGSWAP_DOMAIN, Flex, IconButton, Text, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { usePhishingBanner } from '@pancakeswap/utils/user'
 import { useMemo } from 'react'
 import { styled } from 'styled-components'
-import { Text, Flex, Box, CloseIcon, IconButton, useMatchBreakpoints } from '@pancakeswap/uikit'
-import { useTranslation } from '@pancakeswap/localization'
-import { usePhishingBanner } from '@pancakeswap/utils/user'
 
 const Container = styled(Flex)`
   overflow: hidden;
@@ -40,14 +40,14 @@ const SpeechBubble = styled.div`
   }
 `
 
-const domain = 'https://dgswap.io'
-
 const PhishingWarningBanner: React.FC<React.PropsWithChildren> = () => {
   const { t } = useTranslation()
   const [, hideBanner] = usePhishingBanner()
   const { isMobile, isMd } = useMatchBreakpoints()
   const warningTextAsParts = useMemo(() => {
-    const warningText = t("please make sure you're visiting %domain% - check the URL carefully.", { domain })
+    const warningText = t("please make sure you're visiting {{domain}} - check the URL carefully.", {
+      domain: DGSWAP_DOMAIN,
+    })
     return warningText.split(/(https:\/\/dgswap.io)/g)
   }, [t])
   const warningTextComponent = (
@@ -61,8 +61,8 @@ const PhishingWarningBanner: React.FC<React.PropsWithChildren> = () => {
           key={i}
           small
           as="span"
-          bold={text === domain}
-          color={text === domain ? '#FFFFFF' : '#BDC2C4'}
+          bold={text === DGSWAP_DOMAIN}
+          color={text === DGSWAP_DOMAIN ? '#FFFFFF' : '#BDC2C4'}
         >
           {text}
         </Text>

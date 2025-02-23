@@ -1,0 +1,5 @@
+{
+  "main": "../../dist/connectors/tokenPocket.js",
+  "module": "../../dist/connectors/tokenPocket.mjs",
+  "types": "../../dist/connectors/tokenPocket.d.ts"
+}

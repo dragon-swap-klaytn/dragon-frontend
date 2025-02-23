@@ -1,33 +1,25 @@
-import { Button, ButtonProps } from '@pancakeswap/uikit'
-import { useSwitchNetworkLoading } from 'hooks/useSwitchNetworkLoading'
-import { useSetAtom } from 'jotai'
+import { ButtonProps, ButtonV2 } from '@pancakeswap/uikit'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { hideWrongNetworkModalAtom } from './NetworkModal'
-import Trans from './Trans'
-
-const wrongNetworkProps: ButtonProps = {
-  variant: 'danger',
-  disabled: false,
-  children: <Trans>Wrong Network</Trans>,
-}
+import { useSwitchNetworkLoading } from 'hooks/useSwitchNetworkLoading'
 
 export const CommitButton = (props: ButtonProps) => {
   const { isWrongNetwork } = useActiveChainId()
   const [switchNetworkLoading] = useSwitchNetworkLoading()
-  const setHideWrongNetwork = useSetAtom(hideWrongNetworkModalAtom)
 
   return (
-    <Button
-      {...props}
+    <ButtonV2
+      variant="primary"
       onClick={(e) => {
         if (isWrongNetwork) {
-          setHideWrongNetwork(false)
-        } else {
-          props.onClick?.(e)
+          return
         }
+
+        props.onClick?.(e)
       }}
-      {...(switchNetworkLoading && { disabled: true })}
-      {...(isWrongNetwork && wrongNetworkProps)}
-    />
+      disabled={props.disabled || switchNetworkLoading}
+      fullWidth
+    >
+      {props.children}
+    </ButtonV2>
   )
 }

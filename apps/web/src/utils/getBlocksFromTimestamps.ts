@@ -1,8 +1,8 @@
+import { BLOCKS_SUBGRAPHS, ChainId } from '@pancakeswap/chains'
 import { gql } from 'graphql-request'
 import orderBy from 'lodash/orderBy'
-import { multiChainBlocksClient, MultiChainNameExtend } from 'state/info/constant'
-import { Block } from '../state/info/types'
-import { multiQuery } from '../views/Info/utils/infoQueryHelpers'
+import { Block } from 'views/Dashboard/types'
+import multiQuery from 'views/Dashboard/utils/multiQuery'
 
 const getBlockSubqueries = (timestamps: number[]) =>
   timestamps.map((timestamp) => {
@@ -23,12 +23,11 @@ const blocksQueryConstructor = (subqueries: string[]) => {
  * @notice Fetches block objects for an array of timestamps.
  * @param {Array} timestamps
  */
-export const getBlocksFromTimestamps = async (
+export async function getBlocksFromTimestamps(
   timestamps: number[],
   sortDirection: 'asc' | 'desc' | undefined = 'desc',
   skipCount: number | undefined = 500,
-  chainName: MultiChainNameExtend | undefined = 'KLAYTN',
-): Promise<Block[]> => {
+) {
   if (timestamps?.length === 0) {
     return []
   }
@@ -36,7 +35,7 @@ export const getBlocksFromTimestamps = async (
   const fetchedData: any = await multiQuery(
     blocksQueryConstructor,
     getBlockSubqueries(timestamps),
-    multiChainBlocksClient[chainName],
+    BLOCKS_SUBGRAPHS[ChainId.KLAYTN],
     skipCount,
   )
 

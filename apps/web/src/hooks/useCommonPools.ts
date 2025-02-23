@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-shadow, no-await-in-loop, no-constant-condition, no-console */
 import { Currency } from '@pancakeswap/sdk'
 import { Pool } from '@pancakeswap/smart-router/evm'
-import { useMemo, useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import { useV3CandidatePools, useV3CandidatePoolsWithoutTicks, V3PoolsHookParams, V3PoolsResult } from './useV3Pools'
 import { useStableCandidatePools } from './usePoolsOnChain'
 import { useV2CandidatePools } from './useV2Pools'
+import { useV3CandidatePools, useV3CandidatePoolsWithoutTicks, V3PoolsHookParams, V3PoolsResult } from './useV3Pools'
 
 interface FactoryOptions {
   // use to identify hook
@@ -15,7 +15,7 @@ interface FactoryOptions {
 }
 
 export interface PoolsWithState {
-  refresh: () => void
+  refresh: () => Promise<void>
   pools: Pool[] | undefined
   loading: boolean
   syncing: boolean
@@ -88,7 +88,7 @@ function commonPoolsHookCreator({ useV3Pools }: FactoryOptions) {
       ],
     )
 
-    const refresh = useCallback(() => {
+    const refresh = useCallback(async () => {
       v3Refresh()
       v2Refresh()
       stableRefresh()

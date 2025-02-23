@@ -8,7 +8,8 @@ const useModal = (
   modal: React.ReactNode,
   closeOnOverlayClick = true,
   updateOnPropsChange = false,
-  modalId = "defaultNodeId"
+  modalId = "defaultNodeId",
+  dependencies: any[] = []
 ): [Handler, HandlerWithArgs] => {
   const currentModal = useRef<React.ReactNode>();
   currentModal.current = modal;
@@ -37,20 +38,40 @@ const useModal = (
   // Typically if modal is static there is no need for updates, use when you expect props to change
   useEffect(() => {
     // NodeId is needed in case there are 2 useModal hooks on the same page and one has updateOnPropsChange
-    if (updateOnPropsChange && isOpen && nodeId === modalId) {
-      const modalProps = get(modal, "props");
-      const oldModalProps = get(modalNode, "props");
-      // Note: I tried to use lodash isEqual to compare props but it is giving false-negatives too easily
-      // For example ConfirmSwapModal in exchange has ~500 lines prop object that stringifies to same string
-      // and online diff checker says both objects are identical but lodash isEqual thinks they are different
-      // Do not try to replace JSON.stringify with isEqual, high risk of infinite rerenders
-      // TODO: Find a good way to handle modal updates, this whole flow is just backwards-compatible workaround,
-      // would be great to simplify the logic here
-      if (modalProps && oldModalProps && serialize(modalProps) !== serialize(oldModalProps)) {
-        setModalNode(modal);
-      }
+    if (dependencies.length > 0 || !updateOnPropsChange || !isOpen || nodeId !== modalId) {
+      return;
     }
-  }, [updateOnPropsChange, nodeId, modalId, isOpen, modal, modalNode, setModalNode]);
+
+    const modalProps = get(modal, "props");
+    const oldModalProps = get(modalNode, "props");
+    const propsChanged = modalProps && oldModalProps && serialize(modalProps) !== serialize(oldModalProps);
+    // Note: I tried to use lodash isEqual to compare props but it is giving false-negatives too easily
+    // For example ConfirmSwapModal in exchange has ~500 lines prop object that stringifies to same string
+    // and online diff checker says both objects are identical but lodash isEqual thinks they are different
+    // Do not try to replace JSON.stringify with isEqual, high risk of infinite rerenders
+    // TODO: Find a good way to handle modal updates, this whole flow is just backwards-compatible workaround,
+    // would be great to simplify the logic here
+    if (propsChanged) {
+      setModalNode(modal);
+    }
+  }, [updateOnPropsChange, nodeId, modalId, isOpen, modal, modalNode, setModalNode, dependencies]);
+
+  const prevDependencies = useRef<any[]>();
+
+  useEffect(() => {
+    if (dependencies.length === 0 || !updateOnPropsChange || !isOpen || nodeId !== modalId) {
+      return;
+    }
+
+    const prevDeps = prevDependencies.current;
+    const depsChanged = serialize(prevDeps) !== serialize(dependencies);
+
+    if (depsChanged) {
+      setModalNode(modal);
+    }
+
+    prevDependencies.current = dependencies;
+  }, [dependencies, updateOnPropsChange, isOpen, nodeId, modalId, modal, setModalNode]);
 
   return [onPresentCallback, onDismissCallback];
 };

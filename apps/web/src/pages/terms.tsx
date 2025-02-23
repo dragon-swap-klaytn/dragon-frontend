@@ -1,104 +1,74 @@
 /* eslint-disable react/no-unescaped-entities */
-import styled from 'styled-components'
 import { CHAIN_IDS } from 'utils/wagmi'
-
-const StyledLayer = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  padding: 60px;
-`
-
-const StyledTextBox = styled.div`
-  max-width: 860px;
-`
-
-const StyledB = styled.div`
-  font-weight: bold;
-  font-size: 18px;
-  margin-top: 48px;
-`
-
-const StyledP = styled.p`
-  margin-top: 18px;
-`
-
-const StyledUl = styled.ul`
-  margin-top: 16px;
-
-  li {
-    margin-top: 8px;
-  }
-`
 
 const TermsPage = () => {
   return (
-    <StyledLayer>
-      <StyledTextBox>
+    <div className="max-w-[1200px] px-4 mx-auto">
+      <div className="text-on-surface">
         <b style={{ fontSize: '24px' }}>DragonSwap Terms of Service</b>
-        <StyledP>
+        <p>
           <i>Last modified: May 07, 2024</i>
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           These Terms of Service (the “Agreement”) explains the terms and conditions by which you may access and use
           https://dgswap.io/ and any subdomains associated with the Website. You must read this Agreement carefully as
           it governs your use of the Website. By accessing or using the Website, you signify that you have read,
           understand, and agree to be bound by this Agreement in its entirety. If you do not agree, you are not
           authorized to access or use the Website and should not use the Website.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           NOTICE: This Agreement contains important information, including a binding arbitration provision and a class
           action waiver, both of which impact your rights as to how disputes are resolved. The Website is only available
           to you — and you should only access the Website — if you agree completely with these terms.
-        </StyledP>
+        </p>
 
-        <StyledB>Introduction</StyledB>
-        <StyledP>
+        <b>Introduction</b>
+        <p>
           The Website provides access to a decentralized protocol on various public blockchains, including but not
           limited to Kaia Chain, that allow users to trade certain compatible digital assets (“the DragonSwap protocol”
           or the “Protocol”), among other services. The Website is one, but not the exclusive, means of accessing the
           Protocol.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           To access the Website, you must use non-custodial wallet software, which allows you to interact with public
           blockchains. Your relationship with that non-custodial wallet provider is governed by the applicable terms of
           service of that third party, not this Agreement. Wallets are not operated by, maintained by, or affiliated
           with us, and we do not have custody or control over the contents of your wallet and have no ability to
           retrieve or transfer its contents. By connecting your wallet to our Website, you agree to be bound by this
           Agreement and all of the terms incorporated herein by reference.
-        </StyledP>
+        </p>
 
-        <StyledB>Modification of this Agreement</StyledB>
-        <StyledP>
+        <b>Modification of this Agreement</b>
+        <p>
           We reserve the right, in our sole discretion, to modify this Agreement from time to time. If we make any
           material modifications, we will notify you by updating the date at the top of the Agreement and by maintaining
           a current version of the Agreement at <u>https://dgswap.io/terms</u>. All modifications will be effective when
           they are posted, and your continued accessing or use of the Website will serve as confirmation of your
           acceptance of those modifications. If you do not agree with any modifications to this Agreement, you must
           immediately stop accessing and using the Website.
-        </StyledP>
+        </p>
 
-        <StyledB>Description of Services provided through the Website</StyledB>
-        <StyledP>The Website provides a web or mobile-based means of accessing the Protocol.</StyledP>
+        <b>Description of Services provided through the Website</b>
+        <p>The Website provides a web or mobile-based means of accessing the Protocol.</p>
 
-        <StyledB>Website for accessing Protocol</StyledB>
-        <StyledP>
+        <b>Website for accessing Protocol</b>
+        <p>
           The Website is distinct from the Protocol and is one, but not the exclusive, means of accessing the Protocol.
           DragonSwap does not control or operate any version of the Protocol on any blockchain network. By using the
           Website, you understand that you are not buying or selling digital assets from us and that we do not operate
           any liquidity pools on the Protocol or control trade execution on the Protocol. When traders pay fees for
           trades, those fees accrue to liquidity providers for the Protocol.
-        </StyledP>
+        </p>
 
-        <StyledB>Eligibility</StyledB>
-        <StyledP>
+        <b>Eligibility</b>
+        <p>
           To access or use the Website, you must be able to form a legally binding contract with us. Accordingly, you
           represent that you are at least the age of majority in your jurisdiction (e.g., 18 years old in the United
           States) and have the full right, power, and authority to enter into and comply with the terms and conditions
           of this Agreement on behalf of yourself and any company or legal entity for which you may access or use the
           Website.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           You further represent that you are not (a) the subject of economic or trade sanctions administered or enforced
           by any governmental authority or otherwise designated on any list of prohibited or restricted parties
           (including but not limited to the list maintained by the Office of Foreign Assets Control of the U.S.
@@ -107,23 +77,23 @@ const TermsPage = () => {
           States. Finally, you represent that your access and use of the Website will fully comply with all applicable
           laws and regulations, and that you will not access or use the Website to conduct, promote, or otherwise
           facilitate any illegal activity.
-        </StyledP>
+        </p>
 
-        <StyledB>Additional Rights</StyledB>
-        <StyledP>
+        <b>Additional Rights</b>
+        <p>
           We reserve the following rights, which do not constitute obligations of ours: (a) with or without notice to
           you, to modify, substitute, eliminate or add to the Website; (b) to review, modify, filter, disable, delete
           and remove any and all content and information from the Website; and (c) to cooperate with any law
           enforcement, court or government investigation or order or third party requesting or directing that we
           disclose information or content or information that you provide.
-        </StyledP>
+        </p>
 
-        <StyledB>Prohibited Activity</StyledB>
-        <StyledP>
+        <b>Prohibited Activity</b>
+        <p>
           You agree not to engage in, or attempt to engage in, any of the following categories of prohibited activity in
           relation to your access and use of the Website:
-        </StyledP>
-        <StyledUl>
+        </p>
+        <div>
           <li>
             Intellectual Property Infringement. Activity that infringes on or violates any copyright, trademark, service
             mark, patent, right of publicity, right of privacy, or other proprietary or intellectual property rights
@@ -169,10 +139,10 @@ const TermsPage = () => {
             States or another relevant jurisdiction, including (but not limited to) the restrictions and regulatory
             requirements imposed by U.S. law.
           </li>
-        </StyledUl>
+        </div>
 
-        <StyledB>Not Registered with the SEC or Any Other Agency</StyledB>
-        <StyledP>
+        <b>Not Registered with the SEC or Any Other Agency</b>
+        <p>
           We are not registered with the U.S. Securities and Exchange Commission as a national securities exchange or in
           any other capacity. You understand and acknowledge that we do not broker trading orders on your behalf. We
           also do not facilitate the execution or settlement of your trades, which occur entirely on the public
@@ -180,16 +150,16 @@ const TermsPage = () => {
           through the Website or when using our Smart Router feature, which routes trades across liquidity pools on the
           Protocol only. Any references in the Website to “best price” do not constitute a representation or warranty
           about pricing available through the Website, on the Protocol, or elsewhere.
-        </StyledP>
+        </p>
 
-        <StyledB>Non-Solicitation; No Investment Advice</StyledB>
-        <StyledP>
+        <b>Non-Solicitation; No Investment Advice</b>
+        <p>
           You agree and understand that: (a) all trades you submit through the Website are considered unsolicited, which
           means that they are solely initiated by you; (b) you have not received any investment advice from us in
           connection with any trades, including those you place via our Smart Router API; and (c) we do not conduct a
           suitability review of any trades you submit.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           We may provide information about tokens in the Website sourced from third-party data partners through features
           such as rarity scores, token explorer, or token lists. We may also provide warning labels for certain tokens.
           The provision of informational materials does not make trades in those tokens solicited; we are not attempting
@@ -201,10 +171,10 @@ const TermsPage = () => {
           opportunity. You alone are responsible for determining whether any investment, investment strategy or related
           transaction is appropriate for you based on your personal investment objectives, financial circumstances, and
           risk tolerance.
-        </StyledP>
+        </p>
 
-        <StyledB>Non-Custodial and No Fiduciary Duties</StyledB>
-        <StyledP>
+        <b>Non-Custodial and No Fiduciary Duties</b>
+        <p>
           The Website is a purely non-custodial application, meaning we do not ever have custody, possession, or control
           of your digital assets at any time. It further means you are solely responsible for the custody of the
           cryptographic private keys to the digital asset wallets you hold and you should never share your wallet
@@ -212,70 +182,70 @@ const TermsPage = () => {
           with your use of a wallet and make no representations or warranties regarding how the Website will operate
           with any specific wallet. Likewise, you are solely responsible for any associated wallet and we are not liable
           for any acts or omissions by you in connection with or as a result of your wallet being compromised.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           This Agreement is not intended to, and does not, create or impose any fiduciary duties on us. To the fullest
           extent permitted by law, you acknowledge and agree that we owe no fiduciary duties or liabilities to you or
           any other party, and that to the extent any such duties or liabilities may exist at law or in equity, those
           duties and liabilities are hereby irrevocably disclaimed, waived, and eliminated. You further agree that the
           only duties and obligations that we owe you are those set out expressly in this Agreement.
-        </StyledP>
+        </p>
 
-        <StyledB>Compliance and Tax Obligations</StyledB>
-        <StyledP>
+        <b>Compliance and Tax Obligations</b>
+        <p>
           The Website may not be available or appropriate for use in your jurisdiction. By accessing or using the
           Website, you agree that you are solely and entirely responsible for compliance with all laws and regulations
           that may apply to you.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           Specifically, your use of the Website or the Protocol may result in various tax consequences, such as income
           or capital gains tax, value-added tax, goods and services tax, or sales tax in certain jurisdictions.It is
           your responsibility to determine whether taxes apply to any transactions you initiate or receive and, if so,
           to report and/or remit the correct tax to the appropriate tax authority.
-        </StyledP>
+        </p>
 
-        <StyledB>Assumption of Risk</StyledB>
-        <StyledP>
+        <b>Assumption of Risk</b>
+        <p>
           By accessing and using the Website, you represent that you are financially and technically sophisticated
           enough to understand the inherent risks associated with using cryptographic and blockchain-based systems, and
           that you have a working knowledge of the usage and intricacies of digital assets such as ether (ETH),
           so-called stablecoins, and other digital tokens such as those following the Ethereum Token Standard (ERC-20),
           or standards of any other digital tokens which are transacted on DragonSwap.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           In particular, you understand that the markets for these digital assets are nascent and highly volatile due to
           risk factors including (but not limited to) adoption, speculation, technology, security, and regulation. You
           understand that anyone can create a token, including fake versions of existing tokens and tokens that falsely
           claim to represent projects, and acknowledge and accept the risk that you may mistakenly trade those or other
           tokens. So-called stablecoins may not be as stable as they purport to be, may not be fully or adequately
           collateralized, and may be subject to panics and runs.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           Further, you understand that smart contract transactions automatically execute and settle, and that
           blockchain-based transactions are irreversible when confirmed. You acknowledge and accept that the cost and
           speed of transacting with cryptographic and blockchain-based systems such as Ethereum are variable and may
           increase dramatically at any time. You further acknowledge and accept the risk of selecting to trade in Expert
           Modes, which can expose you to potentially significant price slippage and higher costs.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           If you act as a liquidity provider to the Protocol through the Website, you understand that your digital
           assets may lose some or all of their value while they are supplied to the Protocol through the Website due to
           the fluctuation of prices of tokens in a trading pair or liquidity pool.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           Finally, you understand that we do not create, own, or operate cross-chain bridges and we do not make any
           representation or warranty about the safety or soundness of any cross-chain bridge, including its use for
           DragonSwap governance.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           In summary, you acknowledge that we are not responsible for any of these variables or risks, do not own or
           control the Protocol, and cannot be held liable for any resulting losses that you experience while accessing
           or using the Website. Accordingly, you understand and agree to assume full responsibility for all of the risks
           of accessing and using the Website to interact with the Protocol.
-        </StyledP>
+        </p>
 
-        <StyledB>Third-Party Resources and Promotions</StyledB>
-        <StyledP>
+        <b>Third-Party Resources and Promotions</b>
+        <p>
           The Website may contain references or links to third-party resources, including (but not limited to)
           information, materials, products, or services, that we do not own or control. In addition, third parties may
           offer promotions related to your access and use of the Website. We do not approve, monitor, endorse, warrant
@@ -283,10 +253,10 @@ const TermsPage = () => {
           participate in any such promotions, you do so at your own risk, and you understand that this Agreement does
           not apply to your dealings or relationships with any third parties. You expressly relieve us of any and all
           liability arising from your use of any such resources or participation in any such promotions.
-        </StyledP>
+        </p>
 
-        <StyledB>Release of Claims</StyledB>
-        <StyledP>
+        <b>Release of Claims</b>
+        <p>
           You expressly agree that you assume all risks in connection with your access and use of the Website. You
           further expressly waive and release us from any and all liability, claims, causes of action, or damages
           arising from or in any way relating to your use of the Website. If you are a California resident, you waive
@@ -294,20 +264,20 @@ const TermsPage = () => {
           extend to claims that the creditor or releasing party does not know or suspect to exist in his or her favor at
           the time of executing the release and that, if known by him or her, would have materially affected his or her
           settlement with the debtor or released party."
-        </StyledP>
+        </p>
 
-        <StyledB>Indemnity</StyledB>
-        <StyledP>
+        <b>Indemnity</b>
+        <p>
           You agree to hold harmless, release, defend, and indemnify us and our officers, directors, employees,
           contractors, agents, affiliates, and subsidiaries from and against all claims, damages, obligations, losses,
           liabilities, costs, and expenses arising from: (a) your access and use of the Website; (b) your violation of
           any term or condition of this Agreement, the right of any third party, or any other applicable law, rule, or
           regulation; and (c) any other party's access and use of the Website with your assistance or using any device
           or account that you own or control.
-        </StyledP>
+        </p>
 
-        <StyledB>No Warranties</StyledB>
-        <StyledP>
+        <b>No Warranties</b>
+        <p>
           The website is provided on an "as is" and "as available" basis. To the fullest extent permitted by law, we
           disclaim any representations and warranties of any kind, whether express, implied, or statutory, including
           (but not limited to) the warranties of merchantability and fitness for a particular purpose. You acknowledge
@@ -317,8 +287,8 @@ const TermsPage = () => {
           viruses, or other harmful elements. No advice, information, or statement that we make should be treated as
           creating any warranty concerning the website. We do not endorse, guarantee, or assume responsibility for any
           advertisements, offers, or statements made by third parties concerning the website.
-        </StyledP>
-        <StyledP>
+        </p>
+        <p>
           Similarly, the protocol is provided "as is", at your own risk, and without warranties of any kind. Although we
           contributed to the initial code for the protocol, we do not provide, own, or control the protocol, which is
           run autonomously without any headcount by smart contracts deployed on various blockchains. No developer or
@@ -327,10 +297,10 @@ const TermsPage = () => {
           indirect, incidental, special, exemplary, punitive or consequential damages, or loss of profits,
           cryptocurrencies, tokens, or anything else of value. We do not endorse, guarantee, or assume responsibility
           for any advertisements, offers, or statements made by third parties concerning the website.
-        </StyledP>
+        </p>
 
-        <StyledB>Limitation of Liability</StyledB>
-        <StyledP>
+        <b>Limitation of Liability</b>
+        <p>
           Under no circumstances shall we or any of our officers, directors, employees, contractors, agents, affiliates,
           or subsidiaries be liable to you for any indirect, punitive, incidental, special, consequential, or exemplary
           damages, including (but not limited to) damages for loss of profits, goodwill, use, data, or other intangible
@@ -344,31 +314,31 @@ const TermsPage = () => {
           transmitted to or through the interface; (f) errors or omissions in, or loss or damage incurred as a result of
           the use of, any content made available through the interface; and (g) the defamatory, offensive, or illegal
           conduct of any third party.
-        </StyledP>
+        </p>
 
-        <StyledB>Class Action and Jury Trial Waiver</StyledB>
-        <StyledP>
+        <b>Class Action and Jury Trial Waiver</b>
+        <p>
           You must bring any and all Disputes against us in your individual capacity and not as a plaintiff in or member
           of any purported class action, collective action, private attorney general action, or other representative
           proceeding. This provision applies to class arbitration. You and we both agree to waive the right to demand a
           trial by jury.
-        </StyledP>
+        </p>
 
-        <StyledB>Entire Agreement</StyledB>
-        <StyledP>
+        <b>Entire Agreement</b>
+        <p>
           These terms constitute the entire agreement between you and us with respect to the subject matter hereof. This
           Agreement supersedes any and all prior or contemporaneous written and oral agreements, communications and
           other understandings (if any) relating to the subject matter of the terms.
-        </StyledP>
+        </p>
 
-        <StyledB>Gas Fees</StyledB>
-        <StyledP>
+        <b>Gas Fees</b>
+        <p>
           Blockchain transactions require the payment of transaction fees to the appropriate network (“Gas Fees”).
           Except as otherwise expressly outlined in the terms of another offer by DragonSwap, you will be solely
           responsible for paying the Gas Fees for any transaction that you initiate.
-        </StyledP>
-      </StyledTextBox>
-    </StyledLayer>
+        </p>
+      </div>
+    </div>
   )
 }
 

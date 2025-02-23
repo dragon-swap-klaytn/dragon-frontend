@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request'
-import { Block } from 'state/info/types'
+import { Block } from 'views/Dashboard/types'
 
 export const getTVL = (tokenAddress: string, isV3?: boolean) => gql`
   query DerivedTokenPriceTVL {

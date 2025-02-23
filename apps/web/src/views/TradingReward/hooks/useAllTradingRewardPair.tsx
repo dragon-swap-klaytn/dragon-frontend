@@ -1,9 +1,9 @@
-import BigNumber from 'bignumber.js'
 import { ChainId } from '@pancakeswap/chains'
-import { TRADING_REWARD_API } from 'config/constants/endpoints'
-import { getTradingRewardContract } from 'utils/contractHelpers'
-import { useTradingRewardContract, useTradingRewardTopTraderContract } from 'hooks/useContract'
 import { useQuery } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import { TRADING_REWARD_API } from 'config/constants/endpoints'
+import { useTradingRewardContract, useTradingRewardTopTraderContract } from 'hooks/useContract'
+import { getTradingRewardContract } from 'utils/contractHelpers'
 
 export enum RewardStatus {
   ALL = '0',
@@ -144,8 +144,8 @@ const initialAllTradingRewardState = {
 }
 
 const useAllTradingRewardPair = ({ status, type }: UseAllTradingRewardPairProps): AllTradingRewardPair => {
-  const tradingRewardContract = useTradingRewardContract({ chainId: ChainId.BSC })
-  const tradingRewardTopTradersContract = useTradingRewardTopTraderContract({ chainId: ChainId.BSC })
+  const tradingRewardContract = useTradingRewardContract({ chainId: ChainId.KLAYTN })
+  const tradingRewardTopTradersContract = useTradingRewardTopTraderContract({ chainId: ChainId.KLAYTN })
   const contract = type === RewardType.CAKE_STAKERS ? tradingRewardContract : tradingRewardTopTradersContract
 
   const { data: allPairs, isLoading } = useQuery(

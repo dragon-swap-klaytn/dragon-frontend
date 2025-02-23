@@ -1,10 +1,10 @@
 import { ChainId } from '@pancakeswap/chains'
 
 import {
-  SupportedChainId,
-  SUPPORTED_CHAIN_IDS,
-  CakeVaultSupportedChainId,
   CAKE_VAULT_SUPPORTED_CHAINS,
+  CakeVaultSupportedChainId,
+  SUPPORTED_CHAIN_IDS,
+  SupportedChainId,
 } from '../constants/supportedChains'
 
 export function isPoolsSupported(chainId: number): chainId is SupportedChainId {

@@ -1,19 +1,9 @@
 import { ScaleLinear, select, zoom, ZoomBehavior, zoomIdentity, ZoomTransform } from "d3";
 import { useEffect, useMemo, useRef } from "react";
 import { styled } from "styled-components";
-import { ZoomInIcon, ZoomOutIcon, AutoRenewIcon, Box } from "@pancakeswap/uikit";
 
+import { ArrowsClockwise, MagnifyingGlassMinus, MagnifyingGlassPlus } from "@phosphor-icons/react";
 import { ZoomLevels } from "./types";
-
-const Wrapper = styled.div<{ count: number }>`
-  display: grid;
-  grid-template-columns: repeat(${({ count }) => count.toString()}, 1fr);
-  grid-gap: 6px;
-
-  position: absolute;
-  top: -18px;
-  right: 0;
-`;
 
 export const ZoomOverlay = styled.rect`
   fill: transparent;
@@ -96,40 +86,27 @@ export default function Zoom({
   }, [zoomInitial, zoomLevels]);
 
   return (
-    <Wrapper count={showResetButton ? 3 : 2}>
+    <div className="flex items-center space-x-1 absolute -top-[35px] right-0">
       {showResetButton && (
-        <Box
-          style={{
-            cursor: "pointer",
-            textAlign: "center",
-            paddingTop: "2px",
-            paddingLeft: "4px",
+        <button
+          type="button"
+          className="p-1.5 rounded-full hover:bg-neutral"
+          onClick={() => {
+            resetBrush();
+            zoomReset();
           }}
         >
-          <AutoRenewIcon
-            color="primary"
-            width={20}
-            onClick={() => {
-              resetBrush();
-              zoomReset();
-            }}
-          />
-        </Box>
+          <ArrowsClockwise className="text-on-surface" size={20} />
+        </button>
       )}
-      <Box
-        style={{
-          cursor: "pointer",
-        }}
-      >
-        <ZoomInIcon width={24} onClick={zoomIn} color="primary" />
-      </Box>
-      <Box
-        style={{
-          cursor: "pointer",
-        }}
-      >
-        <ZoomOutIcon width={24} onClick={zoomOut} color="primary" />
-      </Box>
-    </Wrapper>
+
+      <button type="button" className="p-1.5 rounded-full hover:bg-neutral" onClick={zoomIn}>
+        <MagnifyingGlassPlus className="text-on-surface" size={20} />
+      </button>
+
+      <button type="button" className="p-1.5 rounded-full hover:bg-neutral" onClick={zoomOut}>
+        <MagnifyingGlassMinus className="text-on-surface" size={20} />
+      </button>
+    </div>
   );
 }

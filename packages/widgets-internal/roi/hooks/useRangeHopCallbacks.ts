@@ -1,14 +1,14 @@
 import { Currency, Rounding } from "@pancakeswap/sdk";
-import { FeeAmount, tickToPrice, TICK_SPACINGS } from "@pancakeswap/v3-sdk";
+import { FeeAmount, TICK_SPACINGS, tickToPrice } from "@pancakeswap/v3-sdk";
 import { useCallback, useMemo } from "react";
 
 export function useRangeHopCallbacks(
-  baseCurrency: Currency | undefined,
-  quoteCurrency: Currency | undefined,
-  feeAmount: FeeAmount | undefined,
-  tickLower: number | undefined,
-  tickUpper: number | undefined,
-  tickCurrent: number | undefined
+  baseCurrency?: Currency | null,
+  quoteCurrency?: Currency | null,
+  feeAmount?: FeeAmount,
+  tickLower?: number,
+  tickUpper?: number,
+  tickCurrent?: number
 ) {
   const baseToken = useMemo(() => baseCurrency?.wrapped, [baseCurrency]);
   const quoteToken = useMemo(() => quoteCurrency?.wrapped, [quoteCurrency]);

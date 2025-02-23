@@ -1,4 +1,3 @@
-import { ChainId } from '@pancakeswap/chains'
 import { useDebounce, usePropsChanged } from '@pancakeswap/hooks'
 import { Currency, CurrencyAmount, Native, TradeType } from '@pancakeswap/sdk'
 import {
@@ -9,7 +8,7 @@ import {
   SmartRouterTrade,
 } from '@pancakeswap/smart-router/evm'
 import { AbortControl } from '@pancakeswap/utils/abortControl'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from 'react'
 
 import { QUOTING_API } from 'config/constants/endpoints'
@@ -138,6 +137,7 @@ function bestTradeHookFactory({
     const { gasPrice } = useFeeDataWithGasPrice()
     const gasLimit = useMulticallGasLimit(currency?.chainId)
     const currenciesUpdated = usePropsChanged(baseCurrency, currency)
+    const queryClient = useQueryClient()
 
     const keepPreviousDataRef = useRef<boolean>(true)
 
@@ -147,7 +147,7 @@ function bestTradeHookFactory({
 
     const blockNumber = useCurrentBlock()
     const {
-      refresh,
+      refresh: refreshPools,
       pools: candidatePools,
       loading,
       syncing,
@@ -185,6 +185,8 @@ function bestTradeHookFactory({
       fetchStatus,
       isPreviousData,
       error,
+      dataUpdatedAt,
+      refetch,
     } = useQuery({
       queryKey: [
         key,
@@ -274,6 +276,15 @@ function bestTradeHookFactory({
     const isValidating = fetchStatus === 'fetching'
     const isLoading = status === 'loading' || isPreviousData
 
+    const refresh = useCallback(async () => {
+      await refreshPools()
+      await queryClient.invalidateQueries({
+        queryKey: [key],
+        refetchType: 'none',
+      })
+      refetch()
+    }, [refreshPools, queryClient, refetch])
+
     return {
       refresh,
       trade,
@@ -282,6 +293,7 @@ function bestTradeHookFactory({
       error: error as Error | undefined,
       syncing:
         syncing || isValidating || (amount?.quotient?.toString() !== deferQuotient && deferQuotient !== undefined),
+      dataUpdatedAt,
     }
   }
 }
@@ -429,12 +441,6 @@ function createQuoteProvider2({ gasLimit, signal }: CreateQuoteProviderParams) {
     gasLimit,
     multicallConfigs: {
       ...BATCH_MULTICALL_CONFIGS,
-      [ChainId.BSC]: {
-        ...BATCH_MULTICALL_CONFIGS[ChainId.BSC],
-        defaultConfig: {
-          gasLimitPerCall: 1_000_000,
-        },
-      },
     },
   })
 }

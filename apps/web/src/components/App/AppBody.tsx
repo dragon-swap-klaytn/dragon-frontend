@@ -1,5 +1,7 @@
+import { Card } from '@pancakeswap/uikit'
+import clsx from 'clsx'
+import { PropsWithChildren } from 'react'
 import { styled } from 'styled-components'
-import { Card, CardProps } from '@pancakeswap/uikit'
 
 export const BodyWrapper = styled(Card)`
   border-radius: 24px;
@@ -11,6 +13,14 @@ export const BodyWrapper = styled(Card)`
 /**
  * The styled container element that wraps the content of most pages and the tabs.
  */
-export default function AppBody({ children, ...cardProps }: { children: React.ReactNode } & CardProps) {
-  return <BodyWrapper {...cardProps}>{children}</BodyWrapper>
+export default function AppBody({
+  children,
+  className,
+  maxWidth = 'max-w-md',
+}: PropsWithChildren<{ className?: string; maxWidth?: string }>) {
+  return (
+    <div className={clsx('rounded-2xl mx-auto w-full z-10 md:bg-surface-raised overflow-hidden', maxWidth, className)}>
+      {children}
+    </div>
+  )
 }

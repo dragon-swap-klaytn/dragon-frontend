@@ -1,67 +1,52 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { CurrencyAmount, WNATIVE } from '@pancakeswap/sdk'
+import { CAKE_SYMBOL } from '@pancakeswap/tokens'
 import {
-  AutoRow,
-  CardBody,
-  Heading,
-  Flex,
-  Slider,
-  Button,
-  Text,
-  ColumnCenter,
-  ArrowDownIcon,
-  AutoColumn,
+  ButtonV2,
+  ContainerV2,
+  CurrencyLogoWithAmount,
+  CurrencyLogoWithSymbol,
+  Notification,
+  PercentageSlider,
+  TagV2,
+  ToggleSwitch,
   useModal,
-  RowBetween,
-  RowFixed,
-  Toggle,
-  Box,
-  Tag,
-  Message,
 } from '@pancakeswap/uikit'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
-import { CAKE_SYMBOL } from '@pancakeswap/tokens'
 
-import { NonfungiblePositionManager, MasterChefV3 } from '@pancakeswap/v3-sdk'
+import { useDebouncedChangeHandler } from '@pancakeswap/hooks'
+import { useUserSlippage } from '@pancakeswap/utils/user'
+import { MasterChefV3, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
 import { AppBody, AppHeader } from 'components/App'
-import { CurrencyLogo, DoubleCurrencyLogo } from 'components/Logo'
+import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
+import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import useLocalSelector from 'contexts/LocalRedux/useSelector'
+import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
+import useNativeCurrency from 'hooks/useNativeCurrency'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useDerivedV3BurnInfo } from 'hooks/v3/useDerivedV3BurnInfo'
 import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
-import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo, useState } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useUserSlippage } from '@pancakeswap/utils/user'
+import { hexToBigInt } from 'viem'
 import Page from 'views/Page'
 import { useSendTransaction, useWalletClient } from 'wagmi'
-import useLocalSelector from 'contexts/LocalRedux/useSelector'
-import { styled } from 'styled-components'
-import { useDebouncedChangeHandler } from '@pancakeswap/hooks'
-import { LightGreyCard } from 'components/Card'
-import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
-import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
-import useNativeCurrency from 'hooks/useNativeCurrency'
-import { hexToBigInt } from 'viem'
 
 import { RangeTag } from 'components/RangeTag'
-import Divider from 'components/Divider'
-import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmount'
-import { basisPointsToPercent } from 'utils/exchange'
-import { getViemClients } from 'utils/viem'
 import { calculateGasMargin } from 'utils'
+import { basisPointsToPercent } from 'utils/exchange'
+import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmount'
+import { getViemClients } from 'utils/viem'
 
+import { ArrowDown } from '@phosphor-icons/react'
+import ConnectWalletButton from 'components/ConnectWalletButton'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { isUserRejected } from 'utils/sentry'
+import { toChecksumToken } from 'utils/toChecksumToken'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useBurnV3ActionHandlers } from './form/hooks'
-
-const BorderCard = styled.div`
-  border: solid 1px ${({ theme }) => theme.colors.cardBorder};
-  border-radius: 16px;
-  padding: 16px;
-`
 
 // redirect invalid tokenIds
 export default function RemoveLiquidityV3() {
@@ -83,7 +68,7 @@ export default function RemoveLiquidityV3() {
 function Remove({ tokenId }: { tokenId?: bigint }) {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   // flag for receiving WNATIVE
@@ -115,7 +100,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
     feeValue1,
     outOfRange,
     error,
-  } = useDerivedV3BurnInfo(position, percent, receiveWNATIVE)
+  } = useDerivedV3BurnInfo({ position, percent, asWNATIVE: receiveWNATIVE })
 
   const { onPercentSelect } = useBurnV3ActionHandlers()
 
@@ -240,66 +225,14 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
   const removed = position?.liquidity === 0n
 
-  const price0 = useStablecoinPrice(liquidityValue0?.currency?.wrapped ?? undefined, { enabled: !!feeValue0 })
-  const price1 = useStablecoinPrice(liquidityValue1?.currency?.wrapped ?? undefined, { enabled: !!feeValue1 })
-
-  const modalHeader = useCallback(() => {
-    return (
-      <>
-        <RowBetween alignItems="flex-end">
-          <Text fontSize={16} fontWeight={500}>
-            {t('Pooled')} {liquidityValue0?.currency?.symbol}:
-          </Text>
-          <RowFixed>
-            <Text fontSize={16} fontWeight={500} marginLeft="6px">
-              {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
-            </Text>
-            <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={liquidityValue0?.currency} />
-          </RowFixed>
-        </RowBetween>
-        <RowBetween alignItems="flex-end">
-          <Text fontSize={16} fontWeight={500}>
-            {t('Pooled')} {liquidityValue1?.currency?.symbol}:
-          </Text>
-          <RowFixed>
-            <Text fontSize={16} fontWeight={500} marginLeft="6px">
-              {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
-            </Text>
-            <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={liquidityValue1?.currency} />
-          </RowFixed>
-        </RowBetween>
-        {feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) ? (
-          <>
-            <Text fontSize={12} textAlign="left" padding="8px 0 0 0">
-              {t('You will also collect fees earned from this position.')}
-            </Text>
-            <RowBetween>
-              <Text fontSize={16} fontWeight={500}>
-                {feeValue0?.currency?.symbol} {t('Fees Earned')}:
-              </Text>
-              <RowFixed>
-                <Text fontSize={16} fontWeight={500} marginLeft="6px">
-                  {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
-                </Text>
-                <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={feeValue0?.currency} />
-              </RowFixed>
-            </RowBetween>
-            <RowBetween>
-              <Text fontSize={16} fontWeight={500}>
-                {feeValue1?.currency?.symbol} {t('Fees Earned')}:
-              </Text>
-              <RowFixed>
-                <Text fontSize={16} fontWeight={500} marginLeft="6px">
-                  {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
-                </Text>
-                <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={feeValue1?.currency} />
-              </RowFixed>
-            </RowBetween>
-          </>
-        ) : null}
-      </>
-    )
-  }, [feeValue0, feeValue1, liquidityValue0, liquidityValue1, t])
+  const price0 = useStablecoinPrice(
+    liquidityValue0?.currency?.wrapped ? toChecksumToken(liquidityValue0.currency.wrapped) : undefined,
+    { enabled: !!feeValue0 },
+  )
+  const price1 = useStablecoinPrice(
+    liquidityValue1?.currency?.wrapped ? toChecksumToken(liquidityValue1.currency.wrapped) : undefined,
+    { enabled: !!feeValue1 },
+  )
 
   const router = useRouter()
 
@@ -319,7 +252,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
   const pendingText = useMemo(
     () =>
-      t('Removing %amountA% %symbolA% and %amountB% %symbolB%', {
+      t('Removing {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
         amountA: liquidityValue0?.toSignificant(6),
         symbolA: liquidityValue0?.currency?.symbol,
         amountB: liquidityValue1?.toSignificant(6),
@@ -338,21 +271,66 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
         minHeight: 'auto',
       }}
       errorMessage={errorMessage}
-      content={() => (
+      content={
         <ConfirmationModalContent
-          topContent={modalHeader}
-          bottomContent={() => (
-            <Button width="100%" mt="16px" onClick={onRemove}>
+          topContent={
+            <>
+              <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
+
+              <ContainerV2 className="mt-2">
+                <CurrencyLogoWithAmount
+                  currencyA={liquidityValue0?.currency}
+                  amount={<FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
+                  symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
+                  className="pb-3 border-b border-border"
+                />
+                <CurrencyLogoWithAmount
+                  currencyA={liquidityValue1?.currency}
+                  amount={<FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
+                  symbol={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
+                  className="pt-3"
+                />
+              </ContainerV2>
+
+              {feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) ? (
+                <div className="pt-4 mt-4">
+                  <p className="text-sm text-on-surface">
+                    {t('You will also collect fees earned from this position.')}
+                  </p>
+
+                  <h5 className="text-xs text-on-surface-subtle mt-3">{t('earned fees')}</h5>
+
+                  <ContainerV2 className="mt-2">
+                    <CurrencyLogoWithAmount
+                      currencyA={feeValue0?.currency}
+                      amount={<FormattedCurrencyAmount currencyAmount={feeValue0} />}
+                      symbol={`${feeValue0?.currency?.symbol} ${t('Fees Earned')}`}
+                      className="pb-3 border-b border-border"
+                    />
+                    <CurrencyLogoWithAmount
+                      currencyA={feeValue1?.currency}
+                      amount={<FormattedCurrencyAmount currencyAmount={feeValue1} />}
+                      symbol={`${feeValue1?.currency?.symbol} ${t('Fees Earned')}`}
+                      className="pt-3"
+                    />
+                  </ContainerV2>
+                </div>
+              ) : null}
+            </>
+          }
+          bottomContent={
+            <ButtonV2 fullWidth onClick={onRemove} className="mt-6" variant="primary">
               {t('Remove')}
-            </Button>
-          )}
+            </ButtonV2>
+          }
         />
-      )}
+      }
       pendingText={pendingText}
     />,
     true,
     true,
     'TransactionConfirmationModalRemoveLiquidity',
+    [attemptingTxn, liquidityValue0, liquidityValue1, feeValue0, feeValue1, txnHash],
   )
 
   const showCollectAsWNative = Boolean(
@@ -369,180 +347,142 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
       <AppBody>
         <AppHeader
           backTo={`/liquidity/${tokenId}`}
-          title={t('Remove %assetA%-%assetB% Liquidity', {
+          title={t('Remove {{assetA}}-{{assetB}} Liquidity', {
             assetA: liquidityValue0?.currency?.symbol ?? '',
             assetB: liquidityValue1?.currency?.symbol ?? '',
           })}
           noConfig
         />
-        <CardBody>
-          <AutoRow justifyContent="space-between" mb="24px">
-            <Box>
-              <Flex>
-                <DoubleCurrencyLogo
-                  size={24}
-                  currency0={liquidityValue0?.currency}
-                  currency1={liquidityValue1?.currency}
+        <div className="p-5 md:p-8">
+          <div className="flex items-center gap-2 flex-wrap w-full justify-between">
+            <div className="flex flex-col items-start space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <CurrencyLogoWithSymbol
+                  currencyA={liquidityValue0?.currency}
+                  currencyB={liquidityValue1?.currency}
+                  symbol={`${liquidityValue0?.currency?.symbol}-${liquidityValue1?.currency?.symbol} LP`}
+                  symbolClassName="text-on-surface"
                 />
-                <Heading ml="8px" as="h2">
-                  {liquidityValue0?.currency?.symbol}-{liquidityValue1?.currency?.symbol} LP
-                </Heading>
-              </Flex>
-              <Text color="textSubtle">#{tokenId?.toString()}</Text>
-            </Box>
 
-            <Flex>
-              {isStakedInMCv3 && (
-                <Tag mr="8px" outline variant="warning">
-                  {t('Farming')}
-                </Tag>
-              )}
-              {liquidityValue0 && liquidityValue1 ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
-            </Flex>
-          </AutoRow>
-          <Text fontSize="12px" color="secondary" bold textTransform="uppercase" mb="4px">
-            {t('Amount of Liquidity to Remove')}
-          </Text>
-          <BorderCard style={{ padding: '16px' }}>
-            <Text fontSize="40px" bold mb="16px" style={{ lineHeight: 1 }}>
-              {percentForSlider}%
-            </Text>
-            <Slider
-              name="lp-amount"
-              min={0}
-              max={100}
-              value={percentForSlider}
-              onValueChanged={handleChangePercent}
-              mb="16px"
+                {isStakedInMCv3 && <TagV2 color="orange">{t('Farming')}</TagV2>}
+                {liquidityValue0 && liquidityValue1 ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
+              </div>
+
+              <h4 className="text-sm text-on-surface-subtlest">V3 LP #{tokenId?.toString()}</h4>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <SectionTitle>{t('Amount of Liquidity to Remove')}</SectionTitle>
+
+            <PercentageSlider
+              percentForSlider={percentForSlider}
+              handleChangePercent={handleChangePercent}
+              onPercentSelect={(p) => onPercentSelect(p === 'Max' ? 100 : +p)}
+              className="mt-2"
             />
-            <Flex flexWrap="wrap" justifyContent="space-evenly">
-              <Button variant="tertiary" scale="sm" onClick={() => onPercentSelect(25)}>
-                25%
-              </Button>
-              <Button variant="tertiary" scale="sm" onClick={() => onPercentSelect(50)}>
-                50%
-              </Button>
-              <Button variant="tertiary" scale="sm" onClick={() => onPercentSelect(75)}>
-                75%
-              </Button>
-              <Button variant="tertiary" scale="sm" onClick={() => onPercentSelect(100)}>
-                {t('Max')}
-              </Button>
-            </Flex>
-          </BorderCard>
-          <ColumnCenter>
-            <ArrowDownIcon color="textSubtle" width="24px" my="16px" />
-          </ColumnCenter>
-          <AutoColumn gap="8px" mb="16px">
-            <Text bold color="secondary" fontSize="12px" textTransform="uppercase">
-              {t('You will receive')}
-            </Text>
-            <LightGreyCard>
-              <Flex justifyContent="space-between" as="label" alignItems="center">
-                <Flex alignItems="center">
-                  <CurrencyLogo currency={liquidityValue0?.currency} />
-                  <Text small color="textSubtle" id="remove-liquidity-tokena-symbol" ml="4px">
-                    {t('Pooled')} {liquidityValue0?.currency?.symbol}
-                  </Text>
-                </Flex>
-                <Flex>
-                  <Text small>{formatCurrencyAmount(liquidityValue0, 4, locale)}</Text>
-                </Flex>
-              </Flex>
-              <Flex justifyContent="flex-end" mb="8px">
-                <Text fontSize="10px" color="textSubtle" ml="4px">
-                  {liquidityValue0 && price0
-                    ? `~$${price0.quote(liquidityValue0?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                    : ''}
-                </Text>
-              </Flex>
-              <Flex justifyContent="space-between" as="label" alignItems="center">
-                <Flex alignItems="center">
-                  <CurrencyLogo currency={liquidityValue1?.currency} />
-                  <Text small color="textSubtle" id="remove-liquidity-tokenb-symbol" ml="4px">
-                    {t('Pooled')} {liquidityValue1?.currency?.symbol}
-                  </Text>
-                </Flex>
-                <Flex>
-                  <Text small>{formatCurrencyAmount(liquidityValue1, 4, locale)}</Text>
-                </Flex>
-              </Flex>
-              <Flex justifyContent="flex-end" mb="8px">
-                <Text fontSize="10px" color="textSubtle" ml="4px">
-                  {liquidityValue1 && price1
-                    ? `~$${price1.quote(liquidityValue1?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                    : ''}
-                </Text>
-              </Flex>
-              <Divider />
-              <Flex justifyContent="space-between" as="label" alignItems="center">
-                <Flex alignItems="center">
-                  <CurrencyLogo currency={feeValue0?.currency} />
-                  <Text small color="textSubtle" id="remove-liquidity-tokena-symbol" ml="4px">
-                    {feeValue0?.currency?.symbol} {t('Fee Earned')}
-                  </Text>
-                </Flex>
-                <Flex>
-                  <Text small>{formatCurrencyAmount(feeValue0, 4, locale)}</Text>
-                </Flex>
-              </Flex>
-              <Flex justifyContent="flex-end" mb="8px">
-                <Text fontSize="10px" color="textSubtle" ml="4px">
-                  {feeValue0 && price0
-                    ? `~$${price0.quote(feeValue0?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                    : ''}
-                </Text>
-              </Flex>
-              <Flex justifyContent="space-between" as="label" alignItems="center">
-                <Flex alignItems="center">
-                  <CurrencyLogo currency={feeValue1?.currency} />
-                  <Text small color="textSubtle" id="remove-liquidity-tokena-symbol" ml="4px">
-                    {feeValue1?.currency?.symbol} {t('Fee Earned')}
-                  </Text>
-                </Flex>
-                <Flex>
-                  <Text small>{formatCurrencyAmount(feeValue1, 4, locale)}</Text>
-                </Flex>
-              </Flex>
-              <Flex justifyContent="flex-end" mb="8px">
-                <Text fontSize="10px" color="textSubtle" ml="4px">
-                  {feeValue1 && price1
-                    ? `~$${price1.quote(feeValue1?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                    : ''}
-                </Text>
-              </Flex>
-            </LightGreyCard>
-          </AutoColumn>
-          {showCollectAsWNative && (
-            <Flex justifyContent="space-between" alignItems="center" mb="16px">
-              <Text mr="8px">
-                {t('Collect as')} {nativeWrappedSymbol}
-              </Text>
-              <Toggle
-                id="receive-as-wnative"
-                scale="sm"
-                checked={receiveWNATIVE}
-                onChange={() => setReceiveWNATIVE((prevState) => !prevState)}
+          </div>
+
+          <ArrowDown size={24} className="text-on-surface my-4 mx-auto" />
+
+          <div>
+            <div className="w-full flex items-center space-x-2 justify-between">
+              <SectionTitle>{t('You will receive')}</SectionTitle>
+
+              {showCollectAsWNative && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-[13px] text-on-surface-subtlest">
+                    {t('Collect as')} {nativeWrappedSymbol}
+                  </span>
+
+                  <ToggleSwitch
+                    activated={receiveWNATIVE}
+                    setActivated={() => setReceiveWNATIVE((prevState) => !prevState)}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="mt-2">
+              <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
+
+              <CurrencyLogoWithAmount
+                currencyA={liquidityValue0?.currency}
+                symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
+                amount={formatCurrencyAmount(liquidityValue0, 4, locale)}
+                value={
+                  price0 && liquidityValue0
+                    ? `~$${price0.quote(liquidityValue0.wrapped).toFixed(2, { groupSeparator: ',' })}`
+                    : ''
+                }
+                className="border-y border-border py-2 mt-2"
               />
-            </Flex>
-          )}
+
+              <CurrencyLogoWithAmount
+                currencyA={liquidityValue1?.currency}
+                symbol={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
+                amount={formatCurrencyAmount(liquidityValue1, 4, locale)}
+                value={
+                  price1 && liquidityValue1
+                    ? `~$${price1.quote(liquidityValue1.wrapped).toFixed(2, { groupSeparator: ',' })}`
+                    : ''
+                }
+                className="border-b border-border py-2"
+              />
+
+              <h5 className="text-xs text-on-surface-subtle mt-6">{t('earned fees')}</h5>
+
+              <CurrencyLogoWithAmount
+                currencyA={feeValue0?.currency}
+                symbol={`${feeValue0?.currency?.symbol} ${t('Fee Earned')}`}
+                amount={formatCurrencyAmount(feeValue0, 4, locale)}
+                value={
+                  price0 && feeValue0 ? `~$${price0.quote(feeValue0.wrapped).toFixed(2, { groupSeparator: ',' })}` : ''
+                }
+                className="border-y border-border py-2 mt-2"
+              />
+              <CurrencyLogoWithAmount
+                currencyA={feeValue1?.currency}
+                symbol={`${feeValue1?.currency?.symbol} ${t('Fee Earned')}`}
+                amount={formatCurrencyAmount(feeValue1, 4, locale)}
+                value={
+                  price1 && feeValue1 ? `~$${price1.quote(feeValue1.wrapped).toFixed(2, { groupSeparator: ',' })}` : ''
+                }
+                className="border-b border-border py-2"
+              />
+            </div>
+          </div>
+
           {isStakedInMCv3 ? (
-            <Message variant="primary" mb="20px">
-              {t('This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed %cake% to your wallet.', {
-                cake: CAKE_SYMBOL
-              })}
-            </Message>
+            <Notification variant="info" className="mt-4" nStyle="highlight">
+              {t(
+                'This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed {{cake}} to your wallet.',
+                {
+                  cake: CAKE_SYMBOL,
+                },
+              )}
+            </Notification>
           ) : null}
 
-          <Button
-            disabled={attemptingTxn || removed || Boolean(error)}
-            width="100%"
-            onClick={onPresentRemoveLiquidityModal}
-          >
-            {removed ? t('Closed') : error ?? t('Remove')}
-          </Button>
-        </CardBody>
+          {!account ? (
+            <ConnectWalletButton className="mt-6" />
+          ) : (
+            <ButtonV2
+              disabled={attemptingTxn || removed || Boolean(error)}
+              fullWidth
+              onClick={onPresentRemoveLiquidityModal}
+              className="mt-6"
+              variant="primary"
+            >
+              {removed ? t('Closed') : error ?? t('Remove')}
+            </ButtonV2>
+          )}
+        </div>
       </AppBody>
     </Page>
   )
+}
+
+export function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-xs text-on-surface-brand">{children}</h3>
 }

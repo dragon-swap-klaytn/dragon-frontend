@@ -1,6 +1,6 @@
-import { PublicClient, parseUnits } from 'viem'
 import { ChainId } from '@pancakeswap/chains'
 import chunk from 'lodash/chunk'
+import { PublicClient, parseUnits } from 'viem'
 import { SerializedStableFarmConfig } from '../types'
 
 const stableSwapAbi = [
@@ -33,7 +33,7 @@ const stableSwapAbi = [
 
 export async function fetchStableFarmData(
   farms: SerializedStableFarmConfig[],
-  chainId = ChainId.BSC,
+  chainId = ChainId.KLAYTN,
   provider: ({ chainId }: { chainId: number }) => PublicClient,
 ) {
   const calls = farms.flatMap(

@@ -69,15 +69,25 @@
       "import": "./dist/connectors/trustWallet.mjs",
       "require": "./dist/connectors/trustWallet.js"
     },
-    "./connectors/kaikas": {
-      "types": "./dist/connectors/kaikas.d.ts",
-      "import": "./dist/connectors/kaikas.mjs",
-      "require": "./dist/connectors/kaikas.js"
+    "./connectors/kaiaWallet": {
+      "types": "./dist/connectors/kaiaWallet.d.ts",
+      "import": "./dist/connectors/kaiaWallet.mjs",
+      "require": "./dist/connectors/kaiaWallet.js"
     },
     "./connectors/klip": {
       "types": "./dist/connectors/klip.d.ts",
       "import": "./dist/connectors/klip.mjs",
       "require": "./dist/connectors/klip.js"
+    },
+    "./connectors/okxWallet": {
+      "types": "./dist/connectors/okxWallet.d.ts",
+      "import": "./dist/connectors/okxWallet.mjs",
+      "require": "./dist/connectors/okxWallet.js"
+    },
+    "./connectors/tokenPocket": {
+      "types": "./dist/connectors/tokenPocket.d.ts",
+      "import": "./dist/connectors/tokenPocket.mjs",
+      "require": "./dist/connectors/tokenPocket.js"
     }
   },
   "peerDependenciesMeta": {

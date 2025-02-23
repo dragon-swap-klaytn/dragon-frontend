@@ -1,4 +1,4 @@
-import { ChainId, chainNames, isTestnetChainId } from '@pancakeswap/chains'
+import { chainNames, isTestnetChainId } from '@pancakeswap/chains'
 import { Pool } from '@pancakeswap/v3-sdk'
 import groupBy from 'lodash/groupBy'
 import { isAddressEqual } from 'viem'
@@ -8,10 +8,7 @@ import { farmsV3ConfigChainMap } from '../constants/v3'
 import { supportedChainIdV3 } from '../src'
 import { CommonPrice, getFarmsPrices } from '../src/fetchFarmsV3'
 
-const tokenListMap = {
-  [ChainId.BSC]: 'https://tokens.pancakeswap.finance/pancakeswap-extended.json',
-  [ChainId.ETHEREUM]: 'https://tokens.pancakeswap.finance/pancakeswap-eth-default.json',
-}
+const tokenListMap: { [chainId: number]: string } = {}
 
 describe('Config farms V3', async () => {
   const tokenListByChain = {}

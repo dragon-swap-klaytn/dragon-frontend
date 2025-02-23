@@ -1,4 +1,4 @@
-import getTokenIconSrcFromSs from "@pancakeswap/utils/getTokenIconSrcFromSs";
+import getTokenIconSrc from "@pancakeswap/utils/getTokenIconSrc";
 import React from "react";
 import { styled } from "styled-components";
 import { ZERO_ADDRESS } from "../../../tokens";
@@ -24,7 +24,7 @@ const Icon: React.FC<React.PropsWithChildren<IconProps>> = (props) => {
   return (
     <IconWrapper {...props}>
       <img
-        src={getTokenIconSrcFromSs(ZERO_ADDRESS) || "/images/klaytn-logo.svg"}
+        src={getTokenIconSrc(ZERO_ADDRESS) || "/images/klaytn-logo.svg"}
         alt="pcs"
         width={props.width}
         height={props.height ?? props.width}

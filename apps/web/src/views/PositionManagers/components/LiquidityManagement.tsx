@@ -155,7 +155,7 @@ export const LiquidityManagement = memo(function LiquidityManagement({
           />
         </>
       ) : !account ? (
-        <ConnectWalletButton mt="24px" width="100%" />
+        <ConnectWalletButton />
       ) : (
         <CardSection title={t('Start earning')}>
           <Button variant="primary" width="100%" onClick={showAddLiquidityModal}>

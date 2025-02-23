@@ -13,14 +13,7 @@ import { z } from 'zod'
 import { FarmKV } from './kv'
 import { viemProviders } from './provider'
 
-export const V3_SUBGRAPH_CLIENTS_CHAIN_IDS = [
-  ChainId.ETHEREUM,
-  ChainId.GOERLI,
-  ChainId.BSC,
-  ChainId.BSC_TESTNET,
-  ChainId.KLAYTN,
-  ChainId.KLAYTN_TESTNET,
-] as const
+export const V3_SUBGRAPH_CLIENTS_CHAIN_IDS = [ChainId.KLAYTN, ChainId.KLAYTN_TESTNET] as const
 
 type SupportChainId = (typeof V3_SUBGRAPH_CLIENTS_CHAIN_IDS)[number]
 

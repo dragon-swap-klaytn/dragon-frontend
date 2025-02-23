@@ -1,29 +1,26 @@
-import { useMemo } from 'react'
 import { useTranslation } from '@pancakeswap/localization'
-import { styled } from 'styled-components'
-import { Flex, Text, Box, LinkExternal, useTooltip } from '@pancakeswap/uikit'
+import { ExternalLink, Text, useTooltip } from '@pancakeswap/uikit'
+import clsx from 'clsx'
+import { PropsWithChildren, useMemo } from 'react'
 import { ConfirmModalState, PendingConfirmModalState } from '../types'
 
-const StyledLinkExternal = styled(LinkExternal)`
-  &:hover {
-    text-decoration: initial;
-  }
-`
+function StepsContainer({ children }: PropsWithChildren) {
+  return (
+    <div className="flex items-center w-[100px] h-2 rounded-[4px] mx-auto overflow-hidden bg-neutral">{children}</div>
+  )
+}
 
-const StepsContainer = styled(Flex)`
-  width: 100px;
-  height: 8px;
-  border-radius: 4px;
-  margin: 16px auto auto auto;
-  overflow: hidden;
-  background: ${({ theme }) => theme.colors.input};
-`
-
-const Step = styled('div')<{ active: boolean; width: string }>`
-  height: 100%;
-  width: ${({ width }) => width};
-  background: ${({ theme, active }) => (active ? theme.colors.secondary : theme.colors.input)};
-`
+function Step({ active, width }: { active: boolean; width: string }) {
+  return (
+    <div
+      style={{ width }}
+      className={clsx('h-full', {
+        'bg-brand': active,
+        'bg-surface-disable': !active,
+      })}
+    />
+  )
+}
 
 interface ApproveStepFlowProps {
   confirmModalState: ConfirmModalState
@@ -48,10 +45,9 @@ export const ApproveStepFlow: React.FC<React.PropsWithChildren<ApproveStepFlowPr
   const hideStepIndicators = useMemo(() => pendingModalSteps.length === 1, [pendingModalSteps])
 
   return (
-    <Box mt="32px">
-      <Text fontSize="12px" textAlign="center" color="textSubtle">
-        {t('Proceed in your wallet')}
-      </Text>
+    <div className="mt-7 flex flex-col items-center space-y-3">
+      <p className="text-xs text-center text-gray-200">{t('Proceed in your wallet')}</p>
+
       {!hideStepIndicators && (
         <>
           <StepsContainer>
@@ -63,30 +59,24 @@ export const ApproveStepFlow: React.FC<React.PropsWithChildren<ApproveStepFlowPr
             <Step active={confirmModalState === ConfirmModalState.PENDING_CONFIRMATION} width={stepWidth} />
           </StepsContainer>
           {confirmModalState === ConfirmModalState.RESETTING_APPROVAL && (
-            <StyledLinkExternal
-              external
-              margin="16px auto auto auto"
-              href="https://docs.dgswap.io/products/faq#why-do-i-need-to-reset-approval-on-usdt-before-enabling-approving"
-            >
-              <Text color="primary">{t('Why resetting approval')}</Text>
-            </StyledLinkExternal>
+            <ExternalLink href="https://docs.dgswap.io/products/faq#why-do-i-need-to-reset-approval-on-usdt-before-enabling-approving">
+              <span>{t('Why resetting approval')}</span>
+            </ExternalLink>
           )}
           {confirmModalState === ConfirmModalState.APPROVING_TOKEN && (
-            <StyledLinkExternal
-              external
-              margin="16px auto auto auto"
-              href="https://docs.dgswap.io/products/how-to-trade"
-            >
-              <Text color="primary">{t('Why')}</Text>
-              <Text m="0 2px" color="primary" style={{ borderBottom: '1px dashed' }} ref={targetRef}>
+            <ExternalLink href="https://docs.dgswap.io/products/how-to-trade" className="text-on-surface">
+              <span>{t('Why')}</span>&nbsp;
+              <span ref={targetRef} className="font-bold">
+                &nbsp;
                 {t('approving')}
-              </Text>
+              </span>
+              &nbsp;
+              <span>{t('this?')}</span>
               {tooltipVisible && tooltip}
-              <Text color="primary">{t('this?')}</Text>
-            </StyledLinkExternal>
+            </ExternalLink>
           )}
         </>
       )}
-    </Box>
+    </div>
   )
 }

@@ -1,15 +1,18 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
-  BinanceChainIcon,
-  Button,
-  ButtonProps,
-  CoinbaseWalletIcon,
-  MetamaskIcon,
-  OperaIcon,
-  TokenPocketIcon,
-  TrustWalletIcon,
+    BinanceChainIcon,
+    ButtonProps,
+    ButtonV2,
+    CoinbaseWalletIcon,
+    MetamaskIcon,
+    OperaIcon,
+    TokenPocketIcon,
+    TrustWalletIcon,
 } from '@pancakeswap/uikit'
-import KaikasIcon from 'components/Svg/KaikasIcon'
+import getTokenIconSrc from '@pancakeswap/utils/getTokenIconSrc'
+import clsx from 'clsx'
+import KaikasIcon from 'components/Svg/KaiaWalletIcon'
+import { useMemo } from 'react'
 import { useAccount } from 'wagmi'
 import { canRegisterToken } from '../../utils/wallet'
 import { BAD_SRCS } from '../Logo/constants'
@@ -26,7 +29,6 @@ export interface AddToWalletButtonProps {
   tokenDecimals?: number
   tokenLogo?: string
   textOptions?: AddToWalletTextOptions
-  marginTextBetweenLogo?: string
 }
 
 const Icons = {
@@ -44,15 +46,15 @@ const getWalletText = (textOptions: AddToWalletTextOptions, tokenSymbol: string 
     textOptions !== AddToWalletTextOptions.NO_TEXT &&
     (textOptions === AddToWalletTextOptions.TEXT
       ? t('Add to Wallet')
-      : t('Add %asset% to Wallet', { asset: tokenSymbol }))
+      : t('Add {{asset}} to Wallet', { asset: tokenSymbol }))
   )
 }
 
-const getWalletIcon = (marginTextBetweenLogo: string, name?: string) => {
+const getWalletIcon = (name?: string) => {
   const iconProps = {
     width: '16px',
-    ...(marginTextBetweenLogo && { ml: marginTextBetweenLogo }),
   }
+
   if (name && Icons[name]) {
     const Icon = Icons[name]
     return <Icon {...iconProps} />
@@ -80,22 +82,23 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
   tokenAddress,
   tokenSymbol,
   tokenDecimals,
-  tokenLogo,
   textOptions = AddToWalletTextOptions.NO_TEXT,
-  marginTextBetweenLogo = '0px',
-  ...props
+  className,
 }) => {
   const { t } = useTranslation()
   const { connector, isConnected } = useAccount()
   const isCanRegisterToken = canRegisterToken()
+  const tokenLogo = useMemo(() => getTokenIconSrc(tokenAddress), [tokenAddress])
 
   if (connector && connector.name === 'Binance') return null
   if (!(connector && connector.watchAsset && isConnected)) return null
   if (!isCanRegisterToken) return null
 
   return (
-    <Button
-      {...props}
+    <ButtonV2
+      variant="primary"
+      className={clsx('flex items-center space-x-2 justify-center text-sm', className)}
+      scale="sm"
       onClick={() => {
         const image = tokenLogo ? (BAD_SRCS[tokenLogo] ? undefined : tokenLogo) : undefined
         if (!tokenAddress || !tokenSymbol) return
@@ -108,9 +111,9 @@ const AddToWalletButton: React.FC<AddToWalletButtonProps & ButtonProps> = ({
         })
       }}
     >
-      {getWalletText(textOptions, tokenSymbol, t)}
-      {getWalletIcon(marginTextBetweenLogo, connector?.name)}
-    </Button>
+      <span>{getWalletText(textOptions, tokenSymbol, t)}</span>
+      {getWalletIcon(connector?.name)}
+    </ButtonV2>
   )
 }
 

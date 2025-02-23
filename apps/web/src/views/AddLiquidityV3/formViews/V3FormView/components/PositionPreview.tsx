@@ -1,21 +1,22 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency } from '@pancakeswap/sdk'
-import { AutoColumn, RowBetween, RowFixed, Text, Heading } from '@pancakeswap/uikit'
 import { Position } from '@pancakeswap/v3-sdk'
-import { LightGreyCard } from 'components/Card'
-import { DoubleCurrencyLogo } from 'components/Logo'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
+import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
+import { RangePriceSection } from 'components/RangePriceSection'
+import { Bound } from 'config/constants/types'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
-import { ReactNode, useState, useCallback } from 'react'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-import { Bound } from 'config/constants/types'
-import Divider from 'components/Divider'
-import { RangePriceSection } from 'components/RangePriceSection'
+import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { formatPrice } from 'utils/formatCurrencyAmount'
-import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount/FormattedCurrencyAmount'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
+import { CurrencyLogoWithAmount, CurrencyLogoWithSymbol, TagV2 } from '@pancakeswap/uikit'
+import clsx from 'clsx'
 import { RangeTag } from 'components/RangeTag'
+import useAccountActiveChain from 'hooks/useAccountActiveChain'
+import { useMasterchefV3 } from 'hooks/useContract'
+import { useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
+import { useRouter } from 'next/router'
 import RateToggle from './RateToggle'
 
 export const PositionPreview = ({
@@ -24,16 +25,18 @@ export const PositionPreview = ({
   inRange,
   baseCurrencyDefault,
   ticksAtLimit,
+  className,
 }: {
   position: Position
   title?: ReactNode
   inRange: boolean
   baseCurrencyDefault?: Currency | undefined
   ticksAtLimit: { [bound: string]: boolean | undefined }
+  className?: string
 }) => {
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
 
   const currency0 = unwrappedToken(position.pool.token0)
@@ -67,77 +70,74 @@ export const PositionPreview = ({
 
   const removed = typeof position?.liquidity === 'bigint' && position?.liquidity === 0n
 
+  const router = useRouter()
+
+  const { currency } = router.query
+  const tokenId = currency ? currency[currency.length - 1] : undefined
+
+  const { account } = useAccountActiveChain()
+  const masterchefV3 = useMasterchefV3()
+  const { tokenIds: stakedTokenIds } = useV3TokenIdsByAccount(masterchefV3?.address, account)
+
+  const isStakedInMCv3 = useMemo(
+    () => Boolean(tokenId) && Boolean(stakedTokenIds.find((id) => id.toString() === tokenId)),
+    [tokenId, stakedTokenIds],
+  )
+
   return (
-    <AutoColumn gap="md" style={{ marginTop: '0.5rem' }}>
-      <RowBetween style={{ marginBottom: '0.5rem' }}>
-        <RowFixed>
-          <DoubleCurrencyLogo currency0={currency0 ?? undefined} currency1={currency1 ?? undefined} size={24} />
-          <Heading as="h2" ml="4px">
-            {currency0?.symbol}-{currency1?.symbol}
-          </Heading>
-        </RowFixed>
-        <RangeTag removed={removed} outOfRange={!inRange} />
-      </RowBetween>
+    <div className={clsx('flex flex-col', className)}>
+      <div className="w-full items-center gap-2 flex justify-between flex-wrap">
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-2 flex-wrap">
+            <CurrencyLogoWithSymbol
+              currencyA={currency0 ?? undefined}
+              currencyB={currency1 ?? undefined}
+              symbol={`${currency0?.symbol}-${currency1?.symbol}`}
+              symbolClassName="font-bold text-on-surface"
+            />
 
-      <LightGreyCard>
-        <AutoColumn gap="sm">
-          <RowBetween>
-            <RowFixed>
-              <CurrencyLogo currency={currency0} />
-              <Text ml="4px">{currency0?.symbol}</Text>
-            </RowFixed>
-            <RowFixed>
-              <Text mr="8px">
-                <FormattedCurrencyAmount currencyAmount={position.amount0} />
-              </Text>
-            </RowFixed>
-            <RowBetween justifyContent="flex-end">
-              <Text fontSize="10px" color="textSubtle" ml="4px" mr="8px">
-                {position.amount0 && price0
-                  ? `~$${price0.quote(position.amount0?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                  : ''}
-              </Text>
-            </RowBetween>
-          </RowBetween>
-          <RowBetween>
-            <RowFixed>
-              <CurrencyLogo currency={currency1} />
-              <Text ml="4px">{currency1?.symbol}</Text>
-            </RowFixed>
-            <RowFixed>
-              <Text mr="8px">
-                <FormattedCurrencyAmount currencyAmount={position.amount1} />
-              </Text>
-            </RowFixed>
-            <RowBetween justifyContent="flex-end">
-              <Text fontSize="10px" color="textSubtle" ml="4px" mr="8px">
-                {position.amount1 && price1
-                  ? `~$${price1.quote(position.amount1?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-                  : ''}
-              </Text>
-            </RowBetween>
-          </RowBetween>
-          <Divider />
-          <RowBetween>
-            <Text color="textSubtle">{t('Fee Tier')}</Text>
-            <Text>{position?.pool?.fee / 10000}%</Text>
-          </RowBetween>
-        </AutoColumn>
-      </LightGreyCard>
+            {Boolean(isStakedInMCv3) && <TagV2 color="orange">{t('Farming')}</TagV2>}
+            <RangeTag removed={removed} outOfRange={!inRange} />
+          </div>
 
-      <AutoColumn gap="md">
-        <RowBetween>
-          {title ? (
-            <Text color="secondary" bold fontSize="12px" textTransform="uppercase">
-              {title}
-            </Text>
-          ) : (
-            <div />
-          )}
+          <p className="text-sm text-on-surface-subtlest mt-2">
+            {tokenId && `V3 LP #${tokenId}`} / {position?.pool?.fee / 10000}% {t('Fee Tier')}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-col mt-8 border-t border-border">
+        <CurrencyLogoWithAmount
+          className="py-2 border-b border-border"
+          currencyA={currency0}
+          symbol={currency0?.symbol}
+          amount={<FormattedCurrencyAmount currencyAmount={position.amount0} />}
+          value={
+            position.amount0 && price0
+              ? `~$${price0.quote(position.amount0?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+              : ''
+          }
+        />
+        <CurrencyLogoWithAmount
+          className="py-2 border-b border-border"
+          currencyA={currency1}
+          symbol={currency1?.symbol}
+          amount={<FormattedCurrencyAmount currencyAmount={position.amount1} />}
+          value={
+            position.amount1 && price1
+              ? `~$${price1.quote(position.amount1?.wrapped).toFixed(2, { groupSeparator: ',' })}`
+              : ''
+          }
+        />
+      </div>
+
+      <div className="flex flex-col items-center mt-8">
+        <div className="flex items-center space-x-2 justify-between w-full">
+          <span className="text-on-surface-brand text-xs">{title}</span>
           <RateToggle currencyA={sorted ? currency0 : currency1} handleRateToggle={handleRateChange} />
-        </RowBetween>
+        </div>
 
-        <RowBetween>
+        <div className="flex items-center space-x-4 w-full mt-2">
           <RangePriceSection
             width="48%"
             title={t('Min Price')}
@@ -152,14 +152,16 @@ export const PositionPreview = ({
             currency1={baseCurrency}
             price={formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER, locale)}
           />
-        </RowBetween>
+        </div>
         <RangePriceSection
           title={t('Current Price')}
+          titleColor="text-on-surface-brand"
           currency0={quoteCurrency}
           currency1={baseCurrency}
           price={formatPrice(price, 6, locale)}
+          className="mt-4"
         />
-      </AutoColumn>
-    </AutoColumn>
+      </div>
+    </div>
   )
 }

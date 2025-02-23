@@ -5,7 +5,8 @@ import { isIfoSupported } from './isIfoSupported'
 
 export function getContractAddress(addresses: ContractAddresses, chainId?: ChainId) {
   if (!isIfoSupported(chainId)) {
-    throw new Error(`Cannot get contract address. Unsupported chain ${chainId}`)
+    // throw new Error(`Cannot get contract address. Unsupported chain ${chainId}`)
+    return '0x'
   }
   return addresses[chainId]
 }

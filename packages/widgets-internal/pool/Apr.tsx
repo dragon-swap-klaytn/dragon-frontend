@@ -1,26 +1,27 @@
 import { useCallback, useMemo } from "react";
-import { styled, css } from "styled-components";
+import { css, styled } from "styled-components";
 
 import { useTranslation } from "@pancakeswap/localization";
-import BigNumber from "bignumber.js";
-import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
 import {
-  Box,
-  Text,
-  CalculateIcon,
-  Skeleton,
-  FlexProps,
-  Button,
-  RoiCalculatorModal,
+  AlpIcon,
   Balance,
   BalanceWithLoading,
-  useModal,
+  Box,
+  Button,
+  CalculateIcon,
   Flex,
-  AlpIcon,
+  FlexProps,
+  RoiCalculatorModal,
+  Skeleton,
+  Text,
   useMatchBreakpoints,
+  useModal,
   useTooltip,
 } from "@pancakeswap/uikit";
+import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
+import BigNumber from "bignumber.js";
 
+import { Address } from "viem";
 import { DeserializedPool } from "./types";
 
 const AprLabelContainer = styled(Flex)<{ enableHover: boolean }>`
@@ -48,7 +49,7 @@ interface AprProps<T> extends FlexProps {
   performanceFee?: number;
   fontSize?: string;
   shouldShowApr: boolean;
-  account: string;
+  account: Address;
   autoCompoundFrequency: number;
   boostedApr?: number;
   boostedTooltipsText?: string;
@@ -109,7 +110,7 @@ export function Apr<T>({
       stakingTokenDecimals={stakingToken.decimals}
       apr={poolApr}
       stakingTokenSymbol={stakingToken?.symbol || ""}
-      linkLabel={t("Get %symbol%", { symbol: stakingToken?.symbol || "" })}
+      linkLabel={t("Get {{symbol}}", { symbol: stakingToken?.symbol || "" })}
       linkHref={apyModalLink}
       earningTokenSymbol={earningToken?.symbol}
       autoCompoundFrequency={autoCompoundFrequency}
@@ -129,7 +130,7 @@ export function Apr<T>({
 
   const tooltipStakeApy = useMemo(() => {
     const currentApr = vaultKey ? rawApr : apr;
-    return `${currentApr?.toLocaleString("en-US", { maximumFractionDigits: 2 })}%` ?? "0%";
+    return `${currentApr?.toLocaleString("en-US", { maximumFractionDigits: 2 })}%` || "0%";
   }, [vaultKey, rawApr, apr]);
 
   const boostedAprGreaterThanZero = useMemo(() => new BigNumber(boostedApr ?? 0).isGreaterThan(0), [boostedApr]);

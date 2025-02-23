@@ -29,24 +29,16 @@ import { useCakePrice } from 'hooks/useCakePrice'
 import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { lazy, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { styled, useTheme } from 'styled-components'
 import { logGTMClickStakeFarmEvent } from 'utils/customGTMEventTracking'
 import { V3Farm } from 'views/Farms/FarmsV3'
 import useFarmV3Actions from 'views/Farms/hooks/v3/useFarmV3Actions'
-import { BCakeV3CardView } from '../../YieldBooster/components/bCakeV3/CardView'
-import {
-  useBakeV3farmCanBoost,
-  useIsBoostedPool,
-  useUserBoostedPoolsTokenId,
-  useUserPositionInfo,
-  useVeCakeUserMultiplierBeforeBoosted,
-} from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
+import { useIsBoostedPool, useUserPositionInfo } from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
 import FarmV3StakeAndUnStake, { FarmV3LPPosition, FarmV3LPPositionDetail, FarmV3LPTitle } from './FarmV3StakeAndUnStake'
 
 const { FarmV3HarvestAction } = FarmWidget.FarmV3Table
-const QRCodeSVG = lazy(() => import('qrcode.react').then((module) => ({ default: module.QRCodeSVG })))
 
 export const ActionContainer = styled(Flex)`
   width: 100%;
@@ -122,49 +114,42 @@ const SingleFarmV3Card: React.FunctionComponent<
   const title = `${lpSymbol} (#${tokenId.toString()})`
   const liquidityUrl = `/liquidity/${tokenId.toString()}?chain=${CHAIN_QUERY_NAME[chainId ?? -1] ?? ''}`
 
-  const { updatedUserMultiplierBeforeBoosted } = useVeCakeUserMultiplierBeforeBoosted()
   const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenId.toString())
   const { updateUserPositionInfo } = useUserPositionInfo(tokenId.toString())
-  const { updateBoostedPoolsTokenId } = useUserBoostedPoolsTokenId()
   const { updateStatus } = useBoostStatus(farm.pid, tokenId.toString())
 
   const onDone = useCallback(() => {
     updateIsBoostedPool()
     updateUserPositionInfo()
-    updateBoostedPoolsTokenId()
-    updatedUserMultiplierBeforeBoosted()
     updateStatus()
-  }, [
-    updateIsBoostedPool,
-    updateUserPositionInfo,
-    updateBoostedPoolsTokenId,
-    updatedUserMultiplierBeforeBoosted,
-    updateStatus,
-  ])
+  }, [updateIsBoostedPool, updateUserPositionInfo, updateStatus])
 
-  const { onStake, onUnstake, onHarvest, attemptingTxn } = useFarmV3Actions({
+  const { onStake, onUnstake, onHarvest, attemptingTxn, dismissFarmV3Action } = useFarmV3Actions({
     tokenId: tokenId.toString(),
     reward: pendingCakeByTokenIds[position.tokenId.toString()] || 0n,
     onDone,
   })
 
-  const { farmCanBoost } = useBakeV3farmCanBoost(farm.pid)
-
   const unstakedModal = useModalV2()
+  const handleDismiss = useCallback(() => {
+    onDismiss?.()
+    dismissFarmV3Action()
+
+    unstakedModal.onDismiss()
+  }, [unstakedModal, onDismiss, dismissFarmV3Action])
 
   const showKlipQrCode = useKlipQrCondition()
 
   const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
     <ApprovalConfirmationModal
-      minWidth={['100%', null, '420px']}
-      title="Confirm Transaction"
+      title={t('Confirm Transaction')}
       content={() => ''}
       pendingText="wating confirm..."
-      hash={undefined}
       attemptingTxn
+      customOnDismiss={handleDismiss}
     />,
     true,
-    true,
+    false,
     'TxConfirmationModal',
   )
 
@@ -259,12 +244,8 @@ const SingleFarmV3Card: React.FunctionComponent<
             handleUnStake={unstakedModal.onOpen}
           />
 
-          <ModalV2 {...unstakedModal} closeOnOverlayClick>
-            <Modal
-              title={outOfRangeUnstaked ? t('Staking') : t('Unstaking')}
-              width={['100%', '100%', '420px']}
-              maxWidth={['100%', null, '420px']}
-            >
+          <ModalV2 {...unstakedModal} closeOnOverlayClick onDismiss={handleDismiss}>
+            <Modal title={outOfRangeUnstaked ? t('Staking') : t('Unstaking')} onDismiss={handleDismiss}>
               <AutoColumn gap="16px">
                 <AtomBox
                   position="relative"
@@ -288,13 +269,13 @@ const SingleFarmV3Card: React.FunctionComponent<
                       }}
                     >
                       {outOfRangeUnstaked ? (
-                        <>
+                        <p>
                           {t('Inactive positions will')}
                           <b> {t('NOT')} </b>
                           {t('earn KAIA rewards from farm.')}
-                        </>
+                        </p>
                       ) : (
-                        t('You may add or remove liquidity on the position detail page without unstake')
+                        <p>{t('You may add or remove liquidity on the position detail page without unstake')}</p>
                       )}
                       <Arrow />
                     </StyledTooltip>
@@ -308,11 +289,7 @@ const SingleFarmV3Card: React.FunctionComponent<
                 </AtomBox>
                 <LightCard>
                   <AutoColumn gap="8px">
-                    {outOfRange && (
-                      <RangeTag outOfRange ml={0} style={{ alignItems: 'center', width: 'fit-content' }}>
-                        {t('Inactive')}
-                      </RangeTag>
-                    )}
+                    {outOfRange && <RangeTag outOfRange>{t('Inactive')}</RangeTag>}
                     <FarmV3LPTitle title={title} liquidityUrl={liquidityUrl} outOfRange={outOfRange} />
                     <FarmV3LPPosition token={token} quoteToken={quoteToken} position={position} />
                     <FarmV3LPPositionDetail
@@ -375,27 +352,9 @@ const SingleFarmV3Card: React.FunctionComponent<
                 earnings={totalEarnings}
                 earningsBusd={earningsBusd}
                 pendingTx={attemptingTxn || (harvesting ?? false)}
-                disabled={!pendingCakeByTokenIds?.[position.tokenId.toString()] ?? true}
+                disabled={!pendingCakeByTokenIds?.[position.tokenId.toString()]}
                 userDataReady
                 handleHarvest={handleHarvest}
-              />
-            </RowBetween>
-          </>
-        )}
-        {farmCanBoost && (
-          <>
-            <AtomBox
-              width={{
-                xs: '100%',
-                md: 'auto',
-              }}
-              style={{ borderLeft: dividerBorderStyle, borderTop: dividerBorderStyle }}
-            />
-            <RowBetween flexDirection="column" alignItems="flex-start" flex={1} width="100%">
-              <BCakeV3CardView
-                tokenId={position.tokenId.toString()}
-                pid={farm.pid}
-                isFarmStaking={positionType === 'staked'}
               />
             </RowBetween>
           </>

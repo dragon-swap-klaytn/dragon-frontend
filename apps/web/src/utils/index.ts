@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { Currency } from '@pancakeswap/sdk'
 import { TokenAddressMap } from '@pancakeswap/token-lists'
 import { ZERO_ADDRESS } from '@pancakeswap/uikit'
-import getTokenIconSrcFromSs from '@pancakeswap/utils/getTokenIconSrcFromSs'
+import getTokenIconSrc from '@pancakeswap/utils/getTokenIconSrc'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import memoize from 'lodash/memoize'
 import { Address, getAddress } from 'viem'
@@ -22,9 +22,8 @@ export const safeGetAddress = memoize((value: any): Address | undefined => {
 })
 
 export function getBlockExploreLink(
-  data: string | number,
+  data: string | number | Address,
   type: 'transaction' | 'token' | 'address' | 'block' | 'countdown',
-  chainIdOverride?: number,
 ): string {
   const blockExplorer = 'https://kaiascope.com'
   switch (type) {
@@ -46,7 +45,7 @@ export function getBlockExploreLink(
   }
 }
 
-export function getBlockExploreName(chainIdOverride?: number) {
+export function getBlockExploreName() {
   return 'KaiaScope'
 }
 
@@ -72,10 +71,10 @@ export function getChainIcon(chainId: ChainId) {
   return (
     {
       8217:
-        getTokenIconSrcFromSs(ZERO_ADDRESS) ||
+        getTokenIconSrc(ZERO_ADDRESS) ||
         'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
       1001:
-        getTokenIconSrcFromSs(ZERO_ADDRESS) ||
+        getTokenIconSrc(ZERO_ADDRESS) ||
         'https://cdn.prod.website-files.com/666642b50954b5d26bc84836/6667a85f241d5c033f976181_KAIA%20256.png',
     }[chainId] ?? `${ASSET_CDN}/web/chains/${chainId}.png`
   )

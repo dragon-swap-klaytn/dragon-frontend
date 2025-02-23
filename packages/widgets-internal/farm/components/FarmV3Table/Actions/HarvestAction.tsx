@@ -1,7 +1,7 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { Balance, Flex, Button, Text } from "@pancakeswap/uikit";
-import { ActionContent, ActionTitles } from "./styles";
 import { CAKE_SYMBOL_VIEW } from "@pancakeswap/tokens";
+import { Balance, Button, Flex, Text } from "@pancakeswap/uikit";
+import { ActionContent, ActionTitles } from "./styles";
 
 export interface HarvestActionProps {
   earnings: number;

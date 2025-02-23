@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from '@pancakeswap/localization'
+import { Box, Text, useToast } from '@pancakeswap/uikit'
+import { ToastDescriptionWithTx } from 'components/Toast'
+import { FAST_INTERVAL } from 'config/constants'
+import forEach from 'lodash/forEach'
 import merge from 'lodash/merge'
 import pickBy from 'lodash/pickBy'
-import forEach from 'lodash/forEach'
-import { useTranslation } from '@pancakeswap/localization'
-import { usePublicClient } from 'wagmi'
-import { ToastDescriptionWithTx } from 'components/Toast'
-import { Box, Text, useToast } from '@pancakeswap/uikit'
-import { FAST_INTERVAL } from 'config/constants'
+import React, { useEffect, useMemo, useRef } from 'react'
+import { useAppDispatch } from 'state'
+import { retry, RetryableError } from 'state/multicall/retry'
 import useSWRImmutable from 'swr/immutable'
 import {
   BlockNotFoundError,
@@ -14,17 +15,16 @@ import {
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
 } from 'viem'
-import { retry, RetryableError } from 'state/multicall/retry'
-import { useAppDispatch } from 'state'
+import { usePublicClient } from 'wagmi'
 import {
-  finalizeTransaction,
   FarmTransactionStatus,
-  NonBscFarmTransactionStep,
+  finalizeTransaction,
   MsgStatus,
   NonBscFarmStepType,
+  NonBscFarmTransactionStep,
 } from './actions'
-import { useAllChainTransactions } from './hooks'
 import { fetchCelerApi } from './fetchCelerApi'
+import { useAllChainTransactions } from './hooks'
 import { TransactionDetails } from './reducer'
 
 export function shouldCheck(
@@ -73,10 +73,7 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
               }),
             )
             const toast = receipt.status === 'success' ? toastSuccess : toastError
-            toast(
-              t('Transaction receipt'),
-              <ToastDescriptionWithTx txHash={receipt.transactionHash} txChainId={chainId} />,
-            )
+            toast(t('Transaction receipt'), <ToastDescriptionWithTx txHash={receipt.transactionHash} />)
 
             merge(fetchedTransactions.current, { [transaction.hash]: transactions[transaction.hash] })
           } catch (error) {
@@ -166,7 +163,7 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
                   const toastTitle = isStakeType ? t('Staked!') : t('Unstaked!')
                   toastSuccess(
                     toastTitle,
-                    <ToastDescriptionWithTx txHash={destinationTxHash} txChainId={steps[pendingStep].chainId}>
+                    <ToastDescriptionWithTx txHash={destinationTxHash}>
                       {isStakeType
                         ? t('Your LP Token have been staked in the Farm!')
                         : t('Your LP Token have been unstaked in the Farm!')}
@@ -177,7 +174,7 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
                   const errorText = isStakeType ? t('Token fail to stake.') : t('Token fail to unstake.')
                   toastError(
                     toastTitle,
-                    <ToastDescriptionWithTx txHash={destinationTxHash} txChainId={steps[pendingStep].chainId}>
+                    <ToastDescriptionWithTx txHash={destinationTxHash}>
                       <Box>
                         <Text
                           as="span"

@@ -1,9 +1,14 @@
-import { BigintIsh, Currency, CurrencyAmount } from '@pancakeswap/sdk'
 import { ChainId } from '@pancakeswap/chains'
-import { Abi, Address } from 'viem'
-import retry from 'async-retry'
+import { BigintIsh, Currency, CurrencyAmount } from '@pancakeswap/sdk'
 import { AbortControl, isAbortError } from '@pancakeswap/utils/abortControl'
+import retry from 'async-retry'
+import { Abi, Address } from 'viem'
 
+import { mixedRouteQuoterV1ABI } from '../../abis/IMixedRouteQuoterV1'
+import { quoterV2ABI } from '../../abis/IQuoterV2'
+import { MIXED_ROUTE_QUOTER_ADDRESSES, V3_QUOTER_ADDRESSES } from '../../constants'
+import { BATCH_MULTICALL_CONFIGS } from '../../constants/multicall'
+import { BatchMulticallConfigs, ChainMap } from '../../types'
 import {
   GasModel,
   OnChainProvider,
@@ -13,22 +18,13 @@ import {
   RouteWithoutQuote,
   RouteWithQuote,
 } from '../types'
-import { mixedRouteQuoterV1ABI } from '../../abis/IMixedRouteQuoterV1'
-import { quoterV2ABI } from '../../abis/IQuoterV2'
 import { encodeMixedRouteToPath, getQuoteCurrency, isStablePool, isV2Pool, isV3Pool } from '../utils'
 import { Result } from './multicallProvider'
 import { PancakeMulticallProvider } from './multicallSwapProvider'
-import { MIXED_ROUTE_QUOTER_ADDRESSES, V3_QUOTER_ADDRESSES } from '../../constants'
-import { BatchMulticallConfigs, ChainMap } from '../../types'
-import { BATCH_MULTICALL_CONFIGS } from '../../constants/multicall'
 
 const DEFAULT_BATCH_RETRIES = 2
 
 const SUCCESS_RATE_CONFIG = {
-  [ChainId.BSC_TESTNET]: 0.1,
-  [ChainId.BSC]: 0.1,
-  [ChainId.ETHEREUM]: 0.1,
-  [ChainId.GOERLI]: 0.1,
   [ChainId.KLAYTN]: 0.1,
   [ChainId.KLAYTN_TESTNET]: 0.1,
 } as const satisfies Record<ChainId, number>
@@ -139,7 +135,7 @@ function onChainQuoteProviderFactory({ getQuoteFunctionName, getQuoterAddress, a
         const multicallConfigs =
           multicallConfigsOverride?.[chainId as ChainId] ||
           BATCH_MULTICALL_CONFIGS[chainId as ChainId] ||
-          BATCH_MULTICALL_CONFIGS[ChainId.ETHEREUM]
+          BATCH_MULTICALL_CONFIGS[ChainId.KLAYTN]
         const {
           defaultConfig: { gasLimitPerCall: defaultGasLimitPerCall, dropUnexecutedCalls },
         } = multicallConfigs

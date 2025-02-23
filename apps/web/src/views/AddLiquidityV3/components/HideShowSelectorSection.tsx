@@ -1,5 +1,7 @@
-import { AutoRow, Button, ChevronDownIcon } from '@pancakeswap/uikit'
-import { LightGreyCard } from 'components/Card'
+import { TagV2 } from '@pancakeswap/uikit'
+import { FeeAmount } from '@pancakeswap/v3-sdk'
+import { CaretRight } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { Dispatch, ReactElement, SetStateAction } from 'react'
 
 interface HideShowSelectorSectionPropsType {
@@ -8,6 +10,7 @@ interface HideShowSelectorSectionPropsType {
   setShowOptions: Dispatch<SetStateAction<boolean>>
   heading: ReactElement
   content: ReactElement
+  feeAmount?: FeeAmount
 }
 
 export default function HideShowSelectorSection({
@@ -16,32 +19,38 @@ export default function HideShowSelectorSection({
   setShowOptions,
   heading,
   content,
+  feeAmount,
 }: HideShowSelectorSectionPropsType) {
   return (
-    <LightGreyCard padding="8px" style={{ height: 'fit-content' }}>
-      <AutoRow justifyContent="space-between" marginBottom={showOptions ? '8px' : '0px'}>
+    <div className="p-4 flex flex-col space-y-3 items-start bg-neutral rounded-xl">
+      <div className="flex items-center justify-between space-x-2 w-full">
         {heading ?? <div />}
+
         {noHideButton || (
-          <Button
-            scale="sm"
+          <button
+            type="button"
             onClick={() => setShowOptions((prev) => !prev)}
-            variant="text"
-            endIcon={
-              !showOptions && (
-                <ChevronDownIcon
-                  style={{
-                    marginLeft: '0px',
-                  }}
-                  color="primary"
-                />
-              )
-            }
+            className="text-sm text-on-surface flex items-center space-x-1"
           >
-            {showOptions ? 'Hide' : 'More'}
-          </Button>
+            <span className="inline-block w-9">{showOptions ? 'Hide' : 'More'}</span>
+
+            <CaretRight
+              size={16}
+              className={clsx('text-on-surface transition', {
+                'rotate-90': !showOptions,
+              })}
+            />
+          </button>
         )}
-      </AutoRow>
-      {showOptions && content}
-    </LightGreyCard>
+      </div>
+
+      {showOptions ? (
+        content
+      ) : feeAmount ? (
+        <TagV2 color="orange">{(feeAmount / 10_000).toFixed(2)}% Pick</TagV2>
+      ) : (
+        <></>
+      )}
+    </div>
   )
 }

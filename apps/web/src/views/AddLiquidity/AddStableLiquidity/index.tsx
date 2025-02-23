@@ -53,11 +53,11 @@ export interface AddStableChildrenProps {
   stableAPR: number
   shouldShowApprovalGroup: boolean
   showFieldAApproval: boolean
-  approveACallback: () => Promise<SendTransactionResult>
+  approveACallback: () => Promise<SendTransactionResult | undefined>
   approvalA: ApprovalState
   showFieldBApproval: boolean
   approvalB: ApprovalState
-  approveBCallback: () => Promise<SendTransactionResult>
+  approveBCallback: () => Promise<SendTransactionResult | undefined>
   onAdd: () => Promise<void>
   onPresentAddLiquidityModal: () => void
   buttonDisabled: boolean
@@ -78,8 +78,8 @@ export default function AddStableLiquidity({
   currencyB,
   children,
 }: {
-  currencyA: Currency
-  currencyB: Currency
+  currencyA?: Currency
+  currencyB?: Currency
   children: (props: AddStableChildrenProps) => ReactElement
 }) {
   const { account, chainId } = useAccountActiveChain()
@@ -88,7 +88,7 @@ export default function AddStableLiquidity({
 
   const {
     t,
-    currentLanguage: { locale },
+    i18n: { language: locale },
   } = useTranslation()
   const gasPrice = useGasPrice()
 
@@ -268,7 +268,7 @@ export default function AddStableLiquidity({
           {
             summary: `Add ${amountA} ${symbolA} and ${amountB} ${symbolB}`,
             translatableSummary: {
-              text: 'Add %amountA% %symbolA% and %amountB% %symbolB%',
+              text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
               data: { amountA, symbolA, amountB, symbolB },
             },
             type: 'add-liquidity',
@@ -284,14 +284,14 @@ export default function AddStableLiquidity({
           attemptingTxn: false,
           liquidityErrorMessage:
             err && !isUserRejected(error)
-              ? t('Add liquidity failed: %message%', { message: transactionErrorToUserReadableMessage(err, t) })
+              ? t('Add liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
               : undefined,
           txHash: undefined,
         })
       })
   }
 
-  const pendingText = t('Supplying %amountA% %symbolA% and %amountB% %symbolB%', {
+  const pendingText = t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
     amountA: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_A], 4, locale),
     symbolA: currencies[Field.CURRENCY_A]?.symbol ?? '',
     amountB: formatCurrencyAmount(parsedAmounts[Field.CURRENCY_B], 4, locale),
@@ -329,11 +329,23 @@ export default function AddStableLiquidity({
       noLiquidity={noLiquidity}
       poolTokenPercentage={poolTokenPercentage}
       liquidityMinted={liquidityMinted}
-      isStable
     />,
     true,
     true,
     'addLiquidityModal',
+    [
+      noLiquidity,
+      attemptingTxn,
+      txHash,
+      pair?.liquidityToken,
+      allowedSlippage,
+      parsedAmounts,
+      currencies,
+      price,
+      noLiquidity,
+      poolTokenPercentage,
+      liquidityMinted,
+    ],
   )
 
   let isValid = !error

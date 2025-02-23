@@ -1,37 +1,32 @@
-import { styled } from "styled-components";
+import { QuestionMark } from "@phosphor-icons/react";
+import clsx from "clsx";
 import { Placement, useTooltip } from "../../hooks";
-import { BoxProps, Flex } from "../Box";
-import { HelpIcon } from "../Svg";
+import { BoxProps } from "../Box";
 
 interface Props extends BoxProps {
   text: string | React.ReactNode;
   placement?: Placement;
   size?: string;
+  background?: string;
   color?: string;
 }
-
-const QuestionWrapper = styled.div`
-  &:hover,
-  &:focus {
-    opacity: 0.7;
-  }
-`;
 
 export const QuestionHelper: React.FC<React.PropsWithChildren<Props>> = ({
   text,
   placement = "right-end",
-  size = "16px",
-  color,
-  ...props
+  size = 12,
+  background = "bg-gray-500",
+  color = "text-on-surface-subtle",
 }) => {
   const { targetRef, tooltip, tooltipVisible } = useTooltip(text, { placement });
 
   return (
-    <Flex alignItems="center" {...props} ref={targetRef}>
+    <div className="flex items-center" ref={targetRef}>
       {tooltipVisible && tooltip}
-      <QuestionWrapper as={Flex} alignItems="center">
-        <HelpIcon color={color || "textSubtle"} width={size} />
-      </QuestionWrapper>
-    </Flex>
+
+      <div className={clsx("p-0.5 rounded-full", background)}>
+        <QuestionMark className={clsx(color)} size={size} weight="bold" />
+      </div>
+    </div>
   );
 };

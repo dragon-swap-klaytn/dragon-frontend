@@ -1,5 +1,5 @@
+import { Locale } from "@pancakeswap/localization";
 import { ElementType, ReactElement, ReactNode } from "react";
-import type { Language } from "@pancakeswap/localization";
 import { FooterLinkType } from "../../components/Footer/types";
 import { MenuItemsType } from "../../components/MenuItems/types";
 import { SubMenuItemsType } from "../../components/SubMenuItems/types";
@@ -25,7 +25,7 @@ export interface NavProps {
   currentLang: string;
   buyCakeLabel: string;
   buyCakeLink: string;
-  langs: Language[];
+  langs: Locale[];
   chainId: number;
-  setLang: (lang: Language) => void;
+  setLang: (lang: Locale) => void;
 }

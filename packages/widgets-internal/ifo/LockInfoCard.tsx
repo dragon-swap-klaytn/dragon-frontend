@@ -1,5 +1,5 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { RowBetween, AutoColumn, Text, Card, CardBody } from "@pancakeswap/uikit";
+import { AutoColumn, Card, CardBody, RowBetween, Text } from "@pancakeswap/uikit";
 import { formatUnixTimestamp } from "@pancakeswap/utils/formatTimestamp";
 import BigNumber from "bignumber.js";
 import dayjs from "dayjs";
@@ -54,7 +54,7 @@ export function LockInfoCard({ amount = 0, usdPrice = 0, unlockAt = 0, ...props 
               {unlockIn}
             </Text>
             <Text fontSize="0.75rem">
-              {t("On %time%", {
+              {t("On {{time}}", {
                 time: unlockDisplay,
               })}
             </Text>

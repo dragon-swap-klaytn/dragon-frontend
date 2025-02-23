@@ -5,9 +5,10 @@ import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { CurrencySelect } from 'components/CurrencySelect'
 import { RowBetween } from 'components/Layout/Row'
+import { useBackTo } from 'hooks/use-back-to'
 import { useV2Pair } from 'hooks/usePairs'
-import { formatAmount } from 'utils/formatInfoNumbers'
 import { useLPApr } from 'state/swap/useLPApr'
+import { formatAmount } from 'utils/formatInfoNumbers'
 import { useAccount } from 'wagmi'
 import { AppHeader } from '../../components/App'
 import { CommonBasesType } from '../../components/SearchModal/types'
@@ -37,15 +38,17 @@ export function ChoosePair({
     },
   )
 
+  const { backTo } = useBackTo()
+
   return (
     <>
       <AppHeader
         title={t('Add Liquidity')}
-        subtitle={t('Receive LP tokens and earn 0.17% trading fees')}
+        subtitle={t('Receive LP tokens and earn 0.24% trading fees')}
         helper={t(
-          'Liquidity providers earn a 0.17% trading fee on all trades made for that token pair, proportional to their share of the liquidity pair.',
+          'Liquidity providers earn a 0.24% trading fee on all trades made for that token pair, proportional to their share of the liquidity pair.',
         )}
-        backTo="/liquidity"
+        backTo={backTo}
       />
       <CardBody>
         <Box>
@@ -84,7 +87,7 @@ export function ChoosePair({
       </CardBody>
       <CardFooter>
         {!account ? (
-          <ConnectWalletButton width="100%" />
+          <ConnectWalletButton />
         ) : (
           <CommitButton
             data-test="choose-pair-next"

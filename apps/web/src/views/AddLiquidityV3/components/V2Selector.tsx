@@ -1,12 +1,9 @@
-import { useState } from 'react'
-import { Text } from '@pancakeswap/uikit'
 import { useTranslation } from '@pancakeswap/localization'
-import { SelectButton } from 'components/SelectButton'
-import { EvenWidthAutoRow } from 'components/Layout/EvenWidthAutoRow'
+import { ButtonV2 } from '@pancakeswap/uikit'
 import { TOTAL_FEE } from 'config/constants/info'
-
-import HideShowSelectorSection from './HideShowSelectorSection'
+import { useState } from 'react'
 import { HandleFeePoolSelectFn, SELECTOR_TYPE } from '../types'
+import HideShowSelectorSection from './HideShowSelectorSection'
 
 export function V2Selector({
   isStable,
@@ -25,44 +22,45 @@ export function V2Selector({
       showOptions={showOptions}
       setShowOptions={setShowOptions}
       heading={
-        selectorType === SELECTOR_TYPE.STABLE ? (
-          <Text>StableSwap LP</Text>
-        ) : selectorType === SELECTOR_TYPE.V2 ? (
-          <Text>
-            V2 LP - {(TOTAL_FEE * 100).toFixed(2)} {t('fee tier')}
-          </Text>
-        ) : (
-          <Text>V3 LP</Text>
-        )
+        <span className="text-[15px] text-on-surface">
+          {selectorType === SELECTOR_TYPE.STABLE
+            ? 'StableSwap LP'
+            : selectorType === SELECTOR_TYPE.V2
+            ? `V2 LP - ${(TOTAL_FEE * 100).toFixed(2)} ${t('fee tier')}`
+            : 'V3 LP'}
+        </span>
       }
       content={
-        <EvenWidthAutoRow gap="4px">
+        <div className="grid grid-cols-2 gap-3 w-full">
           {isStable ? (
-            <>
-              <SelectButton
-                isActive={selectorType === SELECTOR_TYPE.STABLE}
-                onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.STABLE })}
-              >
-                StableSwap LP
-              </SelectButton>
-            </>
+            <ButtonV2
+              variant={selectorType === SELECTOR_TYPE.STABLE ? 'primary' : 'blank'}
+              onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.STABLE })}
+              fullWidth
+              scale="sm"
+            >
+              StableSwap LP
+            </ButtonV2>
           ) : (
-            <>
-              <SelectButton
-                isActive={selectorType === SELECTOR_TYPE.V3}
-                onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.V3 })}
-              >
-                V3 LP
-              </SelectButton>
-            </>
+            <ButtonV2
+              variant={selectorType === SELECTOR_TYPE.V3 ? 'primary' : 'blank'}
+              onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.V3 })}
+              fullWidth
+              scale="sm"
+            >
+              V3 LP
+            </ButtonV2>
           )}
-          <SelectButton
-            isActive={selectorType === SELECTOR_TYPE.V2}
+
+          <ButtonV2
+            variant={selectorType === SELECTOR_TYPE.V2 ? 'primary' : 'blank'}
             onClick={() => handleFeePoolSelect({ type: SELECTOR_TYPE.V2 })}
+            fullWidth
+            scale="sm"
           >
             V2 LP
-          </SelectButton>
-        </EvenWidthAutoRow>
+          </ButtonV2>
+        </div>
       }
     />
   )

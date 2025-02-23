@@ -1,8 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Price, Trade, TradeType } from '@pancakeswap/sdk'
-import { CAKE, USDC, USDT, STABLE_COIN } from '@pancakeswap/tokens'
+import { STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
+import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useUserSlippage } from '@pancakeswap/utils/user'
+import { useQuery } from '@tanstack/react-query'
 import { SLOW_INTERVAL } from 'config/constants'
 import { DEFAULT_INPUT_CURRENCY } from 'config/constants/exchange'
 import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
@@ -14,7 +16,6 @@ import { useAtom, useAtomValue } from 'jotai'
 import { useRouter } from 'next/router'
 import { ParsedUrlQuery } from 'querystring'
 import { useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { safeGetAddress } from 'utils'
 import { computeSlippageAdjustedAmounts } from 'utils/exchange'
 import { getTokenAddress } from 'views/Swap/components/Chart/utils'
@@ -181,7 +182,7 @@ export function useDerivedSwapInfo(
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-    inputError = t('Insufficient %symbol% balance', { symbol: amountIn.currency.symbol })
+    inputError = t('Insufficient {{symbol}} balance', { symbol: amountIn.currency.symbol })
   }
 
   return {
@@ -203,13 +204,12 @@ function parseIndependentFieldURLParameter(urlParam: any): Field {
 
 const ENS_NAME_REGEX = /^[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)?$/
 
-const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 function validatedRecipient(recipient: any): string | null {
   if (typeof recipient !== 'string') return null
   const address = safeGetAddress(recipient)
   if (address) return address
   if (ENS_NAME_REGEX.test(recipient)) return recipient
-  if (ADDRESS_REGEX.test(recipient)) return recipient
+  if (VALID_ADDRESS_REGEX.test(recipient)) return recipient
   return null
 }
 

@@ -1,20 +1,15 @@
 import { Currency, CurrencyAmount, TradeType } from '@pancakeswap/sdk'
 import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { Field } from 'state/swap/actions'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import {
-  computeSlippageAdjustedAmounts as mmComputeSlippageAdjustedAmountsWithSmartRouter,
-  computeTradePriceBreakdown as mmComputeTradePriceBreakdownWithSmartRouter,
-} from 'views/Swap/MMLinkPools/utils/exchange'
-import { MMSlippageTolerance } from 'views/Swap/MMLinkPools/components/MMSlippageTolerance'
-import { SwapModalFooter } from './SwapModalFooter'
+import SwapModalHeader from '../../components/SwapModalHeader'
 import {
   computeSlippageAdjustedAmounts as computeSlippageAdjustedAmountsWithSmartRouter,
   computeTradePriceBreakdown as computeTradePriceBreakdownWithSmartRouter,
 } from '../utils/exchange'
-import SwapModalHeader from '../../components/SwapModalHeader'
+import { SwapModalFooter } from './SwapModalFooter'
 
 /**
  * Returns true if the trade requires a confirmation of details before we can submit it
@@ -32,8 +27,6 @@ function tradeMeaningfullyDiffers(tradeA: SmartRouterTrade<TradeType>, tradeB: S
 }
 
 interface TransactionConfirmSwapContentProps {
-  isMM?: boolean
-  isRFQReady?: boolean
   trade: SmartRouterTrade<TradeType> | undefined
   originalTrade: SmartRouterTrade<TradeType> | undefined
   onAcceptChanges: () => void
@@ -48,10 +41,8 @@ interface TransactionConfirmSwapContentProps {
 
 export const TransactionConfirmSwapContent = memo<TransactionConfirmSwapContentProps>(
   function TransactionConfirmSwapContentComp({
-    isMM,
     trade,
     recipient,
-    isRFQReady,
     originalTrade,
     allowedSlippage,
     currencyBalances,
@@ -64,16 +55,12 @@ export const TransactionConfirmSwapContent = memo<TransactionConfirmSwapContentP
     )
 
     const slippageAdjustedAmounts = useMemo(
-      () =>
-        isMM
-          ? mmComputeSlippageAdjustedAmountsWithSmartRouter(trade)
-          : computeSlippageAdjustedAmountsWithSmartRouter(trade, allowedSlippage),
-      [isMM, trade, allowedSlippage],
+      () => computeSlippageAdjustedAmountsWithSmartRouter(trade, allowedSlippage),
+      [trade, allowedSlippage],
     )
     const { priceImpactWithoutFee, lpFeeAmount } = useMemo(
-      () =>
-        isMM ? mmComputeTradePriceBreakdownWithSmartRouter(trade) : computeTradePriceBreakdownWithSmartRouter(trade),
-      [isMM, trade],
+      () => computeTradePriceBreakdownWithSmartRouter(trade),
+      [trade],
     )
 
     const isEnoughInputBalance = useMemo(() => {
@@ -92,66 +79,42 @@ export const TransactionConfirmSwapContent = memo<TransactionConfirmSwapContentP
         : false
     }, [currencyBalances, trade, slippageAdjustedAmounts])
 
-    const modalHeader = useCallback(() => {
-      return trade ? (
-        <SwapModalHeader
-          inputAmount={trade.inputAmount}
-          outputAmount={trade.outputAmount}
-          currencyBalances={currencyBalances}
-          tradeType={trade.tradeType}
-          priceImpactWithoutFee={priceImpactWithoutFee ?? undefined}
-          allowedSlippage={isMM ? <MMSlippageTolerance /> : allowedSlippage}
-          slippageAdjustedAmounts={slippageAdjustedAmounts}
-          isEnoughInputBalance={isEnoughInputBalance ?? undefined}
-          recipient={recipient ?? undefined}
-          showAcceptChanges={showAcceptChanges}
-          onAcceptChanges={onAcceptChanges}
-        />
-      ) : null
-    }, [
-      isMM,
-      priceImpactWithoutFee,
-      currencyBalances,
-      allowedSlippage,
-      onAcceptChanges,
-      recipient,
-      showAcceptChanges,
-      trade,
-      slippageAdjustedAmounts,
-      isEnoughInputBalance,
-    ])
-
-    const modalBottom = useCallback(() => {
-      return trade ? (
-        <SwapModalFooter
-          trade={trade}
-          isMM={isMM}
-          isRFQReady={isRFQReady}
-          tradeType={trade.tradeType}
-          inputAmount={trade.inputAmount}
-          outputAmount={trade.outputAmount}
-          currencyBalances={currencyBalances}
-          lpFee={lpFeeAmount ?? undefined}
-          priceImpact={priceImpactWithoutFee ?? undefined}
-          disabledConfirm={showAcceptChanges}
-          slippageAdjustedAmounts={slippageAdjustedAmounts}
-          isEnoughInputBalance={isEnoughInputBalance ?? undefined}
-          onConfirm={onConfirm}
-        />
-      ) : null
-    }, [
-      isMM,
-      trade,
-      isRFQReady,
-      currencyBalances,
-      lpFeeAmount,
-      showAcceptChanges,
-      isEnoughInputBalance,
-      slippageAdjustedAmounts,
-      priceImpactWithoutFee,
-      onConfirm,
-    ])
-
-    return <ConfirmationModalContent topContent={modalHeader} bottomContent={modalBottom} />
+    return (
+      <ConfirmationModalContent
+        topContent={
+          trade ? (
+            <SwapModalHeader
+              inputAmount={trade.inputAmount}
+              outputAmount={trade.outputAmount}
+              currencyBalances={currencyBalances}
+              tradeType={trade.tradeType}
+              slippageAdjustedAmounts={slippageAdjustedAmounts}
+              isEnoughInputBalance={isEnoughInputBalance ?? undefined}
+              recipient={recipient ?? undefined}
+              showAcceptChanges={showAcceptChanges}
+              onAcceptChanges={onAcceptChanges}
+            />
+          ) : null
+        }
+        bottomContent={
+          trade ? (
+            <SwapModalFooter
+              trade={trade}
+              tradeType={trade.tradeType}
+              inputAmount={trade.inputAmount}
+              outputAmount={trade.outputAmount}
+              currencyBalances={currencyBalances}
+              lpFee={lpFeeAmount ?? undefined}
+              priceImpact={priceImpactWithoutFee ?? undefined}
+              disabledConfirm={showAcceptChanges}
+              slippageAdjustedAmounts={slippageAdjustedAmounts}
+              isEnoughInputBalance={isEnoughInputBalance ?? undefined}
+              onConfirm={onConfirm}
+              allowedSlippage={allowedSlippage}
+            />
+          ) : null
+        }
+      />
+    )
   },
 )

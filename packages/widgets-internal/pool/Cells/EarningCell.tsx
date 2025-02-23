@@ -1,12 +1,12 @@
-import { styled } from "styled-components";
-import BigNumber from "bignumber.js";
+import { useTranslation } from "@pancakeswap/localization";
 import { BIG_ZERO } from "@pancakeswap/utils/bigNumber";
 import { getBalanceNumber } from "@pancakeswap/utils/formatBalance";
-import { useTranslation } from "@pancakeswap/localization";
+import BigNumber from "bignumber.js";
+import { styled } from "styled-components";
 
-import { Skeleton, Text, Flex, Box, Balance, useMatchBreakpoints } from "@pancakeswap/uikit";
+import { Balance, Box, Flex, Skeleton, Text, useMatchBreakpoints } from "@pancakeswap/uikit";
 import { DeserializedPool } from "../types";
-import { CellContent, BaseCell } from "./BaseCell";
+import { BaseCell, CellContent } from "./BaseCell";
 
 interface EarningsCellProps<T> {
   pool: DeserializedPool<T>;
@@ -33,7 +33,7 @@ export function EarningsCell<T>({ pool, account }: EarningsCellProps<T>) {
   const earningTokenDollarBalance: number = getBalanceNumber(earningPrice, earningToken.decimals);
   const hasEarnings = account && earnings.gt(0);
 
-  const labelText = t("%asset% Earned", { asset: earningToken.symbol });
+  const labelText = t("{{asset}} Earned", { asset: earningToken.symbol });
 
   const handleEarningsClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();

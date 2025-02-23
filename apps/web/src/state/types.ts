@@ -12,7 +12,6 @@ import {
 } from 'config/constants/types'
 import { parseEther } from 'viem'
 import { Address } from 'wagmi'
-import { NftToken } from './nftMarket/types'
 
 export enum GAS_PRICE {
   default = '3',
@@ -55,7 +54,6 @@ export interface Profile {
   tokenId: number
   isActive: boolean
   username: string
-  nft?: NftToken
   team?: Team
   hasRegistered: boolean
 }

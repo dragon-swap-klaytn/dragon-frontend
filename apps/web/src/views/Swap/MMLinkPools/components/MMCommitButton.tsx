@@ -166,7 +166,6 @@ export function MMSwapCommitButton({
 
   const [onPresentConfirmModal] = useModal(
     <ConfirmSwapModal
-      isMM
       trade={rfqTrade.trade} // show the info while refresh RFQ
       txHash={txHash}
       approval={approval}
@@ -177,7 +176,6 @@ export function MMSwapCommitButton({
       originalTrade={tradeToConfirm}
       showApproveFlow={showApproveFlow}
       currencyBalances={currencyBalances}
-      isRFQReady={Boolean(rfqTrade.rfq) && !rfqTrade.isLoading}
       currentAllowance={currentAllowance}
       swapErrorMessage={swapErrorMessage || (!rfqTrade.trade && t('Unable request a quote'))}
       onAcceptChanges={handleAcceptChanges}
@@ -187,6 +185,17 @@ export function MMSwapCommitButton({
     true,
     true,
     'MMconfirmSwapModal',
+    [
+      rfqTrade.trade,
+      txHash,
+      attemptingTxn,
+      confirmModalState,
+      pendingModalSteps,
+      tradeToConfirm,
+      showApproveFlow,
+      currencyBalances,
+      currentAllowance,
+    ],
   )
   // End Modals
 
@@ -226,7 +235,7 @@ export function MMSwapCommitButton({
   }
 
   if (!account) {
-    return <ConnectWalletButton width="100%" />
+    return <ConnectWalletButton />
   }
 
   if (showWrap) {

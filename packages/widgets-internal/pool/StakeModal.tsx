@@ -1,30 +1,30 @@
 import { useTranslation } from "@pancakeswap/localization";
 
-import BigNumber from "bignumber.js";
-import { useCallback, useEffect, useState } from "react";
-import { styled, useTheme } from "styled-components";
-import { getInterestBreakdown } from "@pancakeswap/utils/compoundApyHelpers";
-import { formatNumber, getDecimalAmount, getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
-import removeTrailingZeros from "@pancakeswap/utils/removeTrailingZeros";
-import getThemeValue from "@pancakeswap/uikit/util/getThemeValue";
 import {
-  Box,
   AutoRenewIcon,
   BalanceInput,
+  Box,
   Button,
   CalculateIcon,
   Flex,
   IconButton,
   Image,
   Link,
+  Modal,
+  RoiCalculatorModal,
   Skeleton,
   Slider,
   Text,
-  RoiCalculatorModal,
   TextProps,
-  Modal,
 } from "@pancakeswap/uikit";
+import { getInterestBreakdown } from "@pancakeswap/utils/compoundApyHelpers";
+import { formatNumber, getDecimalAmount, getFullDisplayBalance } from "@pancakeswap/utils/formatBalance";
+import removeTrailingZeros from "@pancakeswap/utils/removeTrailingZeros";
+import BigNumber from "bignumber.js";
+import { useCallback, useEffect, useState } from "react";
+import { styled } from "styled-components";
 
+import { Address } from "viem";
 import PercentageButton from "./PercentageButton";
 
 const StyledLink = styled(Link)`
@@ -64,7 +64,7 @@ interface StakeModalProps {
   setAmount?: (value: string) => void;
   onDismiss?: () => void;
   handleEnableApprove?: () => void;
-  account: string;
+  account: Address;
   handleConfirmClick: any;
   pendingTx: boolean;
   imageUrl?: string;
@@ -97,7 +97,6 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
   warning,
 }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const [stakeAmount, setStakeAmount] = useState("");
   const [hasReachedStakeLimit, setHasReachedStakedLimit] = useState(false);
   const [percent, setPercent] = useState(0);
@@ -185,7 +184,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         stakingTokenPrice={stakingTokenPrice}
         stakingTokenDecimals={stakingTokenDecimals}
         apr={apr}
-        linkLabel={t("Get %symbol%", { symbol: stakingTokenSymbol })}
+        linkLabel={t("Get {{symbol}}", { symbol: stakingTokenSymbol })}
         linkHref={getTokenLink}
         stakingTokenBalance={userDataStakedBalance.plus(stakingTokenBalance)}
         stakingTokenSymbol={stakingTokenSymbol}
@@ -197,16 +196,11 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
   }
 
   return (
-    <Modal
-      minWidth="346px"
-      title={isRemovingStake ? t("Unstake") : t("Stake in Pool")}
-      onDismiss={onDismiss}
-      headerBackground={getThemeValue(theme, "colors.gradientCardHeader")}
-    >
+    <Modal minWidth="346px" title={isRemovingStake ? t("Unstake") : t("Stake in Pool")} onDismiss={onDismiss}>
       <Box overflow="hide auto">
         {stakingLimit.gt(0) && !isRemovingStake && (
           <Text color="secondary" bold mb="24px" style={{ textAlign: "center" }} fontSize="16px">
-            {t("Max stake for this pool: %amount% %token%", {
+            {t("Max stake for this pool: {{amount}} {{token}}", {
               amount: getFullDisplayBalance(stakingLimit, stakingTokenDecimals, 0),
               token: stakingTokenSymbol,
             })}
@@ -230,7 +224,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         />
         {hasReachedStakeLimit && (
           <Text color="failure" fontSize="12px" style={{ textAlign: "right" }} mt="4px">
-            {t("Maximum total stake: %amount% %token%", {
+            {t("Maximum total stake: {{amount}} {{token}}", {
               amount: getFullDisplayBalance(new BigNumber(stakingLimit), stakingTokenDecimals, 0),
               token: stakingTokenSymbol,
             })}
@@ -238,7 +232,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         )}
         {userNotEnoughToken && (
           <Text color="failure" fontSize="12px" style={{ textAlign: "right" }} mt="4px">
-            {t("Insufficient %symbol% balance", {
+            {t("Insufficient {{symbol}} balance", {
               symbol: stakingTokenSymbol,
             })}
           </Text>
@@ -249,11 +243,12 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
           </Text>
         )}
         <Text ml="auto" color="textSubtle" fontSize="12px" mb="8px">
-          {t("Balance: %balance%", {
-            balance: getFullDisplayBalance(
-              isRemovingStake ? userDataStakedBalance : stakingTokenBalance,
-              stakingTokenDecimals
-            ),
+          {t("Balance: {{balance}}", {
+            balance:
+              getFullDisplayBalance(
+                isRemovingStake ? userDataStakedBalance : stakingTokenBalance,
+                stakingTokenDecimals
+              ) ?? t("Loading"),
           })}
         </Text>
         <Slider
@@ -329,7 +324,7 @@ export const StakeModal: React.FC<React.PropsWithChildren<StakeModalProps>> = ({
         {!isRemovingStake && (
           <StyledLink external href={getTokenLink}>
             <Button width="100%" mt="8px" variant="secondary">
-              {t("Get %symbol%", { symbol: stakingTokenSymbol })}
+              {t("Get {{symbol}}", { symbol: stakingTokenSymbol })}
             </Button>
           </StyledLink>
         )}
