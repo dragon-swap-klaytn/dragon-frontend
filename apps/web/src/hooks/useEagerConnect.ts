@@ -14,6 +14,8 @@ const useEagerConnect = () => {
   const { address: account } = useAccount()
 
   useEffect(() => {
+    console.log('[useEagerConnect] start')
+
     if (
       !(typeof window === 'undefined') &&
       window?.parent !== window &&
@@ -29,6 +31,8 @@ const useEagerConnect = () => {
       return
     }
 
+    console.log('[useEagerConnect] step1')
+
     if (config.storage.getItem(WalletStorageKey.WALLET) === WalletIds.klip) {
       const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
 
@@ -41,10 +45,14 @@ const useEagerConnect = () => {
       return
     }
 
+    console.log('[useEagerConnect] step2')
+
     const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
     if (!prevAccount) {
       return
     }
+
+    console.log('[useEagerConnect] step3')
 
     config.autoConnect().then((res) => {
       // @TODO: remove after debugging
