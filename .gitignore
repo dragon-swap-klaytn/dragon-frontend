@@ -57,3 +57,6 @@ scripts/dev/**
 
 # typescript
 *.tsbuildinfo
+
+# vscode snippet
+.vscode/typescript.code-snippets
