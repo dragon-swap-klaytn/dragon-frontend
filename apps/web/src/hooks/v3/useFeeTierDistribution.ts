@@ -80,7 +80,18 @@ export function useFeeTierDistribution(
       largestUsageFeeTier: largestUsageFeeTier === -1 ? undefined : largestUsageFeeTier,
       largestUsageFeeTierTvl: tvlByFeeTier[largestUsageFeeTier],
     }
-  }, [isLoading, error, distributions, tvlByFeeTier, poolStateVeryLow, poolStateLow, poolStateMedium, poolStateHigh])
+  }, [
+    isLoading,
+    error,
+    distributions,
+    tvlByFeeTier,
+    poolStateVeryLow,
+    poolStateLow,
+    poolStateMedium,
+    poolStateHigh,
+    poolStateHighest,
+    poolStateMediumLow,
+  ])
 }
 
 function usePoolTVL(token0: Token | undefined, token1: Token | undefined) {
@@ -129,7 +140,7 @@ function usePoolTVL(token0: Token | undefined, token1: Token | undefined) {
 
     // sum total tvl for token0 and token1
     const [sumToken0Tvl, sumToken1Tvl] = Object.values(tvlByFeeTier).reduce(
-      (acc: [number, number], value) => {
+      (acc: [number, number], value: [number | undefined, number | undefined]) => {
         const result = acc
 
         result[0] += value[0] ?? 0

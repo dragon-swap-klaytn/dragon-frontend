@@ -81,45 +81,58 @@ export function usePools(
 ): [PoolState, Pool | null][] {
   const { chainId } = useActiveChainId()
 
-  const poolTokens: ([Token, Token, FeeAmount] | undefined)[] = useMemo(() => {
-    if (!chainId) return new Array(poolKeys.length)
+  const poolTokens = useMemo(() => {
+    if (!chainId) return undefined
 
-    return poolKeys.map(([currencyA, currencyB, feeAmount]) => {
-      if (currencyA && currencyB && feeAmount) {
-        const tokenA = toChecksumToken(currencyA.wrapped)
-        const tokenB = toChecksumToken(currencyB.wrapped)
+    return poolKeys
+      .map(([currencyA, currencyB, feeAmount]) => {
+        if (currencyA && currencyB && feeAmount) {
+          const tokenA = toChecksumToken(currencyA.wrapped)
+          const tokenB = toChecksumToken(currencyB.wrapped)
 
-        if (tokenA.equals(tokenB)) return undefined
+          if (tokenA.equals(tokenB)) return undefined
 
-        return tokenA.sortsBefore(tokenB) ? [tokenA, tokenB, feeAmount] : [tokenB, tokenA, feeAmount]
-      }
-      return undefined
-    })
+          return tokenA.sortsBefore(tokenB) ? [tokenA, tokenB, feeAmount] : [tokenB, tokenA, feeAmount]
+        }
+
+        return undefined
+      })
+      .filter((v) => v)
   }, [chainId, poolKeys])
 
-  const poolAddresses: (Address | undefined)[] = useMemo(() => {
+  const poolAddresses = useMemo(() => {
+    if (!poolTokens) return undefined
+
     const v3CoreDeployerAddress = chainId && DEPLOYER_ADDRESSES[chainId]
     if (!v3CoreDeployerAddress) return new Array(poolTokens.length)
 
-    return poolTokens.map((value) => value && PoolCache.getPoolAddress(v3CoreDeployerAddress, ...value))
+    return poolTokens.map(
+      (value) =>
+        value &&
+        PoolCache.getPoolAddress(v3CoreDeployerAddress, value[0] as Token, value[1] as Token, value[2] as FeeAmount),
+    )
   }, [chainId, poolTokens])
 
   const slot0s = useMultipleContractSingleData({
-    addresses: poolAddresses,
+    addresses: poolAddresses ?? [],
     abi: v3PoolStateABI,
     functionName: 'slot0',
   })
   const liquidities = useMultipleContractSingleData({
-    addresses: poolAddresses,
+    addresses: poolAddresses ?? [],
     abi: v3PoolStateABI,
     functionName: 'liquidity',
   })
 
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
+      if (!poolTokens || !poolTokens.length) {
+        return [PoolState.LOADING, null]
+      }
+
       const tokens = poolTokens[index]
       if (!tokens) return [PoolState.INVALID, null]
-      const [token0, token1, fee] = tokens
+      const [token0, token1, fee] = tokens as [Token, Token, FeeAmount]
 
       if (!slot0s[index]) return [PoolState.INVALID, null]
       const { result: slot0, loading: slot0Loading, valid: slot0Valid } = slot0s[index]
