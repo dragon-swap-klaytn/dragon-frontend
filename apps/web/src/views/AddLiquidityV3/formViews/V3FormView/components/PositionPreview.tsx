@@ -96,7 +96,7 @@ export const PositionPreview = ({
               symbolClassName="font-bold text-on-surface"
             />
 
-            {Boolean(isStakedInMCv3) && <TagV2 color="orange">{t('Farming')}</TagV2>}
+            {Boolean(isStakedInMCv3) && <TagV2 color="orange">{t('Boost 🔥')}</TagV2>}
             <RangeTag removed={removed} outOfRange={!inRange} />
           </div>
 

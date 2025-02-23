@@ -150,7 +150,7 @@ export default function PoolListPage() {
                 }
                 tags={
                   <div className="flex items-center space-x-2">
-                    {p.isStaked && <TagV2 color="orange">{t('Farming')}</TagV2>}
+                    {p.isStaked && <TagV2 color="orange">{t('Boost 🔥')}</TagV2>}
                     {token0Symbol && token1Symbol ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
                   </div>
                 }

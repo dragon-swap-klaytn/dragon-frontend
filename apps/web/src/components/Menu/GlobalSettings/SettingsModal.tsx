@@ -194,7 +194,7 @@ export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }
       <SettingWrapper>
         <div className="flex items-center justify-between w-full">
           <SettingTitle
-            title="Allow Multihops"
+            title={t('Allow Multihops')}
             questionHelperText={
               <div className="text-sm">
                 <p>
@@ -222,7 +222,7 @@ export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }
       <SettingWrapper>
         <div className="flex items-center justify-between w-full">
           <SettingTitle
-            title="Allow Split Routing"
+            title={t('Allow Split Routing')}
             questionHelperText={
               <div className="text-sm">
                 <p>
