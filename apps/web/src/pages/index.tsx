@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import Link from 'next/link'
 import { getDefaultStaticProps } from 'utils/pageUtils'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
-import Background from 'views/Main/components/Background'
+import Background from 'views/Main/Background'
 
 // 2025/02/23 22:03 PM
 const DATA = {
@@ -27,7 +27,7 @@ const HomePage = () => {
   const { t } = useTranslation()
 
   return (
-    <div className="max-w-[1200px] mx-auto pt-[80px] pb-[200px] px-4 relative">
+    <div className="max-w-[1200px] mx-auto pt-[80px] pb-[200px] px-4 relative overflow-x-hidden">
       <div className="flex flex-col items-start space-y-8">
         <DragonSwapLogo size={100} className="hidden md:block" />
 
