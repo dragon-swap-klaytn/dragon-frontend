@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useAccount, useConfig, useConnect } from 'wagmi'
 
 import { resetWalletStorage, WalletStorageKey } from '@pancakeswap/ui-wallets'
@@ -12,6 +12,11 @@ const useEagerConnect = () => {
   const { connectAsync } = useConnect()
   const { login, logout } = useAuth()
   const { address: account } = useAccount()
+
+  const init = useCallback(() => {
+    logout()
+    resetWalletStorage()
+  }, [logout])
 
   useEffect(() => {
     console.log('[useEagerConnect] start')
@@ -31,14 +36,24 @@ const useEagerConnect = () => {
       return
     }
 
+    const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
+    const prevConnectorId = localStorage.getItem(WalletStorageKey.CONNECTOR) ?? ''
+    const prevWalletId = localStorage.getItem(WalletStorageKey.WALLET) ?? ''
+
+    if (!prevAccount || !prevConnectorId || !prevWalletId) {
+      console.log('[useEagerConnect] no data', prevAccount, prevConnectorId, prevWalletId)
+      init()
+      return
+    }
+
     console.log('[useEagerConnect] step1')
 
     if (config.storage.getItem(WalletStorageKey.WALLET) === WalletIds.klip) {
-      const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
+      console.log('[useEagerConnect_klip] prevAccount', prevAccount)
 
       if (prevAccount !== '') {
         login(getConnectorId(WalletIds.klip)).catch(() => {
-          resetWalletStorage()
+          init()
         })
       }
 
@@ -47,22 +62,15 @@ const useEagerConnect = () => {
 
     console.log('[useEagerConnect] step2')
 
-    const prevAccount = localStorage.getItem(WalletStorageKey.ADDRESS) ?? ''
-    if (!prevAccount) {
-      return
-    }
-
-    console.log('[useEagerConnect] step3')
-
     config.autoConnect().then((res) => {
       // @TODO: remove after debugging
-      console.log('[autoConnect]', res)
+      console.log('[useEagerConnect_autoConnect]', res)
       const connectedAccount = res?.account
       if (!connectedAccount || connectedAccount?.toLowerCase() !== prevAccount.toLowerCase()) {
-        logout()
+        init()
       }
     })
-  }, [config, connectAsync, login, logout, account])
+  }, [config, connectAsync, login, logout, account, init])
 }
 
 export default useEagerConnect
