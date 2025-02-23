@@ -1,61 +1,21 @@
 import { usePreloadImages } from '@pancakeswap/hooks'
 import { Trans, useTranslation } from '@pancakeswap/localization'
-import {
-  ConnectorId,
-  ConnectorIds,
-  Image,
-  Modal,
-  ModalV2Props,
-  SvgProps,
-  WalletId,
-  WalletIds,
-} from '@pancakeswap/uikit'
+import { ConnectorId, ConnectorIds, Image, Modal, ModalV2Props, WalletIds } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { atom, useAtom } from 'jotai'
 import { Dispatch, SetStateAction, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { WalletStorageKey } from './consts'
+import { LinkOfDevice, WalletConfigV2 } from './types'
+import { resetWalletStorage } from './utils'
+
+export class WalletConnectorNotFoundError extends Error {}
+export class WalletSwitchChainError extends Error {}
 
 export const QR_TIMEOUT = 5 * 60
 
 const Qrcode = lazy(() => import('./components/QRCode'))
-
-type LinkOfTextAndLink = string | { text: string; url: string }
-
-type DeviceLink = {
-  desktop?: LinkOfTextAndLink
-  mobile?: LinkOfTextAndLink
-}
-
-type LinkOfDevice = string | DeviceLink
-
-export type WalletConfigV2 = {
-  id: WalletId
-  title: string
-  icon: string | React.FC<React.PropsWithChildren<SvgProps>>
-  connectorId: ConnectorId
-  deepLink?: string
-  installed: boolean
-  guide?: LinkOfDevice
-  downloadLink?: string
-  mobileOnly?: boolean
-  qrCode?: () => Promise<string | string[]>
-  cancelRequest?: (requestKey: string) => void
-  isNotExtension?: boolean
-}
-
-interface WalletModalV2Props extends ModalV2Props {
-  wallets: WalletConfigV2[]
-  login: (connectorId: ConnectorId) => Promise<any>
-  onWalletConnectCallBack?: (walletTitle?: string) => void
-  walletConnectNoQrCodeConnector: any
-}
-
-export class WalletConnectorNotFoundError extends Error {}
-
-export class WalletSwitchChainError extends Error {}
-
 const errorAtom = atom<string>('')
-
 const selectedWalletAtom = atom<WalletConfigV2 | null>(null)
 
 export function useSelectedWallet(): [WalletConfigV2 | null, Dispatch<SetStateAction<WalletConfigV2 | null>>] {
@@ -63,13 +23,6 @@ export function useSelectedWallet(): [WalletConfigV2 | null, Dispatch<SetStateAc
 }
 
 const MOBILE_DEFAULT_DISPLAY_COUNT = 8
-
-export enum WalletStorageKey {
-  WALLET = 'wallet',
-  CONNECTOR = 'connector',
-  ADDRESS = 'address',
-}
-
 const lastUsedWalletNameAtom = atom<string>('')
 
 lastUsedWalletNameAtom.onMount = (set) => {
@@ -98,6 +51,13 @@ function sortWallets(wallets: WalletConfigV2[], lastUsedWalletName: string | nul
   const foundLastUsedWallet = wallets.find((w) => w.title === lastUsedWalletName)
   if (!foundLastUsedWallet) return sorted
   return [foundLastUsedWallet, ...sorted.filter((w) => w.id !== foundLastUsedWallet.id)]
+}
+
+interface WalletModalV2Props extends ModalV2Props {
+  wallets: WalletConfigV2[]
+  login: (connectorId: ConnectorId) => Promise<any>
+  onWalletConnectCallBack?: (walletTitle?: string) => void
+  walletConnectNoQrCodeConnector: any
 }
 
 export function WalletModalV2(props: WalletModalV2Props) {
@@ -134,6 +94,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
     const klipWallet = wallets.find((w) => w.id === WalletIds.klip)
     const requestKey = requestKeyRef.current
+
     if (klipWallet && requestKey) {
       klipWallet.cancelRequest?.(requestKey)
     }
@@ -146,6 +107,16 @@ export function WalletModalV2(props: WalletModalV2Props) {
       init()
     }
   }, [init])
+
+  const initLocalStorage = useCallback(() => {
+    resetWalletStorage()
+  }, [])
+
+  const onDismissHandler = useCallback(() => {
+    onDismiss?.()
+    init()
+    initLocalStorage()
+  }, [onDismiss, init, initLocalStorage])
 
   usePreloadImages(imageSources.slice(0, MOBILE_DEFAULT_DISPLAY_COUNT))
 
@@ -393,7 +364,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
   )
 
   return (
-    <Modal title={t('Connect Wallet')} onDismiss={onDismiss} {...rest}>
+    <Modal title={t('Connect Wallet')} onDismiss={onDismissHandler} {...rest}>
       {!(qrCode && selected) && (
         <p className="text-sm text-on-surface">
           {t(
