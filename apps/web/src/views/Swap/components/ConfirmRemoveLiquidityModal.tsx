@@ -80,10 +80,13 @@ const ConfirmRemoveLiquidityModal: React.FC<
                 )}
               </ContainerV2>
 
-              <p className="text-sm text-on-surface mt-2 text-center">
-                {t('Output is estimated. If the price changes by more than %slippage%% your transaction will revert.', {
-                  slippage: allowedSlippage / 100,
-                })}
+              <p className="text-sm text-on-surface mt-2 text-center break-keep">
+                {t(
+                  'Output is estimated. If the price changes by more than {{slippage}}% your transaction will revert.',
+                  {
+                    slippage: allowedSlippage / 100,
+                  },
+                )}
               </p>
             </>
           }

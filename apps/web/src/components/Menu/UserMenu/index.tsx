@@ -103,10 +103,13 @@ const UserMenu = ({
         </button>
 
         <div
-          className={clsx('absolute top-12 right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50', {
-            'opacity-100': userMenuOpen,
-            'opacity-0 pointer-events-none': !userMenuOpen,
-          })}
+          className={clsx(
+            'absolute top-12 right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50 min-w-[150px]',
+            {
+              'opacity-100': userMenuOpen,
+              'opacity-0 pointer-events-none': !userMenuOpen,
+            },
+          )}
         >
           <h3 className="text-on-surface font-bold text-lg">{t('Preferences')}</h3>
 

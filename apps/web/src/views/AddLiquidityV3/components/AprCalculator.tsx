@@ -320,14 +320,6 @@ export function AprCalculator({
     maximumFractionDigits: 2,
     minimumFractionDigits: 0,
   })
-  const farmAprTips = hasFarmApr ? (
-    <>
-      <p className="font-bold text-sm text-on-surface">
-        {t('This position must be staking in farm to apply the combined APR with farming rewards.')}
-      </p>
-      <br />
-    </>
-  ) : null
   const AprText = hasFarmApr ? TooltipText : Text
 
   return (
@@ -356,17 +348,25 @@ export function AprCalculator({
           {showQuestion ? (
             <QuestionHelper
               text={
-                <>
-                  {farmAprTips}
-                  {t(
-                    'Calculated at the current rates with historical trading volume data, and subject to change based on various external variables.',
-                  )}
-                  <br />
-                  <br />
-                  {t(
-                    'This figure is provided for your convenience only, and by no means represents guaranteed returns.',
-                  )}
-                </>
+                <div className="flex flex-col items-start space-y-2 text-sm text-on-surface">
+                  {hasFarmApr ? (
+                    <p className="font-bold">
+                      {t('This position must be staking in farm to apply the combined APR with farming rewards.')}
+                    </p>
+                  ) : null}
+
+                  <p>
+                    {t(
+                      'Calculated at the current rates with historical trading volume data, and subject to change based on various external variables.',
+                    )}
+                  </p>
+
+                  <p>
+                    {t(
+                      'This figure is provided for your convenience only, and by no means represents guaranteed returns.',
+                    )}
+                  </p>
+                </div>
               }
               placement="top"
             />

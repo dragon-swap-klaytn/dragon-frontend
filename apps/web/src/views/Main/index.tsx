@@ -3,9 +3,9 @@ import { COMMON_BUTTON_STYLE, DragonSwapLogo, MD_BUTTON_STYLE } from '@pancakesw
 import { ArrowsClockwise, ArrowUpRight, SwimmingPool } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import Link from 'next/link'
-import Background from 'views/Home/components/Background'
+import Background from 'views/Main/components/Background'
 
-const Home: React.FC<React.PropsWithChildren> = () => {
+export default function Main() {
   const { t } = useTranslation()
 
   return (
@@ -116,5 +116,3 @@ const Title = ({ children }: { children: string }) => (
 )
 
 const Description = ({ children }: { children: string }) => <p className="text-lg text-on-surface">{children}</p>
-
-export default Home

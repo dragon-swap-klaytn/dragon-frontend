@@ -58,7 +58,7 @@ export const Details = memo(function Details({
 
         {isFarm && (
           <div className="w-full flex items-center space-x-2 justify-between mt-2 pl-2">
-            <h5>{t("Farm Yield")}</h5>
+            <h5>{t("Boost Yield")}</h5>
             <span>${formatAmount(+farmReward)}</span>
           </div>
         )}
@@ -78,7 +78,7 @@ export const Details = memo(function Details({
         <div className="w-full flex items-center space-x-2 justify-between mt-2 pl-2">
           {isFarm && farmApr && (
             <>
-              <h5>{t("Farm APR")}</h5>
+              <h5>{t("Boost APR")}</h5>
               <span>{formatPercent(farmApr, 5) || "0"}%</span>
             </>
           )}

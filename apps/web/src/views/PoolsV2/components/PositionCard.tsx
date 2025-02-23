@@ -211,7 +211,7 @@ export function V3PositionCard({
             <span className="text-[13px] text-gray-500">#{_position.positionId}</span>
           </div>
           <TagV2 className={clsx('min-w-8', { hidden: !isBoosted })} color="orange">
-            Boost 🔥
+            {t('Boost 🔥')}
           </TagV2>
         </div>
 

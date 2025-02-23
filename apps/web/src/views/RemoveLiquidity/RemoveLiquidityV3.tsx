@@ -364,7 +364,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
                   symbolClassName="text-on-surface"
                 />
 
-                {isStakedInMCv3 && <TagV2 color="orange">{t('Farming')}</TagV2>}
+                {isStakedInMCv3 && <TagV2 color="orange">{t('Boost 🔥')}</TagV2>}
                 {liquidityValue0 && liquidityValue1 ? <RangeTag removed={removed} outOfRange={outOfRange} /> : null}
               </div>
 

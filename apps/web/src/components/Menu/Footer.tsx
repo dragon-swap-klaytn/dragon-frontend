@@ -54,19 +54,28 @@ export default function Footer() {
             <h4 className="font-bold text-on-surface">Ecosystem</h4>
 
             <Link href="/swap" className="text-on-surface-subtlest">
-              Trade
+              Swap
             </Link>
 
-            <Link href="/farms" className="text-on-surface-subtlest">
-              Earn
+            <Link href="/pools" className="text-on-surface-subtlest">
+              Pools
+            </Link>
+
+            <Link href="/dashboard/v3" className="text-on-surface-subtlest">
+              Dashboard
             </Link>
           </div>
           <div className="flex flex-col items-start space-y-5">
             <h4 className="font-bold text-on-surface">Support</h4>
 
-            <Link href="/swap" className="text-on-surface-subtlest">
+            <a
+              href="mailto:support@dgswap.io"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-on-surface-subtlest"
+            >
               Contact
-            </Link>
+            </a>
           </div>
         </div>
       </div>

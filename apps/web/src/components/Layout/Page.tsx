@@ -22,7 +22,7 @@ export const PageMeta: React.FC<React.PropsWithChildren> = () => {
   return (
     <NextSeo
       title={pageMeta.title}
-      description={description}
+      description={description ? t(description) : undefined}
       openGraph={
         image
           ? {
