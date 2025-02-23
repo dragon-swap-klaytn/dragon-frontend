@@ -1,135 +1,181 @@
-import { DEFAULT_LANGUAGE } from '@pancakeswap/localization'
-import { dehydrate, QueryClient } from '@tanstack/react-query'
-import dayjs from 'dayjs'
-import { gql } from 'graphql-request'
-import { getCakePriceFromOracle } from 'hooks/useCakePrice'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { getCakeVaultAddress } from 'utils/addressHelpers'
-import { getCakeContract } from 'utils/contractHelpers'
-import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
-import { bitQueryServerClient, infoServerClient } from 'utils/graphql'
-import { formatEther } from 'viem'
-import Home from '../views/Home'
+import { useTranslation } from '@pancakeswap/localization'
+import { COMMON_BUTTON_STYLE, DragonSwapLogo, MD_BUTTON_STYLE } from '@pancakeswap/uikit'
+import { ArrowsClockwise, ArrowUpRight, SwimmingPool } from '@phosphor-icons/react'
+import clsx from 'clsx'
+import Link from 'next/link'
+import { getDefaultStaticProps } from 'utils/pageUtils'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
+import Background from 'views/Home/components/Background'
 
-const IndexPage = () => {
-  return <Home />
+// 2025/02/23 22:03 PM
+const DATA = {
+  timestamp: 1740182400000,
+  dragonSwap: {
+    tvlUSD: 14449983.984572034,
+    volumeUSD: 1778165.2686760426,
+    txCount: 14457,
+    poolCount: 456,
+  },
+  kaia: {
+    tvlUSD: 127341887.48693456,
+    volumeUSD: 8203362.2969554085,
+    swapCount: 33322,
+  },
+} as const
+
+const HomePage = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="max-w-[1200px] mx-auto pt-[80px] pb-[200px] px-4 relative">
+      <div className="flex flex-col items-start space-y-8">
+        <DragonSwapLogo size={100} className="hidden md:block" />
+
+        <div>
+          <Title>{t('main-first-header-1')}</Title>
+          <Title>{t('main-first-header-2')}</Title>
+        </div>
+
+        <div>
+          <Description>{t('main-first-content-1')}</Description>
+          <Description>{t('main-first-content-2')}</Description>
+        </div>
+
+        <Link
+          href="/swap"
+          className={clsx(COMMON_BUTTON_STYLE, MD_BUTTON_STYLE, 'bg-bold text-on-surface-inverse whitespace-nowrap')}
+        >
+          {t('Trade Now')}
+        </Link>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
+          <HomeCard
+            title={t('DragonSwap TVL')}
+            value={formatDollarAmountV2({
+              num: DATA.dragonSwap.tvlUSD,
+              digits: 1,
+              withDollarSign: true,
+            })}
+          />
+          <HomeCard
+            title={t('Kaia Ecosystem TVL')}
+            value={formatDollarAmountV2({
+              num: DATA.kaia.tvlUSD,
+              digits: 1,
+              withDollarSign: true,
+            })}
+          />
+          <HomeCard
+            title={t('DragonSwap TVL Share')}
+            value={(DATA.dragonSwap.tvlUSD / DATA.kaia.tvlUSD).toLocaleString(undefined, {
+              style: 'percent',
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            })}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col items-start space-y-8 mt-[320px]">
+        <div>
+          <Title>{t('main-second-header-1')}</Title>
+          <Title>{t('main-second-header-2')}</Title>
+        </div>
+
+        <div>
+          <Description>{t('main-second-content-1')}</Description>
+          <Description>{t('main-second-content-2')}</Description>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
+          <HomeCard
+            title={t('DragonSwap Volume')}
+            value={formatDollarAmountV2({
+              num: DATA.dragonSwap.volumeUSD,
+              digits: 1,
+              withDollarSign: true,
+            })}
+          />
+          <HomeCard
+            title={t('Kaia Ecosystem Volume')}
+            value={formatDollarAmountV2({
+              num: DATA.kaia.volumeUSD,
+              digits: 1,
+              withDollarSign: true,
+            })}
+          />
+          <HomeCard
+            title={t('DragonSwap Volume Share')}
+            value={(DATA.dragonSwap.volumeUSD / DATA.kaia.volumeUSD).toLocaleString(undefined, {
+              style: 'percent',
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            })}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col items-start space-y-8 mt-[320px]">
+        <Title>{t('main-third-header-1')}</Title>
+
+        <div>
+          <Description>{t('main-third-content-1')}</Description>
+          <Description>{t('main-third-content-2')}</Description>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-10">
+          <LinkCard type="swap" />
+          <LinkCard type="pools" />
+        </div>
+      </div>
+
+      <Background />
+    </div>
+  )
 }
 
-// Values fetched from TheGraph and BitQuery jan 24, 2022
-const txCount = 54780336
-const addressCount = 4425459
-
-const tvl = 6082955532.115718
-
-export const getStaticProps = async ({ locale }: { locale: string }) => {
-  const queryClient = new QueryClient()
-
-  const totalTxQuery = gql`
-    query TotalTransactions($block: Block_height) {
-      pancakeFactory(block: $block) {
-        totalTransactions
-      }
-    }
-  `
-
-  const days30Ago = dayjs().subtract(30, 'days')
-
-  const results = {
-    totalTx30Days: txCount,
-    addressCount30Days: addressCount,
-    tvl,
-  }
-
-  try {
-    const [days30AgoBlock] = await getBlocksFromTimestamps([days30Ago.unix()])
-
-    if (!days30AgoBlock) {
-      throw new Error('No block found for 30 days ago')
-    }
-
-    const totalTx = await infoServerClient.request<any>(totalTxQuery)
-    const totalTx30DaysAgo = await infoServerClient.request<any>(totalTxQuery, {
-      block: {
-        number: days30AgoBlock.number,
-      },
-    })
-
-    if (
-      totalTx?.pancakeFactory?.totalTransactions &&
-      totalTx30DaysAgo?.pancakeFactory?.totalTransactions &&
-      parseInt(totalTx.pancakeFactory.totalTransactions) > parseInt(totalTx30DaysAgo.pancakeFactory.totalTransactions)
-    ) {
-      results.totalTx30Days =
-        parseInt(totalTx.pancakeFactory.totalTransactions) - parseInt(totalTx30DaysAgo.pancakeFactory.totalTransactions)
-    }
-  } catch (error) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('Error when fetching total tx count', error)
-    }
-  }
-
-  const usersQuery = gql`
-    query userCount($since: ISO8601DateTime, $till: ISO8601DateTime) {
-      ethereum(network: bsc) {
-        dexTrades(exchangeName: { in: ["Pancake", "Pancake v2"] }, date: { since: $since, till: $till }) {
-          count(uniq: senders)
-        }
-      }
-    }
-  `
-
-  if (process.env.BIT_QUERY_HEADER) {
-    try {
-      const result = await bitQueryServerClient.request<any>(usersQuery, {
-        since: days30Ago.toISOString(),
-        till: new Date().toISOString(),
-      })
-      if (result?.ethereum?.dexTrades?.[0]?.count) {
-        results.addressCount30Days = result.ethereum.dexTrades[0].count
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === 'production') {
-        console.error('Error when fetching address count', error)
-      }
-    }
-  }
-
-  try {
-    const result = await infoServerClient.request<any>(gql`
-      query tvl {
-        pancakeFactories(first: 1) {
-          totalLiquidityUSD
-        }
-      }
-    `)
-
-    const cakePrice = await getCakePriceFromOracle()
-    const { totalLiquidityUSD } = result.pancakeFactories[0]
-
-    const cakeVaultV2 = getCakeVaultAddress()
-    const cakeContract = getCakeContract()
-    const totalCakeInVault = await cakeContract.read.balanceOf([cakeVaultV2])
-
-    results.tvl = parseFloat(formatEther(totalCakeInVault)) * Number(cakePrice) + parseFloat(totalLiquidityUSD)
-  } catch (error) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('Error when fetching tvl stats', error)
-    }
-  }
-
-  queryClient.setQueryData(['totalTx30Days'], results.totalTx30Days)
-  queryClient.setQueryData(['tvl'], results.tvl)
-  queryClient.setQueryData(['addressCount30Days'], results.addressCount30Days)
-
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-      ...(await serverSideTranslations(locale || DEFAULT_LANGUAGE, ['common'])),
-    },
-    revalidate: 60 * 60 * 24 * 30, // 30 days
-  }
+function HomeCard({ title, value, subValue }: { title: string; value: string; subValue?: string }) {
+  return (
+    <div className="p-5 md:p-7 flex space-x-3 md:flex-col justify-between items-start md:space-x-0 md:space-y-4 text-on-surface rounded-2xl border border-[#ffffff1a] bg-[#ffffff05] w-full backdrop-blur-[40px]">
+      <h4 className="text-sm">{title}</h4>
+      <span className="text-[32px] md:text-[60px]">{value}</span>
+      {subValue && <span className="text-sm">{subValue}</span>}
+    </div>
+  )
 }
 
-IndexPage.chains = []
+function LinkCard({ type }: { type: 'swap' | 'pools' }) {
+  const { t } = useTranslation()
 
-export default IndexPage
+  return (
+    <Link
+      href={type === 'swap' ? '/swap' : '/pools'}
+      className="p-5 md:p-7 flex flex-col justify-between space-y-[72px] text-on-surface rounded-2xl border border-[#ffffff1a] bg-[#ffffff05] w-full backdrop-blur-[40px] hover:opacity-70"
+    >
+      <div className="flex items-start space-x-2 w-full justify-between">
+        <div className="p-3 rounded-lg bg-white">
+          {type === 'swap' ? (
+            <ArrowsClockwise size={24} className="text-black" />
+          ) : (
+            <SwimmingPool size={24} className="text-black" />
+          )}
+        </div>
+
+        <ArrowUpRight size={24} className="text-white" />
+      </div>
+
+      <span className="text-[40px] text-on-surface">{type === 'swap' ? t('Swap') : t('Pools')}</span>
+    </Link>
+  )
+}
+
+const Title = ({ children }: { children: string }) => (
+  <h2 className="text-[40px] md:text-[72px] text-on-surface">{children}</h2>
+)
+
+const Description = ({ children }: { children: string }) => <p className="text-lg text-on-surface">{children}</p>
+
+export const getStaticProps = getDefaultStaticProps(['common'])
+
+HomePage.chains = []
+export default HomePage

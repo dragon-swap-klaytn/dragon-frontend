@@ -32,8 +32,8 @@ export const formatDollarAmountV2 = ({
 
   return `${withDollarSign && '$'}${Intl.NumberFormat('en-US', {
     notation: round ? 'compact' : 'standard',
-    minimumFractionDigits: num > 1000 ? 2 : digits,
-    maximumFractionDigits: num > 1000 ? 2 : digits,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(num)}`
 }
 
@@ -47,7 +47,7 @@ export const formatAmount = (num: number | undefined, digits = 2) => {
 
   return Intl.NumberFormat('en-US', {
     notation: 'compact',
-    minimumFractionDigits: num > 1000 ? 2 : digits,
-    maximumFractionDigits: num > 1000 ? 2 : digits,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(num)
 }
