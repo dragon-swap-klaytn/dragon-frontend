@@ -1,24 +1,19 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Currency, CurrencyAmount, Price, Token, ZERO } from '@pancakeswap/sdk'
+import { Currency, CurrencyAmount, Token } from '@pancakeswap/sdk'
 import { QuestionHelper, Text, TooltipText } from '@pancakeswap/uikit'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
-import { formatPrice } from '@pancakeswap/utils/formatFractions'
-import { FeeCalculator, Pool, encodeSqrtRatioX96, isPoolTickInRange, parseProtocolFees } from '@pancakeswap/v3-sdk'
+import { FeeCalculator, Pool, isPoolTickInRange, parseProtocolFees } from '@pancakeswap/v3-sdk'
 import {
   RoiCalculatorModalV2,
   RoiCalculatorPositionInfo,
   useAmountsByUsdValue,
-  useRoi,
 } from '@pancakeswap/widgets-internal/roi'
-import { useCakePrice } from 'hooks/useCakePrice'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo, useState } from 'react'
 
 import { PositionDetails, getPositionFarmApr, getPositionFarmAprFactor } from '@pancakeswap/farms'
 import { Bound } from 'config/constants/types'
-import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useFarm } from 'hooks/useFarm'
-import { usePoolAvgTradingVolume } from 'hooks/usePoolTradingVolume'
 import { useDerivedPositionInfo } from 'hooks/v3/useDerivedPositionInfo'
 import { useAllV3Ticks } from 'hooks/v3/usePoolTickData'
 import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
@@ -28,6 +23,10 @@ import currencyId from 'utils/currencyId'
 
 import { Calculator } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import useTokenPrices from 'hooks/use-token-prices'
+import { PoolV3Parsed } from 'pages/api/pools'
+import { calculateAPR } from 'utils/calculate-interests'
+import usePools from 'views/Dashboard/hooks/usePools'
 import { useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
 import { BoostStatus, useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { useV3MintActionHandlers } from '../formViews/V3FormView/form/hooks/useV3MintActionHandlers'
@@ -47,14 +46,6 @@ interface Props {
   className?: string
 }
 
-const deriveUSDPrice = (baseUSDPrice?: Price<Currency, Currency>, pairPrice?: Price<Currency, Currency>) => {
-  if (baseUSDPrice && pairPrice && pairPrice.greaterThan(ZERO)) {
-    const baseUSDPriceFloat = parseFloat(formatPrice(baseUSDPrice, 6) || '0')
-    return baseUSDPriceFloat / parseFloat(formatPrice(pairPrice, 6) || '0')
-  }
-  return undefined
-}
-
 export function AprCalculator({
   baseCurrency,
   quoteCurrency,
@@ -72,7 +63,23 @@ export function AprCalculator({
   const [isOpen, setOpen] = useState(false)
   const [priceSpan, setPriceSpan] = useState(0)
   const { data: farm } = useFarm({ currencyA: baseCurrency, currencyB: quoteCurrency, feeAmount })
-  const cakePrice = useCakePrice()
+  const { prices } = useTokenPrices()
+  const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
+
+  const priceMap = useMemo(
+    () => ({
+      ...ssPrices,
+      ...prices,
+    }),
+    [prices, ssPrices],
+  )
+
+  const tokenA = (baseCurrency ?? undefined)?.wrapped
+  const tokenB = (quoteCurrency ?? undefined)?.wrapped
+
+  const cakePrice = priceMap.KAIA
+  const currencyAUsdPrice = tokenA ? priceMap[tokenA.address.toLowerCase()] : undefined
+  const currencyBUsdPrice = tokenB ? priceMap[tokenB.address.toLowerCase()] : undefined
 
   const formState = useV3FormState()
 
@@ -88,45 +95,20 @@ export function AprCalculator({
   const router = useRouter()
   const poolAddress = useMemo(() => (pool ? Pool.getAddress(pool.token0, pool.token1, pool.fee) : undefined), [pool])
 
+  const { poolsData } = usePools({ addresses: [poolAddress?.toLowerCase() ?? ''] }, { paused: !poolAddress })
+
+  const poolData = poolsData && poolsData[0] ? poolsData[0] : undefined
+
   const { ticks: data } = useAllV3Ticks(baseCurrency, quoteCurrency, feeAmount)
-  const volume24H = usePoolAvgTradingVolume({
-    address: poolAddress,
-    chainId: pool?.token0.chainId,
-  })
-  const sqrtRatioX96 = useMemo(() => price && encodeSqrtRatioX96(price.numerator, price.denominator), [price])
+  const volume24H = poolData?.volumeUSD['24H']
+  const sqrtRatioX96 = poolData ? BigInt((poolData as PoolV3Parsed)?.sqrtPriceX96) : undefined
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
   const { [Field.CURRENCY_A]: amountA, [Field.CURRENCY_B]: amountB } = parsedAmounts
 
-  const tokenA = (baseCurrency ?? undefined)?.wrapped
-  const tokenB = (quoteCurrency ?? undefined)?.wrapped
-
   const inverted = useMemo(
     () => Boolean(tokenA && tokenB && tokenA?.address !== tokenB?.address && tokenB.sortsBefore(tokenA)),
     [tokenA, tokenB],
-  )
-
-  const baseUSDPrice = useStablecoinPrice(baseCurrency)
-  const quoteUSDPrice = useStablecoinPrice(quoteCurrency)
-  const currencyAUsdPrice = useMemo(
-    () =>
-      baseUSDPrice
-        ? parseFloat(formatPrice(baseUSDPrice, 6) || '0')
-        : deriveUSDPrice(
-            quoteUSDPrice,
-            quoteCurrency && price?.baseCurrency.equals(quoteCurrency.wrapped) ? price : price?.invert(),
-          ),
-    [baseUSDPrice, quoteUSDPrice, price, quoteCurrency],
-  )
-  const currencyBUsdPrice = useMemo(
-    () =>
-      baseUSDPrice &&
-      (deriveUSDPrice(
-        baseUSDPrice,
-        baseCurrency && price?.baseCurrency.equals(baseCurrency.wrapped) ? price : price?.invert(),
-      ) ||
-        parseFloat(formatPrice(quoteUSDPrice, 6) || '0')),
-    [baseUSDPrice, quoteUSDPrice, price, baseCurrency],
   )
 
   const depositUsd = useMemo(
@@ -161,20 +143,59 @@ export function AprCalculator({
 
   const validAmountA = amountA || (inverted ? tokenAmount1 : tokenAmount0) || (inverted ? aprAmountB : aprAmountA)
   const validAmountB = amountB || (inverted ? tokenAmount0 : tokenAmount1) || (inverted ? aprAmountA : aprAmountB)
-  const { apr } = useRoi({
-    tickLower,
+
+  const { lpApr } = useMemo(() => {
+    if (
+      !pool ||
+      !tickUpper ||
+      !tickLower ||
+      !volume24H ||
+      !sqrtRatioX96 ||
+      !feeAmount ||
+      !currencyAUsdPrice ||
+      !currencyBUsdPrice
+    ) {
+      return { lpApr: 0 }
+    }
+
+    const fee = applyProtocolFee ? parseFloat(applyProtocolFee.toSignificant()) : 0
+
+    const fee24HFraction = FeeCalculator.getEstimatedLPFeeByAmounts({
+      amountA: validAmountA,
+      amountB: validAmountB,
+      tickUpper,
+      tickLower,
+      volume24H: volume24H * (1 - fee / 100),
+      sqrtRatioX96,
+      mostActiveLiquidity: pool.liquidity,
+      fee: feeAmount,
+    })
+
+    const estimatedFee24H = +fee24HFraction.toSignificant(6)
+    const positionLiquidity =
+      parseFloat(validAmountA.toExact()) * currencyAUsdPrice + parseFloat(validAmountB.toExact()) * currencyBUsdPrice
+    const duration = 24 * 60 * 60 * 1000
+
+    return {
+      lpApr: calculateAPR({
+        interest: estimatedFee24H,
+        principal: positionLiquidity,
+        duration,
+      }),
+    }
+  }, [
+    pool,
     tickUpper,
+    tickLower,
+    volume24H,
     sqrtRatioX96,
-    fee: feeAmount,
-    mostActiveLiquidity: pool?.liquidity,
-    amountA: validAmountA,
-    amountB: validAmountB,
-    compoundOn: false,
+    feeAmount,
     currencyAUsdPrice,
     currencyBUsdPrice,
-    volume24H,
-    protocolFee: applyProtocolFee,
-  })
+    validAmountA,
+    validAmountB,
+    applyProtocolFee,
+  ])
 
   const positionLiquidity = useMemo(
     () =>
@@ -286,10 +307,10 @@ export function AprCalculator({
   }
 
   const hasFarmApr = positionFarmApr && +positionFarmApr > 0
-  const combinedApr = hasFarmApr ? +apr.toSignificant(6) + +positionFarmApr : +apr.toSignificant(6)
+  const combinedApr = hasFarmApr ? lpApr * 100 + +positionFarmApr : lpApr * 100
   const combinedAprWithBoosted = hasFarmApr
-    ? +apr.toSignificant(6) + +positionFarmApr * (isBoosted ? boostMultiplier : 1)
-    : +apr.toSignificant(6)
+    ? lpApr * 100 + +positionFarmApr * (isBoosted ? boostMultiplier : 1)
+    : lpApr * 100
   const aprDisplay = combinedApr.toLocaleString(undefined, {
     maximumFractionDigits: 2,
     minimumFractionDigits: 0,
