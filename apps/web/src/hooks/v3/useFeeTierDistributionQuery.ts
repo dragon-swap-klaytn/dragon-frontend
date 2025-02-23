@@ -33,6 +33,21 @@ const query = gql`
   }
 `
 
+type FeeTierWithTVL = {
+  feeTier: string
+  totalValueLockedToken0: string
+  totalValueLockedToken1: string
+}
+type FeeTierDistributionQueryResult = {
+  _meta: {
+    block: {
+      number: number
+    }
+  }
+  asToken0: FeeTierWithTVL[]
+  asToken1: FeeTierWithTVL[]
+}
+
 // Philip TODO: add FeeTierDistributionQuery type
 export default function useFeeTierDistributionQuery(
   token0: string | undefined,
@@ -40,7 +55,7 @@ export default function useFeeTierDistributionQuery(
   interval: number,
 ) {
   const { chainId } = useActiveChainId()
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, error } = useQuery<FeeTierDistributionQueryResult>(
     [`useFeeTierDistributionQuery-${token0}-${token1}`],
     async () => {
       if (!chainId) return undefined
