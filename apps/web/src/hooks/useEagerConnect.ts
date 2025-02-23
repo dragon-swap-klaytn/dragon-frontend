@@ -19,8 +19,6 @@ const useEagerConnect = () => {
   }, [logout])
 
   useEffect(() => {
-    console.log('[useEagerConnect] start')
-
     if (
       !(typeof window === 'undefined') &&
       window?.parent !== window &&
@@ -41,32 +39,25 @@ const useEagerConnect = () => {
     const prevWalletId = localStorage.getItem(WalletStorageKey.WALLET) ?? ''
 
     if (!prevAccount || !prevConnectorId || !prevWalletId) {
-      console.log('[useEagerConnect] no data', prevAccount, prevConnectorId, prevWalletId)
-      init()
       return
     }
 
-    console.log('[useEagerConnect] step1')
-
     if (config.storage.getItem(WalletStorageKey.WALLET) === WalletIds.klip) {
-      console.log('[useEagerConnect_klip] prevAccount', prevAccount)
-
       if (prevAccount !== '') {
         login(getConnectorId(WalletIds.klip)).catch(() => {
-          init()
+          resetWalletStorage()
         })
       }
 
       return
     }
 
-    console.log('[useEagerConnect] step2')
-
     config.autoConnect().then((res) => {
-      // @TODO: remove after debugging
-      console.log('[useEagerConnect_autoConnect]', res)
-      const connectedAccount = res?.account
-      if (!connectedAccount || connectedAccount?.toLowerCase() !== prevAccount.toLowerCase()) {
+      if (!res || !res?.account) {
+        return
+      }
+
+      if (res.account.toLowerCase() !== prevAccount.toLowerCase()) {
         init()
       }
     })
