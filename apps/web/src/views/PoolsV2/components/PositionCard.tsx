@@ -5,7 +5,6 @@ import { FeeCalculator, Pool, Position } from '@pancakeswap/v3-sdk'
 import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { useBackTo } from 'hooks/use-back-to'
 import { PortfolioData, PortfolioV3DataBigInt, PositionV3 } from 'hooks/use-portfolio'
@@ -18,7 +17,6 @@ import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
-import { PoolType } from 'types'
 import { calculateAPR, calculateAPY } from 'utils/calculate-interests'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import { useAccount } from 'wagmi'
@@ -49,7 +47,7 @@ export default function PositionCardList({
   return (
     <div className={clsx('flex flex-col items-center space-y-3', className)}>
       {!portfolioData ? (
-        <EmptyPositionCard token0={poolData.token0} token1={poolData.token1} />
+        <EmptyPositionCard />
       ) : portfolioData.type === 'v3' ? (
         (portfolioData as PortfolioV3DataBigInt).positions.map((position) =>
           v3Pool ? (
@@ -79,26 +77,14 @@ export default function PositionCardList({
   )
 }
 
-function EmptyPositionCard({
-  poolType,
-  token0,
-  token1,
-}: {
-  poolType?: PoolType
-  token0: TokenSimple
-  token1: TokenSimple
-}) {
+function EmptyPositionCard() {
   const { address: account } = useAccount()
   const { t } = useTranslation()
 
   return (
     <div className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full">
       <h5>{account ? t('No positions found') : t('Connect your wallet to view your positions')}</h5>
-      {account ? (
-        <AddLiquidityButtonV2 fullWidth poolType={poolType} token0={token0} token1={token1} />
-      ) : (
-        <ConnectWalletButton />
-      )}
+      {!account && <ConnectWalletButton />}
     </div>
   )
 }
