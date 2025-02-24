@@ -8,6 +8,7 @@ import { TradeSummary } from 'views/Swap/components/AdvancedSwapDetails'
 import { Transition } from '@headlessui/react'
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import { useTranslation } from 'next-i18next'
 import { RoutesBreakdown } from 'views/Swap/V3Swap/components'
 import { useIsWrapping, useSlippageAdjustedAmounts } from '../hooks'
 import { computeTradePriceBreakdown } from '../utils/exchange'
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export const TradeDetails = memo(function TradeDetails({ loaded, trade }: Props) {
+  const { t } = useTranslation()
   const slippageAdjustedAmounts = useSlippageAdjustedAmounts(trade)
   const isWrapping = useIsWrapping()
   const { priceImpactWithoutFee, lpFeeAmount } = useMemo(() => computeTradePriceBreakdown(trade), [trade])
@@ -41,7 +43,7 @@ export const TradeDetails = memo(function TradeDetails({ loaded, trade }: Props)
         onClick={() => setShow((prev) => !prev)}
         className="flex items-center space-x-1 hover:opacity-70 text-center"
       >
-        <span className="text-[13px] text-on-surface-subtle">Detail</span>
+        <span className="text-[13px] text-on-surface-subtle">{t('Detail')}</span>
 
         {loaded ? (
           <CaretDown

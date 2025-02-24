@@ -12,6 +12,13 @@ export function V3SwapForm() {
 
   return (
     <div className="px-4">
+      <div
+        className="w-full h-80 absolute top-0 -z-10 left-1/2 -translate-x-1/2 max-w-layout"
+        style={{
+          background: 'linear-gradient(180deg, rgba(249, 115, 22, 0.40) 0%, rgba(249, 115, 22, 0.00) 100%)',
+        }}
+      />
+
       <div className="max-w-sm bg-surface-raised rounded-2xl p-5 mx-auto">
         <FormHeader onRefresh={refresh} refreshDisabled={!trade} syncing={syncing} />
 
