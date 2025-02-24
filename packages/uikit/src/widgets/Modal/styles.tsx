@@ -108,7 +108,7 @@ export const ModalContainerV3 = forwardRef<
       ref={ref}
       className={clsx(
         "overflow-hidden bg-gray-850 z-modal w-full",
-        "px-6 pb-6 absolute bottom-0 min-h-[300px] rounded-t-2xl max-h-[80vh]",
+        "px-6 pb-6 fixed bottom-0 min-h-[300px] rounded-t-2xl max-h-[80vh]",
         "md:p-6 md:rounded-2xl md:max-h-fit md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2",
         {
           [maxWidth]: width >= 768,
