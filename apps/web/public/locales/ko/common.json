@@ -367,5 +367,7 @@
   "Calculated at the current rates with historical trading volume data, and subject to change based on various external variables.": "과거 거래량 데이터에서 현재 비율로 계산되며 다양한 외부 변수에 따라 변경될 수 있습니다.",
   "This figure is provided for your convenience only, and by no means represents guaranteed returns.": "이 수치는 편의를 위해 제공되며, 보장된 수익을 나타내지 않습니다.",
 
-  "Invalid Pair": "유효하지 않은 페어"
+  "Invalid Pair": "유효하지 않은 페어",
+
+  "Resets when wallet is disconnected.": "지갑 연결 해제시 초기화됩니다."
 }
