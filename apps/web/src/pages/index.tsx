@@ -7,19 +7,17 @@ import { getDefaultStaticProps } from 'utils/pageUtils'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import Background from 'views/Main/Background'
 
-// 2025/02/23 22:03 PM
+// 2025/02/23
 const DATA = {
-  timestamp: 1740182400000,
-  dragonSwap: {
-    tvlUSD: 14449983.984572034,
-    volumeUSD: 1778165.2686760426,
-    txCount: 14457,
-    poolCount: 456,
+  tvlUSD: {
+    date: '2024-12-24',
+    dragonSwap: 34065130.89268091,
+    kaia: 68092733.0224791,
   },
-  kaia: {
-    tvlUSD: 127341887.48693456,
-    volumeUSD: 8203362.2969554085,
-    swapCount: 33322,
+  volumeUSD: {
+    date: '2024-12-15',
+    dragonSwap: 25256180.28793001,
+    kaia: 30206565.982980352,
   },
 } as const
 
@@ -53,7 +51,7 @@ const HomePage = () => {
             <HomeCard
               title={t('DragonSwap TVL')}
               value={formatDollarAmountV2({
-                num: DATA.dragonSwap.tvlUSD,
+                num: DATA.tvlUSD.dragonSwap,
                 digits: 1,
                 withDollarSign: true,
               })}
@@ -61,14 +59,14 @@ const HomePage = () => {
             <HomeCard
               title={t('Kaia Ecosystem TVL')}
               value={formatDollarAmountV2({
-                num: DATA.kaia.tvlUSD,
+                num: DATA.tvlUSD.kaia,
                 digits: 1,
                 withDollarSign: true,
               })}
             />
             <HomeCard
               title={t('DragonSwap TVL Share')}
-              value={(DATA.dragonSwap.tvlUSD / DATA.kaia.tvlUSD).toLocaleString(undefined, {
+              value={(DATA.tvlUSD.dragonSwap / DATA.tvlUSD.kaia).toLocaleString(undefined, {
                 style: 'percent',
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1,
@@ -92,7 +90,7 @@ const HomePage = () => {
             <HomeCard
               title={t('DragonSwap Volume')}
               value={formatDollarAmountV2({
-                num: DATA.dragonSwap.volumeUSD,
+                num: DATA.volumeUSD.dragonSwap,
                 digits: 1,
                 withDollarSign: true,
               })}
@@ -100,14 +98,14 @@ const HomePage = () => {
             <HomeCard
               title={t('Kaia Ecosystem Volume')}
               value={formatDollarAmountV2({
-                num: DATA.kaia.volumeUSD,
+                num: DATA.volumeUSD.kaia,
                 digits: 1,
                 withDollarSign: true,
               })}
             />
             <HomeCard
               title={t('DragonSwap Volume Share')}
-              value={(DATA.dragonSwap.volumeUSD / DATA.kaia.volumeUSD).toLocaleString(undefined, {
+              value={(DATA.volumeUSD.dragonSwap / DATA.volumeUSD.kaia).toLocaleString(undefined, {
                 style: 'percent',
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1,
