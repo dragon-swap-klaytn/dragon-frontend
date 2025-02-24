@@ -1,6 +1,12 @@
 import clsx from 'clsx'
+import { usePathname } from 'next/navigation'
 
 export default function Background() {
+  const pathname = usePathname()
+  if (pathname !== '/') {
+    return null
+  }
+
   return (
     <>
       <div className="absolute -z-10 w-full left-0 top-[900px] lg:top-[800px]">
