@@ -1,12 +1,12 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { WalletStorageKey } from '@pancakeswap/ui-wallets'
-import { useMatchBreakpoints, useModal, WalletId } from '@pancakeswap/uikit'
+import { ConnectorId, useMatchBreakpoints, useModal, WalletId } from '@pancakeswap/uikit'
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import WalletModal from 'components/Menu/UserMenu/WalletModal'
-import { DEFAULT_WALLET_ICON, getWalletIcon } from 'config/wallet'
+import { DEFAULT_WALLET_ICON, getWalletIcon, getWalletIdByConnectorId } from 'config/wallet'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useSwitchNetworkLocal } from 'hooks/useSwitchNetwork'
@@ -64,14 +64,24 @@ const UserMenu = ({
     const intervalId = setInterval(() => {
       const recentConnectorId = localStorage.getItem(WalletStorageKey.CONNECTOR)
 
-      if (!connector || !recentConnectorId || connector.id !== recentConnectorId) {
-        setConnectedWalletId(null)
-      } else {
-        const recentWalletId = localStorage.getItem(WalletStorageKey.WALLET)
-        if (recentWalletId) {
-          setConnectedWalletId(recentWalletId as WalletId)
+      if (connector) {
+        const connectorId = connector.id
+
+        if (!recentConnectorId) {
+          const walletId = getWalletIdByConnectorId(connectorId as ConnectorId)
+          setConnectedWalletId(walletId)
           clearInterval(intervalId)
+        } else if (connectorId !== recentConnectorId) {
+          setConnectedWalletId(null)
+        } else {
+          const recentWalletId = localStorage.getItem(WalletStorageKey.WALLET)
+          if (recentWalletId) {
+            setConnectedWalletId(recentWalletId as WalletId)
+            clearInterval(intervalId)
+          }
         }
+      } else {
+        setConnectedWalletId(null)
       }
 
       safeCount++

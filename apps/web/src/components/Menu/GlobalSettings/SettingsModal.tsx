@@ -78,7 +78,7 @@ const SettingsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> = ({ 
               <SettingTitle
                 title={t('Expert Mode')}
                 questionHelperText={t(
-                  'Bypasses confirmation modals and allows high slippage trades. Use at your own risk.',
+                  'Skips warning modals for high-slippage trades, allowing riskier transactions. Use at your own risk.',
                 )}
               />
 
@@ -156,9 +156,7 @@ export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }
         <div className="flex items-center justify-between w-full">
           <SettingTitle
             title="DragonSwap V3"
-            questionHelperText={t(
-              'V3 offers concentrated liquidity to provide deeper liquidity for traders with the same amount of capital, offering lower slippage and more flexible trading fee tiers.',
-            )}
+            questionHelperText={t('Provides concentrated liquidity, deeper pools, lower slippage, and flexible fees.')}
           />
 
           <ToggleSwitch
@@ -173,12 +171,7 @@ export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }
         <div className="flex items-center justify-between w-full">
           <SettingTitle
             title="DragonSwap V2"
-            questionHelperText={
-              <div className="text-sm">
-                <p>{t('The previous V2 exchange is where a number of iconic, popular assets are traded.')}</p>
-                <p className="mt-4">{t('Recommend leaving this on to ensure backward compatibility.')}</p>
-              </div>
-            }
+            questionHelperText={<p className="text-sm">{t('Supports asset trading on V2 pools.')}</p>}
           />
 
           <ToggleSwitch
@@ -199,12 +192,7 @@ export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }
               <div className="text-sm">
                 <p>
                   {t(
-                    'Multihops enables token swaps through multiple hops between several pools to achieve the best deal.',
-                  )}
-                </p>
-                <p className="mt-4">
-                  {t(
-                    'Turning this off will only allow direct swap, which may cause higher slippage or even fund loss.',
+                    'Routes through multiple pools for optimal trading. Disabling restricts to a single path, increasing slippage risk.',
                   )}
                 </p>
               </div>
@@ -226,11 +214,8 @@ export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }
             questionHelperText={
               <div className="text-sm">
                 <p>
-                  {t('Split routing enables token swaps to be broken into multiple routes to achieve the best deal.')}
-                </p>
-                <p className="mt-4">
                   {t(
-                    'Turning this off will only allow a single route, which may result in low efficiency or higher slippage.',
+                    'Splits swaps across multiple routes for optimal trades. A single route may reduce efficiency and increase slippage.',
                   )}
                 </p>
               </div>

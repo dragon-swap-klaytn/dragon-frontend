@@ -63,7 +63,7 @@ export const Overlay: React.FC<React.PropsWithChildren<OverlayProps>> = (props) 
     <>
       <BodyLock />
       {/* <StyledOverlay role="presentation" {...props} /> */}
-      <div role="presentation" className="fixed inset-0 w-full h-full bg-gray-800/80 z-overlay" {...props} />
+      <div role="presentation" className="fixed inset-0 w-full h-full bg-black/50 backdrop-blur z-overlay" {...props} />
     </>
   );
 };

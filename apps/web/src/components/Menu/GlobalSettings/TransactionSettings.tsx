@@ -85,9 +85,7 @@ const SlippageTabs = () => {
     <>
       <SettingTitle
         title={t('Slippage Tolerance')}
-        questionHelperText={t(
-          'Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Use with caution.',
-        )}
+        questionHelperText={t('Transactions are automatically canceled if they exceed the set time.')}
       />
 
       <div className="flex flex-wrap gap-2 mt-3">

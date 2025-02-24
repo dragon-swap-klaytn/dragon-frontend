@@ -1,6 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { ExternalLink, SegmentedControl, Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { ExternalLink, Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
+import dayjs from 'dayjs'
 import { TransactionEventWithType } from 'lib/graph-queries/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getBlockExploreLink } from 'utils'
@@ -9,7 +10,6 @@ import Pagination from 'views/Dashboard/components/Pagination'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import { OverviewTransaction } from 'views/Dashboard/hooks/useOverviewData'
 import { SortDirection, Transaction, TransactionType } from '../../types'
-import { formatTime } from '../../utils/date'
 import { formatDollarAmount } from '../../utils/numbers'
 
 const TRANSACTIONS_SORT_BY_LIST = ['amountUSD', 'timestamp', 'amountToken0', 'amountToken1'] as const
@@ -61,14 +61,13 @@ const DataRow = ({
         {formatAmount(abs1)} {token1Symbol}
       </td>
       {!isMobile && (
-        <td className="text-on-surface px-4 py-6 text-left">{formatTime(transaction.timestamp.toString(), 0)}</td>
+        <td className="text-on-surface px-4 py-6 text-left">
+          {dayjs(transaction.timestamp).format('YYYY-MM-DD hh:mm:ss')}
+        </td>
       )}
     </tr>
   )
 }
-
-const TX_FILTER_OPTIONS = ['All', 'Swaps', 'Adds', 'Removes'] as const
-type TxFilter = (typeof TX_FILTER_OPTIONS)[number]
 
 const SHOW_TRANSACTION_COUNT = 10
 export default function TransactionTable({
@@ -87,30 +86,14 @@ export default function TransactionTable({
   const [page, setPage] = useState(1)
   const [totalPage, setTotalPage] = useState(1)
 
-  const [txFilterStr, setTxFilterStr] = useState<TxFilter>('All')
   const [filteredTransactions, setFilteredTransactions] = useState<TransactionEventWithType[] | undefined>(undefined)
   useEffect(() => {
     const swaps = (transactions?.swaps ?? []).map((tx) => ({ ...tx, type: TransactionType.SWAP }))
     const adds = (transactions?.mints ?? []).map((tx) => ({ ...tx, type: TransactionType.MINT }))
     const removes = (transactions?.burns ?? []).map((tx) => ({ ...tx, type: TransactionType.BURN }))
 
-    switch (txFilterStr) {
-      case 'All':
-        setFilteredTransactions([...swaps, ...adds, ...removes])
-        break
-      case 'Swaps':
-        setFilteredTransactions(swaps)
-        break
-      case 'Adds':
-        setFilteredTransactions(adds)
-        break
-      case 'Removes':
-        setFilteredTransactions(removes)
-        break
-      default:
-        break
-    }
-  }, [txFilterStr, transactions])
+    setFilteredTransactions([...swaps, ...adds, ...removes])
+  }, [transactions])
 
   useEffect(() => {
     const totalPageResult = Math.ceil((filteredTransactions?.length ?? 0) / SHOW_TRANSACTION_COUNT)
@@ -160,12 +143,6 @@ export default function TransactionTable({
 
   return (
     <>
-      <SegmentedControl
-        options={TX_FILTER_OPTIONS as unknown as TxFilter[]}
-        value={txFilterStr}
-        onChange={setTxFilterStr}
-        useTranslationOption
-      />
       <table className="w-full rounded-xl overflow-hidden">
         <colgroup>
           <col width="30%" />
