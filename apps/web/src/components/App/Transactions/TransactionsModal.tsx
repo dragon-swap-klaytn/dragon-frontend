@@ -1,10 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { ButtonV2, InjectedModalProps, Modal } from '@pancakeswap/uikit'
+import { InjectedModalProps, Modal } from '@pancakeswap/uikit'
 import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback } from 'react'
-import { useAppDispatch } from 'state'
-import { clearAllTransactions } from 'state/transactions/actions'
 import { useAllSortedRecentTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/reducer'
 import { useAccount } from 'wagmi'
@@ -22,17 +19,11 @@ export function renderTransactions(transactions: TransactionDetails[], chainId: 
 }
 
 const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> = ({ onDismiss }) => {
+  const { t } = useTranslation()
   const { address: account } = useAccount()
-  const dispatch = useAppDispatch()
   const sortedRecentTransactions = useAllSortedRecentTransactions()
 
-  const { t } = useTranslation()
-
   const hasTransactions = !isEmpty(sortedRecentTransactions)
-
-  const clearAllTransactionsCallback = useCallback(() => {
-    dispatch(clearAllTransactions())
-  }, [dispatch])
 
   return (
     <Modal title={t('Recent Transactions')} maxWidth="max-w-lg" onDismiss={onDismiss}>
@@ -52,10 +43,6 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
                   return <div key={`transactions#${chainIdNumber}`}>{renderTransactions(confirmed, chainIdNumber)}</div>
                 })}
               </div>
-
-              <ButtonV2 scale="sm" onClick={clearAllTransactionsCallback} variant="subtle" fullWidth className="mt-7">
-                {t('Clear all')}
-              </ButtonV2>
             </>
           ) : (
             <p className="text-center py-6 text-on-surface">{t('No recent transactions')}</p>

@@ -21,7 +21,6 @@ import { ClockCounterClockwise } from '@phosphor-icons/react'
 import { AppBody, AppHeader } from 'components/App'
 import TransactionsModal from 'components/App/Transactions/TransactionsModal'
 import { RangeTag } from 'components/RangeTag'
-import { V3SubgraphHealthIndicator } from 'components/SubgraphHealthIndicator'
 import { V3_MIGRATION_SUPPORTED_CHAINS } from 'config/constants/supportChains'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import useV2PairsByAccount from 'hooks/useV2Pairs'
@@ -349,7 +348,6 @@ export default function PoolListPage() {
             </Button>
           </NextLink>
         </CardFooter>
-        <V3SubgraphHealthIndicator />
       </AppBody>
     </Page>
   )

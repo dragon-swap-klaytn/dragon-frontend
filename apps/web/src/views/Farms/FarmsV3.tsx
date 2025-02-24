@@ -28,7 +28,6 @@ import {
 import { BIG_ONE, BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import BigNumber from 'bignumber.js'
 import Page from 'components/Layout/Page'
-import { V3SubgraphHealthIndicator } from 'components/SubgraphHealthIndicator'
 import { V3_MIGRATION_SUPPORTED_CHAINS } from 'config/constants/supportChains'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
@@ -541,7 +540,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
         )}
         {chosenFarms.length > 0 && <div ref={observerRef} />}
         <StyledImage src="/images/decorations/dgs-light.png" alt="DGS illustration" width={120} height={103} />
-        <V3SubgraphHealthIndicator />
       </Page>
     </FarmsV3Context.Provider>
   )

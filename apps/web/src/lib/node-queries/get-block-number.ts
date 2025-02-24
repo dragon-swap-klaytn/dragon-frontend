@@ -9,6 +9,6 @@ export const getFreshBlockNumber = async () => {
 }
 
 export const getBlockNumber = localCachedV2(getFreshBlockNumber, {
-  ttl: 1_000,
+  ttl: 5_000,
   ttlOnCatch: 1_000,
 }).cachedFetcher

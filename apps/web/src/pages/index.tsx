@@ -7,19 +7,17 @@ import { getDefaultStaticProps } from 'utils/pageUtils'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import Background from 'views/Main/Background'
 
-// 2025/02/23 22:03 PM
+// 2025/02/23
 const DATA = {
-  timestamp: 1740182400000,
-  dragonSwap: {
-    tvlUSD: 14449983.984572034,
-    volumeUSD: 1778165.2686760426,
-    txCount: 14457,
-    poolCount: 456,
+  tvlUSD: {
+    date: '2024-12-24',
+    dragonSwap: 34065130.89268091,
+    kaia: 68092733.0224791,
   },
-  kaia: {
-    tvlUSD: 127341887.48693456,
-    volumeUSD: 8203362.2969554085,
-    swapCount: 33322,
+  volumeUSD: {
+    date: '2024-12-15',
+    dragonSwap: 25256180.28793001,
+    kaia: 30206565.982980352,
   },
 } as const
 
@@ -27,108 +25,109 @@ const HomePage = () => {
   const { t } = useTranslation()
 
   return (
-    <div className="max-w-[1200px] mx-auto pt-[80px] pb-[200px] px-4 relative overflow-x-hidden">
-      <div className="flex flex-col items-start space-y-8">
-        <DragonSwapLogo size={100} className="hidden md:block" />
+    <div>
+      <div className="max-w-[1200px] mx-auto pt-[80px] pb-[200px] px-4 relative overflow-x-hidden">
+        <div className="flex flex-col items-start space-y-8">
+          <DragonSwapLogo size={100} className="hidden md:block" />
 
-        <div>
-          <Title>{t('main-first-header-1')}</Title>
-          <Title>{t('main-first-header-2')}</Title>
+          <div>
+            <Title>{t('main-first-header-1')}</Title>
+            <Title>{t('main-first-header-2')}</Title>
+          </div>
+
+          <div>
+            <Description>{t('main-first-content-1')}</Description>
+            <Description>{t('main-first-content-2')}</Description>
+          </div>
+
+          <Link
+            href="/swap"
+            className={clsx(COMMON_BUTTON_STYLE, MD_BUTTON_STYLE, 'bg-bold text-on-surface-inverse whitespace-nowrap')}
+          >
+            {t('Trade Now')}
+          </Link>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
+            <HomeCard
+              title={t('DragonSwap TVL')}
+              value={formatDollarAmountV2({
+                num: DATA.tvlUSD.dragonSwap,
+                digits: 1,
+                withDollarSign: true,
+              })}
+            />
+            <HomeCard
+              title={t('Kaia Ecosystem TVL')}
+              value={formatDollarAmountV2({
+                num: DATA.tvlUSD.kaia,
+                digits: 1,
+                withDollarSign: true,
+              })}
+            />
+            <HomeCard
+              title={t('DragonSwap TVL Share')}
+              value={(DATA.tvlUSD.dragonSwap / DATA.tvlUSD.kaia).toLocaleString(undefined, {
+                style: 'percent',
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              })}
+            />
+          </div>
         </div>
 
-        <div>
-          <Description>{t('main-first-content-1')}</Description>
-          <Description>{t('main-first-content-2')}</Description>
+        <div className="flex flex-col items-start space-y-8 mt-[320px]">
+          <div>
+            <Title>{t('main-second-header-1')}</Title>
+            <Title>{t('main-second-header-2')}</Title>
+          </div>
+
+          <div>
+            <Description>{t('main-second-content-1')}</Description>
+            <Description>{t('main-second-content-2')}</Description>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
+            <HomeCard
+              title={t('DragonSwap Volume')}
+              value={formatDollarAmountV2({
+                num: DATA.volumeUSD.dragonSwap,
+                digits: 1,
+                withDollarSign: true,
+              })}
+            />
+            <HomeCard
+              title={t('Kaia Ecosystem Volume')}
+              value={formatDollarAmountV2({
+                num: DATA.volumeUSD.kaia,
+                digits: 1,
+                withDollarSign: true,
+              })}
+            />
+            <HomeCard
+              title={t('DragonSwap Volume Share')}
+              value={(DATA.volumeUSD.dragonSwap / DATA.volumeUSD.kaia).toLocaleString(undefined, {
+                style: 'percent',
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              })}
+            />
+          </div>
         </div>
 
-        <Link
-          href="/swap"
-          className={clsx(COMMON_BUTTON_STYLE, MD_BUTTON_STYLE, 'bg-bold text-on-surface-inverse whitespace-nowrap')}
-        >
-          {t('Trade Now')}
-        </Link>
+        <div className="flex flex-col items-start space-y-8 mt-[320px]">
+          <Title>{t('main-third-header-1')}</Title>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
-          <HomeCard
-            title={t('DragonSwap TVL')}
-            value={formatDollarAmountV2({
-              num: DATA.dragonSwap.tvlUSD,
-              digits: 1,
-              withDollarSign: true,
-            })}
-          />
-          <HomeCard
-            title={t('Kaia Ecosystem TVL')}
-            value={formatDollarAmountV2({
-              num: DATA.kaia.tvlUSD,
-              digits: 1,
-              withDollarSign: true,
-            })}
-          />
-          <HomeCard
-            title={t('DragonSwap TVL Share')}
-            value={(DATA.dragonSwap.tvlUSD / DATA.kaia.tvlUSD).toLocaleString(undefined, {
-              style: 'percent',
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            })}
-          />
+          <div>
+            <Description>{t('main-third-content-1')}</Description>
+            <Description>{t('main-third-content-2')}</Description>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-10">
+            <LinkCard type="swap" />
+            <LinkCard type="pools" />
+          </div>
         </div>
       </div>
-
-      <div className="flex flex-col items-start space-y-8 mt-[320px]">
-        <div>
-          <Title>{t('main-second-header-1')}</Title>
-          <Title>{t('main-second-header-2')}</Title>
-        </div>
-
-        <div>
-          <Description>{t('main-second-content-1')}</Description>
-          <Description>{t('main-second-content-2')}</Description>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
-          <HomeCard
-            title={t('DragonSwap Volume')}
-            value={formatDollarAmountV2({
-              num: DATA.dragonSwap.volumeUSD,
-              digits: 1,
-              withDollarSign: true,
-            })}
-          />
-          <HomeCard
-            title={t('Kaia Ecosystem Volume')}
-            value={formatDollarAmountV2({
-              num: DATA.kaia.volumeUSD,
-              digits: 1,
-              withDollarSign: true,
-            })}
-          />
-          <HomeCard
-            title={t('DragonSwap Volume Share')}
-            value={(DATA.dragonSwap.volumeUSD / DATA.kaia.volumeUSD).toLocaleString(undefined, {
-              style: 'percent',
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            })}
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col items-start space-y-8 mt-[320px]">
-        <Title>{t('main-third-header-1')}</Title>
-
-        <div>
-          <Description>{t('main-third-content-1')}</Description>
-          <Description>{t('main-third-content-2')}</Description>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-10">
-          <LinkCard type="swap" />
-          <LinkCard type="pools" />
-        </div>
-      </div>
-
       <Background />
     </div>
   )
@@ -170,7 +169,7 @@ function LinkCard({ type }: { type: 'swap' | 'pools' }) {
 }
 
 const Title = ({ children }: { children: string }) => (
-  <h2 className="text-[40px] md:text-[72px] text-on-surface">{children}</h2>
+  <h2 className="text-[40px] leading-snug md:text-[72px] text-on-surface">{children}</h2>
 )
 
 const Description = ({ children }: { children: string }) => <p className="text-lg text-on-surface">{children}</p>

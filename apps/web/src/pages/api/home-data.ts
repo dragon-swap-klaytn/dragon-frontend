@@ -11,30 +11,20 @@ const getSwapscannerDashboardData = async () => {
   return res.json()
 }
 
-const getSwapscannerForexData = async () => {
-  const res = await fetch('https://api.swapscanner.io/api/forex')
-
-  if (!res.ok) throw new Error('Failed to fetch forex data from swapscanner')
-
-  return res.json()
-}
-
 const getSwapscannerSummaryData = async () => {
-  const [ssDashboardData, forexData] = await Promise.all([getSwapscannerDashboardData(), getSwapscannerForexData()])
+  const ssDashboardData = await getSwapscannerDashboardData()
 
-  const usdCoingecko = forexData.USD_COINGECKO
-  const lastIndex = ssDashboardData.tvl.value.length - 1
-  const latestTimestamp = new Date(ssDashboardData.tvl.value[lastIndex][0]).getTime()
-  const tvlUSD = ssDashboardData.tvl.value[lastIndex][1] * usdCoingecko
-  const volumeUSD = ssDashboardData.swapVolumeUSDC.value[lastIndex][1] * usdCoingecko
-  const swapCount = ssDashboardData.swaps.value[lastIndex][1]
+  const data: { timestamp: number; tvlUSD: number; volumeUSD: number; swapCount: number }[] = []
 
-  return {
-    timestamp: latestTimestamp,
-    tvlUSD,
-    volumeUSD,
-    swapCount,
-  }
+  ssDashboardData.tvl.value.forEach(([timestamp], index) => {
+    const tvlUSD = ssDashboardData.tvl.value[index][1] * 1
+    const volumeUSD = ssDashboardData.swapVolumeUSDC.value[index][1] * 1
+    const swapCount = ssDashboardData.swaps.value[index][1]
+
+    data.push({ timestamp, tvlUSD, volumeUSD, swapCount })
+  })
+
+  return data
 }
 
 const DAY = 24 * 60 * 60 * 1000
@@ -46,29 +36,43 @@ const handler: NextApiHandler = async (req, res) => {
     return
   }
 
-  const { timestamp, tvlUSD, volumeUSD, swapCount } = await getSwapscannerSummaryData()
-  const blocks = await getCachedBlockNumbers([timestamp, timestamp + DAY])
+  const data: any[] = []
 
-  const [v2Yesterday, v2Today, v3Yesterday, v3Today] = await Promise.all([
-    getV2FactoryData({ blockNumber: blocks[0] }),
-    getV2FactoryData({ blockNumber: blocks[1] }),
-    getV3FactoryData({ blockNumber: blocks[0] }),
-    getV3FactoryData({ blockNumber: blocks[1] }),
-  ])
+  const ssData = await getSwapscannerSummaryData()
 
-  const data = {
-    timestamp,
-    dragonSwap: {
-      tvlUSD: v2Today.tvlUSD + v3Today.tvlUSD,
-      volumeUSD: v2Today.volumeUSD + v3Today.volumeUSD - v2Yesterday.volumeUSD - v3Yesterday.volumeUSD,
-      txCount: v2Today.txCount + v3Today.txCount - v2Yesterday.txCount - v3Yesterday.txCount,
-      poolCount: v2Today.poolCount + v3Today.poolCount,
-    },
-    kaia: {
-      tvlUSD,
-      volumeUSD,
-      swapCount,
-    },
+  for (let i = 0; i < ssData.length; i++) {
+    const { timestamp, tvlUSD, volumeUSD, swapCount } = ssData[i]
+
+    // eslint-disable-next-line no-await-in-loop
+    const blocks = await getCachedBlockNumbers([timestamp, timestamp + DAY])
+
+    // eslint-disable-next-line no-await-in-loop
+    const [v2Yesterday, v2Today, v3Yesterday, v3Today] = await Promise.all([
+      getV2FactoryData({ blockNumber: blocks[0] }),
+      getV2FactoryData({ blockNumber: blocks[1] }),
+      getV3FactoryData({ blockNumber: blocks[0] }),
+      getV3FactoryData({ blockNumber: blocks[1] }),
+    ])
+
+    data.push({
+      timestamp,
+      date: new Date(timestamp).toISOString(),
+      dragonSwap: {
+        tvlUSD: v2Today.tvlUSD + v3Today.tvlUSD,
+        volumeUSD: v2Today.volumeUSD + v3Today.volumeUSD - v2Yesterday.volumeUSD - v3Yesterday.volumeUSD,
+        txCount: v2Today.txCount + v3Today.txCount - v2Yesterday.txCount - v3Yesterday.txCount,
+        poolCount: v2Today.poolCount + v3Today.poolCount,
+      },
+      kaia: {
+        tvlUSD,
+        volumeUSD,
+        swapCount,
+      },
+    })
+
+    console.log('awaiting 1s...', i + 1)
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 
   res.json(data)
