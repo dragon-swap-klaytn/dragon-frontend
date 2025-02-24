@@ -12,7 +12,6 @@ import { OptionProps } from '@pancakeswap/uikit'
 
 import { BIG_ONE, BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import BigNumber from 'bignumber.js'
-import { V3SubgraphHealthIndicator } from 'components/SubgraphHealthIndicator'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
 import orderBy from 'lodash/orderBy'
@@ -280,8 +279,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
     <FarmsV3Context.Provider value={providerValue}>
       <div className="px-5 md:px-8 mx-auto w-full flex flex-col items-center space-y-8 max-w-6xl">
         <Pools poolTypes={poolTypes} />
-
-        <V3SubgraphHealthIndicator />
       </div>
     </FarmsV3Context.Provider>
   )

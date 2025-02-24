@@ -15,7 +15,7 @@ export default function SortHeaderButton({
 }) {
   return (
     <button type="button" onClick={onClick} className="flex items-center space-x-2">
-      <span className="w-min">{title}</span>
+      <span className="w-min font-medium">{title}</span>
 
       <div className="flex items-center">
         <CaretUpDown up={isSelected && sortDirection === 'asc'} down={isSelected && sortDirection === 'desc'} />

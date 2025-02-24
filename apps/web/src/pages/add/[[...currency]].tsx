@@ -1,5 +1,4 @@
 import { isStableFarm } from '@pancakeswap/farms'
-import { V3SubgraphHealthIndicator } from 'components/SubgraphHealthIndicator'
 import { useCurrency } from 'hooks/Tokens'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -85,7 +84,6 @@ const AddLiquidityPage = () => {
             isV2={!feeAmount ? preferFarmType?.type === SELECTOR_TYPE.V2 : undefined}
             preferredFeeAmount={!feeAmount ? preferFarmType?.feeAmount : undefined}
           />
-          <V3SubgraphHealthIndicator />
         </AddLiquidityV3Layout>
       </LiquidityFormProvider>
     </AddLiquidityV2FormProvider>

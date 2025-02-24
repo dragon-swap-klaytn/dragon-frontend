@@ -167,7 +167,7 @@ export default function PoolTable({
                     sortDirection={sortDirection}
                   />
                 ) : (
-                  <>{title}</>
+                  <span className="font-medium">{title}</span>
                 )}
               </th>
             ))}

@@ -206,7 +206,7 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
 
 function ChartHeader({ title, value, date }: { title: string; value: string; date: string }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       <h4 className="text-sm text-on-surface">{title}</h4>
       <span className="text-[32px] text-on-surface">{value}</span>
       <span className="text-sm text-on-surface-subtlest">{date}</span>

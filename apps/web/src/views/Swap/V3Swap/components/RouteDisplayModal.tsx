@@ -29,6 +29,7 @@ export const RouteDisplayModal = memo(function RouteDisplayModal({ isOpen, onDis
             />
           </div>
         }
+        onDismiss={onDismiss}
       >
         {routes.map((route, i) => (
           // eslint-disable-next-line react/no-array-index-key

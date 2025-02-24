@@ -102,6 +102,9 @@ module.exports = {
         overlay: 115,
         modal: 120,
       },
+      maxWidth: {
+        layout: 2560,
+      },
     },
   },
   plugins: [],

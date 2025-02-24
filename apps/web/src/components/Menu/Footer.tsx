@@ -1,32 +1,32 @@
 import { ExternalLink } from '@pancakeswap/uikit'
-import { Envelope, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import { EmailLogo, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from 'components/Vector'
 import Link from 'next/link'
 
 const EXTERNAL_LINKS = [
   {
     id: 'twitter',
-    icon: <TwitterLogo size={24} weight="fill" className="text-on-surface" />,
+    icon: <TwitterLogo />,
     href: 'https://twitter.com/dgswap',
   },
   {
     id: 'github',
-    icon: <GithubLogo size={24} weight="fill" className="text-on-surface" />,
+    icon: <GithubLogo />,
     href: 'https://github.com/dragon-swap-klaytn',
   },
   {
     id: 'telegram',
-    icon: <TelegramLogo size={24} weight="fill" className="text-on-surface" />,
+    icon: <TelegramLogo />,
     href: 'https://t.me/DragonSwap_COMM',
   },
   {
     id: 'support',
-    icon: <Envelope size={24} weight="fill" className="text-on-surface" />,
+    icon: <EmailLogo />,
     href: 'mailto:support@dgswap.io',
   },
   {
     id: 'medium',
-    icon: <MediumLogo size={24} weight="fill" className="text-on-surface" />,
+    icon: <MediumLogo />,
     href: 'https://dgswap.medium.com/',
   },
 ]
@@ -45,7 +45,7 @@ export function ExternalLinks({ className }: { className?: string }) {
 
 export default function Footer() {
   return (
-    <div className="px-4 md:px-[60px] py-10 bg-transparent w-full mt-32 md:mt-52">
+    <div className="px-4 md:px-[60px] py-10 bg-transparent w-full mt-32 md:mt-52 max-w-layout mx-auto">
       <div className="w-full flex flex-col space-y-10 md:space-y-2 md:flex-row md:items-start md:space-x-2 md:justify-between">
         <ExternalLinks />
 
