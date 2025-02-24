@@ -3,61 +3,52 @@ import { FAST_INTERVAL, SLOW_INTERVAL } from 'config/constants'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
-import { viemClients } from 'utils/viem'
 import { Block } from 'views/Dashboard/types'
 import { useBlockNumber, usePublicClient } from 'wagmi'
 
 const REFRESH_BLOCK_INTERVAL = 6000
 
+const fetchBlockNumber = async () =>
+  fetch('/api/blocknumber')
+    .then((res) => res.json())
+    .then((data) => Number(data.blockNumber))
+
 export const usePollBlockNumber = () => {
   const queryClient = useQueryClient()
   const { chainId } = useActiveChainId()
-  const { data: blockNumber } = useBlockNumber({
-    chainId,
-    cacheTime: 10_000,
-    onBlock: (data) => {
-      queryClient.setQueryData(['blockNumber', chainId], Number(data))
-    },
-    onSuccess: (data) => {
-      if (!queryClient.getQueryCache().find<number>(['initialBlockNumber', chainId])?.state?.data) {
-        queryClient.setQueryData(['initialBlockNumber', chainId], Number(data))
-      }
-      if (!queryClient.getQueryCache().find<number>(['initialBlockTimestamp', chainId])?.state?.data) {
-        const fetchInitialBlockTimestamp = async () => {
-          const provider = viemClients[chainId as keyof typeof viemClients]
-          if (provider) {
-            const block = await provider.getBlock({ blockNumber: data })
-            queryClient.setQueryData(['initialBlockTimestamp', chainId], Number(block.timestamp))
-          }
-        }
-        fetchInitialBlockTimestamp()
-      }
-    },
-  })
 
+  // Poll the block number with a fast interval
   useQuery(
-    ['blockNumberFetcher', chainId],
+    ['blockNumber', chainId],
     async () => {
-      queryClient.setQueryData(['blockNumber', chainId], Number(blockNumber))
-      return null
+      const blockNumber = await fetchBlockNumber()
+      // Update our cache with the new block number
+      queryClient.setQueryData(['blockNumber', chainId], blockNumber)
+      // Set the initial block number if it isn’t set yet
+      if (!queryClient.getQueryCache().find<number>(['initialBlockNumber', chainId])?.state?.data) {
+        queryClient.setQueryData(['initialBlockNumber', chainId], blockNumber)
+      }
+      // (Optionally) set the initial block timestamp if needed here...
+      return blockNumber
     },
     {
-      enabled: false,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
+      enabled: Boolean(chainId),
+      refetchInterval: FAST_INTERVAL,
     },
   )
 
-  useQuery([FAST_INTERVAL, 'blockNumber', chainId], async () => Number(blockNumber), {
-    enabled: Boolean(chainId),
-    refetchInterval: FAST_INTERVAL,
-  })
-
-  useQuery([SLOW_INTERVAL, 'blockNumber', chainId], async () => Number(blockNumber), {
-    enabled: Boolean(chainId),
-    refetchInterval: SLOW_INTERVAL,
-  })
+  // Optionally, poll with a slow interval as well
+  useQuery(
+    [SLOW_INTERVAL, 'blockNumber', chainId],
+    async () => {
+      const blockNumber = await fetchBlockNumber()
+      return blockNumber
+    },
+    {
+      enabled: Boolean(chainId),
+      refetchInterval: SLOW_INTERVAL,
+    },
+  )
 }
 
 export const useCurrentBlock = (): number => {
@@ -78,7 +69,11 @@ export const useChainCurrentBlock = (chainId: number): number => {
   const { data: currentBlock = 0 } = useQuery(
     activeChainId === chainId ? ['blockNumber', chainId] : ['chainBlockNumber', chainId],
     async () => {
-      const blockNumber = await provider.getBlockNumber()
+      const blockNumber = await fetch('/api/blocknumber')
+        .then((res) => res.json())
+        .then((data) => data.blockNumber)
+        .catch(() => provider.getBlockNumber())
+
       return Number(blockNumber)
     },
     {
