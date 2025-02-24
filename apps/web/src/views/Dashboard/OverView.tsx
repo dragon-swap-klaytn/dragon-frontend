@@ -165,7 +165,7 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
         <div className="rounded-xl p-6 bg-neutral w-full">
           <BarChart
             heightClassName="h-[200px]"
-            minHeightClassName="h-[332px]"
+            minHeightClassName="min-h-[332px]"
             data={
               volumeWindow === VolumeWindow.monthly
                 ? monthlyVolumeData
