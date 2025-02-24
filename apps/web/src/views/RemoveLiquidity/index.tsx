@@ -345,7 +345,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
 
           // back to list after all remove
           if (parsedAmounts[Field.LIQUIDITY_PERCENT].toSignificant() === '100') {
-            router.push('/liquidity')
+            router.push('/pools')
           }
         })
         .catch((err: any) => {
