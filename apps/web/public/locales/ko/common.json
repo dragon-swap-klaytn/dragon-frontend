@@ -10,13 +10,13 @@
   "main-second-content-2": "압도적인 1위를 유지하고 있습니다.",
 
   "main-third-header-1": "유동성 공급",
-  "main-third-content-1": "드래곤스왑의 발전된 V3 유동성 풀을 통해",
-  "main-third-content-2": "가장 효율적이고 안전한 방식으로 유동성을 공급하고, DeFi 머니 레고를 시작해 보세요.",
+  "main-third-content-1": "드래곤스왑은 AMM 기반의 탈중앙화 거래소입니다.",
+  "main-third-content-2": "중앙화 거래소를 거치지 않고 사용자의 지갑에서 직접적인 거래가 가능합니다.",
 
   "Balance: {{balance}}": "잔액: {{balance}}",
 
   "Swap": "스왑",
-  "Trade tokens in an instant": "즉시 토큰을 거래하세요",
+  "Swap tokens instantly": "토큰을 즉시 스왑해보세요",
   "Settings": "설정",
   "Slippage Tolerance": "슬리피지 허용 범위",
   "Transactions are automatically canceled if they exceed the set time.": "지정 시간이 초과되면 거래가 자동 취소됩니다.",
