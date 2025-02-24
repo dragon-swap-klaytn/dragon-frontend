@@ -63,7 +63,7 @@ export function CustomSelect({
         transition
         className={clsx(
           "w-[var(--button-width)] rounded-3xl border border-white/20 bg-gray-800 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
-          "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
+          "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0 z-modal"
         )}
       >
         {options.map((opt) => (

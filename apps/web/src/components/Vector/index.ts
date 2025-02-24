@@ -2,6 +2,7 @@ export { default as CaretUpDown } from './CaretUpDown'
 export { default as DragonSwapLogo } from './DragonSwapLogo'
 export { default as DragonSwapTextLogo } from './DragonSwapTextLogo'
 
+export { default as CoingeckoLogo } from './CoingeckoLogo'
 export { default as EmailLogo } from './EmailLogo'
 export { default as GithubLogo } from './GithubLogo'
 export { default as MediumLogo } from './MediumLogo'

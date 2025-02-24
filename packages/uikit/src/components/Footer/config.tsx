@@ -51,7 +51,7 @@ export const socials = [
   {
     label: "Supprot",
     icon: MailIcon,
-    href: "mailto:support@dgswap.io",
+    href: "mailto:contact@dgswap.io",
   },
   {
     label: "Medium",

@@ -1,6 +1,6 @@
 import { ExternalLink } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { EmailLogo, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from 'components/Vector'
+import { CoingeckoLogo, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from 'components/Vector'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -21,14 +21,14 @@ const EXTERNAL_LINKS = [
     href: 'https://t.me/DragonSwap_COMM',
   },
   {
-    id: 'support',
-    icon: <EmailLogo />,
-    href: 'mailto:support@dgswap.io',
-  },
-  {
     id: 'medium',
     icon: <MediumLogo />,
     href: 'https://dgswap.medium.com/',
+  },
+  {
+    id: 'coingecko',
+    icon: <CoingeckoLogo />,
+    href: 'https://www.coingecko.com/en/exchanges/dragonswap-v3',
   },
 ]
 
@@ -52,7 +52,7 @@ export default function Footer() {
         'mt-32 md:mt-52': pathName !== '/',
       })}
     >
-      <div className="w-full flex flex-col space-y-10 md:space-y-2 md:flex-row md:items-start md:space-x-2 md:justify-between">
+      <div className="w-full flex flex-col space-y-10 md:space-y-2 md:flex-row-reverse md:items-start md:space-x-2 md:justify-between">
         <ExternalLinks />
 
         <div className="flex items-start space-x-12">
@@ -75,7 +75,7 @@ export default function Footer() {
             <h4 className="font-bold text-on-surface">Support</h4>
 
             <a
-              href="mailto:support@dgswap.io"
+              href="mailto:contact@dgswap.io"
               target="_blank"
               rel="noreferrer noopener"
               className="text-on-surface-subtlest"

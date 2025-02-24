@@ -13,7 +13,7 @@ export const FormHeader: FC<{ refreshDisabled: boolean; onRefresh: () => Promise
   return (
     <CurrencyInputHeader
       title={t('Swap')}
-      subtitle={t('Trade tokens in an instant')}
+      subtitle={t('Swap tokens instantly')}
       refreshDisabled={refreshDisabled}
       onRefresh={onRefresh}
       syncing={syncing}

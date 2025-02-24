@@ -20,7 +20,7 @@ export const footerLinks: (t: TFunction) => FooterLinkType[] = (t) => [
     items: [
       {
         label: t("Contact"),
-        href: "mailto:support@dgswap.io",
+        href: "mailto:contact@dgswap.io",
       },
     ],
   },
