@@ -120,7 +120,7 @@ const SlippageTabs = () => {
         </ButtonV2>
         <div className="items-center space-x-1 inline-flex">
           <NumberFormat
-            className="text-on-surface w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
+            className="text-on-surface w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-right focus:outline-none"
             value={slippageInput}
             onBlur={() => {
               parseCustomSlippage((userSlippageTolerance / 100).toFixed(2))
@@ -162,7 +162,7 @@ const SlippageTabs = () => {
         />
 
         <NumberFormat
-          className="text-on-surface w-16 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-left focus:outline-none"
+          className="text-on-surface w-16 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-right focus:outline-none"
           value={slippageInput}
           onBlur={() => {
             parseCustomDeadline((ttl / 60).toString())
