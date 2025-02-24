@@ -49,6 +49,10 @@
   "Route is automatically calculated based on your routing preference to achieve the best price for your trade.": "경로는 최적의 거래 가격을 달성하기 위해 사용자의 라우팅 기본 설정을 기반으로 자동 계산됩니다.",
   "Route": "경로",
   "More": "더 보기",
+  "The market price is outside your specified price range. Single-asset deposit only.": "시장가가 지정된 가격 범위를 벗어납니다. 단일 자산 예치 전용입니다.",
+  "There is no liquidity data.": "유동성 데이터가 없습니다.",
+  "Exit price is out of the position price range. The number of estimated rewards will not account for the loss from the position being out-of-range.": "유출 가격이 포지션 가격 범위를 벗어납니다. 예상 리워드 금액은 범위를 벗어난 포지션으로 인한 손실을 고려하지 않습니다.",
+  "Apply Settings": "설정 적용",
 
   "Confirm Supply": "공급 확인",
   "Confirm Swap": "스왑 확인",
