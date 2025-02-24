@@ -46,11 +46,21 @@ const handler: NextApiHandler = async (req, res) => {
       break
     }
     case 'priceChange24H': {
-      filteredTokens.sort((a, b) => useDesc * (a.priceUSD['24H'] - b.priceUSD['24H']))
+      filteredTokens.sort(
+        (a, b) =>
+          useDesc *
+          ((a.priceUSD['24H'] - a.priceUSD.current) / a.priceUSD.current -
+            (b.priceUSD['24H'] - b.priceUSD.current) / b.priceUSD.current),
+      )
       break
     }
     case 'priceChange7D': {
-      filteredTokens.sort((a, b) => useDesc * (a.priceUSD['7D'] - b.priceUSD['7D']))
+      filteredTokens.sort(
+        (a, b) =>
+          useDesc *
+          ((a.priceUSD['7D'] - a.priceUSD.current) / a.priceUSD.current -
+            (b.priceUSD['7D'] - b.priceUSD.current) / b.priceUSD.current),
+      )
       break
     }
     default: {
