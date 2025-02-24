@@ -60,7 +60,7 @@ const Menu = () => {
             </Link>
 
             {MENU_ITEMS.map((item) => (
-              <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface text-sm">
+              <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface text-sm hover:opacity-70">
                 {item.title}
               </Link>
             ))}

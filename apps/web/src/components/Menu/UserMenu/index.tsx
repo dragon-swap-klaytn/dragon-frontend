@@ -46,9 +46,6 @@ const UserMenu = ({
   const { connector } = useAccount()
   const { logout } = useAuth()
 
-  const [testConnectorId, setTestConnectorId] = useState<ConnectorId | null>(null)
-  const [_recentConnectorId, setRecentConnectorId] = useState<ConnectorId | null>(null)
-
   const [onPresentWalletModal] = useModal(<WalletModal initialView="Wallet" />)
   const [onPresentTransactionModal] = useModal(<WalletModal initialView="Transactions" />)
 
@@ -65,17 +62,17 @@ const UserMenu = ({
 
     let safeCount = 0
     const intervalId = setInterval(() => {
-      const recentConnectorId = localStorage.getItem(WalletStorageKey.CONNECTOR)
-      setRecentConnectorId(recentConnectorId as ConnectorId)
+      const recentConnectorId = localStorage.getItem(WalletStorageKey.CONNECTOR) as ConnectorId
 
       if (connector) {
         const connectorId = connector.id
-        setTestConnectorId(connectorId as ConnectorId)
 
         if (!recentConnectorId) {
           const walletId = getWalletIdByConnectorId(connectorId as ConnectorId)
           setConnectedWalletId(walletId)
           clearInterval(intervalId)
+        } else if (recentConnectorId === 'kaiawallet') {
+          setConnectedWalletId(recentConnectorId)
         } else if (connectorId !== recentConnectorId) {
           setConnectedWalletId(null)
         } else {
@@ -116,11 +113,6 @@ const UserMenu = ({
           <span className="text-sm">{accountEllipsis}</span>
           <CaretDown size={16} className="inline-block" />
         </button>
-
-        <div className="absolute top-12 right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50 min-w-[150px]">
-          <p>testConnectorId: {testConnectorId}</p>
-          <p>recentConnectorId: {_recentConnectorId}</p>
-        </div>
 
         <div
           className={clsx(

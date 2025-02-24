@@ -103,7 +103,7 @@ module.exports = {
         modal: 120,
       },
       maxWidth: {
-        layout: 2560,
+        layout: 1920,
       },
     },
   },

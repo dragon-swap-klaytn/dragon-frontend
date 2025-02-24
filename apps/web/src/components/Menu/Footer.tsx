@@ -59,15 +59,15 @@ export default function Footer() {
           <div className="flex flex-col items-start space-y-5">
             <h4 className="font-bold text-on-surface">Ecosystem</h4>
 
-            <Link href="/swap" className="text-on-surface-subtlest">
+            <Link href="/swap" className="text-on-surface-subtlest hover:opacity-70">
               Swap
             </Link>
 
-            <Link href="/pools" className="text-on-surface-subtlest">
+            <Link href="/pools" className="text-on-surface-subtlest hover:opacity-70">
               Pools
             </Link>
 
-            <Link href="/dashboard/v3" className="text-on-surface-subtlest">
+            <Link href="/dashboard/v3" className="text-on-surface-subtlest hover:opacity-70">
               Dashboard
             </Link>
           </div>
@@ -78,7 +78,7 @@ export default function Footer() {
               href="mailto:contact@dgswap.io"
               target="_blank"
               rel="noreferrer noopener"
-              className="text-on-surface-subtlest"
+              className="text-on-surface-subtlest hover:opacity-70"
             >
               Contact
             </a>
@@ -90,12 +90,12 @@ export default function Footer() {
               href="https://docs.dgswap.io/"
               target="_blank"
               rel="noreferrer noopener"
-              className="text-on-surface-subtlest"
+              className="text-on-surface-subtlest hover:opacity-70"
             >
               Docs
             </a>
 
-            <Link href="/terms" className="text-on-surface-subtlest">
+            <Link href="/terms" className="text-on-surface-subtlest hover:opacity-70">
               Terms Of Service
             </Link>
           </div>

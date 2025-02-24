@@ -2,7 +2,7 @@ import { useTranslation } from "@pancakeswap/localization";
 import { Currency, CurrencyAmount } from "@pancakeswap/sdk";
 import { memo, useCallback } from "react";
 
-import { Box, NumberFormat, QuestionHelper } from "@pancakeswap/uikit";
+import { Box, NumberFormat } from "@pancakeswap/uikit";
 import clsx from "clsx";
 import { CurrencyLogo } from "../components/CurrencyLogo";
 
@@ -77,11 +77,6 @@ export const DepositUsdAmountInput = memo(function DepositUsdAmountInput({
           <Button isSelected={value === max} onClick={onMax}>
             {maxLabel || t("Max")}
           </Button>
-
-          <QuestionHelper
-            text={t("Automatically fill in the maximum token amount according to your balance and position settings.")}
-            placement="top"
-          />
         </div>
       </div>
     </>

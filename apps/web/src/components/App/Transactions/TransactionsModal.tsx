@@ -29,6 +29,7 @@ const TransactionsModal: React.FC<React.PropsWithChildren<InjectedModalProps>> =
     <Modal title={t('Recent Transactions')} maxWidth="max-w-lg" onDismiss={onDismiss}>
       {account ? (
         <>
+          <p className="text-on-surface-subtlest text-sm">{t('Resets when wallet is disconnected.')}</p>
           {hasTransactions ? (
             <>
               <div>
