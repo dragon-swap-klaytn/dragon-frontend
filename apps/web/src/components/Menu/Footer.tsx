@@ -77,6 +77,22 @@ export default function Footer() {
               Contact
             </a>
           </div>
+          <div className="flex flex-col items-start space-y-5">
+            <h4 className="font-bold text-on-surface">About</h4>
+            {/* TODO: add ko docs */}
+            <a
+              href="https://docs.dgswap.io/"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-on-surface-subtlest"
+            >
+              Docs
+            </a>
+
+            <Link href="/terms" className="text-on-surface-subtlest">
+              Terms Of Service
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -42,37 +42,39 @@ const Menu = () => {
 
   return (
     <>
-      <div className="fixed top-0 w-full z-header left-1/2 bg-surface flex items-center pl-5 pr-3 py-5 xs:pl-7 xs:pr-5 xs:py-5 md:px-8 justify-between h-14 max-w-layout -translate-x-1/2">
-        <div className="md:hidden flex items-center space-x-4">
-          <Link href="/" className="hover:opacity-70">
-            <DragonSwapLogo />
-          </Link>
-
-          <button type="button" onClick={() => setShowMobileMenu(!showMobileMenu)} className="hover:opacity-70">
-            <List size={24} className="text-on-surface-subtle shrink-0" />
-          </button>
-        </div>
-
-        <div className="hidden md:flex items-center space-x-8">
-          <Link href="/" className="hover:opacity-70">
-            <DragonSwapTextLogo />
-          </Link>
-
-          {MENU_ITEMS.map((item) => (
-            <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface text-sm">
-              {item.title}
+      <div className="fixed top-0 w-full z-header left-1/2 bg-surface -translate-x-1/2">
+        <div className="mx-auto max-w-layout h-14 flex items-center pl-5 pr-3 py-5 xs:pl-7 xs:pr-5 xs:py-5 md:px-8 justify-between">
+          <div className="md:hidden flex items-center space-x-4">
+            <Link href="/" className="hover:opacity-70">
+              <DragonSwapLogo />
             </Link>
-          ))}
-        </div>
 
-        <div className="flex items-center space-x-2">
-          <UserMenu userMenuOpen={userMenuOpen} setUserMenuOpen={setUserMenuOpen} />
+            <button type="button" onClick={() => setShowMobileMenu(!showMobileMenu)} className="hover:opacity-70">
+              <List size={24} className="text-on-surface-subtle shrink-0" />
+            </button>
+          </div>
 
-          <GlobalSettings
-            mode={SettingsMode.GLOBAL}
-            globalSettingsOpen={globalSettingsOpen}
-            setGlobalSettingsOpen={setGlobalSettingsOpen}
-          />
+          <div className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="hover:opacity-70">
+              <DragonSwapTextLogo />
+            </Link>
+
+            {MENU_ITEMS.map((item) => (
+              <Link href={item.href} key={`menu:${item.title}`} className="text-on-surface text-sm">
+                {item.title}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <UserMenu userMenuOpen={userMenuOpen} setUserMenuOpen={setUserMenuOpen} />
+
+            <GlobalSettings
+              mode={SettingsMode.GLOBAL}
+              globalSettingsOpen={globalSettingsOpen}
+              setGlobalSettingsOpen={setGlobalSettingsOpen}
+            />
+          </div>
         </div>
       </div>
 
