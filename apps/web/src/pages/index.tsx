@@ -25,8 +25,8 @@ const HomePage = () => {
   const { t } = useTranslation()
 
   return (
-    <div>
-      <div className="max-w-[1200px] mx-auto pt-[80px] pb-[200px] px-4 relative overflow-x-hidden">
+    <div className="overflow-x-hidden relative">
+      <div className="max-w-[1200px] mx-auto pt-[80px] pb-[350px] px-4">
         <div className="flex flex-col items-start space-y-8">
           <DragonSwapLogo size={100} className="hidden md:block" />
 

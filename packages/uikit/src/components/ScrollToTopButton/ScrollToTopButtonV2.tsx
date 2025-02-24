@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
-import { styled } from "styled-components";
+import { ArrowUp } from "@phosphor-icons/react";
 import throttle from "lodash/throttle";
-import { Button } from "../Button";
-import { ArrowUpIcon } from "../Svg";
+import { useCallback, useEffect, useState } from "react";
+import { styled } from "styled-components";
 
 const FixedContainer = styled.div`
   position: fixed;
@@ -39,12 +38,13 @@ const ScrollToTopButtonV2 = () => {
 
   return (
     <FixedContainer style={{ display: visible ? "inline" : "none" }}>
-      <Button
-        width={48}
-        height={48}
-        endIcon={<ArrowUpIcon color="invertedContrast" style={{ marginLeft: 0 }} />}
+      <button
+        type="button"
+        className="w-12 h-12 flex items-center justify-center bg-brand rounded-2xl hover:opacity-70"
         onClick={scrollToTop}
-      />
+      >
+        <ArrowUp className="text-on-surface w-5 h-5" weight="bold" />
+      </button>
     </FixedContainer>
   );
 };

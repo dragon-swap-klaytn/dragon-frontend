@@ -48,7 +48,7 @@ const PoolsPage = () => {
       <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between">
         <div>
           <h1 className="text-[40px] font-medium">{t('Pools')}</h1>
-          <p className="text-sm text-on-surface-subtlest">{t('Boost positions to earn.')}</p>
+          <p className="text-sm text-on-surface-subtlest">{t('Supply liquidity and maximize your yield.')}</p>
         </div>
         <NextLink href="/add" className="mt-4 xs:mt-0">
           <ButtonV2 variant="secondary" onClick={() => saveBackToHref()}>

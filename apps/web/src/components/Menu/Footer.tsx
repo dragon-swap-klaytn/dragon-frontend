@@ -2,6 +2,7 @@ import { ExternalLink } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { EmailLogo, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from 'components/Vector'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const EXTERNAL_LINKS = [
   {
@@ -44,8 +45,13 @@ export function ExternalLinks({ className }: { className?: string }) {
 }
 
 export default function Footer() {
+  const pathName = usePathname()
   return (
-    <div className="px-4 md:px-[60px] py-10 bg-transparent w-full mt-32 md:mt-52 max-w-layout mx-auto">
+    <div
+      className={clsx('px-4 md:px-[60px] py-10 bg-transparent w-full max-w-layout mx-auto', {
+        'mt-32 md:mt-52': pathName !== '/',
+      })}
+    >
       <div className="w-full flex flex-col space-y-10 md:space-y-2 md:flex-row md:items-start md:space-x-2 md:justify-between">
         <ExternalLinks />
 
@@ -76,6 +82,22 @@ export default function Footer() {
             >
               Contact
             </a>
+          </div>
+          <div className="flex flex-col items-start space-y-5">
+            <h4 className="font-bold text-on-surface">About</h4>
+            {/* TODO: add ko docs */}
+            <a
+              href="https://docs.dgswap.io/"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-on-surface-subtlest"
+            >
+              Docs
+            </a>
+
+            <Link href="/terms" className="text-on-surface-subtlest">
+              Terms Of Service
+            </Link>
           </div>
         </div>
       </div>
