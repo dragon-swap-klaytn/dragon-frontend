@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { MenuIconButton, ToggleSwitch, useModal } from '@pancakeswap/uikit'
-import { Gear, Question } from '@phosphor-icons/react'
+import { MenuIconButton, useModal } from '@pancakeswap/uikit'
+import { Gear } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import LocaleSettings from 'components/Menu/GlobalSettings/LocaleSettings'
 import { SettingModeType, SettingsMode } from 'components/Menu/GlobalSettings/types'
@@ -17,7 +17,6 @@ type Props = {
 const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Props) => {
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={mode} />)
   const [open, setOpen] = useState(false)
-  const [activated, setActivated] = useState(true)
   const { t } = useTranslation()
 
   const pathname = usePathname()
@@ -57,21 +56,6 @@ const GlobalSettings = ({ mode, globalSettingsOpen, setGlobalSettingsOpen }: Pro
         <h3 className="text-on-surface font-bold text-lg">{t('Preferences')}</h3>
 
         <div className="mt-[30px] flex flex-col items-start space-y-6 text-on-surface">
-          <div className="flex items-center w-full justify-between">
-            <div className="flex items-center space-x-2">
-              <h4 className="text-sm">{t('Subgraph Health Indicator')}</h4>
-              <Question height={16} width={16} className="text-on-surface-subtlest ml-1 shrink-0" weight="fill" />
-            </div>
-
-            <ToggleSwitch
-              className="ml-6"
-              activated={activated}
-              setActivated={(checked) => {
-                setActivated(checked)
-              }}
-            />
-          </div>
-
           <LocaleSettings
             onClickLocale={() => {
               setOpen(false)
