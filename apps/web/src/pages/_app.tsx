@@ -72,7 +72,10 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1, viewport-fit=cover"
         />
-        <meta name="description" content="Last of Klaytn and First of Project Dragon DEX" />
+        <meta
+          name="description"
+          content="DragonSwap is the No.1 DEX for ecosystem liquidity and an official Kaia D2I partner."
+        />
         <meta name="theme-color" content="#f97316" />
       </Head>
       <DefaultSeo {...SEO} />

@@ -47,31 +47,34 @@ const HomePage = () => {
             {t('Trade Now')}
           </Link>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
-            <HomeCard
-              title={t('DragonSwap TVL')}
-              value={formatDollarAmountV2({
-                num: DATA.tvlUSD.dragonSwap,
-                digits: 1,
-                withDollarSign: true,
-              })}
-            />
-            <HomeCard
-              title={t('Kaia Ecosystem TVL')}
-              value={formatDollarAmountV2({
-                num: DATA.tvlUSD.kaia,
-                digits: 1,
-                withDollarSign: true,
-              })}
-            />
-            <HomeCard
-              title={t('DragonSwap TVL Share')}
-              value={(DATA.tvlUSD.dragonSwap / DATA.tvlUSD.kaia).toLocaleString(undefined, {
-                style: 'percent',
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              })}
-            />
+          <div className="mt-10 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+              <HomeCard
+                title={t('DragonSwap TVL')}
+                value={formatDollarAmountV2({
+                  num: DATA.tvlUSD.dragonSwap,
+                  digits: 1,
+                  withDollarSign: true,
+                })}
+              />
+              <HomeCard
+                title={t('Kaia Ecosystem TVL')}
+                value={formatDollarAmountV2({
+                  num: DATA.tvlUSD.kaia,
+                  digits: 1,
+                  withDollarSign: true,
+                })}
+              />
+              <HomeCard
+                title={t('DragonSwap TVL Share')}
+                value={(DATA.tvlUSD.dragonSwap / DATA.tvlUSD.kaia).toLocaleString(undefined, {
+                  style: 'percent',
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                })}
+              />
+            </div>
+            <p className="mt-3 text-right text-on-surface-subtlest">{t('Dec, 2024')}</p>
           </div>
         </div>
 
@@ -86,31 +89,34 @@ const HomePage = () => {
             <Description>{t('main-second-content-2')}</Description>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
-            <HomeCard
-              title={t('DragonSwap Volume')}
-              value={formatDollarAmountV2({
-                num: DATA.volumeUSD.dragonSwap,
-                digits: 1,
-                withDollarSign: true,
-              })}
-            />
-            <HomeCard
-              title={t('Kaia Ecosystem Volume')}
-              value={formatDollarAmountV2({
-                num: DATA.volumeUSD.kaia,
-                digits: 1,
-                withDollarSign: true,
-              })}
-            />
-            <HomeCard
-              title={t('DragonSwap Volume Share')}
-              value={(DATA.volumeUSD.dragonSwap / DATA.volumeUSD.kaia).toLocaleString(undefined, {
-                style: 'percent',
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              })}
-            />
+          <div className="w-full mt-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+              <HomeCard
+                title={t('DragonSwap Volume')}
+                value={formatDollarAmountV2({
+                  num: DATA.volumeUSD.dragonSwap,
+                  digits: 1,
+                  withDollarSign: true,
+                })}
+              />
+              <HomeCard
+                title={t('Kaia Ecosystem Volume')}
+                value={formatDollarAmountV2({
+                  num: DATA.volumeUSD.kaia,
+                  digits: 1,
+                  withDollarSign: true,
+                })}
+              />
+              <HomeCard
+                title={t('DragonSwap Volume Share')}
+                value={(DATA.volumeUSD.dragonSwap / DATA.volumeUSD.kaia).toLocaleString(undefined, {
+                  style: 'percent',
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                })}
+              />
+            </div>
+            <p className="mt-3 text-right text-on-surface-subtlest">{t('Dec, 2024')}</p>
           </div>
         </div>
 

@@ -1,15 +1,16 @@
 import { Transition } from '@headlessui/react'
-import { CurrencyLogoWithSymbol, ExternalLink, TagV2, useTooltip } from '@pancakeswap/uikit'
-import { CaretRight, PlusCircle } from '@phosphor-icons/react'
+import { ButtonV2, CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakeswap/uikit'
+import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
+
 import { PortfolioData, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
 import { useTranslation } from 'next-i18next'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { useMemo, useState } from 'react'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import getPercentage from 'utils/getPercentage'
-import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { feeTierPercent } from 'views/Dashboard/utils'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 import PositionCardList from 'views/PoolsV2/components/PositionCard'
@@ -100,6 +101,7 @@ export const PoolDataRow = ({
 }) => {
   const { t } = useTranslation()
   const [showPortfolioData, setShowPortfolioData] = useState(false)
+
   const poolSymbol = useMemo(
     () => `${poolData.token0.symbol}/${poolData.token1.symbol}`,
     [poolData.token0.symbol, poolData.token1.symbol],
@@ -110,10 +112,6 @@ export const PoolDataRow = ({
     (portfolioData as PortfolioV3DataBigInt)?.positions &&
     (portfolioData as PortfolioV3DataBigInt).positions.some((p) => p.isOutOfBounds)
   const isMyPool = !!portfolioData
-
-  const { tooltip, tooltipVisible, targetRef } = useTooltip(
-    <span className="text-sm text-on-surface">{t('Add Liquidity')}</span>,
-  )
 
   return (
     <>
@@ -128,7 +126,7 @@ export const PoolDataRow = ({
       >
         <td className="text-on-surface px-4 s:px-6 py-6 text-left">
           <div className="flex items-start gap-2">
-            <Link
+            <NextLink
               href={`/pools/${poolData.type}/${poolData.id}`}
               onClick={(e) => e.stopPropagation()}
               className="hover:underline hover:opacity-70"
@@ -143,7 +141,7 @@ export const PoolDataRow = ({
                 spaceX="gap-2"
                 flex="flex items-start gap-2"
               />
-            </Link>
+            </NextLink>
 
             <div className="flex flex-wrap items-center gap-2">
               <div className="hidden sm:block">
@@ -219,27 +217,37 @@ export const PoolDataRow = ({
         >
           <td className="bg-neutral" colSpan={7}>
             <div className="px-2 sm:px-5 py-5 space-y-5 sm:space-y-0 sm:space-x-10 sm:flex">
-              <div className="px-5 sm:px-0 flex sm:flex-col sm:space-y-1 justify-between sm:justify-start">
-                <div ref={targetRef}>
-                  <div className="flex items-center space-x-1.5 cursor-pointer hover:opacity-70">
-                    <Link
-                      href={`${poolData.type === 'v2' ? '/v2' : ''}/add/${unwrapWKAIAAdress(
-                        poolData.token0.id,
-                      )}/${unwrapWKAIAAdress(poolData.token1.id)}`}
-                      className="text-sm text-on-surface"
-                    >
-                      {poolSymbol}
-                    </Link>
+              <div>
+                <div className="px-5 sm:px-0 flex sm:flex-col sm:space-y-1 justify-between sm:justify-start">
+                  <NextLink
+                    href={`/pools/${poolData.type}/${poolData.id}`}
+                    className="text-sm text-on-surface hover:underline hover:opacity-70"
+                  >
+                    {poolSymbol}
+                  </NextLink>
 
-                    <PlusCircle className="text-on-surface" />
-                  </div>
-
-                  {tooltipVisible && tooltip}
+                  <ExternalLink href={getBlockExploreLink(poolData.id, 'token')} className="text-[13px]">
+                    {getBlockExploreName()}
+                  </ExternalLink>
                 </div>
 
-                <ExternalLink href={getBlockExploreLink(poolData.id, 'token')} className="text-[13px]">
-                  {getBlockExploreName()}
-                </ExternalLink>
+                <div className="mt-5 flex sm:flex-col space-x-3 sm:space-x-0 sm:space-y-3 sm:mt-3">
+                  <div className="flex-1">
+                    <AddLiquidityButtonV2
+                      poolType={poolData.type}
+                      token0={poolData.token0}
+                      token1={poolData.token1}
+                      fullWidth
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <NextLink className="w-full" href={`/pools/${poolData.type}/${poolData.id}`}>
+                      <ButtonV2 variant="subtle" fullWidth onClick={() => {}}>
+                        {t('Pool Details')}
+                      </ButtonV2>
+                    </NextLink>
+                  </div>
+                </div>
               </div>
 
               <PositionCardList className="flex-1" poolData={poolData} portfolioData={portfolioData} />

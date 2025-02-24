@@ -4,12 +4,18 @@ import { PageMeta } from './types'
 
 export const DEFAULT_META: PageMeta = {
   title: 'DragonSwap',
-  description: 'Last of Klaytn and First of Project Dragon DEX',
-  image: `/images/decorations/dgs-light.png`,
+  description: 'DragonSwap is the No.1 DEX for ecosystem liquidity and an official Kaia D2I partner.',
+  image: `/images/og-images/common.jpeg`,
 }
 
 interface PathList {
-  paths: { [path: string]: { title: string; description?: string } }
+  paths: {
+    [path: string]: {
+      title: string
+      description?: string
+      image?: string
+    }
+  }
   defaultTitleSuffix: string
 }
 
@@ -17,7 +23,7 @@ const getPathList = (t: TFunction): PathList => {
   return {
     paths: {
       '/': { title: t('Main') },
-      '/swap': { title: t('Swap') },
+      '/swap': { title: t('Swap'), image: '/images/og-images/swap.jpeg' },
       '/liquidity': { title: t('Liquidity') },
       '/increase': { title: t('Increase') },
       '/add': { title: t('Add Liquidity') },
@@ -25,8 +31,8 @@ const getPathList = (t: TFunction): PathList => {
       '/v2/pair': { title: t('Pair') },
       '/v2/add': { title: t('Add Liquidity') },
       '/v2/remove': { title: t('Remove Liquidity') },
-      '/pools': { title: t('Pools') },
-      '/dashboard': { title: t('Dashboard') },
+      '/pools': { title: t('Pools'), image: '/images/og-images/pools.jpeg' },
+      '/dashboard': { title: t('Dashboard'), image: '/images/og-images/dashboard.jpeg' },
     },
     defaultTitleSuffix: t('DragonSwap'),
   }
@@ -43,6 +49,7 @@ export const getCustomMeta = memoize(
       return {
         title: `${pathMetadata.title}`,
         ...(pathMetadata.description && { description: pathMetadata.description }),
+        ...(pathMetadata.image && { image: pathMetadata.image }),
       }
     }
 
