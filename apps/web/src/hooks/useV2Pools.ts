@@ -42,10 +42,10 @@ export function useV2CandidatePools(
     if (!currencyA || !currencyB || currencyA.wrapped.equals(currencyB.wrapped) || !!isWrongNetwork) {
       return ''
     }
-    const symbols = currencyA.wrapped.sortsBefore(currencyB.wrapped)
-      ? [currencyA.symbol, currencyB.symbol]
-      : [currencyB.symbol, currencyA.symbol]
-    return [...symbols, currencyA.chainId].join('_')
+    const addresses = currencyA.wrapped.sortsBefore(currencyB.wrapped)
+      ? [currencyA.wrapped.address, currencyB.wrapped.address]
+      : [currencyB.wrapped.address, currencyA.wrapped.address]
+    return [...addresses, currencyA.chainId].join('_')
   }, [currencyA, currencyB, isWrongNetwork])
 
   const fetchingBlock = useRef<string | undefined>(undefined)
