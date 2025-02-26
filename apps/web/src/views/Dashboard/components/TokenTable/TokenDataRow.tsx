@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import NextLink from 'next/link'
 import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import Percent from 'views/Dashboard/components/Percent'
+import { TokenRate } from 'views/Dashboard/components/TokenRate'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
 export const TokenDataRowSkeleton = ({ isLastIndex }: { isLastIndex?: boolean }) => {
@@ -64,7 +65,12 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
           <span className="text-on-surface-subtlest hidden lg:block line-clamp-1">{tokenData.name}</span>
         </div>
       </td>
-      <td className="text-on-surface px-4 py-6 text-left">{formatDollarAmount(tokenData.priceUSD.current)}</td>
+      <td className="text-on-surface px-4 py-6 text-left">
+        <div className="inline-flex items-center space-x-1">
+          <span>$</span>
+          <TokenRate rate={tokenData.priceUSD.current} hiddenDigitClassName="text-[9px] font-normal leading-none" />
+        </div>
+      </td>
       <td className="text-on-surface px-4 py-6 text-left">
         <Percent value={(tokenData.priceUSD['24H'] / tokenData.priceUSD.current) * 100} />
       </td>

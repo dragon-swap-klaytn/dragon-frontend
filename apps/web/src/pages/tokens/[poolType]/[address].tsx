@@ -12,6 +12,7 @@ import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
 import PoolTable from 'views/Dashboard/components/PoolTable'
 import { TokenChart } from 'views/Dashboard/components/TokenChart'
+import { TokenRate } from 'views/Dashboard/components/TokenRate'
 import useTokensData from 'views/Dashboard/hooks/useTokensData'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
@@ -86,7 +87,16 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
                   </div>
                 </div>
 
-                <span className="mt-3 text-[32px]">$ {formatDollarAmount(tokenData.priceUSD.current)}</span>
+                <span className="mt-3 text-[32px] inline-flex items-center space-x-1">
+                  <span>$</span>
+                  <TokenRate
+                    rate={tokenData.priceUSD.current}
+                    className="text-inherit"
+                    sigs={4}
+                    hiddenDigitsFrom={4}
+                    hiddenDigitClassName="text-lg font-normal leading-none"
+                  />
+                </span>
 
                 <div className="mt-3 flex items-center space-x-2">
                   <div className="flex items-center space-x-1">
