@@ -1,7 +1,6 @@
 import { DEFAULT_LANGUAGE } from '@pancakeswap/localization'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getDefaultStaticPaths } from 'utils/pageUtils'
-import { CHAIN_IDS } from 'utils/wagmi'
 import RemoveLiquidityFormProvider from 'views/RemoveLiquidity/form/RemoveLiquidityFormProvider'
 import RemoveLiquidity from 'views/RemoveLiquidity/RemoveLiquidityV3'
 
@@ -12,8 +11,6 @@ const RemoveLiquidityPage = () => {
     </RemoveLiquidityFormProvider>
   )
 }
-
-RemoveLiquidityPage.chains = CHAIN_IDS
 
 export default RemoveLiquidityPage
 

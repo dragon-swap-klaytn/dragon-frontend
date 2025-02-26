@@ -74,11 +74,10 @@ const ModalProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     setPortal(portalRoot);
   }, []);
 
-  if (!portal) return null;
-
   return (
     <Context.Provider value={providerValue}>
       {isOpen &&
+        portal &&
         createPortal(
           <div className="flex flex-col justify-center items-center fixed inset-0 z-overlay">
             <Overlay onClick={handleOverlayDismiss} />

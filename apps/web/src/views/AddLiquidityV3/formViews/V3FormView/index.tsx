@@ -84,8 +84,8 @@ export const RightContainer = styled(AutoColumn)`
 interface V3FormViewPropsType {
   baseCurrency?: Currency
   quoteCurrency?: Currency
-  currencyIdA: string
-  currencyIdB: string
+  currencyIdA?: string
+  currencyIdB?: string
   feeAmount?: number
   handleCurrencyASelect: (currencyANew: Currency) => void
   handleCurrencyBSelect: (currencyBNew: Currency) => void
@@ -633,7 +633,7 @@ export default function V3FormView({
                     pathname: router.pathname,
                     query: {
                       ...router.query,
-                      currency: [currencyIdB, currencyIdA, feeAmount ? feeAmount.toString() : ''],
+                      currency: [currencyIdB || '', currencyIdA || '', feeAmount ? feeAmount.toString() : ''],
                     },
                   },
                   undefined,

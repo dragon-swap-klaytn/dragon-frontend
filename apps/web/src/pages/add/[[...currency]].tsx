@@ -4,7 +4,6 @@ import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { useFarmPrivateAPI } from 'state/farms/hooks'
 import { getDefaultStaticPaths, getDefaultStaticProps } from 'utils/pageUtils'
-import { CHAIN_IDS } from 'utils/wagmi'
 import AddLiquidityV2FormProvider from 'views/AddLiquidity/AddLiquidityV2FormProvider'
 import { AddLiquidityV3Layout, UniversalAddLiquidity } from 'views/AddLiquidityV3'
 import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/form/LiquidityFormProvider'
@@ -62,7 +61,7 @@ const AddLiquidityPage = () => {
       {
         pathname: router.pathname,
         query: {
-          currency: [currencyIdA, currencyIdB],
+          currency: [currencyIdA || '', currencyIdB || ''],
         },
       },
       undefined,
@@ -89,8 +88,6 @@ const AddLiquidityPage = () => {
     </AddLiquidityV2FormProvider>
   )
 }
-
-AddLiquidityPage.chains = CHAIN_IDS
 
 export default AddLiquidityPage
 

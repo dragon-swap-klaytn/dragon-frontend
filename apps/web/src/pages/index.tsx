@@ -182,5 +182,4 @@ const Description = ({ children }: { children: string }) => <p className="text-l
 
 export const getStaticProps = getDefaultStaticProps(['common'])
 
-HomePage.chains = []
 export default HomePage

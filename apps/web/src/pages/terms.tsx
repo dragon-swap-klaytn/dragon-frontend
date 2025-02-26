@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unescaped-entities */
-import { CHAIN_IDS } from 'utils/wagmi'
 
 const TermsPage = () => {
   return (
@@ -341,7 +340,5 @@ const TermsPage = () => {
     </div>
   )
 }
-
-TermsPage.chains = CHAIN_IDS
 
 export default TermsPage

@@ -1,19 +1,22 @@
 import { SmartRouter } from '@pancakeswap/smart-router/evm'
 import { useMemo } from 'react'
 
+import Page from 'components/Layout/Page'
+import { useTranslation } from 'next-i18next'
 import { FormHeader, FormMain, PricingAndSlippage, SwapCommitButton, TradeDetails } from './containers'
 import { useSwapBestTrade } from './hooks'
 
 export function V3SwapForm() {
+  const { t } = useTranslation()
   const { isLoading, trade, refresh, syncing, error } = useSwapBestTrade()
 
   const tradeLoaded = !isLoading
   const price = useMemo(() => trade && SmartRouter.getExecutionPrice(trade), [trade])
 
   return (
-    <div className="px-4">
+    <Page title={t('Swap')} image="/images/og-images/swap.jpeg">
       <div
-        className="w-full h-80 absolute top-0 -z-10 left-1/2 -translate-x-1/2 max-w-layout"
+        className="w-full h-80 absolute top-0 -z-10 left-1/2 -translate-x-1/2"
         style={{
           background: 'linear-gradient(180deg, rgba(249, 115, 22, 0.40) 0%, rgba(249, 115, 22, 0.00) 100%)',
         }}
@@ -32,6 +35,6 @@ export function V3SwapForm() {
 
         <TradeDetails loaded={tradeLoaded} trade={trade} />
       </div>
-    </div>
+    </Page>
   )
 }

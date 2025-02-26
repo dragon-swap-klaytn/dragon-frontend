@@ -31,7 +31,6 @@ import { useRouter } from 'next/router'
 import { useMemo, useState } from 'react'
 import atomWithStorageWithErrorCatch from 'utils/atomWithStorageWithErrorCatch'
 import { getDefaultStaticProps } from 'utils/pageUtils'
-import { CHAIN_IDS } from 'utils/wagmi'
 import { LiquidityCardRow } from 'views/AddLiquidity/components/LiquidityCardRow'
 import { StablePairCard } from 'views/AddLiquidityV3/components/StablePairCard'
 import { V2PairCard } from 'views/AddLiquidityV3/components/V2PairCard'
@@ -352,7 +351,5 @@ export default function PoolListPage() {
     </Page>
   )
 }
-
-PoolListPage.chains = CHAIN_IDS
 
 export const getStaticProps = getDefaultStaticProps(['common'])

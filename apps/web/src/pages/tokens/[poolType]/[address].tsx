@@ -28,7 +28,7 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
   const tokenData = !tokensData ? undefined : isUnknownToken ? null : tokensData[0]
 
   return (
-    <Page className="w-full">
+    <Page title={tokenData ? tokenData.name : undefined} className="w-full">
       <div className="flex flex-col xs:flex-row xs:justify-between">
         {!!poolType && (
           <BreadscrumbsV2
@@ -185,9 +185,6 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
     </Page>
   )
 }
-
-TokenDetailsPage.Layout = ({ children }) => <div>{children}</div>
-TokenDetailsPage.chains = [] // set all
 
 export default TokenDetailsPage
 

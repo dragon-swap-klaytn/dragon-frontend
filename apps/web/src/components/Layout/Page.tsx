@@ -4,6 +4,9 @@ import { DEFAULT_META, getCustomMeta } from 'config/constants/meta'
 import { NextSeo } from 'next-seo'
 import { useRouter } from 'next/router'
 
+/**
+ * @deprecated
+ */
 export const PageMeta: React.FC<React.PropsWithChildren> = () => {
   const {
     t,
@@ -35,11 +38,27 @@ export const PageMeta: React.FC<React.PropsWithChildren> = () => {
 }
 
 const Page: React.FC<
-  React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> & { maxWidth?: string; className?: string }
-> = ({ children, maxWidth = 'max-w-6xl', className, ...props }) => {
+  React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> & {
+    title?: string
+    description?: string
+    image?: string
+    maxWidth?: string
+    className?: string
+  }
+> = ({ title, description, image, children, maxWidth = 'max-w-6xl', className, ...props }) => {
   return (
     <>
-      <PageMeta />
+      <NextSeo
+        title={title}
+        description={description}
+        openGraph={
+          image
+            ? {
+                images: [{ url: image, alt: title, type: 'image/jpeg' }],
+              }
+            : undefined
+        }
+      />
       <div className={clsx('px-5 md:px-8 mx-auto', className, maxWidth)} {...props}>
         {children}
       </div>

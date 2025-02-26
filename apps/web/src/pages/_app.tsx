@@ -1,7 +1,6 @@
 import { ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { ErrorBoundary } from 'components/ErrorBoundary'
-import { PageMeta } from 'components/Layout/Page'
 import { NetworkModal } from 'components/NetworkModal'
 import { FixedSubgraphHealthIndicator } from 'components/SubgraphHealthIndicator/FixedSubgraphHealthIndicator'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
@@ -80,7 +79,6 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
       </Head>
       <DefaultSeo {...SEO} />
       <Providers store={store} dehydratedState={pageProps.dehydratedState}>
-        <PageMeta />
         {(Component as NextPageWithLayout).Meta && (
           // @ts-ignore
           <Component.Meta {...pageProps} />
@@ -88,7 +86,7 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
         <Blocklist>
           {(Component as NextPageWithLayout).mp ? <MPGlobalHooks /> : <GlobalHooks />}
           {/* <ResetCSS /> */}
-          <PersistGate loading={null} persistor={persistor}>
+          <PersistGate loading={<App {...props} />} persistor={persistor}>
             <Updaters />
             <App {...props} />
           </PersistGate>

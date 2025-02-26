@@ -6,7 +6,6 @@ import useNativeCurrency from 'hooks/useNativeCurrency'
 import { GetStaticPaths } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
-import { CHAIN_IDS } from 'utils/wagmi'
 import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/form/LiquidityFormProvider'
 import IncreaseLiquidityV3 from 'views/AddLiquidityV3/IncreaseLiquidityV3'
 
@@ -30,8 +29,6 @@ const AddLiquidityPage = () => {
     </LiquidityFormProvider>
   )
 }
-
-AddLiquidityPage.chains = CHAIN_IDS
 
 export default AddLiquidityPage
 

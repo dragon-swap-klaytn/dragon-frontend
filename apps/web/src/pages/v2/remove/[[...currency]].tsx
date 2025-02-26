@@ -3,7 +3,6 @@ import { useCurrency } from 'hooks/Tokens'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 import { getDefaultStaticPaths } from 'utils/pageUtils'
-import { CHAIN_IDS } from 'utils/wagmi'
 import RemoveLiquidity, { RemoveLiquidityV2Layout } from 'views/RemoveLiquidity'
 import RemoveLiquidityV2FormProvider from 'views/RemoveLiquidity/RemoveLiquidityV2FormProvider'
 import RemoveStableLiquidity, { RemoveLiquidityStableLayout } from 'views/RemoveLiquidity/RemoveStableLiquidity'
@@ -44,8 +43,6 @@ const RemoveLiquidityPage = () => {
     </RemoveLiquidityV2FormProvider>
   )
 }
-
-RemoveLiquidityPage.chains = CHAIN_IDS
 
 export default RemoveLiquidityPage
 

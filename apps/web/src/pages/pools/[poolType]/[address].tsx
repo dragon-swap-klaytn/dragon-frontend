@@ -39,7 +39,11 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
   const poolData = !poolsData ? undefined : isUnknownPool ? null : poolsData[0]
 
   return (
-    <Page className="w-full">
+    <Page
+      title={t('Pools') + (poolData ? `(${poolData.type}) ${poolData.token0.symbol}-${poolData.token1.symbol}` : '')}
+      image="/images/og-images/pools.jpeg"
+      className="w-full"
+    >
       <div className="flex flex-col xs:flex-row xs:justify-between">
         {!!poolType && (
           <BreadscrumbsV2
@@ -384,9 +388,6 @@ function PoolPositionsV2({
     </NextLink>
   )
 }
-
-PoolDetailsPage.Layout = ({ children }) => <div>{children}</div>
-PoolDetailsPage.chains = [] // set all
 
 export default PoolDetailsPage
 

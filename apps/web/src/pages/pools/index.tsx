@@ -43,7 +43,7 @@ const PoolsPage = () => {
   const debouncedParams = useDebounce(momoizedParams, 500)
 
   return (
-    <Page>
+    <Page title={t('Pools')} image="/images/og-images/pools.jpeg">
       {/* Header Section */}
       <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between">
         <div>
@@ -140,9 +140,6 @@ const PoolsPage = () => {
     </Page>
   )
 }
-
-PoolsPage.Layout = ({ children }) => <div>{children}</div>
-PoolsPage.chains = []
 
 export default PoolsPage
 

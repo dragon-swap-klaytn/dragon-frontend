@@ -11,10 +11,10 @@
  *  - https://reactjs.org/docs/error-boundaries.html
  */
 
-import { captureUnderscoreErrorException } from '@sentry/nextjs'
-import NextErrorComponent, { ErrorProps } from 'next/error'
 import { NotFound } from '@pancakeswap/uikit'
+import { captureUnderscoreErrorException } from '@sentry/nextjs'
 import { NextSeo } from 'next-seo'
+import NextErrorComponent, { ErrorProps } from 'next/error'
 import Link from 'next/link'
 
 const CustomErrorComponent = (props: ErrorProps) => (
@@ -31,7 +31,5 @@ CustomErrorComponent.getInitialProps = async (contextData) => {
   // This will contain the status code of the response
   return NextErrorComponent.getInitialProps(contextData)
 }
-
-CustomErrorComponent.chains = []
 
 export default CustomErrorComponent

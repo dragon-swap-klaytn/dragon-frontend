@@ -63,8 +63,8 @@ export const ResponsiveTwoColumns = styled.div`
 const selectTypeAtom = atom(SELECTOR_TYPE.V3)
 
 interface UniversalAddLiquidityPropsType {
-  currencyIdA: string
-  currencyIdB: string
+  currencyIdA?: string
+  currencyIdB?: string
   isV2?: boolean
   preferredSelectType?: SELECTOR_TYPE
   preferredFeeAmount?: FeeAmount
@@ -242,7 +242,7 @@ export function UniversalAddLiquidity({
             pathname: router.pathname,
             query: {
               ...router.query,
-              currency: [currencyIdA, currencyIdB, newFeeAmount.toString()],
+              currency: [currencyIdA || '', currencyIdB || '', newFeeAmount.toString()],
             },
           },
           undefined,
@@ -254,7 +254,7 @@ export function UniversalAddLiquidity({
             pathname: router.pathname.replace('/v2', ''),
             query: {
               ...router.query,
-              currency: [currencyIdA, currencyIdB],
+              currency: [currencyIdA || '', currencyIdB || ''],
             },
           },
           undefined,
