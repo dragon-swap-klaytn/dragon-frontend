@@ -4,7 +4,7 @@ import NextLink from 'next/link'
 import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import Percent from 'views/Dashboard/components/Percent'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
-import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 
 export const TokenDataRowSkeleton = ({ isLastIndex }: { isLastIndex?: boolean }) => {
   return (
@@ -78,13 +78,13 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
         <Percent value={(tokenData.priceUSD['7D'] / tokenData.priceUSD.current) * 100} />
       </td>
       <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
-        {formatDollarAmount(tokenData.volumeUSD['24H'])}
+        {formatDollarAmountV2({ num: tokenData.volumeUSD['24H'] })}
       </td>
       <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
-        {formatDollarAmount(tokenData.volumeUSD['7D'])}
+        {formatDollarAmountV2({ num: tokenData.volumeUSD['7D'] })}
       </td>
       <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
-        {formatDollarAmount(tokenData.tvlUSD.current)}
+        {formatDollarAmountV2({ num: tokenData.tvlUSD.current })}
       </td>
     </tr>
   )

@@ -24,13 +24,13 @@ export const formatDollarAmountV2 = ({
   round?: boolean
   withDollarSign?: boolean
 }) => {
-  if (!num || num <= 0) return '$0.00'
+  if (!num || num <= 0) return `${withDollarSign ? '$' : ''}0.00`
   if (!num) return '-'
   if (num < 0.001 && digits <= 3) {
-    return '<$0.001'
+    return `<${withDollarSign ? '$' : ''}0.001`
   }
 
-  return `${withDollarSign && '$'}${Intl.NumberFormat('en-US', {
+  return `${withDollarSign ? '$' : ''}${Intl.NumberFormat('en-US', {
     notation: round ? 'compact' : 'standard',
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
