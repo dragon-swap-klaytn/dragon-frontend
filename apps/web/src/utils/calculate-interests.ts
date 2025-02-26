@@ -38,10 +38,10 @@ export interface APYParams extends CalculateInterestParams {
  */
 export const calculateAPY = ({ interest, principal, duration, baseDuration }: APYParams): number => {
   if (principal === 0) {
-    throw new Error('Principal must be non-zero')
+    return NaN
   }
   if (duration <= 0) {
-    throw new Error('Duration must be greater than zero')
+    return NaN
   }
 
   const totalReturn = 1 + interest / principal
@@ -66,10 +66,10 @@ export const calculateAPY = ({ interest, principal, duration, baseDuration }: AP
  */
 export const calculateAPR = ({ interest, principal, duration }: CalculateInterestParams): number => {
   if (principal === 0) {
-    throw new Error('Principal must be non-zero')
+    return NaN
   }
   if (duration <= 0) {
-    throw new Error('Duration must be greater than zero')
+    return NaN
   }
 
   return (interest / principal) * (MS_IN_YEAR / duration)

@@ -5,7 +5,7 @@ import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { getCachedTokenPricesFromSwapscanner } from 'lib/ss'
 import { NextApiHandler } from 'next'
 
-import { getCachedPoolsData } from 'pools/get-cached-pools-data'
+import { getCachedPoolsData, getPoolsDataByIds } from 'pools/get-cached-pools-data'
 import { parseV2Pool, parseV3Pool } from 'pools/parse-pool'
 import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 import { Simplify } from 'type-fest'
@@ -101,6 +101,25 @@ const handler: NextApiHandler = async (req, res) => {
   const lpAddressToPoolWeights = Object.fromEntries(
     farmsWithPrice.map((farm) => [farm.lpAddress.toLowerCase(), +farm.poolWeight]),
   )
+
+  if (onlyPoolIds.length > 0) {
+    const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => id.toLowerCase())
+    const missingPoolIds = onlyPoolIdsLowerCased.filter(
+      (id) => !v2Pools.some((pool) => pool.id === id) && !v3Pools.some((pool) => pool.id === id),
+    )
+
+    console.log('missingPoolIds', missingPoolIds)
+
+    if (missingPoolIds.length > 0) {
+      const { v2Pools: missingV2Pools, v3Pools: missingV3Pools } = await getPoolsDataByIds(missingPoolIds)
+
+      console.log('missingV2Pools', missingV2Pools)
+      console.log('missingV3Pools', missingV3Pools)
+
+      v2Pools.push(...missingV2Pools)
+      v3Pools.push(...missingV3Pools)
+    }
+  }
 
   const v2PoolsParsed = v2Pools.map(parseV2Pool)
   const v3PoolsParsed = v3Pools.map((pool) => {

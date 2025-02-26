@@ -5,19 +5,24 @@ import { overrideToken } from 'lib/graph-queries/utils'
 
 export const getV2Pools = async <AccOnly extends boolean = false>({
   blockNumber,
+  poolIds,
   accOnly,
   skip = 0,
 }: {
   blockNumber?: number // Optional block number for fetching historical data.
+  poolIds?: string[] // Optional list of pool IDs to fetch
   accOnly?: AccOnly // Optional flag to fetch simplified data.
   skip?: number // Default `skip` value is `0`, allowing pagination.
 } = {}): Promise<(AccOnly extends true ? PoolV2AccData : PoolV2Raw)[]> => {
   const document = gql`
-    query ($first: Int, $skip: Int, ${blockNumber !== undefined ? '$blockNumber: Int' : ''}) {
+    query ($first: Int, $skip: Int, ${blockNumber !== undefined ? '$blockNumber: Int' : ''}, ${
+    poolIds !== undefined ? '$poolIds: [ID!]' : ''
+  }) {
       pairs(
         first: $first,
         skip: $skip,
-        ${blockNumber !== undefined ? 'block: { number: $blockNumber }' : ''}
+        ${blockNumber !== undefined ? 'block: { number: $blockNumber }' : ''},
+        ${poolIds !== undefined ? 'where: { id_in: $poolIds }' : ''}
       ) {
         id
         reserveUSD
@@ -50,9 +55,12 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
   `
 
   // Define query variables safely
-  const variables: Record<string, number> = { first: BATCH_SIZE, skip }
+  const variables: Record<string, any> = { first: BATCH_SIZE, skip }
   if (blockNumber !== undefined) {
     variables.blockNumber = blockNumber
+  }
+  if (poolIds !== undefined) {
+    variables.poolIds = poolIds
   }
 
   // Fetch the pairs from the subgraph.

@@ -7,19 +7,24 @@ const FLOAT64_Q96 = 2 ** 96
 
 export const getV3Pools = async <AccOnly extends boolean = false>({
   blockNumber,
+  poolIds,
   accOnly,
   skip = 0,
 }: {
   blockNumber?: number // Optional block number for fetching historical data.
+  poolIds?: string[] // Optional list of pool IDs to fetch
   accOnly?: AccOnly // Optional flag to fetch simplified data.
   skip?: number // Default `skip` value is `0`, allowing pagination.
 } = {}): Promise<(AccOnly extends true ? PoolV3AccData : PoolV3Raw)[]> => {
   const document = gql`
-      query ($first: Int, $skip: Int, ${blockNumber !== undefined ? '$blockNumber: Int' : ''}) {
+      query ($first: Int, $skip: Int, ${blockNumber !== undefined ? '$blockNumber: Int' : ''}, ${
+    poolIds ? '$poolIds: [ID!]!' : ''
+  }) {
         pools(
           first: $first,
           skip: $skip,
-          ${blockNumber !== undefined ? 'block: { number: $blockNumber }' : ''}
+          ${blockNumber !== undefined ? 'block: { number: $blockNumber }' : ''},
+          ${poolIds ? 'where: { id_in: $poolIds }' : ''}
         ) {
           id
           totalValueLockedUSD
@@ -58,9 +63,12 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
     `
 
   // Define query variables safely
-  const variables: Record<string, number> = { first: BATCH_SIZE, skip }
+  const variables: Record<string, any> = { first: BATCH_SIZE, skip }
   if (blockNumber !== undefined) {
     variables.blockNumber = blockNumber
+  }
+  if (poolIds) {
+    variables.poolIds = poolIds
   }
 
   const { pools } = await request(subgraphUrls.v3Exchange, document, variables)

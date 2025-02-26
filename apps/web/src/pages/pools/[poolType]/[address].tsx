@@ -207,21 +207,25 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">{t('APY 24H')}</h4>
                     <p className="text-xl font-medium text-emerald-400">
-                      {poolData.apy['24H'].toLocaleString(undefined, {
-                        style: 'percent',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {poolData.apy['24H']
+                        ? poolData.apy['24H'].toLocaleString(undefined, {
+                            style: 'percent',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : '-'}
                     </p>
                   </div>
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">{t('APY 7D')}</h4>
                     <p className="text-xl font-medium text-emerald-400">
-                      {poolData.apy['7D'].toLocaleString(undefined, {
-                        style: 'percent',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {poolData.apy['7D']
+                        ? poolData.apy['7D'].toLocaleString(undefined, {
+                            style: 'percent',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : '-'}
                     </p>
                   </div>
                 </div>
