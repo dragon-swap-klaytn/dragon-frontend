@@ -11,9 +11,10 @@ import useClaimModals from 'views/PoolsV2/components/MyPositionsSummary/use-clai
 type MyPositionsSummaryProps = {
   portfolio?: Portfolio
   invalidatePortflio?: () => void
+  onMyPositionsClick?: () => void
 }
 
-export function MyPositionsSummary({ portfolio, invalidatePortflio }: MyPositionsSummaryProps) {
+export function MyPositionsSummary({ portfolio, invalidatePortflio, onMyPositionsClick }: MyPositionsSummaryProps) {
   const { t } = useTranslation()
 
   const { prices } = useTokenPrices()
@@ -95,6 +96,7 @@ export function MyPositionsSummary({ portfolio, invalidatePortflio }: MyPosition
             <MyPositionSummaryItem
               label={t('Positions')}
               value={positionCount.v2 + positionCount.v3}
+              onClick={onMyPositionsClick}
               suffix={
                 <span
                   className={clsx('text-[13px] text-on-surface-subtlest hidden', {
@@ -150,12 +152,14 @@ export function MyPositionsSummary({ portfolio, invalidatePortflio }: MyPosition
 function MyPositionSummaryItem({
   label,
   value,
+  onClick,
   isDollar = false,
   suffix,
   flexRowWhenSmallScreen = false,
 }: {
   label: string
   value: number
+  onClick?: () => void
   isDollar?: boolean
   suffix?: ReactNode
   flexRowWhenSmallScreen?: boolean
@@ -171,16 +175,33 @@ function MyPositionSummaryItem({
     >
       <div>
         <h4 className="text-[13px]">{label}</h4>
-        <p className="mt-3 text-[32px] font-medium">
-          {value === 0
-            ? '-'
-            : isDollar
-            ? `${formatDollarAmountV2({
-                num: value,
-                withDollarSign: true,
-              })}`
-            : value.toLocaleString()}
-        </p>
+        {onClick ? (
+          <button
+            type="button"
+            className="mt-3 text-[32px] font-medium hover:underline hover:opacity-70"
+            onClick={onClick}
+          >
+            {value === 0
+              ? '-'
+              : isDollar
+              ? `${formatDollarAmountV2({
+                  num: value,
+                  withDollarSign: true,
+                })}`
+              : value.toLocaleString()}
+          </button>
+        ) : (
+          <p className="mt-3 text-[32px] font-medium">
+            {value === 0
+              ? '-'
+              : isDollar
+              ? `${formatDollarAmountV2({
+                  num: value,
+                  withDollarSign: true,
+                })}`
+              : value.toLocaleString()}
+          </p>
+        )}
       </div>
       {suffix}
     </div>

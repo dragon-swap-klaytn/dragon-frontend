@@ -108,13 +108,8 @@ const handler: NextApiHandler = async (req, res) => {
       (id) => !v2Pools.some((pool) => pool.id === id) && !v3Pools.some((pool) => pool.id === id),
     )
 
-    console.log('missingPoolIds', missingPoolIds)
-
     if (missingPoolIds.length > 0) {
       const { v2Pools: missingV2Pools, v3Pools: missingV3Pools } = await getPoolsDataByIds(missingPoolIds)
-
-      console.log('missingV2Pools', missingV2Pools)
-      console.log('missingV3Pools', missingV3Pools)
 
       v2Pools.push(...missingV2Pools)
       v3Pools.push(...missingV3Pools)

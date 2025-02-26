@@ -1,3 +1,4 @@
+import { useDebounce } from '@pancakeswap/hooks'
 import { PoolParsed } from 'pages/api/pools'
 import useSWR from 'swr'
 import { PoolType } from 'types'
@@ -83,13 +84,18 @@ export default function usePools(
     sortDirection,
   })
 
+  const debouncedParams = useDebounce(params, 500)
+
   const { data, error } = useSWR(
-    paused || !poolTypes || poolTypes.length === 0 ? null : ['dashboard/pools', params],
+    paused || !poolTypes || poolTypes.length === 0 || !debouncedParams ? null : ['dashboard/pools', debouncedParams],
     async () => {
-      const res = await fetch(`/api/pools?${params}`)
+      const res = await fetch(`/api/pools?${debouncedParams}`)
       const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number }
 
       return parsed
+    },
+    {
+      revalidateOnFocus: false,
     },
   )
 

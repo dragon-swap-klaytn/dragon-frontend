@@ -1,4 +1,3 @@
-import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { ButtonV2, Chip, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
@@ -35,12 +34,10 @@ const PoolsPage = () => {
     return {
       boostedOnly,
       searchKey,
-      poolTypes: poolTypeOptions.map(({ value }) => value as PoolType),
+      poolTypes: (myPositionOnly ? poolTypeSelectorOptions : poolTypeOptions).map(({ value }) => value as PoolType),
       addresses: myPositionOnly && portfolio ? (Object.keys(portfolio) as Address[]) : undefined,
     }
   }, [portfolio, boostedOnly, searchKey, poolTypeOptions, myPositionOnly])
-
-  const debouncedParams = useDebounce(momoizedParams, 500)
 
   return (
     <Page title={t('Pools')} image="/images/og-images/pools.jpeg">
@@ -66,14 +63,25 @@ const PoolsPage = () => {
               <Spinner />
             </div>
           ) : (
-            <MyPositionsSummary portfolio={portfolio} invalidatePortflio={() => mutatePortfolio()} />
+            <MyPositionsSummary
+              onMyPositionsClick={() => {
+                if (!myPositionOnly) {
+                  setMyPositionOnly(true)
+                }
+                document.getElementById('pool-table')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              portfolio={portfolio}
+              invalidatePortflio={() => mutatePortfolio()}
+            />
           )}
         </div>
       </div>
 
       {/* All Pools Section */}
       <div className="mt-8">
-        <h2 className="text-xl font-medium">{t('All Pools')}</h2>
+        <h2 id="pool-table" className="text-xl font-medium">
+          {t('All Pools')}
+        </h2>
         <div className="mt-5 space-x-3 flex items-center whitespace-nowrap overflow-x-auto">
           <div className="inline-block">
             <SegmentedControl
@@ -88,18 +96,7 @@ const PoolsPage = () => {
               hidden: Object.keys(portfolio ?? {}).length === 0,
             })}
           >
-            <Chip
-              label={t('My Position')}
-              selected={myPositionOnly}
-              setSelected={(v) => {
-                if (v) {
-                  setMyPositionOnly(true)
-                  setPoolTypeOptions(poolTypeSelectorOptions)
-                } else {
-                  setMyPositionOnly(false)
-                }
-              }}
-            />
+            <Chip label={t('My Position')} selected={myPositionOnly} setSelected={setMyPositionOnly} />
           </div>
           <div className="inline-block flex-1 !mx-0" />
           <div className="hidden md:inline-block">
@@ -121,7 +118,7 @@ const PoolsPage = () => {
           />
         </div>
         <div className="mt-5">
-          {debouncedParams.poolTypes.length === 0 ? (
+          {momoizedParams.poolTypes.length === 0 ? (
             <div className="mt-8">
               <p className="text-on-surface">{t('Please select at least one pool type.')}</p>
               <ButtonV2
@@ -133,7 +130,7 @@ const PoolsPage = () => {
               </ButtonV2>
             </div>
           ) : (
-            <PoolTable {...debouncedParams} portfolio={portfolio} initialSortBy="apy24H" openable />
+            <PoolTable {...momoizedParams} portfolio={portfolio} initialSortBy="apy24H" openable />
           )}
         </div>
       </div>
