@@ -3,8 +3,7 @@ import { CAKE_SYMBOL_VIEW } from '@pancakeswap/tokens'
 import { RoiCalculatorModal, Text, TooltipText, useModal, useTooltip } from '@pancakeswap/uikit'
 import { FarmWidget } from '@pancakeswap/widgets-internal'
 import BigNumber from 'bignumber.js'
-import _toNumber from 'lodash/toNumber'
-import { MouseEvent, useContext, useState } from 'react'
+import { MouseEvent, useContext } from 'react'
 
 import { useFarmFromPid, useFarmUser } from 'state/farms/hooks'
 
@@ -29,7 +28,6 @@ export interface ApyButtonProps {
   strikethrough?: boolean
   useTooltipText?: boolean
   hideButton?: boolean
-  boosted?: boolean
   stableSwapAddress?: string
   stableLpFee?: number
   farmCakePerSecond?: string
@@ -51,7 +49,6 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
   strikethrough,
   useTooltipText,
   hideButton,
-  boosted,
   stableSwapAddress,
   stableLpFee,
   farmCakePerSecond,
@@ -59,7 +56,7 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
 }) => {
   const { t } = useTranslation()
   const { address: account } = useAccount()
-  const [bCakeMultiplier, setBCakeMultiplier] = useState<number | null>(() => null)
+  // const [bCakeMultiplier, setBCakeMultiplier] = useState<number | null>(() => null)
   const { tokenBalance, stakedBalance, proxy } = useFarmUser(pid)
   const { lpTokenStakedAmount } = useFarmFromPid(pid)
   const { boosterState, proxyAddress } = useContext(YieldBoosterStateContext)
@@ -85,9 +82,11 @@ const ApyButton: React.FC<React.PropsWithChildren<ApyButtonProps>> = ({
       stakingTokenSymbol={lpSymbol}
       stakingTokenPrice={lpTokenPrice.toNumber()}
       earningTokenPrice={cakePrice?.toNumber()}
-      apr={bCakeMultiplier ? apr * bCakeMultiplier : apr}
+      // apr={bCakeMultiplier ? apr * bCakeMultiplier : apr}
+      apr={apr}
       multiplier={multiplier}
-      displayApr={bCakeMultiplier ? (_toNumber(displayApr) - apr + apr * bCakeMultiplier).toFixed(2) : displayApr}
+      // displayApr={bCakeMultiplier ? (_toNumber(displayApr) - apr + apr * bCakeMultiplier).toFixed(2) : displayApr}
+      displayApr={displayApr}
       linkHref={addLiquidityUrl}
       lpRewardsApr={lpRewardsApr}
       isFarm

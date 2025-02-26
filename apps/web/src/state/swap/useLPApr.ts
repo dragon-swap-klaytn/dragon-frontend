@@ -9,18 +9,18 @@ import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
 import { getChangeForPeriod } from 'utils/getChangeForPeriod'
 import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
 
-interface PoolReserveVolume {
-  reserveUSD: string
-  volumeUSD: string
-}
+// interface PoolReserveVolume {
+//   reserveUSD: string
+//   volumeUSD: string
+// }
 
-interface PoolReserveVolumeResponse {
-  now: PoolReserveVolume[]
-  oneDayAgo: PoolReserveVolume[]
-  twoDaysAgo: PoolReserveVolume[]
-  oneWeekAgo: PoolReserveVolume[]
-  twoWeeksAgo: PoolReserveVolume[]
-}
+// interface PoolReserveVolumeResponse {
+//   now: PoolReserveVolume[]
+//   oneDayAgo: PoolReserveVolume[]
+//   twoDaysAgo: PoolReserveVolume[]
+//   oneWeekAgo: PoolReserveVolume[]
+//   twoWeeksAgo: PoolReserveVolume[]
+// }
 
 export const useLPApr = (pair?: Pair | null) => {
   const { data: poolData } = useQuery(

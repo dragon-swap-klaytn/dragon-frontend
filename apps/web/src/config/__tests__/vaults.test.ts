@@ -1,11 +1,5 @@
 import { describe } from 'vitest'
 
-const mainnetVaults = []
-
-function hasDuplicates(array: any[]) {
-  return new Set(array).size !== array.length
-}
-
 describe('Config position manger Vault', () => {
   // it.each(mainnetVaults)('All vaults has an unique id', (...vaults) => {
   //   const ids = vaults.map((vault) => vault.id)

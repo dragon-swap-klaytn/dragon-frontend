@@ -335,7 +335,6 @@ export const ActionPanelV2: React.FunctionComponent<React.PropsWithChildren<Acti
                   <Apr
                     {...apr}
                     useTooltipText={false}
-                    boosted={farm.boosted}
                     farmCakePerSecond={multiplier.farmCakePerSecond}
                     totalMultipliers={multiplier.totalMultipliers}
                   />

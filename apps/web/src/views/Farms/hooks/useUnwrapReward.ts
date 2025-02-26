@@ -37,6 +37,7 @@ export function useUnwrapReward({ reward, chainId }: IProps) {
       reward: rewardAmount,
     })
 
+    // eslint-disable-next-line no-alert
     const isConfirmed = reward > 0n && rewardToken?.symbol === LEGACY_CAKE_SYMBOL ? window.confirm(alertText) : false
 
     if (!isConfirmed) {

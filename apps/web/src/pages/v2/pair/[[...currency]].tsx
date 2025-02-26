@@ -118,7 +118,7 @@ export default function PoolV2Page() {
     return (
       <div className="flex items-center space-x-2 mt-6">
         <NextLinkFromReactRouter
-          to={`/v2/add/${tokenLabels[0]}/${tokenLabels[1]}`}
+          to={`/v2/add${tokenLabels[0] ? `/${tokenLabels[0]}` : ''}${tokenLabels[1] ? `/${tokenLabels[1]}` : ''}`}
           className={clsx({ 'w-full': isMobile })}
           onClick={saveBackToHref}
         >
@@ -127,7 +127,7 @@ export default function PoolV2Page() {
           </ButtonV2>
         </NextLinkFromReactRouter>
         <NextLinkFromReactRouter
-          to={`/v2/remove/${tokenLabels[0]}/${tokenLabels[1]}`}
+          to={`/v2/remove${tokenLabels[0] ? `/${tokenLabels[0]}` : ''}${tokenLabels[1] ? `/${tokenLabels[1]}` : ''}`}
           className={clsx({ 'w-full': isMobile })}
           onClick={saveBackToHref}
         >

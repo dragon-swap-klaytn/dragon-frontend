@@ -236,13 +236,16 @@ export function UniversalAddLiquidity({
   const handleFeePoolSelect = useCallback<HandleFeePoolSelectFn>(
     ({ type, feeAmount: newFeeAmount }) => {
       setSelectorType(type)
+
+      if (!currencyIdA || !currencyIdB) return
+
       if (newFeeAmount) {
         router.replace(
           {
             pathname: router.pathname,
             query: {
               ...router.query,
-              currency: [currencyIdA || '', currencyIdB || '', newFeeAmount.toString()],
+              currency: [currencyIdA, currencyIdB, newFeeAmount.toString()],
             },
           },
           undefined,
@@ -254,7 +257,7 @@ export function UniversalAddLiquidity({
             pathname: router.pathname.replace('/v2', ''),
             query: {
               ...router.query,
-              currency: [currencyIdA || '', currencyIdB || ''],
+              currency: [currencyIdA, currencyIdB],
             },
           },
           undefined,

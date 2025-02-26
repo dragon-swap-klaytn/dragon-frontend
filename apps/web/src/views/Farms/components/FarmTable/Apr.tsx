@@ -1,10 +1,9 @@
-import { styled } from 'styled-components'
-import ApyButton from 'views/Farms/components/FarmCard/ApyButton'
-import BigNumber from 'bignumber.js'
-import { BASE_ADD_LIQUIDITY_URL } from 'config'
-import getLiquidityUrlPathParts from 'utils/getLiquidityUrlPathParts'
 import { Skeleton } from '@pancakeswap/uikit'
+import BigNumber from 'bignumber.js'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { styled } from 'styled-components'
+import getLiquidityUrlPathParts from 'utils/getLiquidityUrlPathParts'
+import ApyButton from 'views/Farms/components/FarmCard/ApyButton'
 
 export interface AprProps {
   value: string
@@ -21,7 +20,7 @@ export interface AprProps {
   hideButton?: boolean
   strikethrough?: boolean
   useTooltipText?: boolean
-  boosted?: boolean
+  // boosted?: boolean
   stableSwapAddress?: string
   stableLpFee?: number
   farmCakePerSecond?: string
@@ -65,7 +64,7 @@ const Apr: React.FC<React.PropsWithChildren<AprProps>> = ({
   strikethrough,
   lpRewardsApr,
   useTooltipText = true,
-  boosted,
+  // boosted,
   stableSwapAddress,
   stableLpFee,
   farmCakePerSecond,
@@ -92,7 +91,6 @@ const Apr: React.FC<React.PropsWithChildren<AprProps>> = ({
           strikethrough={strikethrough}
           useTooltipText={useTooltipText}
           hideButton={hideButton}
-          boosted={boosted}
           stableSwapAddress={stableSwapAddress}
           stableLpFee={stableLpFee}
           farmCakePerSecond={farmCakePerSecond}

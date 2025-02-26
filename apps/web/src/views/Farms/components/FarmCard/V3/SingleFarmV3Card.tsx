@@ -35,7 +35,6 @@ import { logGTMClickStakeFarmEvent } from 'utils/customGTMEventTracking'
 import { V3Farm } from 'views/Farms/FarmsV3'
 import useFarmV3Actions from 'views/Farms/hooks/v3/useFarmV3Actions'
 import { useIsBoostedPool, useUserPositionInfo } from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
 import FarmV3StakeAndUnStake, { FarmV3LPPosition, FarmV3LPPositionDetail, FarmV3LPTitle } from './FarmV3StakeAndUnStake'
 
 const { FarmV3HarvestAction } = FarmWidget.FarmV3Table
@@ -116,13 +115,11 @@ const SingleFarmV3Card: React.FunctionComponent<
 
   const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenId.toString())
   const { updateUserPositionInfo } = useUserPositionInfo(tokenId.toString())
-  const { updateStatus } = useBoostStatus(farm.pid, tokenId.toString())
 
   const onDone = useCallback(() => {
     updateIsBoostedPool()
     updateUserPositionInfo()
-    updateStatus()
-  }, [updateIsBoostedPool, updateUserPositionInfo, updateStatus])
+  }, [updateIsBoostedPool, updateUserPositionInfo])
 
   const { onStake, onUnstake, onHarvest, attemptingTxn, dismissFarmV3Action } = useFarmV3Actions({
     tokenId: tokenId.toString(),

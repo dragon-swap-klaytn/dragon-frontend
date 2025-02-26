@@ -12,7 +12,6 @@ import { AppState, useAppDispatch } from 'state'
 import useSWRImmutable from 'swr/immutable'
 import { safeGetAddress } from 'utils'
 import { useFeeData } from 'wagmi'
-import { GAS_PRICE_GWEI } from '../../types'
 import {
   addSerializedPair,
   addSerializedToken,
@@ -290,12 +289,12 @@ export function useFeeDataWithGasPrice(chainIdOverride?: number): {
   }
 }
 
-const DEFAULT_BSC_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.default)
-const DEFAULT_BSC_TESTNET_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.testnet)
+// const DEFAULT_BSC_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.default)
+// const DEFAULT_BSC_TESTNET_GAS_BIGINT = BigInt(GAS_PRICE_GWEI.testnet)
 /**
  * Note that this hook will only works well for BNB chain
  */
-export function useGasPrice(chainIdOverride?: number): bigint | undefined {
+export function useGasPrice(_chainIdOverride?: number): bigint | undefined {
   // const { chainId: chainId_ } = useActiveChainId()
   // const chainId = chainIdOverride ?? chainId_
   // const { data: signer } = useWalletClient({ chainId })

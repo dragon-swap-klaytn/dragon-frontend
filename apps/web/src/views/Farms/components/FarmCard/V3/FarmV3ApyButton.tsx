@@ -33,7 +33,6 @@ import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/for
 import { useV3FormState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 import { V3Farm } from 'views/Farms/FarmsV3'
 import { USER_ESTIMATED_MULTIPLIER, useUserPositionInfo } from '../../YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { BoostStatus, useBoostStatus } from '../../YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { getDisplayApr } from '../../getDisplayApr'
 
 const ApyLabelContainer = styled(Flex)`
@@ -88,8 +87,6 @@ function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, tokenId }:
   const currencyBUsdPrice = +farm.quoteTokenPriceBusd
 
   const isSorted = farm.token.sortsBefore(farm.quoteToken)
-
-  const { status: boostedStatus } = useBoostStatus(farm.pid, tokenId)
 
   const {
     volumeUSD: volume24H,
@@ -189,8 +186,10 @@ function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, tokenId }:
       maximumFractionDigits: 2,
     })
   }, [cakeAprDisplay, lpAprDisplay])
-  const canBoosted = useMemo(() => boostedStatus !== BoostStatus.CanNotBoost, [boostedStatus])
-  const isBoosted = useMemo(() => boostedStatus === BoostStatus.Boosted, [boostedStatus])
+  // const canBoosted = useMemo(() => boostedStatus !== BoostStatus.CanNotBoost, [boostedStatus])
+  // const isBoosted = useMemo(() => boostedStatus === BoostStatus.Boosted, [boostedStatus])
+  const canBoosted = false
+  const isBoosted = false
   const positionDisplayApr = getDisplayApr(+positionCakeApr, lpApr)
   const positionBoostedDisplayApr = getDisplayApr(boostMultiplier * positionCakeApr, lpApr)
 

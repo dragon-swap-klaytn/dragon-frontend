@@ -1,11 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useCakeVaultContract } from 'hooks/useContract'
 import { useAccount } from 'wagmi'
-import { useActiveChainId } from './useActiveChainId'
 
 export const useUserCakeLockStatus = () => {
   const { address: account } = useAccount()
-  const { chainId } = useActiveChainId()
   const cakeVaultContract = useCakeVaultContract()
 
   const { data: userCakeLockStatus = null } = useQuery(

@@ -143,7 +143,7 @@ export const localCachedV2 = <T = any>(
         }
       })
       .catch((err) => {
-        console.error('Error during mutationPromise, recovered to continue further operations.')
+        console.error('Error during mutationPromise, recovered to continue further operations.', err)
         // Recover the chain by returning a resolved promise.
       })
 

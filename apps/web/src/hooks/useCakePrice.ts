@@ -9,7 +9,7 @@ import { publicClient } from 'utils/wagmi'
 import { formatUnits } from 'viem'
 
 // for migration to bignumber.js to avoid breaking changes
-export const useCakePrice = ({ enabled = true } = {}) => {
+export const useCakePrice = () => {
   const { prices } = useTokenPrices({ source: 'swapscanner', refreshInterval: SLOW_INTERVAL })
   // const { data } = useQuery<BigNumber, Error>({
   //   queryKey: ['cakePrice'],

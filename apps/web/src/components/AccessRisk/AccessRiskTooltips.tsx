@@ -1,7 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Flex, Link, Text } from '@pancakeswap/uikit'
 import { TOKEN_RISK } from 'components/AccessRisk'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 
 interface AccessRiskTooltipsProps {
   riskLevel?: number
@@ -17,7 +16,6 @@ const AccessRiskTooltips: React.FC<AccessRiskTooltipsProps> = ({
   tokenAddress,
 }) => {
   const { t } = useTranslation()
-  const { chainId } = useActiveChainId()
 
   if (riskLevel === TOKEN_RISK.UNKNOWN || !hasResult) {
     return (

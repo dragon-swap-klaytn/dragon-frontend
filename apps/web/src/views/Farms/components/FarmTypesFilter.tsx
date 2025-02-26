@@ -6,8 +6,6 @@ import { styled } from 'styled-components'
 interface FarmTypesFilterProps {
   boostedOnly: boolean
   handleSetBoostedOnly: (value: boolean) => void
-  stableSwapOnly: boolean
-  handleSetStableSwapOnly: (value: boolean) => void
   v3FarmOnly?: boolean
   handleSetV3FarmOnly?: (value: boolean) => void
   v2FarmOnly?: boolean
@@ -39,8 +37,6 @@ const ToggleWrapper = styled.div`
 export const FarmTypesFilter: React.FC<FarmTypesFilterProps> = ({
   boostedOnly,
   handleSetBoostedOnly,
-  stableSwapOnly,
-  handleSetStableSwapOnly,
   v3FarmOnly,
   handleSetV3FarmOnly,
   v2FarmOnly,

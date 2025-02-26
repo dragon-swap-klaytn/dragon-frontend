@@ -70,6 +70,7 @@ const handler: NextApiHandler = async (req, res) => {
       },
     })
 
+    // eslint-disable-next-line no-console
     console.log('awaiting 1s...', i + 1)
     // eslint-disable-next-line no-await-in-loop
     await new Promise((resolve) => setTimeout(resolve, 1000))

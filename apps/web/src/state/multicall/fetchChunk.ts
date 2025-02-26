@@ -3,7 +3,7 @@ import { getViemClients } from 'utils/viem'
 import { Call } from './actions'
 import { RetryableError } from './retry'
 
-const l2DifferentBlockNumberChains = []
+// const l2DifferentBlockNumberChains = []
 
 export type FetchChunkResult = ReturnType<typeof fetchChunk>
 
@@ -19,7 +19,7 @@ export async function fetchChunk(
   minBlockNumber: number,
 ): Promise<{ results: any[]; blockNumber: number }> {
   // console.debug('Fetching chunk', chainId, chunk, minBlockNumber)
-  let resultsBlockNumber: bigint | undefined
+  // let resultsBlockNumber: bigint | undefined
   let returnData: any
   const client = getViemClients({ chainId })
 

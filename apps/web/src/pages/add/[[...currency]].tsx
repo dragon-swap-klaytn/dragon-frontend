@@ -57,11 +57,12 @@ const AddLiquidityPage = () => {
   }, [farmsV2, farmsV3, currencyA, currencyB, router])
 
   const handleRefresh = useCallback(() => {
+    if (!currencyIdA || !currencyIdB) return
     router.replace(
       {
         pathname: router.pathname,
         query: {
-          currency: [currencyIdA || '', currencyIdB || ''],
+          currency: [currencyIdA, currencyIdB],
         },
       },
       undefined,

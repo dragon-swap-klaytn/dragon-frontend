@@ -60,6 +60,8 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
         reward,
       })
 
+      // TODO: Replace with a proper alert component
+      // eslint-disable-next-line no-alert
       const isConfirmed = reward > 0n ? window.confirm(alertText) : false
 
       if (!isConfirmed) {

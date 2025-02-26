@@ -215,7 +215,7 @@ export const useFarmsV3 = ({ mockApr = false }: UseFarmsOptions = {}) => {
       farmV3.remove()
       setTimeout(() => farmV3.refetch().then(refetch), 1000)
     }
-  }, [pathname, prevPathname])
+  }, [pathname, prevPathname, farmV3, refetch])
 
   return {
     data: useMemo(() => {

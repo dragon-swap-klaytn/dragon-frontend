@@ -1,6 +1,4 @@
 import { Card, Flex, SyncAltIcon, Tag, Text } from '@pancakeswap/uikit'
-import { Pool } from '@pancakeswap/v3-sdk'
-import { useMemo } from 'react'
 import { styled } from 'styled-components'
 
 import { Currency, Percent } from '@pancakeswap/sdk'
@@ -40,14 +38,8 @@ export const LiquidityCardRow = ({
   subtitle,
   tokenId,
   onSwitch,
-  hasMerkl,
-}: LiquidityCardRowProps) => {
-  const poolAddress = useMemo(
-    () =>
-      currency0 && currency0 && feeAmount ? Pool.getAddress(currency0.wrapped, currency1.wrapped, feeAmount) : null,
-    [currency0, currency1, feeAmount],
-  )
-
+}: // hasMerkl,
+LiquidityCardRowProps) => {
   const { saveBackToHref } = useBackTo()
 
   const content = (

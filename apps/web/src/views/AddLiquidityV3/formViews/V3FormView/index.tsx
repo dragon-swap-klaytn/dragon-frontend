@@ -628,12 +628,14 @@ export default function V3FormView({
                   onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
                 }
 
+                if (!currencyIdA || !currencyIdB) return
+
                 router.replace(
                   {
                     pathname: router.pathname,
                     query: {
                       ...router.query,
-                      currency: [currencyIdB || '', currencyIdA || '', feeAmount ? feeAmount.toString() : ''],
+                      currency: [currencyIdB, currencyIdA, feeAmount ? feeAmount.toString() : ''],
                     },
                   },
                   undefined,

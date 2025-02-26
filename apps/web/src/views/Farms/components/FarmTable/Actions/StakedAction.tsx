@@ -42,10 +42,10 @@ interface StackedActionProps extends FarmWithStakedValue {
   shouldUseProxyFarm?: boolean
 }
 
-export function useStakedActions(lpContract, pid, vaultPid) {
+export function useStakedActions(lpContract, pid) {
   const { account, chainId } = useAccountActiveChain()
-  const { onStake } = useStakeFarms(pid, vaultPid)
-  const { onUnstake } = useUnstakeFarms(pid, vaultPid)
+  const { onStake } = useStakeFarms(pid)
+  const { onUnstake } = useUnstakeFarms(pid)
   const dispatch = useAppDispatch()
 
   const { onApprove } = useApproveFarm(lpContract, chainId)
@@ -91,7 +91,7 @@ export const StakedContainer = ({ children, ...props }) => {
 
   const { lpAddress } = props
   const lpContract = useERC20(lpAddress)
-  const { onStake, onUnstake, onApprove, onDone } = useStakedActions(lpContract, props.pid, props.vaultPid)
+  const { onStake, onUnstake, onApprove, onDone } = useStakedActions(lpContract, props.pid)
 
   const { allowance } = props.userData || {}
 

@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { request, gql } from 'graphql-request'
+import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { GRAPH_HEALTH } from 'config/constants/endpoints'
+import { gql, request } from 'graphql-request'
+import { useState } from 'react'
 import { publicClient } from 'utils/wagmi'
-import { ChainId, DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useSlowRefreshEffect } from './useRefreshEffect'
 
 export enum SubgraphStatus {

@@ -68,7 +68,6 @@ import { hexToBigInt } from 'viem'
 import { AprCalculator } from 'views/AddLiquidityV3/components/AprCalculator'
 import RateToggle from 'views/AddLiquidityV3/formViews/V3FormView/components/RateToggle'
 import { useIsBoostedPool, useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
 import Page from 'views/Page'
 import BoostingCard from 'views/PoolsV2/components/BoostingCard'
@@ -447,15 +446,13 @@ export default function PoolPage() {
 
   const { mutate: updateIsBoostedPool } = useIsBoostedPool(tokenIdStr)
   const { updateUserPositionInfo } = useUserPositionInfo(tokenIdStr)
-  const { updateStatus } = useBoostStatus(farm?.pid || 0, tokenIdStr)
 
   const onDone = useCallback(() => {
     updateIsBoostedPool()
     updateUserPositionInfo()
-    updateStatus()
     updateFarmsV3WithPositionsAndBooster()
     refetchAll()
-  }, [updateIsBoostedPool, updateUserPositionInfo, updateStatus, updateFarmsV3WithPositionsAndBooster, refetchAll])
+  }, [updateIsBoostedPool, updateUserPositionInfo, updateFarmsV3WithPositionsAndBooster, refetchAll])
 
   const handleDismissConfirmation = useCallback(() => {
     setErrorMessage(undefined)
@@ -796,7 +793,6 @@ function PositionHistory_({
               <Fragment key={d.id}>
                 {d.transaction.mints.map((positionTx) => (
                   <PositionHistoryRow
-                    chainId={chainId}
                     positionTx={positionTx}
                     key={positionTx.id}
                     type="mint"
@@ -830,7 +826,6 @@ function PositionHistory_({
                   .filter(Boolean)
                   .map((positionTx) => (
                     <PositionHistoryRow
-                      chainId={chainId}
                       positionTx={positionTx as PositionTX}
                       key={positionTx?.id}
                       type="collect"
@@ -840,7 +835,6 @@ function PositionHistory_({
                   ))}
                 {d.transaction.burns.map((positionTx) => (
                   <PositionHistoryRow
-                    chainId={chainId}
                     positionTx={positionTx}
                     key={positionTx.id}
                     type="burn"
@@ -865,13 +859,11 @@ const positionHistoryTypeText = {
 } satisfies Record<PositionHistoryType, ReactNode>
 
 function PositionHistoryRow({
-  chainId,
   positionTx,
   type,
   currency0,
   currency1,
 }: {
-  chainId?: ChainId
   positionTx: PositionTX
   type: PositionHistoryType
   currency0: Currency

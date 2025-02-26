@@ -1,25 +1,18 @@
-import { useTranslation } from '@pancakeswap/localization'
 import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
 import { memo, useCallback } from 'react'
 
-import { useExpertMode } from '@pancakeswap/utils/user'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 
 import { ArrowCircleDown } from '@phosphor-icons/react'
-import { useAllowRecipient } from '../hooks'
 
 export const FlipButton = memo(function FlipButton() {
-  const { t } = useTranslation()
-  const [isExpertMode] = useExpertMode()
-  const { onSwitchTokens, onChangeRecipient } = useSwapActionHandlers()
+  const { onSwitchTokens } = useSwapActionHandlers()
   const {
-    recipient,
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
   } = useSwapState()
-  const allowRecipient = useAllowRecipient()
 
   const onFlip = useCallback(() => {
     onSwitchTokens()

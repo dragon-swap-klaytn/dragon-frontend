@@ -241,7 +241,7 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [v3FarmOnly, setV3FarmOnly] = useState(false)
   const [v2FarmOnly, setV2FarmOnly] = useState(false)
   const [boostedOnly, setBoostedOnly] = useState(false)
-  const [stableSwapOnly, setStableSwapOnly] = useState(false)
+  const [stableSwapOnly, _setStableSwapOnly] = useState(false)
   const [farmTypesEnableCount, setFarmTypesEnableCount] = useState(0)
 
   const activeFarms = farmsLP.filter(
@@ -446,8 +446,6 @@ const Farms: React.FC<React.PropsWithChildren> = ({ children }) => {
                   handleSetV2FarmOnly={setV2FarmOnly}
                   boostedOnly={boostedOnly}
                   handleSetBoostedOnly={setBoostedOnly}
-                  stableSwapOnly={stableSwapOnly}
-                  handleSetStableSwapOnly={setStableSwapOnly}
                   farmTypesEnableCount={farmTypesEnableCount}
                   handleSetFarmTypesEnableCount={setFarmTypesEnableCount}
                 />

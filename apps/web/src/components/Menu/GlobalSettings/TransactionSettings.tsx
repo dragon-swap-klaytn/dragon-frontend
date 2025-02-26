@@ -14,9 +14,9 @@ enum SlippageError {
   RiskyHigh = 'RiskyHigh',
 }
 
-enum DeadlineError {
-  InvalidInput = 'InvalidInput',
-}
+// enum DeadlineError {
+//   InvalidInput = 'InvalidInput',
+// }
 
 const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
 const THREE_DAYS_IN_SECONDS = 60 * 60 * 24 * 3
@@ -25,13 +25,13 @@ const SlippageTabs = () => {
   const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippage()
   const [ttl, setTtl] = useUserTransactionTTL()
   const [slippageInput, setSlippageInput] = useState('')
-  const [deadlineInput, setDeadlineInput] = useState('')
+  // const [deadlineInput, setDeadlineInput] = useState('')
 
   const { t } = useTranslation()
 
   const slippageInputIsValid =
     slippageInput === '' || (userSlippageTolerance / 100).toFixed(2) === Number.parseFloat(slippageInput).toFixed(2)
-  const deadlineInputIsValid = deadlineInput === '' || (ttl / 60).toString() === deadlineInput
+  // const deadlineInputIsValid = deadlineInput === '' || (ttl / 60).toString() === deadlineInput
 
   let slippageError: SlippageError | undefined
   if (slippageInput !== '' && !slippageInputIsValid) {
@@ -44,12 +44,12 @@ const SlippageTabs = () => {
     slippageError = undefined
   }
 
-  let deadlineError: DeadlineError | undefined
-  if (deadlineInput !== '' && !deadlineInputIsValid) {
-    deadlineError = DeadlineError.InvalidInput
-  } else {
-    deadlineError = undefined
-  }
+  // let deadlineError: DeadlineError | undefined
+  // if (deadlineInput !== '' && !deadlineInputIsValid) {
+  //   deadlineError = DeadlineError.InvalidInput
+  // } else {
+  //   deadlineError = undefined
+  // }
 
   const parseCustomSlippage = (value: string) => {
     if (value === '' || inputRegex.test(escapeRegExp(value))) {
@@ -67,14 +67,14 @@ const SlippageTabs = () => {
   }
 
   const parseCustomDeadline = (value: string) => {
-    setDeadlineInput(value)
+    // setDeadlineInput(value)
 
     try {
       const valueAsInt: number = Number.parseInt(value) * 60
       if (!Number.isNaN(valueAsInt) && valueAsInt > 60 && valueAsInt < THREE_DAYS_IN_SECONDS) {
         setTtl(valueAsInt)
       } else {
-        deadlineError = DeadlineError.InvalidInput
+        // deadlineError = DeadlineError.InvalidInput
       }
     } catch (error) {
       console.error(error)

@@ -1,23 +1,15 @@
 import { Currency, Token, TradeType } from '@pancakeswap/sdk'
 import { SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { useUserSlippage } from '@pancakeswap/utils/user'
-import { FeeOptions } from '@pancakeswap/v3-sdk'
 import { useQuery } from '@tanstack/react-query'
 import type WallchainSDK from '@wallchain/sdk'
 import type { TMEVFoundResponse } from '@wallchain/sdk'
 import { TOptions } from '@wallchain/sdk'
-import { INITIAL_ALLOWED_SLIPPAGE } from 'config/constants'
-import useAccountActiveChain from 'hooks/useAccountActiveChain'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import { atom, useAtom } from 'jotai'
-import { useEffect, useMemo, useState } from 'react'
-import { basisPointsToPercent } from 'utils/exchange'
+import { useEffect, useState } from 'react'
 import { useWalletClient } from 'wagmi'
 
-import Bottleneck from 'bottleneck'
 import { WallchainKeys } from 'config/wallchain'
 import { Address, Hex } from 'viem'
-import { useSwapCallArguments } from './useSwapCallArguments'
 
 interface SwapCall {
   address: Address
@@ -30,12 +22,6 @@ interface WallchainSwapCall {
 
 export type WallchainStatus = 'found' | 'pending' | 'not-found'
 export type TWallchainMasterInput = [TMEVFoundResponse['searcherRequest'], string | undefined] | undefined
-
-const limiter = new Bottleneck({
-  maxConcurrent: 1, // only allow one request at a time
-  minTime: 250, // add 250ms of spacing between requests
-  highWater: 1, // only queue 1 request at a time, newer request will drop older
-})
 
 const addresses = {
   // MetaSwapWrapper
@@ -69,7 +55,6 @@ const loadData = async (account: string, sdk: WallchainSDK, swapCalls: SwapCall[
   }
   return ['not-found', undefined, undefined, undefined, undefined]
 }
-const wrappedLoadData = limiter.wrap(loadData)
 
 const extractAddressFromCurrency = (currency: Currency): `0x${string}` => {
   return currency.isNative ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' : (currency as Token).address
@@ -86,7 +71,6 @@ const extractTokensFromTrade = (trade: SmartRouterTrade<TradeType> | undefined |
 
 function useWallchainSDK() {
   const { data: walletClient } = useWalletClient()
-  const { chainId } = useActiveChainId()
   const { data: wallchainSDK } = useQuery(
     ['wallchainSDK', walletClient?.account, walletClient?.chain],
     async () => {
@@ -114,71 +98,6 @@ function useWallchainSDK() {
 const wallchainStatusAtom = atom<WallchainStatus>('pending')
 export function useWallchainStatus() {
   return useAtom(wallchainStatusAtom)
-}
-
-export function useWallchainApi(
-  trade?: SmartRouterTrade<TradeType>,
-  deadline?: bigint,
-  feeOptions?: FeeOptions,
-): [WallchainStatus, string | undefined, [TMEVFoundResponse['searcherRequest'], string | undefined] | undefined] {
-  const [approvalAddress, setApprovalAddress] = useState<undefined | string>(undefined)
-  const [status, setStatus] = useWallchainStatus()
-  const [masterInput, setMasterInput] = useState<
-    undefined | [TMEVFoundResponse['searcherRequest'], string | undefined]
-  >(undefined)
-  const { data: walletClient } = useWalletClient()
-  const { account } = useAccountActiveChain()
-  const [allowedSlippageRaw] = useUserSlippage() || [INITIAL_ALLOWED_SLIPPAGE]
-  const allowedSlippage = useMemo(() => basisPointsToPercent(allowedSlippageRaw), [allowedSlippageRaw])
-  const [lastUpdate, setLastUpdate] = useState(0)
-
-  const sdk = useWallchainSDK()
-
-  const swapCalls = useSwapCallArguments(trade, allowedSlippage, account, deadline, feeOptions)
-
-  useEffect(() => {
-    // if (!sdk || !walletClient || !trade || !account) {
-    //   setStatus('not-found')
-    //   return
-    // }
-    // if (trade.routes.length === 0 || trade.inputAmount.currency.chainId !== ChainId.BSC) return
-    // if (lastUpdate > Date.now() - 2000) return
-    // const includesToken = trade.routes.some((route) => {
-    //   const goodSrc =
-    //     route.inputAmount.currency.isToken && WallchainTokens.some((token) => route.inputAmount.currency.equals(token))
-    //   const goodDst =
-    //     route.outputAmount.currency.isToken &&
-    //     WallchainTokens.some((token) => route.outputAmount.currency.equals(token))
-    //   return goodSrc || goodDst
-    // })
-    // if (includesToken) {
-    //   if (status !== 'found') {
-    //     // we need status only for the first time, to ensure that first response is loaded, but then we expect to reuse response for 2 seconds (line 135)
-    //     setStatus('pending')
-    //   }
-    //   wrappedLoadData(account, sdk, swapCalls)
-    //     .then(([reqStatus, address, searcherRequest, searcherSignature]) => {
-    //       setStatus(reqStatus as WallchainStatus)
-    //       setApprovalAddress(address)
-    //       setMasterInput([searcherRequest as TMEVFoundResponse['searcherRequest'], searcherSignature as string])
-    //       setLastUpdate(Date.now())
-    //     })
-    //     .catch((e) => {
-    //       setStatus('not-found')
-    //       setApprovalAddress(undefined)
-    //       setMasterInput(undefined)
-    //       captureException(e)
-    //       setLastUpdate(Date.now())
-    //     })
-    // } else {
-    //   setStatus('not-found')
-    //   setApprovalAddress(undefined)
-    //   setMasterInput(undefined)
-    // }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletClient, account, swapCalls, sdk, trade, setStatus])
-
-  return [status, approvalAddress, masterInput]
 }
 
 export function useWallchainSwapCallArguments(

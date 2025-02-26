@@ -22,13 +22,10 @@ import { Field } from 'state/mint/actions'
 import currencyId from 'utils/currencyId'
 
 import { Calculator } from '@phosphor-icons/react'
-import clsx from 'clsx'
 import useTokenPrices from 'hooks/use-token-prices'
 import { PoolV3Parsed } from 'pages/api/pools'
 import { calculateAPR } from 'utils/calculate-interests'
 import usePools from 'views/Dashboard/hooks/usePools'
-import { useUserPositionInfo } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBCakeV3Info'
-import { BoostStatus, useBoostStatus } from 'views/Farms/components/YieldBooster/hooks/bCakeV3/useBoostStatus'
 import { useV3MintActionHandlers } from '../formViews/V3FormView/form/hooks/useV3MintActionHandlers'
 import { useV3FormState } from '../formViews/V3FormView/form/reducer'
 
@@ -252,15 +249,6 @@ export function AprCalculator({
   // NOTE: Assume no liquidity when opening modal
   const { onFieldAInput, onBothRangeInput, onSetFullRange } = useV3MintActionHandlers(false)
 
-  const tokenId = useMemo(() => positionDetails?.tokenId?.toString() ?? '-1', [positionDetails?.tokenId])
-  const pid = useMemo(() => farm?.farm?.pid ?? -1, [farm?.farm.pid])
-  const {
-    data: { boostMultiplier },
-  } = useUserPositionInfo(positionDetails?.tokenId?.toString() ?? '-1')
-
-  const { status: boostedStatus } = useBoostStatus(pid, tokenId)
-  const isBoosted = useMemo(() => boostedStatus === BoostStatus.Boosted, [boostedStatus])
-
   const closeModal = useCallback(() => setOpen(false), [])
   const onApply = useCallback(
     (position: RoiCalculatorPositionInfo) => {
@@ -308,18 +296,11 @@ export function AprCalculator({
 
   const hasFarmApr = positionFarmApr && +positionFarmApr > 0
   const combinedApr = hasFarmApr ? lpApr * 100 + +positionFarmApr : lpApr * 100
-  const combinedAprWithBoosted = hasFarmApr
-    ? lpApr * 100 + +positionFarmApr * (isBoosted ? boostMultiplier : 1)
-    : lpApr * 100
   const aprDisplay = combinedApr.toLocaleString(undefined, {
     maximumFractionDigits: 2,
     minimumFractionDigits: 0,
   })
 
-  const boostedAprDisplay = combinedAprWithBoosted.toLocaleString(undefined, {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
-  })
   const AprText = hasFarmApr ? TooltipText : Text
 
   return (
@@ -331,15 +312,7 @@ export function AprCalculator({
         <div className="flex items-center space-x-1.5 text-on-surface">
           <AprText onClick={() => setOpen(true)}>
             <div className="flex items-center space-x-1.5 text-on-surface font-bold">
-              {isBoosted && <span>🚀 {boostedAprDisplay}%</span>}
-
-              <span
-                className={clsx({
-                  'line-through text-on-surface-subtlest': isBoosted,
-                })}
-              >
-                {aprDisplay}%
-              </span>
+              <span>{aprDisplay}%</span>
             </div>
           </AprText>
           <button type="button" onClick={() => setOpen(true)} className="hover:opacity-70">
@@ -397,7 +370,7 @@ export function AprCalculator({
         onPriceSpanChange={setPriceSpan}
         onApply={onApply}
         isFarm={Boolean(hasFarmApr)}
-        cakeAprFactor={positionFarmAprFactor.times(isBoosted ? boostMultiplier : 1)}
+        cakeAprFactor={positionFarmAprFactor}
         cakePrice={cakePrice.toFixed(3)}
       />
     </div>
