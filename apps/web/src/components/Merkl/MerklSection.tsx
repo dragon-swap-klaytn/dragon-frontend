@@ -1,15 +1,15 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
-    AutoRow,
-    Box,
-    Button,
-    Flex,
-    Link,
-    Message,
-    MessageText,
-    Text,
-    TooltipText,
-    useTooltip,
+  AutoRow,
+  Box,
+  Button,
+  Flex,
+  Link,
+  Message,
+  MessageText,
+  Text,
+  TooltipText,
+  useTooltip,
 } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { LightGreyCard } from 'components/Card'

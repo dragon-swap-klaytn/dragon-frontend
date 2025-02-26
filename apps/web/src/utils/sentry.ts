@@ -58,6 +58,6 @@ export const logError = (error: Error | unknown) => {
       captureException(assignError(error), error)
     }
   }
-  
+
   console.error(error)
 }

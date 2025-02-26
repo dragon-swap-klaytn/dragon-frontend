@@ -112,7 +112,14 @@ export const getV3PoolsWithoutTicksOnChain = createOnChainPoolFactory<V3Pool, V3
     if (!deployerAddress) {
       return []
     }
-    return [FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUMLOW, FeeAmount.MEDIUM, FeeAmount.HIGH, FeeAmount.HIGHEST].map((fee) => ({
+    return [
+      FeeAmount.LOWEST,
+      FeeAmount.LOW,
+      FeeAmount.MEDIUMLOW,
+      FeeAmount.MEDIUM,
+      FeeAmount.HIGH,
+      FeeAmount.HIGHEST,
+    ].map((fee) => ({
       address: computeV3PoolAddress({
         deployerAddress,
         tokenA: currencyA.wrapped,

@@ -1,13 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
-    BinanceChainIcon,
-    ButtonProps,
-    ButtonV2,
-    CoinbaseWalletIcon,
-    MetamaskIcon,
-    OperaIcon,
-    TokenPocketIcon,
-    TrustWalletIcon,
+  BinanceChainIcon,
+  ButtonProps,
+  ButtonV2,
+  CoinbaseWalletIcon,
+  MetamaskIcon,
+  OperaIcon,
+  TokenPocketIcon,
+  TrustWalletIcon,
 } from '@pancakeswap/uikit'
 import getTokenIconSrc from '@pancakeswap/utils/getTokenIconSrc'
 import clsx from 'clsx'

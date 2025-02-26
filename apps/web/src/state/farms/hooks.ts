@@ -61,25 +61,28 @@ export function useFarmV2PublicAPI() {
 
 export function useFarmPrivateAPI() {
   const { chainId } = useActiveChainId()
-  const chainName = {
-    8217: 'klaytn',
-    1001: 'klaytnTestnet'
-  }[chainId as number] ?? ''
+  const chainName =
+    {
+      8217: 'klaytn',
+      1001: 'klaytnTestnet',
+    }[chainId as number] ?? ''
 
   const { data } = useQuery(
     ['farm-private-api', chainId],
     async () => {
-      return import(`@pancakeswap/farms/constants/${chainName}.ts`).then(res => {
-        return {
-          farmsV2: res.default,
-          farmsV3: res.farmsV3
-        }
-      }).catch(() => {
-        return {
-          farmsV2: [],
-          farmsV3: []
-        }
-      })
+      return import(`@pancakeswap/farms/constants/${chainName}.ts`)
+        .then((res) => {
+          return {
+            farmsV2: res.default,
+            farmsV3: res.farmsV3,
+          }
+        })
+        .catch(() => {
+          return {
+            farmsV2: [],
+            farmsV3: [],
+          }
+        })
     },
     {
       enabled: Boolean(chainId && supportedChainIdV2.includes(chainId)),

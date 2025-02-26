@@ -9,12 +9,12 @@ export const cakeToken = new ERC20Token(
   "WKLAY",
   "Wrapped Klay",
   "https://klaytn.foundation"
-)
+);
 
 export const nativeStable = new ERC20Token(
   ChainId.KLAYTN,
   "0xcee8faf64bb97a73bb51e115aa89c17ffa8dd167",
   18,
   "oUSDT",
-  "OOrbit Bridge Klaytn USD Tether",
-)
+  "OOrbit Bridge Klaytn USD Tether"
+);
