@@ -30,6 +30,7 @@ import { safeGetAddress } from 'utils'
 import { CurrencySelect } from 'components/CurrencySelect'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { useBackTo } from 'hooks/use-back-to'
+import { toChecksumCurrency } from 'utils/toChecksumCurrency'
 import { AprCalculator } from './components/AprCalculator'
 import { V2Selector } from './components/V2Selector'
 import StableFormView from './formViews/StableFormView'
@@ -417,8 +418,8 @@ export function AddLiquidityV3Layout({
               {selectType === SELECTOR_TYPE.V3 && (
                 <AprCalculator
                   showQuestion
-                  baseCurrency={baseCurrency}
-                  quoteCurrency={quoteCurrency}
+                  baseCurrency={baseCurrency ? toChecksumCurrency(baseCurrency) : undefined}
+                  quoteCurrency={quoteCurrency ? toChecksumCurrency(quoteCurrency) : undefined}
                   feeAmount={feeAmount}
                   className="mr-2"
                 />
