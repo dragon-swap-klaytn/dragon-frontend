@@ -98,16 +98,12 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     const options: CollectV2Options[] = []
 
     positions.unstaked.forEach((position) => {
-      if (!position.token0.feeAmount && !position.token1.feeAmount) {
-        return
-      }
+      if (!position.token0.feeAmount && !position.token1.feeAmount) return
 
       const t0 = tokenMap[position.token0.address as Address]
       const t1 = tokenMap[position.token1.address as Address]
 
-      if (!t0 || !t1) {
-        return
-      }
+      if (!t0 || !t1) return
 
       options.push({
         tokenId: position.positionId,
@@ -117,9 +113,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
       })
     })
 
-    if (!options.length) {
-      return
-    }
+    if (!options.length) return
 
     const { calldata, value } = NonfungiblePositionManager.collectAllCallParameters(options)
 
@@ -301,7 +295,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
   const [openClaimFeesAndRewardsModal] = useModal(
     <TransactionConfirmationModal
       title={t('Claim Boost Rewards & Fees')}
-      attemptingTxn={txInflight}
+      attemptingTxn={txInflight || unwrappingInflight}
       customOnDismiss={onDismiss}
       hash={collectMigrationHash ?? ''}
       errorMessage={errorMessage}
