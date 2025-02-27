@@ -29,7 +29,7 @@ import { safeGetAddress } from 'utils'
 
 import { CurrencySelect } from 'components/CurrencySelect'
 import { CommonBasesType } from 'components/SearchModal/types'
-import { useBackTo } from 'hooks/use-back-to'
+import { useHistory } from 'contexts/HistoryContext'
 import { toChecksumCurrency } from 'utils/toChecksumCurrency'
 import { AprCalculator } from './components/AprCalculator'
 import { V2Selector } from './components/V2Selector'
@@ -269,11 +269,8 @@ export function UniversalAddLiquidity({
     [currencyIdA, currencyIdB, router, setSelectorType],
   )
 
-  const { saveBackToHref } = useBackTo()
-
   const handleSelectV2 = useCallback(() => {
     setSelectorType(SELECTOR_TYPE.V2)
-    saveBackToHref()
     router.replace(
       {
         pathname: router.pathname,
@@ -282,7 +279,7 @@ export function UniversalAddLiquidity({
       `/v2/add/${currencyIdA}/${currencyIdB}`,
       { shallow: true },
     )
-  }, [currencyIdA, currencyIdB, router, setSelectorType, saveBackToHref])
+  }, [currencyIdA, currencyIdB, router, setSelectorType])
 
   useEffect(() => {
     if (preferredFeeAmount && !feeAmountFromUrl && selectorType === SELECTOR_TYPE.V3) {
@@ -395,7 +392,7 @@ export function AddLiquidityV3Layout({
 }) {
   const { t } = useTranslation()
 
-  const { backTo } = useBackTo()
+  const { backTo } = useHistory()
 
   const [selectType] = useAtom(selectTypeAtom)
   const { currencyIdA, currencyIdB, feeAmount } = useCurrencyParams()

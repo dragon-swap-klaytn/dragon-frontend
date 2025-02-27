@@ -1,6 +1,5 @@
 import { Currency } from '@pancakeswap/sdk'
 import { USDC, USDT } from '@pancakeswap/tokens'
-import { useBackTo } from '@pancakeswap/uikit/hooks/use-back-to'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { useRouter } from 'next/router'
@@ -16,11 +15,8 @@ export const useCurrencySelectRoute = () => {
     USDT[chainId]?.address ?? USDC[chainId]?.address,
   ]
 
-  const { saveBackToHref } = useBackTo()
-
   const handleCurrencyASelect = useCallback(
     (currencyA_: Currency) => {
-      saveBackToHref()
       const newCurrencyIdA = currencyId(currencyA_)
       if (newCurrencyIdA === currencyIdB) {
         router.replace(`/add/${currencyIdB}/${currencyIdA}`, undefined, { shallow: true })
@@ -30,11 +26,10 @@ export const useCurrencySelectRoute = () => {
         router.replace(`/add/${newCurrencyIdA}`, undefined, { shallow: true })
       }
     },
-    [currencyIdB, router, currencyIdA, saveBackToHref],
+    [currencyIdB, router, currencyIdA],
   )
   const handleCurrencyBSelect = useCallback(
     (currencyB_: Currency) => {
-      saveBackToHref()
       const newCurrencyIdB = currencyId(currencyB_)
       if (currencyIdA === newCurrencyIdB) {
         if (currencyIdB) {
@@ -46,7 +41,7 @@ export const useCurrencySelectRoute = () => {
         router.replace(`/add/${currencyIdA || native.symbol}/${newCurrencyIdB}`, undefined, { shallow: true })
       }
     },
-    [currencyIdA, router, currencyIdB, native, saveBackToHref],
+    [currencyIdA, router, currencyIdB, native],
   )
 
   return {

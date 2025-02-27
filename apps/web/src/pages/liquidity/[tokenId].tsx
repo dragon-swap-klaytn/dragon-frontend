@@ -30,10 +30,10 @@ import { RangeTag } from 'components/RangeTag'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
 import { MASTERCHEFV3_ADDRESS } from 'const'
+import { useHistory } from 'contexts/HistoryContext'
 import dayjs from 'dayjs'
 import { gql } from 'graphql-request'
 import { useToken } from 'hooks/Tokens'
-import { useBackTo } from 'hooks/use-back-to'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
@@ -164,7 +164,7 @@ export default function PoolPage() {
     i18n: { language: locale },
   } = useTranslation()
 
-  const { backTo } = useBackTo()
+  const { backTo } = useHistory()
 
   const [collecting, setCollecting] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
@@ -411,8 +411,6 @@ export default function PoolPage() {
 
   // const { hasMerkl } = useMerklInfo(poolAddress)
 
-  const { saveBackToHref } = useBackTo()
-
   const buttons = useMemo(
     () =>
       currency0 && currency1 ? (
@@ -420,21 +418,21 @@ export default function PoolPage() {
           <NextLinkFromReactRouter
             to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
           >
-            <ButtonV2 disabled={!isOwnNFT} variant="primary" onClick={saveBackToHref}>
+            <ButtonV2 disabled={!isOwnNFT} variant="primary" onClick={() => {}}>
               {t('Add')}
             </ButtonV2>
           </NextLinkFromReactRouter>
 
           {!removed && (
             <NextLinkFromReactRouter to={`/remove/${tokenId}`}>
-              <ButtonV2 disabled={!isOwnNFT} variant="subtle" onClick={saveBackToHref}>
+              <ButtonV2 disabled={!isOwnNFT} variant="subtle" onClick={() => {}}>
                 {t('Remove')}
               </ButtonV2>
             </NextLinkFromReactRouter>
           )}
         </div>
       ) : null,
-    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId, saveBackToHref],
+    [currency0, currency1, feeAmount, isOwnNFT, removed, t, tokenId],
   )
 
   const { farmsWithPositions: farmsV3, updateFarmsV3WithPositionsAndBooster } = useFarmsV3WithPositionsAndBooster()

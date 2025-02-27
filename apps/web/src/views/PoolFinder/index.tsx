@@ -7,7 +7,7 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import { MinimalPositionCard } from 'components/PositionCard'
 import { CommonBasesType } from 'components/SearchModal/types'
 import { BIG_INT_ZERO } from 'config/constants/exchange'
-import { useBackTo } from 'hooks/use-back-to'
+import { useHistory } from 'contexts/HistoryContext'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import { PairState, useV2Pair } from 'hooks/usePairs'
 import Link from 'next/link'
@@ -79,7 +79,7 @@ export default function PoolFinder() {
     [activeField, currency0, currency1],
   )
 
-  const { backTo, saveBackToHref } = useBackTo()
+  const { backTo } = useHistory()
 
   return (
     <Page>
@@ -148,20 +148,14 @@ export default function PoolFinder() {
                   hasPosition && pair ? (
                     <Wrapper>
                       <MinimalPositionCard pair={pair} />
-                      <NextLink
-                        href={`/v2/pair/${pair.token0.address}/${pair.token1.address}`}
-                        onClick={saveBackToHref}
-                      >
+                      <NextLink href={`/v2/pair/${pair.token0.address}/${pair.token1.address}`}>
                         {t('Manage this pair')}
                       </NextLink>
                     </Wrapper>
                   ) : (
                     <Wrapper>
                       <p className="text-center">{t('You don’t have liquidity in this pair yet.')}</p>
-                      <NextLink
-                        href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}
-                        onClick={saveBackToHref}
-                      >
+                      <NextLink href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
                         {t('Add Liquidity')}
                       </NextLink>
                     </Wrapper>
@@ -169,10 +163,7 @@ export default function PoolFinder() {
                 ) : validPairNoLiquidity ? (
                   <Wrapper>
                     <p className="text-sm text-on-surface text-center">{t('No pair found.')}</p>
-                    <NextLink
-                      href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}
-                      onClick={saveBackToHref}
-                    >
+                    <NextLink href={`/v2/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
                       {t('Create pair')}
                     </NextLink>
                   </Wrapper>

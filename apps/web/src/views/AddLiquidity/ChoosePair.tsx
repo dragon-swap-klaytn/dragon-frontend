@@ -5,7 +5,7 @@ import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import { CurrencySelect } from 'components/CurrencySelect'
 import { RowBetween } from 'components/Layout/Row'
-import { useBackTo } from 'hooks/use-back-to'
+import { useHistory } from 'contexts/HistoryContext'
 import { useV2Pair } from 'hooks/usePairs'
 import { useLPApr } from 'state/swap/useLPApr'
 import { formatAmount } from 'utils/formatInfoNumbers'
@@ -38,7 +38,7 @@ export function ChoosePair({
     },
   )
 
-  const { backTo } = useBackTo()
+  const { backTo } = useHistory()
 
   return (
     <>

@@ -1,6 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { ButtonV2 } from '@pancakeswap/uikit'
-import { useBackTo } from 'hooks/use-back-to'
 import { TokenSimple } from 'lib/graph-queries/types'
 import NextLink from 'next/link'
 import { PoolType } from 'types'
@@ -19,8 +18,6 @@ export function AddLiquidityButtonV2({
 }) {
   const { t } = useTranslation()
 
-  const { saveBackToHref } = useBackTo()
-
   return (
     <NextLink
       className="w-full"
@@ -28,13 +25,7 @@ export function AddLiquidityButtonV2({
         token1 ? `/${unwrapWKAIAAdress(token1.id)}` : ''
       }`}
     >
-      <ButtonV2
-        variant="secondary"
-        fullWidth={fullWidth}
-        onClick={() => {
-          saveBackToHref()
-        }}
-      >
+      <ButtonV2 variant="secondary" fullWidth={fullWidth} onClick={() => {}}>
         {t('Add Liquidity')}
       </ButtonV2>
     </NextLink>

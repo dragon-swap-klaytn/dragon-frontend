@@ -3,7 +3,6 @@ import { styled } from 'styled-components'
 
 import { Currency, Percent } from '@pancakeswap/sdk'
 import DoubleCurrencyLogo from 'components/Logo/DoubleLogo'
-import { useBackTo } from 'hooks/use-back-to'
 
 const TagCell = styled(Flex)`
   padding: 8px 0;
@@ -40,8 +39,6 @@ export const LiquidityCardRow = ({
   onSwitch,
 }: // hasMerkl,
 LiquidityCardRowProps) => {
-  const { saveBackToHref } = useBackTo()
-
   const content = (
     <Flex justifyContent="space-between" p="16px">
       <Flex flexDirection="column">
@@ -87,7 +84,6 @@ LiquidityCardRowProps) => {
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
           e.preventDefault()
-          saveBackToHref()
           window.location.href = link
         }}
       >

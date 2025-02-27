@@ -6,7 +6,6 @@ import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { useBackTo } from 'hooks/use-back-to'
 import { PortfolioData, PortfolioV3DataBigInt, PositionV3 } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
 import { useV3Pool } from 'hooks/v3/use-v3-pool'
@@ -113,8 +112,6 @@ export function V3PositionCard({
     i18n: { language: locale },
   } = useTranslation()
 
-  const { saveBackToHref } = useBackTo()
-
   const [inverted, setInverted] = useState(false)
 
   const isBoosted = rewardApr > 0 && !_position.isOutOfBounds && _position.isStaked
@@ -187,7 +184,6 @@ export function V3PositionCard({
   return (
     <NextLink
       className={clsx('p-5 rounded-xl space-y-5 w-full', bgClassName)}
-      onClick={saveBackToHref}
       href={`/liquidity/${_position.positionId}`}
     >
       <div className="w-full space-y-2">
@@ -359,7 +355,6 @@ function V2PositionCard({
   poolAPY: number
 }) {
   const { t } = useTranslation()
-  const { saveBackToHref } = useBackTo()
 
   const {
     token0: { amount: amount0 },
@@ -382,7 +377,6 @@ function V2PositionCard({
   return (
     <NextLink
       className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full hover:bg-neutral-dark-hovered"
-      onClick={saveBackToHref}
       href={`/v2/pair/${token0.id}/${token1.id}`}
     >
       <h5>{`${token0.symbol}-${token1.symbol}`}</h5>

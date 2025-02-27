@@ -4,6 +4,8 @@ import { useCallback } from 'react'
 const BACKTO_HISTORY_KEY = 'backToHistory'
 
 /**
+ * @deprecated use useHistory() from contexts/HistoryContext.tsx instead
+ *
  * Custom hook to manage navigation history using a stack stored in sessionStorage.
  *
  * This hook provides the following functions:

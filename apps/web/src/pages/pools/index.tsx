@@ -2,7 +2,6 @@ import { useTranslation } from '@pancakeswap/localization'
 import { ButtonV2, Chip, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import Page from 'components/Layout/Page'
-import { useBackTo } from 'hooks/use-back-to'
 import usePortfolio from 'hooks/use-portfolio'
 import NextLink from 'next/link'
 import { useMemo, useState } from 'react'
@@ -18,7 +17,6 @@ const PoolsPage = () => {
   const { address: account } = useAccount()
 
   const { t } = useTranslation()
-  const { saveBackToHref } = useBackTo()
 
   const { portfolio, mutatePortfolio } = usePortfolio({
     account,
@@ -48,7 +46,7 @@ const PoolsPage = () => {
           <p className="text-sm text-on-surface-subtlest">{t('Supply liquidity and maximize your yield.')}</p>
         </div>
         <NextLink href="/add" className="mt-4 xs:mt-0">
-          <ButtonV2 variant="secondary" onClick={() => saveBackToHref()}>
+          <ButtonV2 variant="secondary" onClick={() => {}}>
             {t('Add Liquidity')}
           </ButtonV2>
         </NextLink>

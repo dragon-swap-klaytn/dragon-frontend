@@ -4,7 +4,6 @@ import { ArrowUp } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import Page from 'components/Layout/Page'
-import { useBackTo } from 'hooks/use-back-to'
 import { PositionV2, PositionV3 } from 'hooks/use-portfolio'
 import useTokenPrices from 'hooks/use-token-prices'
 import usePoolPositions from 'hooks/usePoolPositions'
@@ -341,15 +340,12 @@ function PoolPositionsV2({
 }) {
   const { t } = useTranslation()
 
-  const { saveBackToHref } = useBackTo()
-
   const share = position.token0.amount / pool.reserve0
   const shareUSD = share * pool.tvlUSD.current
 
   return (
     <NextLink
       className={clsx('rounded-xl w-full p-6', bgClassName)}
-      onClick={saveBackToHref}
       href={`/v2/pair/${pool.token0.id}/${pool.token1.id}`}
     >
       <h5>{`${pool.token0.symbol}-${pool.token1.symbol}`}</h5>

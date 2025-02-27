@@ -34,7 +34,7 @@ import { isUserRejected } from 'utils/sentry'
 import { getViemClients } from 'utils/viem'
 import { hexToBigInt } from 'viem'
 
-import { useBackTo } from 'hooks/use-back-to'
+import { useHistory } from 'contexts/HistoryContext'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { V3SubmitButton } from './components/V3SubmitButton'
 import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
@@ -356,7 +356,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
     />
   )
 
-  const { backTo } = useBackTo()
+  const { backTo } = useHistory()
 
   return (
     <Page>

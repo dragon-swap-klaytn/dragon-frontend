@@ -20,8 +20,8 @@ import { getFarmConfig } from '@pancakeswap/farms/constants'
 import { useTranslation } from '@pancakeswap/localization'
 import clsx from 'clsx'
 import { usePoolTokenPercentage, useTokensDeposited, useTotalUSDValue } from 'components/PositionCard'
+import { useHistory } from 'contexts/HistoryContext'
 import { useCurrency } from 'hooks/Tokens'
-import { useBackTo } from 'hooks/use-back-to'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMasterchef } from 'hooks/useContract'
 import { useV2Pair } from 'hooks/usePairs'
@@ -51,7 +51,7 @@ export default function PoolV2Page() {
   const router = useRouter()
   const { address: account } = useAccount()
 
-  const { backTo, saveBackToHref } = useBackTo()
+  const { backTo } = useHistory()
 
   const [currencyIdA, currencyIdB] = router?.query?.currency ? router.query.currency : []
 
@@ -120,7 +120,6 @@ export default function PoolV2Page() {
         <NextLinkFromReactRouter
           to={`/v2/add${tokenLabels[0] ? `/${tokenLabels[0]}` : ''}${tokenLabels[1] ? `/${tokenLabels[1]}` : ''}`}
           className={clsx({ 'w-full': isMobile })}
-          onClick={saveBackToHref}
         >
           <ButtonV2 disabled={!pair} variant="primary" onClick={() => {}} fullWidth={isMobile}>
             {t('Add')}
@@ -129,7 +128,6 @@ export default function PoolV2Page() {
         <NextLinkFromReactRouter
           to={`/v2/remove${tokenLabels[0] ? `/${tokenLabels[0]}` : ''}${tokenLabels[1] ? `/${tokenLabels[1]}` : ''}`}
           className={clsx({ 'w-full': isMobile })}
-          onClick={saveBackToHref}
         >
           <ButtonV2 disabled={!pair} variant="subtle" onClick={() => {}} fullWidth={isMobile}>
             {t('Remove')}
