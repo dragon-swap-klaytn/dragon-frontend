@@ -62,7 +62,7 @@ function CurrencyRow({
         <div className="flex flex-col items-start">
           <span className="font-bold text-sm text-on-surface text-left line-clamp-1">{currency?.symbol}</span>
 
-          <span className="text-xs max-w-40 text-gray-400 whitespace-nowrap line-clamp-1">
+          <span className="text-xs max-w-40 text-gray-400 whitespace-nowrap line-clamp-1 truncate inline-block">
             {isAdded && `${t('Added by user')} •`} {currency?.name}
           </span>
         </div>

@@ -18,7 +18,7 @@ export const QuestionHelper: React.FC<React.PropsWithChildren<Props>> = ({
   background = "bg-gray-500",
   color = "text-on-surface-subtle",
 }) => {
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(text, { placement });
+  const { targetRef, tooltip, tooltipVisible } = useTooltip(<div className="text-sm">{text}</div>, { placement });
 
   return (
     <div className="flex items-center" ref={targetRef}>

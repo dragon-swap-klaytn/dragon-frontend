@@ -21,10 +21,10 @@ export const Recipient = memo(function Recipient() {
 
   return (
     <>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 justify-center ">
         <ArrowCircleDown size={24} className="text-gray-50" />
         <ButtonV2 variant="subtle" fullWidth onClick={() => onChangeRecipient(null)}>
-          {t('Remove send')}
+          {t('Remove recipient')}
         </ButtonV2>
       </div>
       <AddressInputPanel value={recipient} onChange={onChangeRecipient} />

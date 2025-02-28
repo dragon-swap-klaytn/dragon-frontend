@@ -1,7 +1,7 @@
-import { useTranslation } from '@pancakeswap/localization'
+import { Trans, useTranslation } from '@pancakeswap/localization'
 import { TradeType } from '@pancakeswap/sdk'
 import { SMART_ROUTER_ADDRESSES, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
-import { ButtonV2, Dots, ModalV2, Notification, useModal } from '@pancakeswap/uikit'
+import { ButtonV2, Dots, ExternalLink, ModalV2, Notification, useModal, ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { confirmPriceImpactWithoutFee } from '@pancakeswap/widgets-internal'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
@@ -30,6 +30,7 @@ import { warningSeverity } from 'utils/exchange'
 
 import { useDebounce } from '@pancakeswap/hooks'
 import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
+import useTokenPrices from 'hooks/use-token-prices'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useAtom } from 'jotai'
 import { swapReducerAtom } from 'state/swap/reducer'
@@ -66,6 +67,37 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   } = useSwapState()
   const inputCurrency = useCurrency(inputCurrencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
+
+  const {
+    i18n: { language },
+  } = useTranslation()
+  const { prices: pricesFromSs } = useTokenPrices({
+    source: 'swapscanner',
+  })
+  const inputCurrencyFilteredBySs = useMemo(() => {
+    const address = !inputCurrency ? undefined : inputCurrency.isNative ? ZERO_ADDRESS : inputCurrency.wrapped.address
+    if (!address) return null
+
+    const price = pricesFromSs?.[address]
+    if (!price) return null
+
+    return address
+  }, [inputCurrency, pricesFromSs])
+
+  const outputCurrencyFilteredBySs = useMemo(() => {
+    const address = !outputCurrency
+      ? undefined
+      : outputCurrency.isNative
+      ? ZERO_ADDRESS
+      : outputCurrency.wrapped.address
+    if (!address) return null
+
+    const price = pricesFromSs?.[address]
+    if (!price) return null
+
+    return address
+  }, [outputCurrency, pricesFromSs])
+
   const swapIsUnsupported = useIsTransactionUnsupported(inputCurrency, outputCurrency)
   const { onUserInput } = useSwapActionHandlers()
 
@@ -367,10 +399,10 @@ export const SwapCommitButton = memo(function SwapCommitButton({
           <p className="text-sm text-center text-gray-400">{t('Insufficient liquidity for this trade.')}</p>
         </div>
 
-        {isRoutingSettingChange && (
+        {isRoutingSettingChange ? (
           <Notification variant="warning" nStyle="default">
             <div className="flex flex-col">
-              <p>{t('Unable to establish trading route due to customized routing.')}</p>
+              <p>{t('The trading route may not be found due to customized routing.')}</p>
 
               <div className="flex items-center space-x-2 mt-4">
                 <button
@@ -381,7 +413,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
                   {t('Check your settings')}
                 </button>
 
-                <span className="text-sm">or</span>
+                <span className="text-sm">{t('or')}</span>
 
                 <button
                   type="button"
@@ -392,13 +424,39 @@ export const SwapCommitButton = memo(function SwapCommitButton({
                 </button>
               </div>
 
-              {/* <RoutingSettings open={open} onDismiss={() => setOpen(false)} /> */}
               <ModalV2 isOpen={open} onDismiss={() => setOpen(false)} closeOnOverlayClick>
-                <RoutingSettings hideOnback />
+                <RoutingSettings hideOnback onDismiss={() => setOpen(false)} />
               </ModalV2>
             </div>
           </Notification>
-        )}
+        ) : inputCurrencyFilteredBySs && outputCurrencyFilteredBySs ? (
+          <Notification variant="positive" nStyle="default">
+            <div className="flex flex-col">
+              <p className="break-keep">
+                <Trans
+                  t={t}
+                  i18nKey="If certain tokens are not tradable on DragonSwap, try using <b>Swapscanner</b> service!"
+                  components={{
+                    b: <b className="contents" />,
+                  }}
+                />
+              </p>
+
+              <ExternalLink
+                href={`https://swapscanner.io/${
+                  language === 'en' ? '' : 'ko/'
+                }swap?from=${inputCurrencyFilteredBySs}&to=${outputCurrencyFilteredBySs}`}
+                className="mt-4"
+              >
+                {t('Use Swapscanner')}
+              </ExternalLink>
+
+              <ModalV2 isOpen={open} onDismiss={() => setOpen(false)} closeOnOverlayClick>
+                <RoutingSettings hideOnback onDismiss={() => setOpen(false)} />
+              </ModalV2>
+            </div>
+          </Notification>
+        ) : null}
       </div>
     )
   }

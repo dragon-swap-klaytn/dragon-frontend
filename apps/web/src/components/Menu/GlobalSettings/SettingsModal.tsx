@@ -124,7 +124,7 @@ export function RoutingSettingsButton({ showRedDot = true }: { showRedDot?: bool
   )
 }
 
-export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }) {
+export function RoutingSettings({ hideOnback = false, onDismiss }: { hideOnback?: boolean; onDismiss?: () => void }) {
   const { t } = useTranslation()
 
   // const [isStableSwapByDefault, setIsStableSwapByDefault] = useUserStableSwapEnable()
@@ -149,6 +149,7 @@ export function RoutingSettings({ hideOnback = false }: { hideOnback?: boolean }
         )
       }
       onBack={!hideOnback ? onPresentSettingsModal : undefined}
+      onDismiss={onDismiss}
     >
       <h3 className="text-on-surface-brand text-xs">{t('Liquidity source')}</h3>
 

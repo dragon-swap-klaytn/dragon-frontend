@@ -34,7 +34,7 @@ export default function AddressInputPanel({
   return (
     <ContainerV2>
       <div className="flex items-center space-x-2 justify-between w-full">
-        <h4 className="text-[13px] text-on-surface-brand">{t('Recipient')}</h4>
+        <h4 className="text-[13px] text-on-surface">{t('Recipient')}</h4>
 
         {address && chainId && (
           <ExternalLink href={getBlockExploreLink(address, 'address')} textSize="text-xs">
@@ -49,7 +49,7 @@ export default function AddressInputPanel({
 
       <input
         type="text"
-        className="recipient-address-input bg-transparent focus:outline-none w-full text-on-surface mt-2.5"
+        className="recipient-address-input bg-transparent focus:outline-none w-full text-on-surface mt-2.5 text-sm"
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"

@@ -148,7 +148,7 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
 
       {allowRecipient && recipient === null ? (
         <button type="button" className="text-on-surface text-sm" onClick={() => onChangeRecipient('')}>
-          {t('+ Add a send (optional)')}
+          {t('+ Set Recipient (optional)')}
         </button>
       ) : null}
 
