@@ -124,8 +124,10 @@ export default function CurrencyList({
           }
         }
 
-        const amount = +(balances[currency.wrapped.address]?.toExact() || 0)
-        const price = prices?.[currency.address] || ssPrices?.[currency.address] || 0
+        const { address } = currency.wrapped
+
+        const amount = +(balances[address]?.toExact() || 0)
+        const price = prices?.[address] || ssPrices?.[address] || 0
 
         return {
           currency,
