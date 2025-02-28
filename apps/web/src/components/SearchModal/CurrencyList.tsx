@@ -30,6 +30,7 @@ function CurrencyRow({
   showImportView: () => void
   setImportToken: (token: Token) => void
 }) {
+  const { address: account } = useAccount()
   const { t } = useTranslation()
   const { currency, amount, value } = currencyWithValue
 
@@ -67,13 +68,17 @@ function CurrencyRow({
         </div>
       </div>
 
-      {needToImport ? (
-        <Plus size={16} className="text-gray-200" />
+      {account ? (
+        needToImport ? (
+          <Plus size={16} className="text-gray-200" />
+        ) : (
+          <div className="flex flex-col items-end">
+            <span className="text-right text-on-surface text-sm">{amount > 0 ? amount.toFixed(4) : amount}</span>
+            {value > 0 && <span className="text-right text-on-surface-subtlest text-xs">${value.toFixed(4)}</span>}
+          </div>
+        )
       ) : (
-        <div className="flex flex-col items-end">
-          <span className="text-right text-on-surface text-sm">{amount > 0 ? amount.toFixed(4) : amount}</span>
-          {value > 0 && <span className="text-right text-on-surface-subtlest text-xs">${value.toFixed(4)}</span>}
-        </div>
+        <></>
       )}
     </button>
   )
@@ -113,6 +118,12 @@ export default function CurrencyList({
 
     const formatted = showNative ? [native, ...currencies] : [...currencies]
 
+    if (!account) {
+      return formatted
+        .sort((a, b) => a.symbol.localeCompare(b.symbol))
+        .map((currency) => ({ currency, amount: 0, value: 0 }))
+    }
+
     return formatted
       .map((currency) => {
         if (currency.isNative) {
@@ -149,6 +160,7 @@ export default function CurrencyList({
     isLoading,
     pricesLoading,
     pricesLoadingFromSs,
+    account,
   ])
 
   const { setRecentSelectedCurrency } = useRecentSelectedCurrencies()
