@@ -102,6 +102,10 @@ export function useTokenBalances(
   return useTokenBalancesWithLoadingIndicator(address, tokens)[0]
 }
 
+export function useTokenBalancesWithLoading(address?: string, tokens?: (Token | undefined)[]) {
+  return useTokenBalancesWithLoadingIndicator(address, tokens)
+}
+
 // get the balance for a single token/account combo
 export function useTokenBalance(account?: string, token?: Token): CurrencyAmount<Token> | undefined {
   const tokenBalances = useTokenBalances(
@@ -117,7 +121,7 @@ export function useCurrencyBalances(
   currencies?: (Currency | undefined | null)[],
 ): (CurrencyAmount<Currency> | undefined)[] {
   const tokens = useMemo(
-    () => currencies?.filter((currency): currency is Token => currency?.isToken) ?? [],
+    () => currencies?.filter((currency): currency is Token => !!currency?.isToken) ?? [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [...(currencies ?? [])],
   )

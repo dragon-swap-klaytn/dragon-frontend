@@ -13,7 +13,7 @@ export default function useTokenPrices({
   source?: 'default' | 'swapscanner'
   refreshInterval?: number
 } = {}) {
-  const { data, error, mutate } = useSWRImmutable<Record<string, number>>(
+  const { data, error, mutate, isLoading } = useSWRImmutable<Record<string, number>>(
     sourceUrls[source],
     (key) => fetch(key).then((res) => res.json()),
     {
@@ -25,5 +25,6 @@ export default function useTokenPrices({
     prices: data ? duplicateChecksumPriceMap(data) : undefined,
     mutate,
     error,
+    pricesLoading: isLoading,
   }
 }
