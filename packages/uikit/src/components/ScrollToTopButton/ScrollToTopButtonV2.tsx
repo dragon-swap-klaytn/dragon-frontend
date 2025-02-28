@@ -1,13 +1,7 @@
 import { ArrowUp } from "@phosphor-icons/react";
+import clsx from "clsx";
 import throttle from "lodash/throttle";
 import { useCallback, useEffect, useState } from "react";
-import { styled } from "styled-components";
-
-const FixedContainer = styled.div`
-  position: fixed;
-  right: 18px;
-  bottom: calc(110px + env(safe-area-inset-bottom));
-`;
 
 const ScrollToTopButtonV2 = () => {
   const [visible, setVisible] = useState(false);
@@ -37,7 +31,12 @@ const ScrollToTopButtonV2 = () => {
   }, []);
 
   return (
-    <FixedContainer style={{ display: visible ? "inline" : "none" }}>
+    <div
+      className={clsx("fixed right-5 bottom-10", {
+        inline: visible,
+        hidden: !visible,
+      })}
+    >
       <button
         type="button"
         className="w-12 h-12 flex items-center justify-center bg-brand rounded-2xl hover:opacity-70"
@@ -45,7 +44,7 @@ const ScrollToTopButtonV2 = () => {
       >
         <ArrowUp className="text-on-surface w-5 h-5" weight="bold" />
       </button>
-    </FixedContainer>
+    </div>
   );
 };
 

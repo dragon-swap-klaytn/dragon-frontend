@@ -75,7 +75,7 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
           name="description"
           content="DragonSwap is the No.1 DEX for ecosystem liquidity and an official Kaia D2I partner."
         />
-        <meta name="theme-color" content="#f97316" />
+        <meta name="theme-color" content="#000" />
       </Head>
       <DefaultSeo {...SEO} />
       <Providers store={store} dehydratedState={pageProps.dehydratedState}>
