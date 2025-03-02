@@ -19,23 +19,13 @@ import tryParseCurrencyAmount from 'utils/tryParseCurrencyAmount'
 import { MintState } from 'views/AddLiquidityV3/formViews/V3FormView/form/reducer'
 
 import { toChecksumCurrency } from 'utils/toChecksumCurrency'
-import { toChecksumCurrencyAmount } from 'utils/toChecksumCurrencyAmount'
-import { toChecksumToken } from 'utils/toChecksumToken'
 import { useAccount } from 'wagmi'
 import { PoolState } from './types'
 import { usePool } from './usePools'
 import { tryParseTick } from './utils'
 import { getTickToPrice } from './utils/getTickToPrice'
 
-export default function useV3DerivedInfo(
-  currencyA?: Currency,
-  currencyB?: Currency,
-  feeAmount?: FeeAmount,
-  baseCurrency?: Currency,
-  // override for existing position
-  existingPosition?: Position,
-  formState?: MintState,
-): {
+type V3DerivedInfo = {
   pool?: Pool | null
   poolState: PoolState
   ticks: { [bound in Bound]?: number | undefined }
@@ -57,17 +47,28 @@ export default function useV3DerivedInfo(
   depositBDisabled: boolean
   invertPrice: boolean
   ticksAtLimit: { [bound in Bound]?: boolean | undefined }
-} {
+}
+
+export default function useV3DerivedInfo(
+  _currencyA?: Currency,
+  _currencyB?: Currency,
+  feeAmount?: FeeAmount,
+  _baseCurrency?: Currency,
+  // override for existing position
+  existingPosition?: Position,
+  formState?: MintState,
+): V3DerivedInfo {
   const { t } = useTranslation()
-
   const { address: account } = useAccount()
-
   const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue, startPriceTypedValue } =
     formState || {}
-
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
 
   // currencies
+  const currencyA = _currencyA ? toChecksumCurrency(_currencyA) : undefined
+  const currencyB = _currencyB ? toChecksumCurrency(_currencyB) : undefined
+  const baseCurrency = _baseCurrency ? toChecksumCurrency(_baseCurrency) : undefined
+
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA,
@@ -86,8 +87,8 @@ export default function useV3DerivedInfo(
     () =>
       tokenA && tokenB && !tokenA.equals(tokenB)
         ? tokenA.sortsBefore(tokenB)
-          ? [toChecksumToken(tokenA), toChecksumToken(tokenB)]
-          : [toChecksumToken(tokenB), toChecksumToken(tokenA)]
+          ? [tokenA, tokenB]
+          : [tokenB, tokenA]
         : [undefined, undefined],
     [tokenA, tokenB],
   )
@@ -234,13 +235,12 @@ export default function useV3DerivedInfo(
       return undefined
     }
 
-    const checksumWrappedIndependentAmount = toChecksumCurrencyAmount(independentAmount.wrapped)
+    const wrappedIndependentAmount = independentAmount.wrapped
     const dependentCurrency = dependentField === Field.CURRENCY_B ? currencyB : currencyA
-    const dependentChecksumCurrency = dependentCurrency ? toChecksumCurrency(dependentCurrency) : undefined
 
     if (
       independentAmount &&
-      checksumWrappedIndependentAmount &&
+      wrappedIndependentAmount &&
       typeof tickLower === 'number' &&
       typeof tickUpper === 'number' &&
       poolForPosition
@@ -250,7 +250,7 @@ export default function useV3DerivedInfo(
         return undefined
       }
 
-      const position: Position | undefined = checksumWrappedIndependentAmount.currency.equals(poolForPosition.token0)
+      const position: Position | undefined = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
         ? Position.fromAmount0({
             pool: poolForPosition,
             tickLower,
@@ -265,13 +265,10 @@ export default function useV3DerivedInfo(
             amount1: independentAmount.quotient,
           })
 
-      const dependentTokenAmount = checksumWrappedIndependentAmount.currency.equals(poolForPosition.token0)
+      const dependentTokenAmount = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
         ? position.amount1
         : position.amount0
-      return (
-        dependentChecksumCurrency &&
-        CurrencyAmount.fromRawAmount(dependentChecksumCurrency, dependentTokenAmount.quotient)
-      )
+      return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
     }
 
     return undefined

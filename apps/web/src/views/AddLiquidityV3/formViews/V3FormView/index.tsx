@@ -38,7 +38,6 @@ import { styled } from 'styled-components'
 import { calculateGasMargin } from 'utils'
 import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmount'
 import { isUserRejected } from 'utils/sentry'
-import { toChecksumCurrency } from 'utils/toChecksumCurrency'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { getViemClients } from 'utils/viem'
 import { hexToBigInt } from 'viem'
@@ -145,10 +144,10 @@ export default function V3FormView({
     invertPrice,
     ticksAtLimit,
   } = useV3DerivedInfo(
-    baseCurrency ? toChecksumCurrency(baseCurrency) : undefined,
-    quoteCurrency ? toChecksumCurrency(quoteCurrency) : undefined,
+    baseCurrency ?? undefined,
+    quoteCurrency ?? undefined,
     feeAmount,
-    baseCurrency ? toChecksumCurrency(baseCurrency) : undefined,
+    baseCurrency ?? undefined,
     undefined,
     formState,
   )
