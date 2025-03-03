@@ -235,6 +235,7 @@ export const PoolDataRow = ({
                   <div className="flex-1">
                     <AddLiquidityButtonV2
                       poolType={poolData.type}
+                      feeTier={'feeTier' in poolData ? poolData.feeTier : undefined}
                       token0={poolData.token0}
                       token1={poolData.token1}
                       fullWidth
