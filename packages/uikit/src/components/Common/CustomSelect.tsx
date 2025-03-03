@@ -11,6 +11,7 @@ export type SelectOption = {
 type BaseSelectProps = {
   options: SelectOption[];
   prefix?: string;
+  prefixClassName?: string;
   placeholder?: string;
   t?: TFunction;
 };
@@ -32,6 +33,7 @@ const defaultT: TFunction = ((key: string) => key) as TFunction;
 export function CustomSelect({
   options,
   prefix,
+  prefixClassName,
   placeholder,
   selectedOption,
   onSelect,
@@ -48,13 +50,23 @@ export function CustomSelect({
         )}
       >
         <span className="flex-shrink truncate">
-          {multiple
-            ? selectedOption && selectedOption?.length > 0
-              ? (prefix ? `${prefix}: ` : "") + selectedOption.map((s) => t(s.label)).join(", ")
-              : placeholder || "Select..."
-            : selectedOption && "label" in selectedOption
-            ? (prefix ? `${prefix}: ` : "") + t(selectedOption?.label)
-            : placeholder || "Select..."}
+          {multiple ? (
+            selectedOption && selectedOption?.length > 0 ? (
+              <>
+                {prefix ? <span className={prefixClassName}>{prefix}: </span> : ""}
+                <span>{selectedOption.map((s) => t(s.label)).join(", ")}</span>
+              </>
+            ) : (
+              placeholder || "Select..."
+            )
+          ) : selectedOption && "label" in selectedOption ? (
+            <>
+              {prefix ? <span className={prefixClassName}>{prefix}: </span> : ""}
+              <span>{t(selectedOption?.label)}</span>
+            </>
+          ) : (
+            placeholder || "Select..."
+          )}
         </span>
         <CaretDown className="group pointer-events-none size-4 text-on-surface" aria-hidden="true" />
       </ListboxButton>
@@ -63,14 +75,14 @@ export function CustomSelect({
         transition
         className={clsx(
           "w-[var(--button-width)] rounded-3xl border border-white/20 bg-gray-800 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
-          "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0 z-modal"
+          "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0 z-modal !top-[185px]"
         )}
       >
         {options.map((opt) => (
           <ListboxOption
             key={opt.label}
             value={opt}
-            className="group flex cursor-default items-center gap-2 rounded-3xl py-1.5 px-3 select-none data-[focus]:bg-white/10"
+            className="group flex cursor-pointer items-center gap-2 rounded-3xl py-1.5 px-3 select-none data-[focus]:bg-white/10"
           >
             <Check className="invisible size-4 text-on-surface group-data-[selected]:visible" />
             <div className="text-sm/6 text-on-surface">{t(opt.label)}</div>

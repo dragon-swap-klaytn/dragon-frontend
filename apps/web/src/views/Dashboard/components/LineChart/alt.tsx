@@ -6,7 +6,6 @@ import useTheme from 'hooks/useTheme'
 import { darken } from 'polished'
 import { HTMLAttributes, ReactNode } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
-import { RowBetween } from '../Row'
 
 dayjs.extend(utc)
 
@@ -86,10 +85,10 @@ const Chart = ({
           </AreaChart>
         </ResponsiveContainer>
       )}
-      <RowBetween>
+      <div className="flex items-end space-x-2 justify-between w-full">
         {bottomLeft ?? null}
         {bottomRight ?? null}
-      </RowBetween>
+      </div>
     </div>
   )
 }

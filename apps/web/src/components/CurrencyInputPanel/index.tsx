@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Token } from '@pancakeswap/sdk'
-import { CurrencyLogoWithSymbol, Loading, NumberFormat, Skeleton, useModal } from '@pancakeswap/uikit'
+import { CurrencyLogoWithSymbol, Loading, NumberFormat, useModal } from '@pancakeswap/uikit'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { memo, PropsWithChildren, useCallback, useMemo } from 'react'
@@ -143,7 +143,7 @@ const CurrencyInputPanel = memo(function CurrencyInputPanel({
               ) : currency ? (
                 <CurrencyLogo currency={currency} size={28} className="mr-2" />
               ) : currencyLoading ? (
-                <Skeleton width="24px" height="24px" variant="circle" />
+                <div className="w-6 h-6 bg-surface rounded-full animate-pulse" />
               ) : (
                 <div className="pl-2" />
               )}

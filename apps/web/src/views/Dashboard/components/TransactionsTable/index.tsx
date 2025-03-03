@@ -3,32 +3,32 @@ import { ExternalLink, Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { TransactionEventWithType } from 'lib/graph-queries/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getBlockExploreLink } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import Pagination from 'views/Dashboard/components/Pagination'
-import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import { OverviewTransaction } from 'views/Dashboard/hooks/useOverviewData'
-import { SortDirection, Transaction, TransactionType } from '../../types'
+import { Transaction, TransactionType } from '../../types'
 import { formatDollarAmount } from '../../utils/numbers'
 
-const TRANSACTIONS_SORT_BY_LIST = ['amountUSD', 'timestamp', 'amountToken0', 'amountToken1'] as const
-type TxsSortBy = (typeof TRANSACTIONS_SORT_BY_LIST)[number]
+const HEADER_IDS = ['summary', 'totalValue', 'amount0', 'amount1', 'time'] as const
+type HeaderId = (typeof HEADER_IDS)[number]
 
-const bSHeaders: Partial<TxsSortBy>[] = ['amountToken0', 'amountToken1']
-const mobileHeaders: Partial<TxsSortBy>[] = [...bSHeaders, 'amountUSD']
+type TxTableHeader = {
+  id: HeaderId
+  title: string
+  hideBelow?: 's' | 'md' | 'lg'
+}
 
-const DataRow = ({
-  transaction,
-  isLastIndex,
-  isMobile,
-  isBelowS,
-}: {
-  transaction: TransactionEventWithType
-  isLastIndex: boolean
-  isMobile: boolean
-  isBelowS: boolean
-}) => {
+const HEADERS: TxTableHeader[] = [
+  { id: 'summary', title: '' },
+  { id: 'totalValue', title: 'Total Value', hideBelow: 's' },
+  { id: 'amount0', title: 'Token0 Amount' },
+  { id: 'amount1', title: 'Token1 Amount' },
+  { id: 'time', title: 'Time', hideBelow: 'md' },
+]
+
+const DataRow = ({ transaction, isLastIndex }: { transaction: TransactionEventWithType; isLastIndex: boolean }) => {
   const abs0 = Math.abs(transaction.amount0)
   const abs1 = Math.abs(transaction.amount1)
   const token0Symbol = useMemo(() => transaction.token0.symbol, [transaction.token0.symbol])
@@ -51,40 +51,34 @@ const DataRow = ({
             : `Remove ${token0Symbol} and ${token1Symbol}`}
         </ExternalLink>
       </td>
-      {!isBelowS && (
-        <td className="text-on-surface px-4 py-6 text-left">{formatDollarAmount(transaction.amountUSD)}</td>
-      )}
+
+      <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
+        {formatDollarAmount(transaction.amountUSD)}
+      </td>
+
       <td className="text-on-surface px-4 py-6 text-left">
         {formatAmount(abs0)} {token0Symbol}
       </td>
       <td className="text-on-surface px-4 py-6 text-left">
         {formatAmount(abs1)} {token1Symbol}
       </td>
-      {!isMobile && (
-        <td className="text-on-surface px-4 py-6 text-left">
-          {dayjs(transaction.timestamp).format('YYYY-MM-DD hh:mm:ss')}
-        </td>
-      )}
+
+      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+        {dayjs(transaction.timestamp).format('YYYY-MM-DD hh:mm:ss')}
+      </td>
     </tr>
   )
 }
 
 const SHOW_TRANSACTION_COUNT = 10
-export default function TransactionTable({
-  transactions,
-}: {
-  // transactions?: Transaction[]
-  transactions?: OverviewTransaction
-}) {
+export default function TransactionTable({ transactions }: { transactions?: OverviewTransaction }) {
   const { t } = useTranslation()
-
-  // for sorting
-  const [txsSortBy, setTxsSortBy] = useState<TxsSortBy>('timestamp')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   // pagination
   const [page, setPage] = useState(1)
   const [totalPage, setTotalPage] = useState(1)
+
+  const [isFirstRender, setIsFirstRender] = useState(true)
 
   const [filteredTransactions, setFilteredTransactions] = useState<TransactionEventWithType[] | undefined>(undefined)
   useEffect(() => {
@@ -93,7 +87,13 @@ export default function TransactionTable({
     const removes = (transactions?.burns ?? []).map((tx) => ({ ...tx, type: TransactionType.BURN }))
 
     setFilteredTransactions([...swaps, ...adds, ...removes])
-  }, [transactions])
+  }, [transactions, page])
+
+  useEffect(() => {
+    if (filteredTransactions && filteredTransactions.length > 0) {
+      setIsFirstRender(false)
+    }
+  }, [filteredTransactions])
 
   useEffect(() => {
     const totalPageResult = Math.ceil((filteredTransactions?.length ?? 0) / SHOW_TRANSACTION_COUNT)
@@ -109,37 +109,28 @@ export default function TransactionTable({
     return [...filteredTransactions]
       .sort((a, b) => {
         if (a && b) {
-          return a[txsSortBy as keyof Transaction] > b[txsSortBy as keyof Transaction]
-            ? (sortDirection === 'desc' ? -1 : 1) * 1
-            : (sortDirection === 'desc' ? -1 : 1) * -1
+          return b['timestamp' as keyof Transaction] - a['timestamp' as keyof Transaction]
         }
         return -1
       })
       .slice(SHOW_TRANSACTION_COUNT * (page - 1), page * SHOW_TRANSACTION_COUNT)
-  }, [filteredTransactions, page, txsSortBy, sortDirection])
+  }, [filteredTransactions, page])
 
-  const handleSort = useCallback(
-    (newField: TxsSortBy) => {
-      setTxsSortBy(newField)
-      setSortDirection(txsSortBy !== newField ? 'desc' : sortDirection === 'desc' ? 'asc' : 'desc')
-      setPage(1)
-    },
-    [sortDirection, txsSortBy],
-  )
+  const { isBelowS, isBelowMd, isBelowLg } = useMatchBreakpoints()
+  const [headers, setHeaders] = useState<TxTableHeader[] | null>(null)
+  const [headerLength, setHeaderLength] = useState(HEADERS.length)
+  useEffect(() => {
+    const filteredHeaders = HEADERS.filter(({ hideBelow }) => {
+      if (hideBelow === 's') return !isBelowS
+      // if (hideBelow === 'sm') return !isBelowSm
+      if (hideBelow === 'md') return !isBelowMd
+      if (hideBelow === 'lg') return !isBelowLg
+      return true
+    })
 
-  const { isMobile, isBelowS } = useMatchBreakpoints()
-  const headers = useMemo(
-    () =>
-      [
-        { title: 'Total Value', TxsSortBy: 'amountUSD' },
-        { title: t('Token{{index}} Amount', { index: '0' }), TxsSortBy: 'amountToken0' },
-        { title: t('Token{{index}} Amount', { index: '1' }), TxsSortBy: 'amountToken1' },
-        { title: 'Time', TxsSortBy: 'timestamp' },
-      ].filter(({ TxsSortBy: s }) =>
-        isBelowS ? bSHeaders.includes(s as TxsSortBy) : isMobile ? mobileHeaders.includes(s as TxsSortBy) : true,
-      ),
-    [isMobile, t, isBelowS],
-  )
+    setHeaders(filteredHeaders)
+    setHeaderLength(filteredHeaders.length)
+  }, [isBelowS, isBelowMd, isBelowLg])
 
   return (
     <>
@@ -153,49 +144,50 @@ export default function TransactionTable({
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
-            <th className="pl-4 s:pl-6 py-3 text-left" />
-            {headers.map(({ title, TxsSortBy: s }) => (
-              <th key={`txTable:${title}`} className="px-4 py-3 text-left">
-                <SortHeaderButton
-                  title={title}
-                  onClick={() => handleSort(s as TxsSortBy)}
-                  isSelected={txsSortBy === s}
-                  sortDirection={sortDirection}
-                />
-              </th>
-            ))}
+            {headers ? (
+              headers.map(({ title }, index) => (
+                <th
+                  key={`txTable:${title}`}
+                  className={clsx('py-3 text-left', {
+                    'px-4 s:px-6': index === 0,
+                    'px-4': index !== 0,
+                  })}
+                >
+                  <span className="font-medium">{title}</span>
+                </th>
+              ))
+            ) : (
+              <th className="h-[56px]" colSpan={6} />
+            )}
           </tr>
         </thead>
         <tbody>
-          {!sortedTransactions ? (
-            <tr>
-              <td colSpan={headers.length + 1} className="h-[250px] md:h-[300px] text-center">
-                <div className="flex items-center justify-center w-full">
-                  <Spinner />
-                </div>
-              </td>
-            </tr>
-          ) : sortedTransactions.length > 0 ? (
-            sortedTransactions.map((tx, index) => (
-              <DataRow
-                key={`txTable:${tx.txHash}:${index + 1}`}
-                transaction={tx}
-                isLastIndex={index === sortedTransactions.length - 1}
-                isMobile={isMobile}
-                isBelowS={isBelowS}
-              />
-            ))
-          ) : (
-            <tr>
-              <td colSpan={headers.length + 1} className="h-[250px] md:h-[300px] text-center">
-                <div className="flex items-center justify-center w-full">
-                  <p className="text-on-surface">{t('No Transactions')}</p>
-                </div>
-              </td>
-            </tr>
-          )}
+          {!isFirstRender &&
+            (sortedTransactions && sortedTransactions.length > 0 ? (
+              sortedTransactions.map((tx, index) => (
+                <DataRow
+                  key={`txTable:${tx.txHash}:${index + 1}`}
+                  transaction={tx}
+                  isLastIndex={index === sortedTransactions.length - 1}
+                />
+              ))
+            ) : (
+              <tr>
+                <td colSpan={headerLength} className="h-[250px] md:h-[300px] text-center">
+                  <div className="flex items-center justify-center w-full">
+                    <p className="text-on-surface">{t('No Transactions')}</p>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
+
+      {isFirstRender && (
+        <div className="flex items-center justify-center w-full h-[250px] md:h-[300px]">
+          <Spinner />
+        </div>
+      )}
 
       <Pagination page={page} setPage={setPage} totalPage={totalPage} />
     </>

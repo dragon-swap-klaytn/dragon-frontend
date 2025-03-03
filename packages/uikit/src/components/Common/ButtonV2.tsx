@@ -25,6 +25,7 @@ export function ButtonV2({
   disabled,
   variant,
   scale = "md",
+  scaleString,
   fullWidth,
   state,
 }: PropsWithChildren<{
@@ -33,6 +34,7 @@ export function ButtonV2({
   disabled?: boolean;
   variant: ButtonVariant;
   scale?: ButtonV2Scale;
+  scaleString?: string;
   fullWidth?: boolean;
   state?: ButtonState;
 }>) {
@@ -43,6 +45,7 @@ export function ButtonV2({
       className={clsx(
         COMMON_BUTTON_STYLE,
         className,
+        scaleString,
         state && ["loading"].includes(state)
           ? LOADING_BUTTON_STYLE
           : variant === "primary"

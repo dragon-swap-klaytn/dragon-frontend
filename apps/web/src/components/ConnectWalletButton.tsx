@@ -16,7 +16,14 @@ const ConnectWalletButton = ({
   className,
   disabled,
   scale = 'md',
-}: PropsWithChildren<{ fullWidth?: boolean; className?: string; disabled?: boolean; scale?: ButtonV2Scale }>) => {
+  scaleString,
+}: PropsWithChildren<{
+  fullWidth?: boolean
+  className?: string
+  disabled?: boolean
+  scale?: ButtonV2Scale
+  scaleString?: string
+}>) => {
   const { login } = useAuth()
   const wallets = useWallets()
 
@@ -38,6 +45,7 @@ const ConnectWalletButton = ({
         disabled={disabled}
         fullWidth={fullWidth}
         scale={scale}
+        scaleString={scaleString}
       >
         {children || <Trans>Connect Wallet</Trans>}
       </ButtonV2>

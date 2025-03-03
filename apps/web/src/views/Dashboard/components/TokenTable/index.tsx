@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { PoolType } from 'types'
 import Pagination from 'views/Dashboard/components/Pagination'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
@@ -15,11 +15,13 @@ type HeaderId = (typeof HEADER_IDS)[number]
 const TITLES = ['Name', 'Price', 'Price Change', 'Price Change 7D', 'Volume 24H', 'Volume 7D', 'TVL'] as const
 type Title = (typeof TITLES)[number]
 
-const HEADERS: {
+type TokenTableHeader = {
   id: HeaderId
   title: Title | ReactNode
   sortBy?: TokensSortBy
-}[] = [
+  hideBelow?: 's' | 'sm' | 'md'
+}
+const HEADERS: TokenTableHeader[] = [
   { id: 'name', title: 'Name' },
   { id: 'price', title: 'Price' },
   { id: 'priceChange24H', title: 'Price Change', sortBy: 'priceChange24H' },
@@ -31,15 +33,12 @@ const HEADERS: {
       </span>
     ),
     sortBy: 'priceChange7D',
+    hideBelow: 'md',
   },
-  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H' },
-  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D' },
-  { id: 'tvl', title: 'TVL', sortBy: 'tvl' },
+  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H', hideBelow: 's' },
+  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D', hideBelow: 'md' },
+  { id: 'tvl', title: 'TVL', sortBy: 'tvl', hideBelow: 'sm' },
 ]
-
-const bsHeaders: Partial<HeaderId>[] = ['name', 'price', 'priceChange24H']
-const bSmHeaders: Partial<HeaderId>[] = [...bsHeaders, 'volume24H']
-const mobileHeaders: Partial<HeaderId>[] = [...bSmHeaders, 'tvl']
 
 const SHOW_TOKENS_COUNT = 10
 
@@ -97,21 +96,20 @@ export default function TokenTable({
     [sortDirection, sortBy],
   )
 
-  const { isMobile, isBelowS, isBelowSm } = useMatchBreakpoints()
+  const { isBelowS, isBelowSm, isBelowMd } = useMatchBreakpoints()
+  const [headers, setHeaders] = useState<TokenTableHeader[] | null>(null)
+  const [headerLength, setHeaderLength] = useState(HEADERS.length)
+  useEffect(() => {
+    const filteredHeaders = HEADERS.filter(({ hideBelow }) => {
+      if (hideBelow === 's') return !isBelowS
+      if (hideBelow === 'sm') return !isBelowSm
+      if (hideBelow === 'md') return !isBelowMd
+      return true
+    })
 
-  const headers = useMemo(
-    () =>
-      HEADERS.filter(({ id }) =>
-        isBelowS
-          ? bsHeaders.includes(id)
-          : isBelowSm
-          ? bSmHeaders.includes(id)
-          : isMobile
-          ? mobileHeaders.includes(id)
-          : true,
-      ),
-    [isBelowSm, isBelowS, isMobile],
-  )
+    setHeaders(filteredHeaders)
+    setHeaderLength(filteredHeaders.length)
+  }, [isBelowS, isBelowSm, isBelowMd])
 
   return (
     <>
@@ -127,63 +125,66 @@ export default function TokenTable({
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
-            {headers.map(({ title, sortBy: s }, index) => (
-              <th
-                key={`tokenTable:header:${title}`}
-                className={clsx('py-3 text-left', {
-                  'px-4 s:px-6': index === 0,
-                  'px-4': index !== 0,
-                })}
-              >
-                {s ? (
-                  <SortHeaderButton
-                    title={title}
-                    onClick={() => handleSort(s)}
-                    isSelected={sortBy === s}
-                    sortDirection={sortDirection}
-                  />
-                ) : (
-                  <span className="font-medium">{title}</span>
-                )}
-              </th>
-            ))}
+            {headers ? (
+              headers.map(({ title, sortBy: s }, index) => (
+                <th
+                  key={`tokenTable:${title}`}
+                  className={clsx('py-3 text-left', {
+                    'px-4 s:px-6': index === 0,
+                    'px-4': index !== 0,
+                  })}
+                >
+                  {s ? (
+                    <SortHeaderButton
+                      title={title}
+                      onClick={() => handleSort(s as TokensSortBy)}
+                      isSelected={sortBy === s}
+                      sortDirection={sortDirection}
+                    />
+                  ) : (
+                    <span className="font-medium">{title}</span>
+                  )}
+                </th>
+              ))
+            ) : (
+              <th className="h-[56px]" colSpan={6} />
+            )}
           </tr>
         </thead>
         <tbody>
-          {isFirstRender ? (
-            <tr>
-              <td colSpan={headers.length} className="h-[250px] md:h-[300px] text-center s">
-                <div className="flex items-center justify-center w-full">
-                  <Spinner />
-                </div>
-              </td>
-            </tr>
-          ) : !tokensData ? (
-            Array.from({ length: SHOW_TOKENS_COUNT }).map((_, index) => (
-              <TokenDataRowSkeleton
-                key={`tokenTable:skeleton:${index + 1}`}
-                isLastIndex={index === SHOW_TOKENS_COUNT - 1}
-              />
-            ))
-          ) : tokensData.length > 0 ? (
-            tokensData.map((tokenData, index) => (
-              <TokenDataRow
-                key={`tokenTable:${tokenData.id}`}
-                tokenData={tokenData}
-                isLastIndex={index === tokensData.length - 1}
-              />
-            ))
-          ) : (
-            <tr>
-              <td colSpan={headers.length} className="h-[250px] md:h-[300px] text-center">
-                <div className="flex items-center justify-center w-full">
-                  <p className="text-on-surface">{t('No Tokens')}</p>
-                </div>
-              </td>
-            </tr>
-          )}
+          {!isFirstRender &&
+            (!tokensData ? (
+              Array.from({ length: SHOW_TOKENS_COUNT }).map((_, index) => (
+                <TokenDataRowSkeleton
+                  key={`tokenTable:skeleton:${index + 1}`}
+                  isLastIndex={index === SHOW_TOKENS_COUNT - 1}
+                />
+              ))
+            ) : tokensData.length > 0 ? (
+              tokensData.map((tokenData, index) => (
+                <TokenDataRow
+                  key={`tokenTable:${tokenData.id}`}
+                  tokenData={tokenData}
+                  isLastIndex={index === tokensData.length - 1}
+                />
+              ))
+            ) : (
+              <tr>
+                <td colSpan={headerLength} className="h-[250px] md:h-[300px] text-center">
+                  <div className="flex items-center justify-center w-full">
+                    <p className="text-on-surface">{t('No Tokens')}</p>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
+
+      {isFirstRender && (
+        <div className="flex items-center justify-center w-full h-[250px] md:h-[300px]">
+          <Spinner />
+        </div>
+      )}
 
       <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
     </>

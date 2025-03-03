@@ -1,7 +1,7 @@
 import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { WalletStorageKey } from '@pancakeswap/ui-wallets'
-import { ConnectorId, useMatchBreakpoints, useModal, WalletId } from '@pancakeswap/uikit'
+import { ConnectorId, useModal, WalletId } from '@pancakeswap/uikit'
 import { CaretDown } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
@@ -93,8 +93,6 @@ const UserMenu = ({
     }, 10)
   }, [connector])
 
-  const { isMobile } = useMatchBreakpoints()
-
   if (account) {
     return (
       <div className="relative mr-2">
@@ -116,7 +114,7 @@ const UserMenu = ({
 
         <div
           className={clsx(
-            'absolute top-12 right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50 min-w-[150px]',
+            'absolute top-[50px] right-0 bg-surface-overlay p-6 rounded-2xl transition-opacity z-50 min-w-[150px]',
             {
               'opacity-100': userMenuOpen,
               'opacity-0 pointer-events-none': !userMenuOpen,
@@ -168,7 +166,7 @@ const UserMenu = ({
   }
 
   return (
-    <ConnectWalletButton scale={isMobile ? 'sm' : 'md'}>
+    <ConnectWalletButton scaleString="!px-3 !py-1.5 md:!px-4 md:!py-2.5">
       <span className="text-sm">{width < 768 ? t('Connect') : t('Connect Wallet')}</span>
     </ConnectWalletButton>
   )
