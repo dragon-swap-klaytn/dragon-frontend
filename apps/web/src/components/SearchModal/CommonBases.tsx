@@ -4,7 +4,7 @@ import { QuestionHelper } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 
-import useRecentSelectedCurrencies from 'hooks/use-recent-selected-currencies'
+import useRecentSelectedCurrencies from 'hooks/useRecentSelectedCurrencies'
 import { CommonBasesType } from './types'
 
 export default function CommonBases({

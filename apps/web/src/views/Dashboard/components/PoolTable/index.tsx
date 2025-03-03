@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { Portfolio } from 'hooks/use-portfolio'
+import { Portfolio } from 'hooks/usePortfolio'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PoolType } from 'types'

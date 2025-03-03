@@ -4,7 +4,7 @@ import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 
-import { PortfolioData, PortfolioV3DataBigInt } from 'hooks/use-portfolio'
+import { PortfolioData, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import { useTranslation } from 'next-i18next'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'

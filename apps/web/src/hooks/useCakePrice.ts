@@ -4,7 +4,7 @@ import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import BigNumber from 'bignumber.js'
 import { oraklNetworkOracleABI } from 'config/abi/oraklNetworkOracle'
 import { SLOW_INTERVAL } from 'config/constants'
-import useTokenPrices from 'hooks/use-token-prices'
+import useTokenPrices from 'hooks/useTokenPrices'
 import { publicClient } from 'utils/wagmi'
 import { formatUnits } from 'viem'
 

@@ -1,6 +1,6 @@
 import { Position } from '@pancakeswap/v3-sdk'
 import { useCurrency } from 'hooks/Tokens'
-import { PositionV3 } from 'hooks/use-portfolio'
+import { PositionV3 } from 'hooks/usePortfolio'
 import { usePool } from './usePools'
 
 export function useDerivedPositionInfoV2(portfolio: PositionV3, fee: number) {

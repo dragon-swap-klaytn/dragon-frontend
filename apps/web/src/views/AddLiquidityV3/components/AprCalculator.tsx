@@ -22,7 +22,7 @@ import { Field } from 'state/mint/actions'
 import currencyId from 'utils/currencyId'
 
 import { Calculator } from '@phosphor-icons/react'
-import useTokenPrices from 'hooks/use-token-prices'
+import useTokenPrices from 'hooks/useTokenPrices'
 import { PoolV3Parsed } from 'pages/api/pools'
 import { calculateAPR } from 'utils/calculate-interests'
 import usePools from 'views/Dashboard/hooks/usePools'

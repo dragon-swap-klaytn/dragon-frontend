@@ -13,7 +13,7 @@ export default function useLocalStorage<T>(
   { onLoadSuccess, serializer = JSON.stringify, deserializer = JSON.parse }: UseLocalStorageOptions<T> = {},
 ) {
   if (!key) {
-    throw new Error('useLocalStorageV2 key may not be falsy')
+    throw new Error('useLocalStorage key may not be falsy')
   }
 
   const [state, setState] = useState<T>(initialValue)

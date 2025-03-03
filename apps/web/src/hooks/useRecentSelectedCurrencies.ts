@@ -1,7 +1,7 @@
 import { Currency, Token } from '@pancakeswap/swap-sdk-core'
 import { DEFAULT_LOCAL_STORAGE_DATA, LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
 
-import useLocalStorage from 'hooks/use-local-storage-v2'
+import useLocalStorage from 'hooks/useLocalStorage'
 import { useCallback, useMemo } from 'react'
 
 export default function useRecentSelectedCurrencies() {
