@@ -38,7 +38,6 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import useNativeCurrency from 'hooks/useNativeCurrency'
 import { PoolState } from 'hooks/v3/types'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { usePool } from 'hooks/v3/usePools'
@@ -343,6 +342,15 @@ export default function PoolPage() {
               summary: `Collect fee ${amount0.toExact()} ${
                 currency0ForFeeCollectionPurposes.symbol
               } and ${amount1.toExact()} ${currency1ForFeeCollectionPurposes.symbol}`,
+              translatableSummary: {
+                text: 'Collect fee {{amount0}} {{currency0}} and {{amount1}} {{currency1}}',
+                data: {
+                  amount0: amount0.toExact(),
+                  currency0: amount0.currency.symbol,
+                  amount1: amount1.toExact(),
+                  currency1: amount1.currency.symbol,
+                },
+              },
             },
           )
         })
@@ -392,9 +400,6 @@ export default function PoolPage() {
 
   // check if price is within range
   const inRange = isPoolTickInRange(pool, tickLower, tickUpper)
-
-  const nativeCurrency = useNativeCurrency()
-  const nativeWrappedSymbol = nativeCurrency.wrapped.symbol
 
   const showCollectAsWNative = Boolean(
     ownsNFT &&
@@ -642,9 +647,7 @@ export default function PoolPage() {
 
                     {showCollectAsWNative && (
                       <div className="w-full flex items-center space-x-2 justify-end">
-                        <span className="text-sm text-on-surface">
-                          {t('Collect as')} {nativeWrappedSymbol}
-                        </span>
+                        <span className="text-sm text-on-surface">{t('Collect as WKAIA')}</span>
 
                         <ToggleSwitch
                           activated={receiveWNATIVE}
@@ -1065,7 +1068,6 @@ export const getStaticPaths = ({ locales }) => {
 
 export const getStaticProps = async ({ params, locale }: { params: any; locale: Locale }) => {
   const tokenId = params?.tokenId
-
   const isNumberReg = /^\d+$/
 
   if (tokenId && !(tokenId as string)?.match(isNumberReg)) {

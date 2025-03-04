@@ -23,7 +23,6 @@ import TransactionConfirmationModal from 'components/TransactionConfirmationModa
 import useLocalSelector from 'contexts/LocalRedux/useSelector'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
-import useNativeCurrency from 'hooks/useNativeCurrency'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useDerivedV3BurnInfo } from 'hooks/v3/useDerivedV3BurnInfo'
 import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
@@ -73,10 +72,8 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
   // flag for receiving WNATIVE
   const [receiveWNATIVE, setReceiveWNATIVE] = useState(false)
-  const nativeCurrency = useNativeCurrency()
-  const nativeWrappedSymbol = nativeCurrency.wrapped.symbol
 
-  const { percent } = useLocalSelector<{ percent: number }>((s) => s) as { percent: number }
+  const percent = useLocalSelector<{ percent: number }>((s) => s.percent) as number
 
   const { account, chainId } = useAccountActiveChain()
   const addTransaction = useTransactionAdder()
@@ -190,6 +187,15 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
           addTransaction(response, {
             type: 'remove-liquidity-v3',
             summary: `Remove ${amount0} ${liquidityValue0.currency.symbol} and ${amount1} ${liquidityValue1.currency.symbol}`,
+            translatableSummary: {
+              text: 'Remove {{amount0}} {{symbol0}} and {{amount1}} {{symbol1}}',
+              data: {
+                amount0,
+                symbol0: liquidityValue0.currency.symbol,
+                amount1,
+                symbol1: liquidityValue1.currency.symbol,
+              },
+            },
           })
         })
         .catch((err) => {
@@ -275,19 +281,19 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
         <ConfirmationModalContent
           topContent={
             <>
-              <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
+              <h5 className="text-xs text-on-surface-subtle">{t('supplied')}</h5>
 
               <ContainerV2 className="mt-2">
                 <CurrencyLogoWithAmount
                   currencyA={liquidityValue0?.currency}
                   amount={<FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
-                  symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
+                  symbol={`${t('Supplied')} ${liquidityValue0?.currency?.symbol}`}
                   className="pb-3 border-b border-border"
                 />
                 <CurrencyLogoWithAmount
                   currencyA={liquidityValue1?.currency}
                   amount={<FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
-                  symbol={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
+                  symbol={`${t('Supplied')} ${liquidityValue1?.currency?.symbol}`}
                   className="pt-3"
                 />
               </ContainerV2>
@@ -391,9 +397,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
               {showCollectAsWNative && (
                 <div className="flex items-center space-x-2">
-                  <span className="text-[13px] text-on-surface-subtlest">
-                    {t('Collect as')} {nativeWrappedSymbol}
-                  </span>
+                  <span className="text-[13px] text-on-surface-subtlest">{t('Collect as WKAIA')}</span>
 
                   <ToggleSwitch
                     activated={receiveWNATIVE}
@@ -404,11 +408,11 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
             </div>
 
             <div className="mt-2">
-              <h5 className="text-xs text-on-surface-subtle">{t('pooled')}</h5>
+              <h5 className="text-xs text-on-surface-subtle">{t('supplied')}</h5>
 
               <CurrencyLogoWithAmount
                 currencyA={liquidityValue0?.currency}
-                symbol={`${t('Pooled')} ${liquidityValue0?.currency?.symbol}`}
+                symbol={`${t('Supplied')} ${liquidityValue0?.currency?.symbol}`}
                 amount={formatCurrencyAmount(liquidityValue0, 4, locale)}
                 value={
                   price0 && liquidityValue0
@@ -420,7 +424,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
               <CurrencyLogoWithAmount
                 currencyA={liquidityValue1?.currency}
-                symbol={`${t('Pooled')} ${liquidityValue1?.currency?.symbol}`}
+                symbol={`${t('Supplied')} ${liquidityValue1?.currency?.symbol}`}
                 amount={formatCurrencyAmount(liquidityValue1, 4, locale)}
                 value={
                   price1 && liquidityValue1

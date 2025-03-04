@@ -10,6 +10,7 @@ import { useAppDispatch } from 'state'
 import { retry, RetryableError } from 'state/multicall/retry'
 import useSWRImmutable from 'swr/immutable'
 import {
+  Address,
   BlockNotFoundError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
@@ -22,6 +23,7 @@ import {
   MsgStatus,
   NonBscFarmStepType,
   NonBscFarmTransactionStep,
+  TransactionType,
 } from './actions'
 import { fetchCelerApi } from './fetchCelerApi'
 import { useAllChainTransactions } from './hooks'
@@ -59,6 +61,8 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
             dispatch(
               finalizeTransaction({
                 chainId,
+                from: transaction.from as Address,
+                type: transaction.type as TransactionType,
                 hash: transaction.hash,
                 receipt: {
                   blockHash: receipt.blockHash,
@@ -111,7 +115,7 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
   )
 
   useSWRImmutable(
-    chainId && Boolean(nonBscFarmPendingTxns?.length) && ['checkNonBscFarmTransaction', FAST_INTERVAL, chainId],
+    chainId && Boolean(nonBscFarmPendingTxns?.length) ? ['checkNonBscFarmTransaction', FAST_INTERVAL, chainId] : null,
     () => {
       nonBscFarmPendingTxns.forEach((hash) => {
         const steps = transactions[hash]?.nonBscFarm?.steps || []
@@ -149,6 +153,8 @@ export const Updater: React.FC<{ chainId: number }> = ({ chainId }) => {
                   finalizeTransaction({
                     chainId,
                     hash: transaction.hash,
+                    from: transaction.from as Address,
+                    type: transaction.type as TransactionType,
                     receipt: { ...transaction.receipt },
                     nonBscFarm: {
                       ...transaction.nonBscFarm,

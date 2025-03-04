@@ -1,16 +1,20 @@
-import { createAction } from '@reduxjs/toolkit'
-import { ChainId } from '@pancakeswap/chains'
 import { Order } from '@gelatonetwork/limit-orders-lib'
+import { ChainId } from '@pancakeswap/chains'
+import { createAction } from '@reduxjs/toolkit'
+import { Address } from 'viem'
 
 export type TransactionType =
   | 'approve'
   | 'swap'
   | 'wrap'
+  | 'unwrap'
   | 'add-liquidity'
   | 'increase-liquidity-v3'
   | 'add-liquidity-v3'
   | 'remove-liquidity-v3'
   | 'collect-fee'
+  | 'collect-all-fees'
+  | 'harvest-and-collect-all'
   | 'remove-liquidity'
   | 'limit-order-submission'
   | 'limit-order-cancellation'
@@ -85,6 +89,8 @@ export const clearAllChainTransactions = createAction<{ chainId: ChainId }>('tra
 export const finalizeTransaction = createAction<{
   chainId: ChainId
   hash: string
+  from: Address
+  type: TransactionType
   receipt: SerializableTransactionReceipt
   nonBscFarm?: NonBscFarmTransactionType
 }>('transactions/finalizeTransaction')

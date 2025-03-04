@@ -48,6 +48,7 @@ export function useUnwrapReward({ reward, chainId }: IProps) {
       const txReceipt = await callWithGasPrice(wNativeContract, 'withdraw', [reward])
 
       addTransaction(txReceipt, {
+        type: 'unwrap',
         summary: `Unwrap ${rewardAmount} ${rewardToken.symbol} to ${nativeInfo.symbol}`,
         translatableSummary: {
           text: 'Unwrap {{amount}} {{wrap}} to {{native}}',

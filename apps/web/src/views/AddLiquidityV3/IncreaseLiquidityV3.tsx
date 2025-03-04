@@ -229,6 +229,15 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
           addTransaction(response, {
             type: 'increase-liquidity-v3',
             summary: `Increase ${baseAmount} ${baseCurrency?.symbol} and ${quoteAmount} ${quoteCurrency?.symbol}`,
+            translatableSummary: {
+              text: 'Increase {{baseAmount}} {{baseSymbol}} and {{quoteAmount}} {{quoteSymbol}}',
+              data: {
+                baseAmount,
+                baseSymbol: baseCurrency?.symbol,
+                quoteAmount,
+                quoteSymbol: quoteCurrency?.symbol,
+              },
+            },
           })
           setTxHash(response.hash)
         })

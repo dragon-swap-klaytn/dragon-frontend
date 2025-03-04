@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { ChainId, ERC20Token, Token } from '@pancakeswap/sdk'
 import { CAKE } from '@pancakeswap/tokens'
-import { ButtonV2, CurrencyLogoWithAmount, useModal, useToast } from '@pancakeswap/uikit'
+import { ButtonV2, CurrencyLogoWithAmount, useModal } from '@pancakeswap/uikit'
 import {
   CollectToOptions,
   CollectV2Options,
@@ -11,7 +11,6 @@ import {
 } from '@pancakeswap/v3-sdk'
 import { ConfirmationModalContent } from '@pancakeswap/widgets-internal'
 import clsx from 'clsx'
-import { ToastDescriptionWithTx } from 'components/Toast'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { MASTERCHEFV3_ADDRESS, V3_NFT_POSITION_MANAGER_ADDRESS } from 'const'
 import { useTokenMap } from 'hooks/Tokens'
@@ -19,6 +18,7 @@ import useCatchTxError from 'hooks/useCatchTxError'
 import { Portfolio, PortfolioV3DataBigInt, PositionV3 } from 'hooks/usePortfolio'
 import { useUnwrapRewardV2 } from 'hooks/useUnwrapRewardV2'
 import { useCallback, useMemo, useState } from 'react'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { isUserRejected } from 'utils/sentry'
@@ -48,7 +48,6 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
 
   const { sendTransactionAsync } = useSendTransaction()
   const { fetchWithCatchTxError } = useCatchTxError()
-  const { toastSuccess } = useToast()
 
   const [collectMigrationHash, setCollectMigrationHash] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
@@ -92,6 +91,8 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     setTxInflight(false)
   }, [])
 
+  const addTransaction = useTransactionAdder()
+
   const claimUnstakedFees = useCallback(async () => {
     if (!account) return
 
@@ -133,7 +134,17 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
         }
 
         setTxInflight(true)
-        return sendTransactionAsync(newTxn)
+        return sendTransactionAsync(newTxn).then((response) => {
+          addTransaction(
+            { hash: response.hash },
+            {
+              type: 'collect-all-fees',
+              summary: 'Collect all fees',
+            },
+          )
+
+          return response
+        })
       }),
     )
       .catch((error) => {
@@ -151,7 +162,6 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
 
     if (resp?.status) {
       setCollectMigrationHash(resp.transactionHash)
-      toastSuccess(`${t('Claimed')}!`, <ToastDescriptionWithTx txHash={resp.transactionHash} />)
     }
 
     if (invalidatePortflio) {
@@ -164,9 +174,9 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     signer,
     fetchWithCatchTxError,
     sendTransactionAsync,
-    toastSuccess,
     t,
     invalidatePortflio,
+    addTransaction,
   ])
 
   const [openClaimUnstakedFeesModal] = useModal(
@@ -252,7 +262,17 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
         }
 
         setTxInflight(true)
-        return sendTransactionAsync(newTxn)
+        return sendTransactionAsync(newTxn).then((response) => {
+          addTransaction(
+            { hash: response.hash },
+            {
+              type: 'harvest-and-collect-all',
+              summary: 'Harvest and collect all',
+            },
+          )
+
+          return response
+        })
       }),
     )
       .then((_resp) => {
@@ -276,8 +296,6 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
       })
 
     if (resp?.status) {
-      toastSuccess(`${t('Claimed')}!`, <ToastDescriptionWithTx txHash={resp.transactionHash} />)
-
       if (positions.rewardClaimable) {
         setClaimStep(2)
       }
@@ -287,9 +305,9 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     account,
     fetchWithCatchTxError,
     sendTransactionAsync,
-    toastSuccess,
     t,
     positions.rewardClaimable,
+    addTransaction,
   ])
 
   const [openClaimFeesAndRewardsModal] = useModal(
@@ -505,7 +523,11 @@ function ClaimStakedFeesAndRewardsModalHeader({
                   )}
 
                   {rewardAmount > 0 && (
-                    <div className="border-t border-border pt-2">
+                    <div
+                      className={clsx({
+                        'pt-2 border-t border-border': token0FeeAmount > 0 || token1FeeAmount > 0,
+                      })}
+                    >
                       <h5 className="text-[13px] mb-2">{t('Reward')}</h5>
 
                       <CurrencyLogoWithAmount

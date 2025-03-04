@@ -1,20 +1,20 @@
 /* eslint-disable no-param-reassign */
-import { createReducer } from '@reduxjs/toolkit'
 import { Order } from '@gelatonetwork/limit-orders-lib'
+import { createReducer } from '@reduxjs/toolkit'
+import { LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
 import { confirmOrderCancellation, confirmOrderSubmission, saveOrder } from 'utils/localStorageOrders'
 import { Hash } from 'viem'
+import { resetUserState } from '../global/actions'
 import {
   addTransaction,
   checkedTransaction,
+  clearAllChainTransactions,
   clearAllTransactions,
   finalizeTransaction,
+  NonBscFarmTransactionType,
   SerializableTransactionReceipt,
   TransactionType,
-  clearAllChainTransactions,
-  NonBscFarmTransactionType,
-  FarmTransactionStatus,
 } from './actions'
-import { resetUserState } from '../global/actions'
 
 const now = () => Date.now()
 
@@ -24,7 +24,7 @@ export interface TransactionDetails {
   type?: TransactionType
   order?: Order
   summary?: string
-  translatableSummary?: { text: string; data?: Record<string, string | number> }
+  translatableSummary?: { text: string; data?: Record<string, string | number | undefined> }
   claim?: { recipient: string }
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
@@ -40,7 +40,10 @@ export interface TransactionState {
   }
 }
 
+export type TransactionLsMap = Record<string, Record<TransactionType, TransactionDetails[]>>
+
 export const initialState: TransactionState = {}
+const MAX_TXS = 30
 
 export default createReducer(initialState, (builder) =>
   builder
@@ -48,7 +51,7 @@ export default createReducer(initialState, (builder) =>
       addTransaction,
       (
         transactions,
-        { payload: { chainId, from, hash, approval, summary, translatableSummary, claim, type, order, nonBscFarm } },
+        { payload: { chainId, from, hash, approval, summary, translatableSummary, claim, type, order } },
       ) => {
         if (transactions[chainId]?.[hash]) {
           throw Error('Attempted to add existing transaction.')
@@ -64,9 +67,34 @@ export default createReducer(initialState, (builder) =>
           addedTime: now(),
           type,
           order,
-          nonBscFarm,
         }
+
         transactions[chainId] = txs
+
+        if (type) {
+          // use localstorage to remove redux persist dependency
+          const recentTransactions = JSON.parse(
+            localStorage.getItem(LOCAL_STORAGE_KEYS.recentTransactions) ?? '{}',
+          ) as TransactionLsMap
+
+          const loweredAccount = from.toLowerCase()
+
+          const filteredTxs =
+            recentTransactions[loweredAccount]?.[type]?.filter((tx: TransactionDetails) => tx.hash !== hash) ?? []
+
+          const withNewTxs = [txs[hash], ...filteredTxs].slice(0, MAX_TXS)
+          localStorage.setItem(
+            LOCAL_STORAGE_KEYS.recentTransactions,
+            JSON.stringify({
+              ...recentTransactions,
+              [loweredAccount]: {
+                ...recentTransactions[loweredAccount],
+                [type]: withNewTxs,
+              },
+            }),
+          )
+        }
+
         if (order) saveOrder(chainId, from, order, true)
       },
     )
@@ -88,7 +116,7 @@ export default createReducer(initialState, (builder) =>
         tx.lastCheckedBlockNumber = Math.max(blockNumber, tx.lastCheckedBlockNumber)
       }
     })
-    .addCase(finalizeTransaction, (transactions, { payload: { hash, chainId, receipt, nonBscFarm } }) => {
+    .addCase(finalizeTransaction, (transactions, { payload: { hash, from, type, chainId, receipt } }) => {
       const tx = transactions[chainId]?.[hash]
       if (!tx) {
         return
@@ -96,23 +124,38 @@ export default createReducer(initialState, (builder) =>
       tx.receipt = receipt
       tx.confirmedTime = now()
 
+      // use localstorage to remove redux persist dependency
+      const loweredAccount = from.toLowerCase()
+      const recentTransactions = JSON.parse(
+        localStorage.getItem(LOCAL_STORAGE_KEYS.recentTransactions) ?? '{}',
+      ) as TransactionLsMap
+
+      const filteredTx = recentTransactions[loweredAccount]?.[type]?.find(
+        (_tx: TransactionDetails) => _tx.hash === hash,
+      )
+      if (filteredTx) {
+        filteredTx.receipt = receipt
+        filteredTx.confirmedTime = now()
+
+        const txs = recentTransactions[loweredAccount][type]
+        const txIndex = txs.findIndex((_tx: TransactionDetails) => _tx.hash === hash)
+        const withUpdatedTx = [...txs.slice(0, txIndex), filteredTx, ...txs.slice(txIndex + 1)].slice(0, MAX_TXS)
+        localStorage.setItem(
+          LOCAL_STORAGE_KEYS.recentTransactions,
+          JSON.stringify({
+            ...recentTransactions,
+            [loweredAccount]: {
+              ...recentTransactions[loweredAccount],
+              [type]: withUpdatedTx,
+            },
+          }),
+        )
+      }
+
       if (tx.type === 'limit-order-submission') {
         confirmOrderSubmission(chainId, receipt.from, hash, receipt.status !== 0)
       } else if (tx.type === 'limit-order-cancellation') {
         confirmOrderCancellation(chainId, receipt.from, hash, receipt.status !== 0)
-      } else if (tx.type === 'non-bsc-farm') {
-        if (tx.nonBscFarm.steps[0].status === FarmTransactionStatus.PENDING) {
-          if (receipt.status === FarmTransactionStatus.FAIL) {
-            tx.nonBscFarm = { ...tx.nonBscFarm, status: receipt.status }
-          }
-
-          tx.nonBscFarm.steps[0] = {
-            ...tx.nonBscFarm.steps[0],
-            status: receipt.status,
-          }
-        } else {
-          tx.nonBscFarm = nonBscFarm
-        }
       }
     })
     .addCase(resetUserState, (transactions, { payload: { chainId, newChainId } }) => {

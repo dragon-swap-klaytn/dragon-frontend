@@ -4,6 +4,7 @@ import { ArrowClockwise, ClockCounterClockwise } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import TransactionsModal from 'components/App/Transactions/TransactionsModal'
 import GlobalSettings from 'components/Menu/GlobalSettings'
+import { useTranslation } from 'next-i18next'
 import { memo, ReactElement } from 'react'
 import { useRoutingSettingChanged } from 'state/user/smartRouter'
 import { SettingsMode } from '../../../components/Menu/GlobalSettings/types'
@@ -20,7 +21,10 @@ const CurrencyInputHeader: React.FC<React.PropsWithChildren<Props>> = memo(
   ({ subtitle, title, refreshDisabled, onRefresh, syncing }) => {
     const [expertMode] = useExpertMode()
     const [isRoutingSettingChange] = useRoutingSettingChanged()
-    const [onPresentTransactionsModal] = useModal(<TransactionsModal />)
+    const { t } = useTranslation()
+    const [onPresentTransactionsModal] = useModal(
+      <TransactionsModal type="swap" title={t('Recent Swap Transactions')} />,
+    )
 
     return (
       <div className="w-full">

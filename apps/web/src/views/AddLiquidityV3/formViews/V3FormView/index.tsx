@@ -284,6 +284,15 @@ export default function V3FormView({
               addTransaction(response, {
                 type: 'add-liquidity-v3',
                 summary: `Add ${baseAmount} ${baseCurrency?.symbol} and ${quoteAmount} ${quoteCurrency?.symbol}`,
+                translatableSummary: {
+                  text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
+                  data: {
+                    amountA: baseAmount,
+                    symbolA: baseCurrency?.symbol,
+                    amountB: quoteAmount,
+                    symbolB: quoteCurrency?.symbol,
+                  },
+                },
               })
               setTxHash(response.hash)
               onAddLiquidityCallback(response.hash)

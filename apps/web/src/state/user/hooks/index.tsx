@@ -23,7 +23,6 @@ import {
   setIsExchangeChartDisplayed,
   setSubgraphHealthIndicatorDisplayed,
   updateGasPrice,
-  updateUserDeadline,
   updateUserFarmStakedOnly,
   updateUserFarmsViewMode,
   updateUserLimitOrderAcceptedWarning,
@@ -225,22 +224,6 @@ export function useUserUsernameVisibility(): [boolean, (usernameVisibility: bool
   )
 
   return [userUsernameVisibility, setUserUsernameVisibility]
-}
-
-export function useUserTransactionTTL(): [number, (slippage: number) => void] {
-  const dispatch = useAppDispatch()
-  const userDeadline = useSelector<AppState, AppState['user']['userDeadline']>((state) => {
-    return state.user.userDeadline
-  })
-
-  const setUserDeadline = useCallback(
-    (deadline: number) => {
-      dispatch(updateUserDeadline({ userDeadline: deadline }))
-    },
-    [dispatch],
-  )
-
-  return [userDeadline, setUserDeadline]
 }
 
 export function useAddUserToken(): (token: ERC20Token) => void {

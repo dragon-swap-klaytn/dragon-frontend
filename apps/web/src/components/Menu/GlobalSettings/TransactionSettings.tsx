@@ -1,12 +1,11 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { useUserSlippage } from '@pancakeswap/utils/user'
-import { useState } from 'react'
+import { useUserSlippage, useUserTxTtl } from '@pancakeswap/utils/user'
+import { useCallback, useEffect, useState } from 'react'
 import { escapeRegExp } from 'utils'
 
 import { ButtonV2, NumberFormat } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { SettingTitle } from 'components/Menu/GlobalSettings/SettingsModal'
-import { useUserTransactionTTL } from 'state/user/hooks'
 
 enum SlippageError {
   InvalidInput = 'InvalidInput',
@@ -14,72 +13,67 @@ enum SlippageError {
   RiskyHigh = 'RiskyHigh',
 }
 
-// enum DeadlineError {
-//   InvalidInput = 'InvalidInput',
-// }
-
 const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
-const THREE_DAYS_IN_SECONDS = 60 * 60 * 24 * 3
+const MAX_SLIPPAGE = 100
+const DEFAULT_TTL = 1
+const MAX_TTL = 30 // 30 minutes
 
 const SlippageTabs = () => {
   const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippage()
-  const [ttl, setTtl] = useUserTransactionTTL()
+  const [ttl, setTtl] = useUserTxTtl()
+
+  const [slippageError, setSlippageError] = useState<SlippageError | null>(null)
   const [slippageInput, setSlippageInput] = useState('')
-  // const [deadlineInput, setDeadlineInput] = useState('')
 
   const { t } = useTranslation()
 
-  const slippageInputIsValid =
-    slippageInput === '' || (userSlippageTolerance / 100).toFixed(2) === Number.parseFloat(slippageInput).toFixed(2)
-  // const deadlineInputIsValid = deadlineInput === '' || (ttl / 60).toString() === deadlineInput
+  useEffect(() => {
+    if (slippageInput !== '') {
+      setSlippageError(SlippageError.InvalidInput)
+    } else if (userSlippageTolerance < 50) {
+      setSlippageError(SlippageError.RiskyLow)
+    } else if (userSlippageTolerance > 500) {
+      setSlippageError(SlippageError.RiskyHigh)
+    } else {
+      setSlippageError(null)
+    }
+  }, [slippageInput, userSlippageTolerance])
 
-  let slippageError: SlippageError | undefined
-  if (slippageInput !== '' && !slippageInputIsValid) {
-    slippageError = SlippageError.InvalidInput
-  } else if (slippageInputIsValid && userSlippageTolerance < 50) {
-    slippageError = SlippageError.RiskyLow
-  } else if (slippageInputIsValid && userSlippageTolerance > 500) {
-    slippageError = SlippageError.RiskyHigh
-  } else {
-    slippageError = undefined
-  }
+  const parseCustomSlippage = useCallback(
+    (value: string) => {
+      if (value === '' || inputRegex.test(escapeRegExp(value))) {
+        setSlippageInput(value)
 
-  // let deadlineError: DeadlineError | undefined
-  // if (deadlineInput !== '' && !deadlineInputIsValid) {
-  //   deadlineError = DeadlineError.InvalidInput
-  // } else {
-  //   deadlineError = undefined
-  // }
+        try {
+          const valueAsIntFromRoundedFloat = Number.parseInt((Number.parseFloat(value) * 100).toString())
+          if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat < 5_000) {
+            setUserSlippageTolerance(valueAsIntFromRoundedFloat)
+            setSlippageError(null)
+          }
+        } catch (error) {
+          console.error(error)
+        }
+      }
+    },
+    [setUserSlippageTolerance, setSlippageInput],
+  )
 
-  const parseCustomSlippage = (value: string) => {
-    if (value === '' || inputRegex.test(escapeRegExp(value))) {
-      setSlippageInput(value)
-
+  const parseCustomDeadline = useCallback(
+    (value: string) => {
       try {
-        const valueAsIntFromRoundedFloat = Number.parseInt((Number.parseFloat(value) * 100).toString())
-        if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat < 5000) {
-          setUserSlippageTolerance(valueAsIntFromRoundedFloat)
+        const numberedValue = +value
+
+        if (value === '') {
+          setTtl(DEFAULT_TTL)
+        } else if (!Number.isNaN(numberedValue)) {
+          setTtl(numberedValue)
         }
       } catch (error) {
         console.error(error)
       }
-    }
-  }
-
-  const parseCustomDeadline = (value: string) => {
-    // setDeadlineInput(value)
-
-    try {
-      const valueAsInt: number = Number.parseInt(value) * 60
-      if (!Number.isNaN(valueAsInt) && valueAsInt > 60 && valueAsInt < THREE_DAYS_IN_SECONDS) {
-        setTtl(valueAsInt)
-      } else {
-        // deadlineError = DeadlineError.InvalidInput
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+    },
+    [setTtl],
+  )
 
   return (
     <>
@@ -122,9 +116,6 @@ const SlippageTabs = () => {
           <NumberFormat
             className="text-on-surface w-20 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-right focus:outline-none"
             value={slippageInput}
-            onBlur={() => {
-              parseCustomSlippage((userSlippageTolerance / 100).toFixed(2))
-            }}
             onChange={(e) => {
               if (e.currentTarget.validity.valid) {
                 parseCustomSlippage(e.target.value.replace(/,/g, '.'))
@@ -135,6 +126,10 @@ const SlippageTabs = () => {
             decimalScale={2}
             placeholder={(userSlippageTolerance / 100).toFixed(2)}
             pattern="^[0-9]*[.,]?[0-9]{0,2}$"
+            isAllowed={(values) => {
+              const { floatValue } = values
+              return floatValue === undefined || floatValue <= MAX_SLIPPAGE
+            }}
           />
 
           <span className="text-sm text-on-surface">%</span>
@@ -163,20 +158,18 @@ const SlippageTabs = () => {
 
         <NumberFormat
           className="text-on-surface w-16 text-sm bg-transparent border border-gray-700 rounded-[20px] px-4 h-10 text-right focus:outline-none"
-          value={slippageInput}
-          onBlur={() => {
-            parseCustomDeadline((ttl / 60).toString())
-          }}
           onChange={(e) => {
-            if (e.currentTarget.validity.valid) {
-              parseCustomDeadline(e.target.value)
-            }
+            parseCustomDeadline(e.target.value.replace(/,/g, ''))
           }}
           thousandSeparator
           allowNegative={false}
           decimalScale={0}
           placeholder={(ttl / 60).toString()}
           pattern="^[0-9]+$"
+          isAllowed={(values) => {
+            const { floatValue } = values
+            return floatValue === undefined || (floatValue <= MAX_TTL && floatValue > 0)
+          }}
         />
       </div>
     </>

@@ -14,6 +14,7 @@ import { FeeAmount } from '@pancakeswap/v3-sdk'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { Hash } from 'viem'
 
+import { LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import {
   addTransaction,
@@ -22,7 +23,7 @@ import {
   NonBscFarmTransactionType,
   TransactionType,
 } from './actions'
-import { TransactionDetails } from './reducer'
+import { TransactionDetails, TransactionLsMap } from './reducer'
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (
@@ -141,6 +142,19 @@ export function useAllSortedRecentTransactions(): { [chainId: number]: { [txHash
       isEmpty,
     )
   }, [allTransactions])
+}
+
+export function useRecentTransactionsFromLs() {
+  const { address: account } = useAccount()
+  const recentTransactions = JSON.parse(
+    localStorage.getItem(LOCAL_STORAGE_KEYS.recentTransactions) ?? '{}',
+  ) as TransactionLsMap
+
+  return useMemo(() => {
+    if (!account) return []
+
+    return recentTransactions[account] ?? []
+  }, [account, recentTransactions])
 }
 
 // returns all the transactions for the current chain

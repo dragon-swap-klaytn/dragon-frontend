@@ -2,10 +2,10 @@ import { userSingleHopAtom } from '@pancakeswap/utils/user'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import atomWithStorageWithErrorCatch from 'utils/atomWithStorageWithErrorCatch'
 
-const userUseStableSwapAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useStableSwap', true)
-const userUseV2SwapAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useV2Swap', true)
-const userUseV3SwapAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useV3Swap', true)
-const userUserSplitRouteAtom = atomWithStorageWithErrorCatch<boolean>('pcs:useSplitRouting', true)
+const userUseStableSwapAtom = atomWithStorageWithErrorCatch<boolean>('dgs:useStableSwap', true)
+const userUseV2SwapAtom = atomWithStorageWithErrorCatch<boolean>('dgs:useV2Swap', true)
+const userUseV3SwapAtom = atomWithStorageWithErrorCatch<boolean>('dgs:useV3Swap', true)
+const userUserSplitRouteAtom = atomWithStorageWithErrorCatch<boolean>('dgs:useSplitRouting', true)
 
 export function useUserStableSwapEnable() {
   return useAtom(userUseStableSwapAtom)

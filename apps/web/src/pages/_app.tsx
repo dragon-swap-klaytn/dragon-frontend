@@ -2,7 +2,6 @@ import { ScrollToTopButtonV2, ToastListener } from '@pancakeswap/uikit'
 import BigNumber from 'bignumber.js'
 import { ErrorBoundary } from 'components/ErrorBoundary'
 import { NetworkModal } from 'components/NetworkModal'
-import { FixedSubgraphHealthIndicator } from 'components/SubgraphHealthIndicator/FixedSubgraphHealthIndicator'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
 // import useEagerConnectMP from 'hooks/useEagerConnect.bmp'
 import useLockedEndNotification from 'hooks/useLockedEndNotification'
@@ -15,7 +14,6 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import Script from 'next/script'
 import { Fragment } from 'react'
-import { PersistGate } from 'redux-persist/integration/react'
 
 // import { useDataDogRUM } from 'hooks/useDataDogRUM'
 import { ChainId } from '@pancakeswap/chains'
@@ -23,7 +21,7 @@ import { appWithTranslation } from '@pancakeswap/localization'
 import Footer from 'components/Menu/Footer'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
-import { persistor, useStore } from 'state'
+import { useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
 import { Blocklist, Updaters } from '..'
 import { SEO } from '../../next-seo.config'
@@ -85,11 +83,8 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
         )}
         <Blocklist>
           {(Component as NextPageWithLayout).mp ? <MPGlobalHooks /> : <GlobalHooks />}
-          {/* <ResetCSS /> */}
-          <PersistGate loading={<App {...props} />} persistor={persistor}>
-            <Updaters />
-            <App {...props} />
-          </PersistGate>
+          <Updaters />
+          <App {...props} />
         </Blocklist>
       </Providers>
       <Script
@@ -150,9 +145,7 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
       </Layout>
 
       <Footer />
-
       <ToastListener />
-      <FixedSubgraphHealthIndicator />
       <NetworkModal pageSupportedChains={Component.chains} />
       {isShowScrollToTopButton && <ScrollToTopButtonV2 />}
     </ProductionErrorBoundary>
