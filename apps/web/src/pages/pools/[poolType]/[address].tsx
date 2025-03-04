@@ -139,7 +139,12 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
               </div>
 
               <div className="mt-4 md:mt-0 space-x-3">
-                <AddLiquidityButtonV2 poolType={poolType} token0={poolData.token0} token1={poolData.token1} />
+                <AddLiquidityButtonV2
+                  poolType={poolType}
+                  token0={poolData.token0}
+                  token1={poolData.token1}
+                  feeTier={'feeTier' in poolData ? (poolData as PoolV3Parsed).feeTier : undefined}
+                />
                 <NextLink
                   href={`/swap?inputCurrency=${unwrapWKAIAAdress(
                     poolData.token0.id,
@@ -202,7 +207,7 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
                     <p className="text-xl font-medium">$ {formatDollarAmount(poolData.volumeUSD['7D'])}</p>
                   </div>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between space-x-2">
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">{t('APY 24H')}</h4>
                     <p className="text-xl font-medium text-emerald-400">
