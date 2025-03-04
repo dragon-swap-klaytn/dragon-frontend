@@ -14,7 +14,7 @@ import { useMemo } from 'react'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { getDefaultStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import { getTokenStaticProps } from 'utils/pageUtils'
 import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
@@ -391,5 +391,15 @@ function PoolPositionsV2({
 
 export default PoolDetailsPage
 
-export const getStaticPaths = getDefaultStaticPaths
+export const getStaticPaths = ({ locales }) => {
+  return {
+    paths:
+      ['v3', 'v2'].flatMap((poolType) =>
+        locales?.map((locale) => ({
+          params: { poolType, address: '0x0000000000000000000000000000000000000000', locale },
+        })),
+      ) || [],
+    fallback: 'blocking',
+  }
+}
 export const getStaticProps = getTokenStaticProps

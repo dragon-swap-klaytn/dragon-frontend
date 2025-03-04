@@ -34,10 +34,10 @@ export default AddLiquidityPage
 
 const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|BNB)-(0x[a-fA-F0-9]{40}|BNB)$/
 
-export const getStaticPaths: GetStaticPaths = () => {
+export const getStaticPaths: GetStaticPaths = ({ locales }) => {
   return {
-    paths: [{ params: { currency: [] } }],
-    fallback: true,
+    paths: locales?.map((locale) => ({ params: { currency: [], locale } })) || [],
+    fallback: 'blocking',
   }
 }
 

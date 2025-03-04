@@ -6,7 +6,7 @@ import Page from 'components/Layout/Page'
 import NextLink from 'next/link'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
-import { getDefaultStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import { getTokenStaticProps } from 'utils/pageUtils'
 import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
@@ -198,5 +198,15 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
 
 export default TokenDetailsPage
 
-export const getStaticPaths = getDefaultStaticPaths
+export const getStaticPaths = ({ locales }) => {
+  return {
+    paths:
+      ['v3', 'v2'].flatMap((poolType) =>
+        locales?.map((locale) => ({
+          params: { poolType, address: '0x0000000000000000000000000000000000000000', locale },
+        })),
+      ) || [],
+    fallback: 'blocking',
+  }
+}
 export const getStaticProps = getTokenStaticProps

@@ -46,7 +46,6 @@ import { useV3PositionFees } from 'hooks/v3/useV3PositionFees'
 import { useV3PositionFromTokenId, useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import getPriceOrderingFromPositionForUI from 'hooks/v3/utils/getPriceOrderingFromPositionForUI'
-import { GetStaticPaths } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { NextSeo } from 'next-seo'
 import Link from 'next/link'
@@ -1056,10 +1055,11 @@ function ModalHeader({
   )
 }
 
-export const getStaticPaths: GetStaticPaths = () => {
+export const getStaticPaths = ({ locales }) => {
   return {
-    paths: [],
-    fallback: false,
+    // any tokenId for server-side rendering
+    paths: locales?.map((locale) => ({ params: { tokenId: '1', locale } })) || [],
+    fallback: 'blocking',
   }
 }
 
