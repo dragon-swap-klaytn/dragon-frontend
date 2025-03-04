@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { ExternalLink, Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { ExternalLink, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { TransactionEventWithType } from 'lib/graph-queries/types'
@@ -17,15 +17,15 @@ type HeaderId = (typeof HEADER_IDS)[number]
 type TxTableHeader = {
   id: HeaderId
   title: string
-  hideBelow?: 's' | 'md' | 'lg'
+  displayClassName?: string
 }
 
 const HEADERS: TxTableHeader[] = [
   { id: 'summary', title: '' },
-  { id: 'totalValue', title: 'Total Value', hideBelow: 's' },
+  { id: 'totalValue', title: 'Total Value', displayClassName: 'hidden s:table-cell' },
   { id: 'amount0', title: 'Token0 Amount' },
   { id: 'amount1', title: 'Token1 Amount' },
-  { id: 'time', title: 'Time', hideBelow: 'md' },
+  { id: 'time', title: 'Time', displayClassName: 'hidden md:table-cell' },
 ]
 
 const DataRow = ({ transaction, isLastIndex }: { transaction: TransactionEventWithType; isLastIndex: boolean }) => {
@@ -116,22 +116,6 @@ export default function TransactionTable({ transactions }: { transactions?: Over
       .slice(SHOW_TRANSACTION_COUNT * (page - 1), page * SHOW_TRANSACTION_COUNT)
   }, [filteredTransactions, page])
 
-  const { isBelowS, isBelowMd, isBelowLg } = useMatchBreakpoints()
-  const [headers, setHeaders] = useState<TxTableHeader[] | null>(null)
-  const [headerLength, setHeaderLength] = useState(HEADERS.length)
-  useEffect(() => {
-    const filteredHeaders = HEADERS.filter(({ hideBelow }) => {
-      if (hideBelow === 's') return !isBelowS
-      // if (hideBelow === 'sm') return !isBelowSm
-      if (hideBelow === 'md') return !isBelowMd
-      if (hideBelow === 'lg') return !isBelowLg
-      return true
-    })
-
-    setHeaders(filteredHeaders)
-    setHeaderLength(filteredHeaders.length)
-  }, [isBelowS, isBelowMd, isBelowLg])
-
   return (
     <>
       <table className="w-full rounded-xl overflow-hidden">
@@ -144,21 +128,17 @@ export default function TransactionTable({ transactions }: { transactions?: Over
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
-            {headers ? (
-              headers.map(({ title }, index) => (
-                <th
-                  key={`txTable:${title}`}
-                  className={clsx('py-3 text-left', {
-                    'px-4 s:px-6': index === 0,
-                    'px-4': index !== 0,
-                  })}
-                >
-                  <span className="font-medium">{title}</span>
-                </th>
-              ))
-            ) : (
-              <th className="h-[56px]" colSpan={6} />
-            )}
+            {HEADERS.map(({ title, displayClassName }, index) => (
+              <th
+                key={`txTable:${title}`}
+                className={clsx('py-3 text-left', displayClassName, {
+                  'px-4 s:px-6': index === 0,
+                  'px-4': index !== 0,
+                })}
+              >
+                <span className="font-medium">{title}</span>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -173,7 +153,7 @@ export default function TransactionTable({ transactions }: { transactions?: Over
               ))
             ) : (
               <tr>
-                <td colSpan={headerLength} className="h-[250px] md:h-[300px] text-center">
+                <td colSpan={HEADERS.length} className="h-[250px] md:h-[300px] text-center">
                   <div className="flex items-center justify-center w-full">
                     <p className="text-on-surface">{t('No Transactions')}</p>
                   </div>

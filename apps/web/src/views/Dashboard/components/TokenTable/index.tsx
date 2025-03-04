@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { PoolType } from 'types'
@@ -19,7 +19,7 @@ type TokenTableHeader = {
   id: HeaderId
   title: Title | ReactNode
   sortBy?: TokensSortBy
-  hideBelow?: 's' | 'sm' | 'md'
+  displayClassName?: string
 }
 const HEADERS: TokenTableHeader[] = [
   { id: 'name', title: 'Name' },
@@ -33,11 +33,11 @@ const HEADERS: TokenTableHeader[] = [
       </span>
     ),
     sortBy: 'priceChange7D',
-    hideBelow: 'md',
+    displayClassName: 'hidden md:table-cell',
   },
-  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H', hideBelow: 's' },
-  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D', hideBelow: 'md' },
-  { id: 'tvl', title: 'TVL', sortBy: 'tvl', hideBelow: 'sm' },
+  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H', displayClassName: 'hidden s:table-cell' },
+  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D', displayClassName: 'hidden md:table-cell' },
+  { id: 'tvl', title: 'TVL', sortBy: 'tvl', displayClassName: 'hidden sm:table-cell' },
 ]
 
 const SHOW_TOKENS_COUNT = 10
@@ -96,21 +96,6 @@ export default function TokenTable({
     [sortDirection, sortBy],
   )
 
-  const { isBelowS, isBelowSm, isBelowMd } = useMatchBreakpoints()
-  const [headers, setHeaders] = useState<TokenTableHeader[] | null>(null)
-  const [headerLength, setHeaderLength] = useState(HEADERS.length)
-  useEffect(() => {
-    const filteredHeaders = HEADERS.filter(({ hideBelow }) => {
-      if (hideBelow === 's') return !isBelowS
-      if (hideBelow === 'sm') return !isBelowSm
-      if (hideBelow === 'md') return !isBelowMd
-      return true
-    })
-
-    setHeaders(filteredHeaders)
-    setHeaderLength(filteredHeaders.length)
-  }, [isBelowS, isBelowSm, isBelowMd])
-
   return (
     <>
       <table className="w-full rounded-xl overflow-hidden">
@@ -125,30 +110,26 @@ export default function TokenTable({
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
-            {headers ? (
-              headers.map(({ title, sortBy: s }, index) => (
-                <th
-                  key={`tokenTable:${title}`}
-                  className={clsx('py-3 text-left', {
-                    'px-4 s:px-6': index === 0,
-                    'px-4': index !== 0,
-                  })}
-                >
-                  {s ? (
-                    <SortHeaderButton
-                      title={title}
-                      onClick={() => handleSort(s as TokensSortBy)}
-                      isSelected={sortBy === s}
-                      sortDirection={sortDirection}
-                    />
-                  ) : (
-                    <span className="font-medium">{title}</span>
-                  )}
-                </th>
-              ))
-            ) : (
-              <th className="h-[56px]" colSpan={6} />
-            )}
+            {HEADERS.map(({ title, sortBy: s, displayClassName }, index) => (
+              <th
+                key={`tokenTable:${title}`}
+                className={clsx('py-3 text-left', displayClassName, {
+                  'px-4 s:px-6': index === 0,
+                  'px-4': index !== 0,
+                })}
+              >
+                {s ? (
+                  <SortHeaderButton
+                    title={title}
+                    onClick={() => handleSort(s as TokensSortBy)}
+                    isSelected={sortBy === s}
+                    sortDirection={sortDirection}
+                  />
+                ) : (
+                  <span className="font-medium">{title}</span>
+                )}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -170,7 +151,7 @@ export default function TokenTable({
               ))
             ) : (
               <tr>
-                <td colSpan={headerLength} className="h-[250px] md:h-[300px] text-center">
+                <td colSpan={HEADERS.length} className="h-[250px] md:h-[300px] text-center">
                   <div className="flex items-center justify-center w-full">
                     <p className="text-on-surface">{t('No Tokens')}</p>
                   </div>

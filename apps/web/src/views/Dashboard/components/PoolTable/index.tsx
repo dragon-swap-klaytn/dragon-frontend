@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Spinner, useMatchBreakpoints } from '@pancakeswap/uikit'
+import { Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { Portfolio } from 'hooks/usePortfolio'
 
@@ -23,15 +23,16 @@ type PoolTableHeader = {
   title: Title
   sortBy?: PoolsSortBy
   hideBelow?: 's' | 'sm' | 'md' | 'lg'
+  displayClassName?: string
 }
 
 const HEADERS: PoolTableHeader[] = [
   { id: 'pool', title: 'Pool' },
   { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H' },
-  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D', hideBelow: 'lg' },
-  { id: 'tvl', title: 'TVL', sortBy: 'tvl', hideBelow: 'sm' },
-  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H', hideBelow: 's' },
-  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D', hideBelow: 'lg' },
+  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D', displayClassName: 'hidden lg:table-cell' },
+  { id: 'tvl', title: 'TVL', sortBy: 'tvl', displayClassName: 'hidden sm:table-cell' },
+  { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H', displayClassName: 'hidden s:table-cell' },
+  { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D', displayClassName: 'hidden lg:table-cell' },
 ]
 
 const SHOW_POOL_COUNT = 10
@@ -111,22 +112,6 @@ export default function PoolTable({
     [sortDirection, sortBy],
   )
 
-  const { isBelowS, isBelowSm, isBelowMd, isBelowLg } = useMatchBreakpoints()
-  const [headers, setHeaders] = useState<PoolTableHeader[] | null>(null)
-  const [headerLength, setHeaderLength] = useState(HEADERS.length)
-  useEffect(() => {
-    const filteredHeaders = HEADERS.filter(({ hideBelow }) => {
-      if (hideBelow === 's') return !isBelowS
-      if (hideBelow === 'sm') return !isBelowSm
-      if (hideBelow === 'md') return !isBelowMd
-      if (hideBelow === 'lg') return !isBelowLg
-      return true
-    })
-
-    setHeaders(filteredHeaders)
-    setHeaderLength(filteredHeaders.length)
-  }, [isBelowS, isBelowSm, isBelowMd, isBelowLg])
-
   return (
     <div className="w-full">
       <table className="w-full rounded-xl overflow-hidden">
@@ -149,30 +134,26 @@ export default function PoolTable({
         </colgroup>
         <thead>
           <tr className="text-on-surface-subtle bg-neutral text-xs">
-            {headers ? (
-              headers.map(({ title, sortBy: s }, index) => (
-                <th
-                  key={`poolTable:${s}`}
-                  className={clsx('py-3 text-left', {
-                    'px-4 s:px-6': index === 0,
-                    'px-4': index !== 0,
-                  })}
-                >
-                  {s ? (
-                    <SortHeaderButton
-                      title={title}
-                      onClick={() => handleSort(s as PoolsSortBy)}
-                      isSelected={sortBy === s}
-                      sortDirection={sortDirection}
-                    />
-                  ) : (
-                    <span className="font-medium">{title}</span>
-                  )}
-                </th>
-              ))
-            ) : (
-              <th className="h-[56px]" colSpan={6} />
-            )}
+            {HEADERS.map(({ title, sortBy: s, displayClassName }, index) => (
+              <th
+                key={`poolTable:${s}`}
+                className={clsx('py-3 text-left', displayClassName, {
+                  'px-4 s:px-6': index === 0,
+                  'px-4': index !== 0,
+                })}
+              >
+                {s ? (
+                  <SortHeaderButton
+                    title={title}
+                    onClick={() => handleSort(s as PoolsSortBy)}
+                    isSelected={sortBy === s}
+                    sortDirection={sortDirection}
+                  />
+                ) : (
+                  <span className="font-medium">{title}</span>
+                )}
+              </th>
+            ))}
 
             <th className="sr-only">open details</th>
           </tr>
@@ -199,7 +180,7 @@ export default function PoolTable({
               ))
             ) : (
               <tr>
-                <td colSpan={headerLength} className="h-[250px] md:h-[300px] text-center">
+                <td colSpan={HEADERS.length} className="h-[250px] md:h-[300px] text-center">
                   <div className="flex items-center justify-center w-full">
                     <p className="text-on-surface">{t('No Pools')}</p>
                   </div>
