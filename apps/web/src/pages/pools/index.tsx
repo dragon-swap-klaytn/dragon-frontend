@@ -45,7 +45,7 @@ const PoolsPage = () => {
           <h1 className="text-[40px] font-medium">{t('Pools')}</h1>
           <p className="text-sm text-on-surface-subtlest">{t('Supply liquidity and maximize your yield.')}</p>
         </div>
-        <NextLink href="/add" className="mt-4 xs:mt-0">
+        <NextLink href="/add" className="ml-4 mt-4 xs:mt-0">
           <ButtonV2 variant="secondary" onClick={() => {}}>
             {t('Add Liquidity')}
           </ButtonV2>
