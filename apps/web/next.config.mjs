@@ -85,12 +85,8 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/info/token/:address',
-        destination: '/info/tokens/:address',
-      },
-      {
-        source: '/info/pool/:address',
-        destination: '/info/pools/:address',
+        source: '/farms',
+        destination: '/pools',
       },
     ]
   },

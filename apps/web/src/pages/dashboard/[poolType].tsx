@@ -61,7 +61,7 @@ export const getStaticProps = (async ({ params, locale }) => {
   ParsedUrlQuery
 >
 
-const InfoPage = ({ poolType }: InferGetStaticPropsType<typeof getStaticProps>) => {
+const DashboardDetail = ({ poolType }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -86,4 +86,4 @@ const InfoPage = ({ poolType }: InferGetStaticPropsType<typeof getStaticProps>) 
   )
 }
 
-export default InfoPage
+export default DashboardDetail
