@@ -44,7 +44,13 @@ const Chart = ({
   const { theme } = useTheme()
 
   return (
-    <div className={clsx('w-full h-full flex bg-transparent flex-col', minHeightClassName, heightClassName)}>
+    <div
+      className={clsx(
+        'w-full h-full flex bg-transparent flex-col justify-center items-center',
+        minHeightClassName,
+        heightClassName,
+      )}
+    >
       <div className="flex items-start space-x-2 justify-between w-full">
         {topLeft ?? null}
         {topRight ?? null}
@@ -54,7 +60,7 @@ const Chart = ({
           <Spinner />
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="98%" height="100%">
           <AreaChart
             data={data}
             margin={margin}
