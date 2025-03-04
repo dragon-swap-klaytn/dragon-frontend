@@ -112,9 +112,12 @@ export function RoutingSettingsButton({ showRedDot = true }: { showRedDot?: bool
           <SettingTitle title={t('Customize Routing')} />
 
           <div
-            className={clsx('absolute -top-0.5 -right-2 w-2 h-2 bg-red-600 rounded-full', {
-              hidden: !isRoutingSettingChange || !showRedDot,
-            })}
+            className={clsx(
+              'absolute -top-[5px] -right-[12px] w-[10px] h-[10px] rounded-full bg-red-600 border border-white pointer-events-none',
+              {
+                hidden: !isRoutingSettingChange || !showRedDot,
+              },
+            )}
           />
         </div>
 
