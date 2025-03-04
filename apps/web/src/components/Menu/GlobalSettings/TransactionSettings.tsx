@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { useUserSlippage, useUserTxTtl } from '@pancakeswap/utils/user'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { escapeRegExp } from 'utils'
 
 import { ButtonV2, NumberFormat } from '@pancakeswap/uikit'
@@ -22,21 +22,28 @@ const SlippageTabs = () => {
   const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippage()
   const [ttl, setTtl] = useUserTxTtl()
 
-  const [slippageError, setSlippageError] = useState<SlippageError | null>(null)
   const [slippageInput, setSlippageInput] = useState('')
 
   const { t } = useTranslation()
 
-  useEffect(() => {
+  const slippageError = useMemo(() => {
     if (slippageInput !== '') {
-      setSlippageError(SlippageError.InvalidInput)
-    } else if (userSlippageTolerance < 50) {
-      setSlippageError(SlippageError.RiskyLow)
-    } else if (userSlippageTolerance > 500) {
-      setSlippageError(SlippageError.RiskyHigh)
-    } else {
-      setSlippageError(null)
+      try {
+        const valueAsIntFromRoundedFloat = Number.parseInt((Number.parseFloat(slippageInput) * 100).toString())
+        if (Number.isNaN(valueAsIntFromRoundedFloat) || valueAsIntFromRoundedFloat >= 10_000) {
+          return SlippageError.InvalidInput
+        }
+      } catch {
+        return SlippageError.InvalidInput
+      }
     }
+    if (userSlippageTolerance < 50) {
+      return SlippageError.RiskyLow
+    }
+    if (userSlippageTolerance > 500) {
+      return SlippageError.RiskyHigh
+    }
+    return null
   }, [slippageInput, userSlippageTolerance])
 
   const parseCustomSlippage = useCallback(
@@ -46,9 +53,8 @@ const SlippageTabs = () => {
 
         try {
           const valueAsIntFromRoundedFloat = Number.parseInt((Number.parseFloat(value) * 100).toString())
-          if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat < 5_000) {
+          if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat < 10_000) {
             setUserSlippageTolerance(valueAsIntFromRoundedFloat)
-            setSlippageError(null)
           }
         } catch (error) {
           console.error(error)
