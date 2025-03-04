@@ -2,9 +2,9 @@ import { DEFAULT_LANGUAGE } from '@pancakeswap/localization'
 import { USDC, USDT } from '@pancakeswap/tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useNativeCurrency from 'hooks/useNativeCurrency'
-import { GetStaticPaths } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
+import { defaultStaticPaths } from 'utils/pageUtils'
 import AddLiquidityV2FormProvider from 'views/AddLiquidity/AddLiquidityV2FormProvider'
 import { AddLiquidityV3Layout, UniversalAddLiquidity } from 'views/AddLiquidityV3'
 
@@ -32,13 +32,7 @@ export default AddLiquidityPage
 
 const OLD_PATH_STRUCTURE = /^(0x[a-fA-F0-9]{40}|BNB)-(0x[a-fA-F0-9]{40}|BNB)$/
 
-export const getStaticPaths: GetStaticPaths = ({ locales }) => {
-  return {
-    paths: locales?.map((locale) => ({ params: { currency: [], locale } })) || [],
-    fallback: 'blocking',
-  }
-}
-
+export const getStaticPaths = defaultStaticPaths
 export const getStaticProps = async ({ params, locale }: { params: any; locale: string }) => {
   const { currency = [] } = params || {}
   const [currencyIdA, currencyIdB] = currency

@@ -1,10 +1,9 @@
 import { isStableFarm } from '@pancakeswap/farms'
 import { useCurrency } from 'hooks/Tokens'
-import { GetStaticPaths } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { useFarmPrivateAPI } from 'state/farms/hooks'
-import { getDefaultStaticProps } from 'utils/pageUtils'
+import { defaultStaticPaths, getDefaultStaticProps } from 'utils/pageUtils'
 import AddLiquidityV2FormProvider from 'views/AddLiquidity/AddLiquidityV2FormProvider'
 import { AddLiquidityV3Layout, UniversalAddLiquidity } from 'views/AddLiquidityV3'
 import LiquidityFormProvider from 'views/AddLiquidityV3/formViews/V3FormView/form/LiquidityFormProvider'
@@ -93,10 +92,5 @@ const AddLiquidityPage = () => {
 
 export default AddLiquidityPage
 
-export const getStaticPaths: GetStaticPaths = ({ locales }) => {
-  return {
-    paths: locales?.map((locale) => ({ params: { currency: [], locale } })) || [],
-    fallback: 'blocking',
-  }
-}
+export const getStaticPaths = defaultStaticPaths
 export const getStaticProps = getDefaultStaticProps(['common'])

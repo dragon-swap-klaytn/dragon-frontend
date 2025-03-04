@@ -1,4 +1,5 @@
 import { Locale } from '@pancakeswap/localization'
+import { GetStaticPaths } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { isAddress } from 'viem'
 
@@ -12,10 +13,10 @@ export const getDefaultStaticProps = (locales: string[]) => {
   }
 }
 
-export const getDefaultStaticPaths = () => {
+export const defaultStaticPaths: GetStaticPaths = () => {
   return {
     paths: [],
-    fallback: true,
+    fallback: 'blocking',
   }
 }
 

@@ -1,5 +1,6 @@
 import { DEFAULT_LANGUAGE } from '@pancakeswap/localization'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { defaultStaticPaths } from 'utils/pageUtils'
 import RemoveLiquidityFormProvider from 'views/RemoveLiquidity/form/RemoveLiquidityFormProvider'
 import RemoveLiquidity from 'views/RemoveLiquidity/RemoveLiquidityV3'
 
@@ -13,13 +14,7 @@ const RemoveLiquidityPage = () => {
 
 export default RemoveLiquidityPage
 
-export const getStaticPaths = ({ locales }) => {
-  return {
-    // any tokenId for server-side rendering
-    paths: locales?.map((locale) => ({ params: { tokenId: '1', locale } })) || [],
-    fallback: 'blocking',
-  }
-}
+export const getStaticPaths = defaultStaticPaths
 export const getStaticProps = async ({ params, locale }: { params: any; locale: string }) => {
   const { tokenId } = params || {}
 

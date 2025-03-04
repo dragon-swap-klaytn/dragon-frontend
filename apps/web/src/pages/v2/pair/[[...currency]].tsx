@@ -26,13 +26,12 @@ import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMasterchef } from 'hooks/useContract'
 import { useV2Pair } from 'hooks/usePairs'
 import useTotalSupply from 'hooks/useTotalSupply'
-import { GetStaticPaths } from 'next'
 import { useRouter } from 'next/router'
 import { useLPApr } from 'state/swap/useLPApr'
 import { useTokenBalance } from 'state/wallet/hooks'
 import useSWRImmutable from 'swr/immutable'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { getDefaultStaticProps } from 'utils/pageUtils'
+import { defaultStaticPaths, getDefaultStaticProps } from 'utils/pageUtils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { useAccount } from 'wagmi'
 
@@ -229,10 +228,5 @@ function CurrencyWithAmount({ a, b }: { a: CurrencyWithAmountProps; b: CurrencyW
   )
 }
 
-export const getStaticPaths: GetStaticPaths = ({ locales }) => {
-  return {
-    paths: locales?.map((locale) => ({ params: { currency: [], locale } })) || [],
-    fallback: 'blocking',
-  }
-}
+export const getStaticPaths = defaultStaticPaths
 export const getStaticProps = getDefaultStaticProps(['common'])

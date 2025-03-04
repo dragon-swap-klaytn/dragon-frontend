@@ -57,6 +57,7 @@ import { calculateGasMargin, getBlockExploreLink } from 'utils'
 import currencyId from 'utils/currencyId'
 import { formatCurrencyAmount, formatPrice } from 'utils/formatCurrencyAmount'
 import { v3Clients } from 'utils/graphql'
+import { defaultStaticPaths } from 'utils/pageUtils'
 import { isUserRejected } from 'utils/sentry'
 import { toChecksumToken } from 'utils/toChecksumToken'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
@@ -1058,14 +1059,7 @@ function ModalHeader({
   )
 }
 
-export const getStaticPaths = ({ locales }) => {
-  return {
-    // any tokenId for server-side rendering
-    paths: locales?.map((locale) => ({ params: { tokenId: '1', locale } })) || [],
-    fallback: 'blocking',
-  }
-}
-
+export const getStaticPaths = defaultStaticPaths
 export const getStaticProps = async ({ params, locale }: { params: any; locale: Locale }) => {
   const tokenId = params?.tokenId
   const isNumberReg = /^\d+$/
