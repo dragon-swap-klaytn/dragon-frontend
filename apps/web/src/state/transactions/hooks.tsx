@@ -153,7 +153,7 @@ export function useRecentTransactionsFromLs() {
   return useMemo(() => {
     if (!account) return []
 
-    return recentTransactions[account] ?? []
+    return recentTransactions[account.toLowerCase()] ?? []
   }, [account, recentTransactions])
 }
 

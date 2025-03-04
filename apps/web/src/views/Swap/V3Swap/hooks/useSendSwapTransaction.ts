@@ -162,10 +162,10 @@ export default function useSendSwapTransaction(
                 : formatAmount(SmartRouter.minimumAmountOut(trade, pct), 3)
 
             const base = `Swap ${
-              trade.tradeType === TradeType.EXACT_OUTPUT ? 'max.' : ''
-            } ${inputAmount} ${inputSymbol} for ${
-              trade.tradeType === TradeType.EXACT_INPUT ? 'min.' : ''
-            } ${outputAmount} ${outputSymbol}`
+              trade.tradeType === TradeType.EXACT_OUTPUT ? 'max. ' : ''
+            }${inputAmount} ${inputSymbol} for ${
+              trade.tradeType === TradeType.EXACT_INPUT ? 'min. ' : ''
+            }${outputAmount} ${outputSymbol}`
 
             const recipientAddressText =
               recipientAddress && safeGetAddress(recipientAddress) ? truncateHash(recipientAddress) : recipientAddress
@@ -174,10 +174,10 @@ export default function useSendSwapTransaction(
 
             const translatableWithRecipient =
               trade.tradeType === TradeType.EXACT_OUTPUT
-                ? recipient === account
+                ? !recipient || recipient === account
                   ? 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}}'
                   : 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
-                : recipient === account
+                : !recipient || recipient === account
                 ? 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}}'
                 : 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
             addTransaction(response, {
