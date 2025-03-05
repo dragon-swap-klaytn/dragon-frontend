@@ -432,5 +432,9 @@
   "RKAIA Balances": "보유중인 RKAIA",
   "WKAIA Balances": "보유중인 WKAIA",
   "This swap has a price impact of at least {{amount}}%. Please type the word \"%word%\" to continue with this swap.": "이 스왑은 {{amount}}% 이상의 가격 영향이 있습니다. 이 스왑을 계속하려면 \"%word%\" 단어를 입력하세요.",
-  "This swap has a price impact of at least {{amount}}%. Please confirm that you would like to continue with this swap.": "이 스왑은 {{amount}}% 이상의 가격 영향이 있습니다. 이 스왑을 계속하려면 확인하세요."
+  "This swap has a price impact of at least {{amount}}%. Please confirm that you would like to continue with this swap.": "이 스왑은 {{amount}}% 이상의 가격 영향이 있습니다. 이 스왑을 계속하려면 확인하세요.",
+
+  "Oops, page not found.": "죄송합니다. 페이지를 찾을 수 없습니다.",
+  "Oops, something wrong.": "앗, 문제가 발생했습니다.",
+  "Back Home": "홈으로 돌아가기"
 }

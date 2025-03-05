@@ -1,22 +1,12 @@
 import { useTranslation } from "@pancakeswap/localization";
-import { JSXElementConstructor, ReactNode, createElement } from "react";
-import { styled } from "styled-components";
-import { Button } from "../Button";
-import { Heading } from "../Heading";
-import { Text } from "../Text";
-
-const StyledNotFound = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 64px);
-  justify-content: center;
-`;
+import clsx from "clsx";
+import Link from "next/link";
+import { JSXElementConstructor, ReactNode } from "react";
+import { COMMON_BUTTON_STYLE, MD_BUTTON_STYLE, PRIMARY_BUTTON_STYLE } from "../Common";
 
 const NotFound = ({
   statusCode = 404,
   children,
-  LinkComp,
 }: {
   LinkComp: JSXElementConstructor<any>;
   statusCode?: number;
@@ -24,24 +14,17 @@ const NotFound = ({
 }) => {
   const { t } = useTranslation();
 
-  const linkElement = createElement(
-    LinkComp,
-    {
-      href: "/",
-      passHref: true,
-    },
-    <Button scale="sm">{t("Back Home")}</Button>
-  );
-
   return (
     <>
       {children}
-      <StyledNotFound>
-        {/* <LogoIcon width="64px" mb="8px" /> */}
-        <Heading scale="xxl">{statusCode}</Heading>
-        <Text mb="16px">{t("Oops, page not found.")}</Text>
-        {linkElement}
-      </StyledNotFound>
+      <div className="flex flex-col items-center justify-center space-y-3 h-[60vh]">
+        <p className="font-bold text-4xl text-on-surface">{statusCode}</p>
+        <p className="text-on-surface text-lg">{t("Oops, page not found.")}</p>
+
+        <Link href="/" className={clsx(COMMON_BUTTON_STYLE, MD_BUTTON_STYLE, PRIMARY_BUTTON_STYLE)}>
+          {t("Back Home")}
+        </Link>
+      </div>
     </>
   );
 };

@@ -130,7 +130,7 @@ const UserMenu = ({
                 setUserMenuOpen(false)
               }}
             >
-              {t('My Wallet')}
+              {t('Wallet')}
             </button>
             <button
               type="button"
