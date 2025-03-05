@@ -183,6 +183,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     t,
     invalidatePortflio,
     addTransaction,
+    onClaimed,
   ])
 
   const [openClaimUnstakedFeesModal] = useModal(
@@ -316,6 +317,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     t,
     positions.rewardClaimable,
     addTransaction,
+    onClaimed,
   ])
 
   const [openClaimFeesAndRewardsModal] = useModal(

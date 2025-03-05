@@ -89,7 +89,7 @@ export default function ManageTokens({
           isAdded: false,
         })) ?? []
     )
-  }, [searchTokens, userAddedTokens])
+  }, [searchTokens, userAddedTokens, poolOnlyTokenMap])
 
   return (
     <div className="flex flex-col">

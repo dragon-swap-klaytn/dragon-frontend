@@ -219,6 +219,8 @@ export default function CurrencyList({
       setImportToken,
       setRecentSelectedCurrency,
       currenciesWithValue,
+      userAddedTokenMap,
+      userAddedTokenMapLoading,
     ],
   )
 

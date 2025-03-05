@@ -20,7 +20,7 @@ export default function ImportRow({
   className?: string
 }) {
   // check if already active on list or local storage tokens
-  const isAdded = useIsUserAddedTokenFromLs(token)
+  const { isAdded } = useIsUserAddedTokenFromLs(token)
   const isActive = useIsTokenActive(token)
 
   return (

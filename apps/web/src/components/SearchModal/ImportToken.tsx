@@ -15,10 +15,9 @@ import { getBlockExploreLink } from 'utils'
 interface ImportProps {
   tokens: Token[]
   handleCurrencySelect?: (currency: Currency) => void
-  onImported?: () => void
 }
 
-function ImportToken({ tokens, handleCurrencySelect, onImported }: ImportProps) {
+function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
   const { chainId } = useActiveChainId()
   const { t } = useTranslation()
   const [confirmed, setConfirmed] = useState(false)
@@ -63,18 +62,17 @@ function ImportToken({ tokens, handleCurrencySelect, onImported }: ImportProps) 
       handleCurrencySelect(tokens[0])
     }
 
-    setUserAddedTokenMap((prev) => {
-      return {
-        ...prev,
-        ...tokens.reduce((acc, token) => {
-          return {
-            ...acc,
-            [token.address.toLowerCase()]: token,
-          }
-        }, {}),
-      }
-    })
-  }, [addToken, chainId, handleCurrencySelect, inactiveTokenList, onImported, tokens])
+    setUserAddedTokenMap((prev) => ({
+      ...prev,
+      ...tokens.reduce(
+        (acc, token) => ({
+          ...acc,
+          [token.wrapped.address.toLowerCase()]: token,
+        }),
+        {},
+      ),
+    }))
+  }, [addToken, chainId, handleCurrencySelect, inactiveTokenList, tokens, setUserAddedTokenMap])
 
   return (
     <div className="w-full">

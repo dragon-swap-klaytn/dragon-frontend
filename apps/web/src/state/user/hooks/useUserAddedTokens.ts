@@ -22,8 +22,11 @@ export default function useUserAddedTokens(): Token[] {
 
 export const userAddedTokenMapAtom = atom<UserAddedTokenMap | null>(null)
 export function useUserAddedTokenMapFromLs() {
-  const [userAddedTokenMap, setUserAddedTokenMap] = useAtom(userAddedTokenMapAtom)
+  const [userAddedTokenMap, _setUserAddedTokenMap] = useAtom(userAddedTokenMapAtom)
   const [isLoading, setIsLoading] = useState(true)
+
+  // FIXME: @kay Update setUserAddedTokenMap type
+  const setUserAddedTokenMap = _setUserAddedTokenMap as any
 
   const refresh = useCallback(() => {
     setIsLoading(true)
@@ -33,7 +36,7 @@ export function useUserAddedTokenMapFromLs() {
 
     setUserAddedTokenMap(_useAddedTokenMap)
     setIsLoading(false)
-  }, [])
+  }, [setUserAddedTokenMap])
 
   useEffect(() => {
     refresh()
@@ -50,25 +53,20 @@ export function useUserAddedTokenMapFromLs() {
 export function useUserAddedTokensFromLs() {
   const { userAddedTokenMap, isLoading, refresh } = useUserAddedTokenMapFromLs()
 
-  return useMemo(
-    () => ({ userAddedTokens: userAddedTokenMap ? Object.values(userAddedTokenMap) : [], isLoading, refresh }),
-    [userAddedTokenMap, isLoading, refresh],
-  )
+  return { userAddedTokens: userAddedTokenMap ? Object.values(userAddedTokenMap) : [], isLoading, refresh }
 }
 
 export function useIsUserAddedTokenFromLs(token: Currency) {
   const { userAddedTokenMap, isLoading } = useUserAddedTokenMapFromLs()
 
-  return useMemo(() => {
-    if (token.isNative)
-      return {
-        isAdded: false,
-        isLoading: false,
-      }
-
+  if (token.isNative)
     return {
-      isAdded: !!userAddedTokenMap?.[token.address],
-      isLoading,
+      isAdded: false,
+      isLoading: false,
     }
-  }, [userAddedTokenMap])
+
+  return {
+    isAdded: !!userAddedTokenMap?.[token.wrapped.address],
+    isLoading,
+  }
 }
