@@ -133,7 +133,11 @@ export default function PoolTable({
           {openable && <col width="30px" />}
         </colgroup>
         <thead>
-          <tr className="text-on-surface-subtle bg-neutral text-xs">
+          <tr
+            className={clsx('text-on-surface-subtle bg-neutral text-xs', {
+              hidden: poolsData?.length === 0,
+            })}
+          >
             {HEADERS.map(({ title, sortBy: s, displayClassName }, index) => (
               <th
                 key={`poolTable:${s}`}

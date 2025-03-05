@@ -109,7 +109,11 @@ export default function TokenTable({
           <col width="*" />
         </colgroup>
         <thead>
-          <tr className="text-on-surface-subtle bg-neutral text-xs">
+          <tr
+            className={clsx('text-on-surface-subtle bg-neutral text-xs', {
+              hidden: tokensData?.length === 0,
+            })}
+          >
             {HEADERS.map(({ title, sortBy: s, displayClassName }, index) => (
               <th
                 key={`tokenTable:${title}`}

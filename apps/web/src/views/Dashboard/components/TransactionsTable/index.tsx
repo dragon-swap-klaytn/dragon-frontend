@@ -127,7 +127,11 @@ export default function TransactionTable({ transactions }: { transactions?: Over
           <col width="*" />
         </colgroup>
         <thead>
-          <tr className="text-on-surface-subtle bg-neutral text-xs">
+          <tr
+            className={clsx('text-on-surface-subtle bg-neutral text-xs', {
+              hidden: filteredTransactions?.length === 0,
+            })}
+          >
             {HEADERS.map(({ title, displayClassName }, index) => (
               <th
                 key={`txTable:${title}`}
