@@ -1,6 +1,7 @@
 import { Currency, Token } from '@pancakeswap/sdk'
-import { useIsTokenActive, useIsUserAddedToken } from 'hooks/Tokens'
+import { useIsTokenActive } from 'hooks/Tokens'
 import { CSSProperties } from 'react'
+import { useIsUserAddedTokenFromLs } from 'state/user/hooks/useUserAddedTokens'
 import ImportTokenRow from './ImportTokenRow'
 
 export default function ImportRow({
@@ -19,7 +20,7 @@ export default function ImportRow({
   className?: string
 }) {
   // check if already active on list or local storage tokens
-  const isAdded = useIsUserAddedToken(token)
+  const isAdded = useIsUserAddedTokenFromLs(token)
   const isActive = useIsTokenActive(token)
 
   return (

@@ -1,13 +1,10 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
 import { WrappedTokenInfo } from '@pancakeswap/token-lists'
-import { ButtonV2, CheckboxV2, ExternalLink, HelpIcon, Notification, useTooltip } from '@pancakeswap/uikit'
+import { ButtonV2, CheckboxV2, ExternalLink, Notification, useTooltip } from '@pancakeswap/uikit'
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { Warning } from '@phosphor-icons/react'
-import { useQuery } from '@tanstack/react-query'
-import { TOKEN_RISK } from 'components/AccessRisk'
-import { fetchRiskToken } from 'components/AccessRisk/utils/fetchTokenRisk'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useState } from 'react'
 import { useCombinedInactiveList } from 'state/lists/hooks'
@@ -28,19 +25,19 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
   // use for showing import source on inactive tokens
   const inactiveTokenList = useCombinedInactiveList()
 
-  const { data: hasRiskToken } = useQuery(
-    ['has-risks', tokens],
-    async () => {
-      const result = await Promise.all(tokens.map((token) => fetchRiskToken(token.address, token.chainId)))
-      return result.some((r) => r.riskLevel >= TOKEN_RISK.MEDIUM)
-    },
-    {
-      enabled: Boolean(tokens),
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-    },
-  )
+  // const { data: hasRiskToken } = useQuery(
+  //   ['has-risks', tokens],
+  //   async () => {
+  //     const result = await Promise.all(tokens.map((token) => fetchRiskToken(token.address, token.chainId)))
+  //     return result.some((r) => r.riskLevel >= TOKEN_RISK.MEDIUM)
+  //   },
+  //   {
+  //     enabled: Boolean(tokens),
+  //     refetchOnWindowFocus: false,
+  //     refetchOnReconnect: false,
+  //     refetchOnMount: false,
+  //   },
+  // )
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     t('I have read the scanning result, understood the risk and want to proceed with token importing.'),
@@ -120,12 +117,12 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
           labelClassName="text-on-surface"
         />
 
-        {hasRiskToken && (
+        {/* {hasRiskToken && (
           <div ref={targetRef}>
             <HelpIcon color="textSubtle" />
             {tooltipVisible && tooltip}
           </div>
-        )}
+        )} */}
       </div>
 
       <ButtonV2
@@ -151,7 +148,8 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
         }}
         fullWidth
       >
-        {hasRiskToken ? t('Proceed') : t('Import')}
+        {/* {hasRiskToken ? t('Proceed') : t('Import')} */}
+        {t('Import')}
       </ButtonV2>
     </div>
   )

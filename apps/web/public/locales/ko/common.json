@@ -80,8 +80,8 @@
   "Claim Position Fees": "포지션 수수료 수령",
   "Claim": "수령",
   "Claim Boost Rewards & Fees": "부스팅 보상 및 수수료 수령",
-  "1. claim rewards & fees": "1. 보상 및 수수료 수령",
-  "2. withdraw RKLAY to KAIA": "2. RKLAY를 KAIA로 출금",
+  "claim rewards & fees": "보상 및 수수료 수령",
+  "unwrap RKLAY to KAIA": "RKLAY를 KAIA로 변환",
   "Waiting For Confirmation": "확인 대기 중",
   "claim rewards and fees": "보상 및 수수료 수령",
   "Confirm this transaction in your wallet": "지갑에서 이 거래를 확인하세요.",
@@ -163,6 +163,7 @@
   "Enabled": "활성화됨",
   "Wrap": "래핑",
   "Unwrap": "언래핑",
+  "Unwrap to KAIA": "KAIA로 변환",
   "Unexpected issue with estimating the gas. Please try again.": "가스 추정 중 예기치 않은 문제가 발생했습니다. 다시 시도하세요.",
   "Bonus Route": "보너스 경로",
   "Swap Anyway": "어쨌든 스왑",
@@ -418,5 +419,14 @@
   "Enter a valid slippage percentage": "유효한 슬리피지 퍼센티지를 입력하세요",
   "Your transaction may fail": "거래가 실패할 수 있습니다",
   "Your transaction may be frontrun": "거래가 프론트런될 가능성이 있습니다",
-  "Claimed": "수령됨"
+  "Claimed": "수령됨",
+
+  "Select a Token": "토큰 선택",
+  "Recent tokens": "최근 토큰",
+  "Manage Tokens": "토큰 관리",
+  "Imported Token": "가져온 토큰",
+  "Imported Tokens": "가져온 토큰",
+  "RKAIA Balances": "보유중인 RKAIA",
+  "This swap has a price impact of at least {{amount}}%. Please type the word \"%word%\" to continue with this swap.": "이 스왑은 {{amount}}% 이상의 가격 영향이 있습니다. 이 스왑을 계속하려면 \"%word%\" 단어를 입력하세요.",
+  "This swap has a price impact of at least {{amount}}%. Please confirm that you would like to continue with this swap.": "이 스왑은 {{amount}}% 이상의 가격 영향이 있습니다. 이 스왑을 계속하려면 확인하세요."
 }

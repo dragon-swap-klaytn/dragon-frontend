@@ -1,6 +1,8 @@
 import { SerializedWrappedToken } from '@pancakeswap/token-lists'
 import { createReducer } from '@reduxjs/toolkit'
+import { LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
 import omitBy from 'lodash/omitBy'
+import { Address } from 'viem'
 import { DEFAULT_DEADLINE_FROM_NOW } from '../../config/constants'
 import { updateVersion } from '../global/actions'
 import { GAS_PRICE_GWEI } from '../types'
@@ -92,6 +94,10 @@ export const initialState: UserState = {
   hideTimestampPhishingWarningBanner: null,
 }
 
+export type UserAddedTokenMap = {
+  [address: Address]: SerializedWrappedToken
+}
+
 export default createReducer(initialState, (builder) =>
   builder
     .addCase(updateVersion, (state) => {
@@ -115,6 +121,14 @@ export default createReducer(initialState, (builder) =>
       }
       state.tokens[serializedToken.chainId] = state.tokens[serializedToken.chainId] || {}
       state.tokens[serializedToken.chainId][serializedToken.address] = serializedToken
+
+      // use localstorage to remove redux persist dependency
+      const userAddedTokensFromLs = JSON.parse(
+        localStorage.getItem(LOCAL_STORAGE_KEYS.userAddedTokenMap) ?? '{}',
+      ) as UserAddedTokenMap
+
+      userAddedTokensFromLs[serializedToken.address.toLowerCase()] = serializedToken
+      localStorage.setItem(LOCAL_STORAGE_KEYS.userAddedTokenMap, JSON.stringify(userAddedTokensFromLs))
     })
     .addCase(removeSerializedToken, (state, { payload: { address, chainId } }) => {
       if (!state.tokens) {
@@ -125,6 +139,14 @@ export default createReducer(initialState, (builder) =>
       } else {
         state.tokens[chainId] = {}
       }
+
+      // use localstorage to remove redux persist dependency
+      const userAddedTokensFromLs = JSON.parse(
+        localStorage.getItem(LOCAL_STORAGE_KEYS.userAddedTokenMap) ?? '{}',
+      ) as UserAddedTokenMap
+
+      delete userAddedTokensFromLs[address.toLowerCase()]
+      localStorage.setItem(LOCAL_STORAGE_KEYS.userAddedTokenMap, JSON.stringify(userAddedTokensFromLs))
     })
     .addCase(addSerializedPair, (state, { payload: { serializedPair } }) => {
       if (

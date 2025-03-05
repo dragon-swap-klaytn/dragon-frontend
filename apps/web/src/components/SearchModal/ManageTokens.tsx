@@ -4,11 +4,11 @@ import { ERC20Token, Token } from '@pancakeswap/sdk'
 import { ButtonV2, CurrencyLogoWithSymbol, SearchBar } from '@pancakeswap/uikit'
 import { TrashSimple } from '@phosphor-icons/react'
 import ImportRow from 'components/SearchModal/ImportRow'
-import { useTokens } from 'hooks/Tokens'
+import { useTokenMap, useTokens } from 'hooks/Tokens'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { RefObject, useCallback, useMemo, useRef, useState } from 'react'
 import { useRemoveUserAddedToken } from 'state/user/hooks'
-import useUserAddedTokens from 'state/user/hooks/useUserAddedTokens'
+import { useUserAddedTokensFromLs } from 'state/user/hooks/useUserAddedTokens'
 import { safeGetAddress } from 'utils'
 import { CurrencyModalView } from './types'
 
@@ -23,6 +23,8 @@ export default function ManageTokens({
 
   const { t } = useTranslation()
 
+  const { tokenMap: poolOnlyTokenMap } = useTokenMap({ poolOnly: true })
+
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const searchTokens = useTokens(debouncedQuery)
@@ -36,18 +38,30 @@ export default function ManageTokens({
   }, [])
 
   // all tokens for local list
-  const userAddedTokens = useUserAddedTokens()
+  const { userAddedTokens, refresh } = useUserAddedTokensFromLs()
   const removeToken = useRemoveUserAddedToken()
 
+  const removeTokenHandler = useCallback(
+    (token: Token) => {
+      removeToken(chainId, token.address)
+      refresh()
+    },
+    [chainId, removeToken, refresh],
+  )
+
   const handleRemoveAll = useCallback(() => {
-    if (chainId && userAddedTokens) {
-      userAddedTokens.forEach((token) => {
-        return removeToken(chainId, token.address)
-      })
-    }
-  }, [removeToken, userAddedTokens, chainId])
+    if (!chainId) return
+
+    userAddedTokens.forEach((token) => {
+      return removeToken(chainId, token.address)
+    })
+
+    refresh()
+  }, [removeToken, userAddedTokens, chainId, refresh])
 
   const searchedUserAddedTokens = useMemo(() => {
+    if (!userAddedTokens) return []
+
     return userAddedTokens
       .filter(
         (token) =>
@@ -62,10 +76,13 @@ export default function ManageTokens({
   }, [userAddedTokens, searchQuery])
 
   const unimportedTokens = useMemo(() => {
+    if (!poolOnlyTokenMap || !searchTokens) return []
+
     return (
       searchTokens
         ?.filter(
           (token) =>
+            !poolOnlyTokenMap[token.address.toLowerCase()] &&
             !userAddedTokens.find((addedToken) => addedToken.address.toLowerCase() === token.address.toLowerCase()),
         )
         .map((token) => ({
@@ -83,16 +100,12 @@ export default function ManageTokens({
         {[...unimportedTokens, ...searchedUserAddedTokens].map((token) =>
           token.isAdded ? (
             <div key={token.address} className="flex items-center space-x-2 justify-between w-full py-2">
-              <button
-                type="button"
-                className="flex items-center space-x-2 hover:opacity-70 w-full justify-between"
-                onClick={() => removeToken(chainId, token.address)}
-              >
-                <div className="flex items-center space-x-2">
-                  <CurrencyLogoWithSymbol addressA={token.address} symbol={token.symbol} />
-                  <span className="text-gray-400 text-xs">{token.name}</span>
-                </div>
+              <div className="flex items-center space-x-2">
+                <CurrencyLogoWithSymbol addressA={token.address} symbol={token.symbol} />
+                <span className="text-gray-400 text-xs">{token.name}</span>
+              </div>
 
+              <button type="button" className="hover:opacity-70" onClick={() => removeTokenHandler(token)}>
                 <TrashSimple size={16} className="text-gray-200" />
               </button>
             </div>

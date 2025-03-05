@@ -9,8 +9,9 @@ import useNativeCurrency from 'hooks/useNativeCurrency'
 import useRecentSelectedCurrencies from 'hooks/useRecentSelectedCurrencies'
 import useTokenPrices from 'hooks/useTokenPrices'
 import { useCallback, useMemo } from 'react'
+import { useIsUserAddedTokenFromLs } from 'state/user/hooks/useUserAddedTokens'
 import { useAccount, useBalance } from 'wagmi'
-import { useIsTokenActive, useIsUserAddedToken } from '../../hooks/Tokens'
+import { useIsTokenActive } from '../../hooks/Tokens'
 import { useTokenBalancesWithLoading } from '../../state/wallet/hooks'
 
 function CurrencyRow({
@@ -34,7 +35,7 @@ function CurrencyRow({
   const { t } = useTranslation()
   const { currency, amount, value } = currencyWithValue
 
-  const isAdded = useIsUserAddedToken(currency)
+  const isAdded = useIsUserAddedTokenFromLs(currency)
   const isActive = useIsTokenActive(currency)
   const needToImport = useMemo(() => !isAdded && !isActive, [isAdded, isActive])
 
@@ -208,7 +209,7 @@ export default function CurrencyList({
   )
 
   return (
-    <div className="flex flex-col overflow-y-auto max-h-[400px] space-y-1">
+    <div className="flex flex-col overflow-y-auto max-h-[350px] space-y-1">
       {currenciesWithValue ? (
         currenciesWithValue.map((_, index) => Row({ index }))
       ) : (

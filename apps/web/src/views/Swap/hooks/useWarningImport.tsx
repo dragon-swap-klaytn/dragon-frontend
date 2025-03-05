@@ -11,7 +11,7 @@ import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 
-import useUserAddedTokens from 'state/user/hooks/useUserAddedTokens'
+import { useUserAddedTokenMapFromLs } from 'state/user/hooks/useUserAddedTokens'
 import SwapWarningModal from '../components/SwapWarningModal'
 
 export default function useWarningImport() {
@@ -34,19 +34,19 @@ export default function useWarningImport() {
   )
 
   const { tokenMap: poolOnlyTokenMap } = useTokenMap({ poolOnly: true })
-  const userAddedTokens = useUserAddedTokens()
+  const userAddedTokenMap = useUserAddedTokenMapFromLs()
 
   const needToImportTokens = useMemo(() => {
-    return poolOnlyTokenMap && !isWrongNetwork && userAddedTokens
+    return poolOnlyTokenMap && !isWrongNetwork && userAddedTokenMap
       ? urlLoadedTokens.filter((token: Token) => {
           return (
             !poolOnlyTokenMap[token.address] &&
-            !userAddedTokens.find((t) => t.equals(token)) &&
+            !userAddedTokenMap[token.address.toLowerCase()] &&
             token.chainId === chainId
           )
         })
       : []
-  }, [chainId, poolOnlyTokenMap, isWrongNetwork, userAddedTokens, urlLoadedTokens])
+  }, [chainId, poolOnlyTokenMap, isWrongNetwork, userAddedTokenMap, urlLoadedTokens])
 
   const [onPresentSwapWarningModal] = useModal(<SwapWarningModal swapCurrency={swapWarningCurrency} />, false)
   const [onPresentImportTokenWarningModal] = useModal(

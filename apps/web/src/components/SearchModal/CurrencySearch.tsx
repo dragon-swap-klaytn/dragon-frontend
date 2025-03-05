@@ -97,7 +97,7 @@ function CurrencySearch({
 
   const getCurrencyListRows = useCallback(() => {
     return !sortedTokens ? (
-      <div className="min-h-[400px] flex items-center justify-center">
+      <div className="min-h-[350px] flex items-center justify-center">
         <Spinner />
       </div>
     ) : sortedTokens.length > 0 ? (

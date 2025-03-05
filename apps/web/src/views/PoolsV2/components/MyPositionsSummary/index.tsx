@@ -12,9 +12,15 @@ type MyPositionsSummaryProps = {
   portfolio?: Portfolio
   invalidatePortflio?: () => void
   onMyPositionsClick?: () => void
+  onClaimed?: () => void
 }
 
-export function MyPositionsSummary({ portfolio, invalidatePortflio, onMyPositionsClick }: MyPositionsSummaryProps) {
+export function MyPositionsSummary({
+  portfolio,
+  invalidatePortflio,
+  onMyPositionsClick,
+  onClaimed,
+}: MyPositionsSummaryProps) {
   const { t } = useTranslation()
 
   const { prices } = useTokenPrices()
@@ -33,6 +39,7 @@ export function MyPositionsSummary({ portfolio, invalidatePortflio, onMyPosition
     priceMap: mergedPrices,
     portfolio,
     invalidatePortflio,
+    onClaimed,
   })
 
   const { positionCount, tvlUSD, unclaimedFeeUSD, unclaimedRewardAndFeeUSD } = useMemo(() => {

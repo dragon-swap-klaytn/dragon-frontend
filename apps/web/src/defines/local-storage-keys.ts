@@ -7,6 +7,7 @@ export const LOCAL_STORAGE_KEYS = {
   expertMode: 'expert-mode',
   customizingRoute: 'customizing-route',
   recentTransactions: 'recent-transactions',
+  userAddedTokenMap: 'user-added-token-map',
 }
 
 export const DEFAULT_LOCAL_STORAGE_DATA = {

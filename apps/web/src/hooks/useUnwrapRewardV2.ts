@@ -1,7 +1,10 @@
+import { ChainId } from '@pancakeswap/chains'
 import { Token } from '@pancakeswap/swap-sdk-core'
+import { CAKE } from '@pancakeswap/tokens'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import { useWNativeContract } from 'hooks/useContract'
 import useNativeCurrency from 'hooks/useNativeCurrency'
+import useTokenBalance from 'hooks/useTokenBalance'
 import { useTranslation } from 'next-i18next'
 import { useCallback, useState } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -55,6 +58,36 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
     [nativeInfo, rewardToken, wNativeContract, callWithGasPrice, addTransaction, onDone],
   )
 
+  const cake = CAKE[ChainId.KLAYTN]
+  const { balance } = useTokenBalance(cake.address)
+
+  const unwrapAllReward = useCallback(async () => {
+    setInflight(true)
+
+    const balanceStr = balance.div(10 ** cake.decimals).toFixed(6)
+
+    try {
+      const txReceipt = await callWithGasPrice(wNativeContract, 'withdraw', [balance])
+      onDone?.(txReceipt)
+
+      addTransaction(txReceipt, {
+        type: 'unwrap',
+        summary: `Unwrap ${balanceStr} ${rewardToken.symbol} to ${nativeInfo.symbol}`,
+        translatableSummary: {
+          text: 'Unwrap {{amount}} {{wrap}} to {{native}}',
+          data: { amount: balanceStr, wrap: rewardToken.symbol, native: nativeInfo.symbol },
+        },
+      })
+
+      return true
+    } catch (e) {
+      console.error('Could not unwrap', e)
+      return false
+    } finally {
+      setInflight(false)
+    }
+  }, [nativeInfo, rewardToken, wNativeContract, callWithGasPrice, addTransaction, onDone, balance])
+
   const onAlert = useCallback(
     async (reward: number) => {
       const alertText = t(`Are you convert RKAIA reward({{reward}}) to KAIA now?`, {
@@ -83,6 +116,7 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
 
   return {
     unwrapReward,
+    unwrapAllReward,
     onAlert,
     inflight,
   }

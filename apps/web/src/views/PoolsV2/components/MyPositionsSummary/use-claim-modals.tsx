@@ -36,9 +36,10 @@ type UseClaimModalsProps = {
   priceMap: Record<string, number>
   portfolio?: Portfolio
   invalidatePortflio?: () => void
+  onClaimed?: () => void
 }
 
-export default function useClaimModals({ priceMap, portfolio, invalidatePortflio }: UseClaimModalsProps) {
+export default function useClaimModals({ priceMap, portfolio, invalidatePortflio, onClaimed }: UseClaimModalsProps) {
   const { t } = useTranslation()
 
   const { address: account } = useAccount()
@@ -60,7 +61,10 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
 
   const { unwrapReward, inflight: unwrappingInflight } = useUnwrapRewardV2({
     rewardToken,
-    onDone: (tx: SendTransactionResult) => setCollectMigrationHash(tx.hash),
+    onDone: (tx: SendTransactionResult) => {
+      setCollectMigrationHash(tx.hash)
+      onClaimed?.()
+    },
   })
 
   const positions = useMemo<{ staked: PositionV3[]; unstaked: PositionV3[]; rewardClaimable: boolean }>(() => {
@@ -167,6 +171,8 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     if (invalidatePortflio) {
       invalidatePortflio()
     }
+
+    onClaimed?.()
   }, [
     positions.unstaked,
     tokenMap,
@@ -300,6 +306,8 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
         setClaimStep(2)
       }
     }
+
+    onClaimed?.()
   }, [
     positions.staked,
     account,
@@ -337,7 +345,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
               fullWidth
               onClick={claimStep === 1 ? claimStakedFeesAndRewards : () => unwrapReward(rewardAmountToCollect)}
             >
-              {claimStep === 1 ? t('Claim') : t('Withdraw')}
+              {claimStep === 1 ? t('Claim') : t('Unwrap to KAIA')}
             </ButtonV2>
           }
         />
@@ -590,7 +598,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
                 'text-on-surface': claimStep < 2,
               })}
             >
-              2. {t('withdraw RKLAY to KAIA')}
+              2. {t('unwrap RKLAY to KAIA')}
             </span>
           </div>
         </div>

@@ -10,7 +10,7 @@ import useSWR from 'swr'
 import { safeGetAddress } from 'utils'
 import { Address } from 'viem'
 import { useToken as useToken_ } from 'wagmi'
-import useUserAddedTokens from '../state/user/hooks/useUserAddedTokens'
+import useUserAddedTokens, { useUserAddedTokensFromLs } from '../state/user/hooks/useUserAddedTokens'
 import { useActiveChainId } from './useActiveChainId'
 import useNativeCurrency from './useNativeCurrency'
 
@@ -28,7 +28,7 @@ const mapWithoutUrls = (tokenMap?: TokenAddressMap<ChainId>, chainId?: number) =
 }
 
 export function useTokenMap({ skip = false, poolOnly = false }: { skip?: boolean; poolOnly?: boolean } = {}) {
-  const userAddedTokens = useUserAddedTokens()
+  const { userAddedTokens } = useUserAddedTokensFromLs()
 
   const { data: fetchedTokenMap, error } = useSWR(
     !skip ? `/api/tokens/${poolOnly}` : null,
