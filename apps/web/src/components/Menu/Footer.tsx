@@ -19,7 +19,7 @@ const EXTERNAL_LINKS = [
   {
     id: 'telegram',
     icon: <TelegramLogo />,
-    href: 'https://t.me/DragonSwap_COMM',
+    href: 'https://t.me/DragonSwap_ANN',
   },
   {
     id: 'medium',
@@ -108,7 +108,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <p className="text-sm text-on-surface-subtlest py-4 border-t border-border mt-20">Ⓒ2025 - present Dragonswap</p>
+      <p className="text-sm text-on-surface-subtlest py-4 border-t border-border mt-20">Ⓒ2024 - present DragonSwap</p>
     </div>
   )
 }
