@@ -387,7 +387,6 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   }
 
   const noRoute = !((trade?.routes?.length ?? 0) > 0) || tradeError
-
   const userHasSpecifiedInputOutput = Boolean(
     inputCurrency && outputCurrency && parsedIndepentFieldAmount?.greaterThan(BIG_INT_ZERO),
   )
@@ -429,7 +428,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
               </ModalV2>
             </div>
           </Notification>
-        ) : inputCurrencyFilteredBySs && outputCurrencyFilteredBySs ? (
+        ) : tradeError && inputCurrencyFilteredBySs && outputCurrencyFilteredBySs ? (
           <Notification variant="positive" nStyle="default">
             <div className="flex flex-col">
               <p className="break-keep">
