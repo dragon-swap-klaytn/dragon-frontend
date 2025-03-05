@@ -430,6 +430,7 @@
   "Imported Token": "가져온 토큰",
   "Imported Tokens": "가져온 토큰",
   "RKAIA Balances": "보유중인 RKAIA",
+  "WKAIA Balances": "보유중인 WKAIA",
   "This swap has a price impact of at least {{amount}}%. Please type the word \"%word%\" to continue with this swap.": "이 스왑은 {{amount}}% 이상의 가격 영향이 있습니다. 이 스왑을 계속하려면 \"%word%\" 단어를 입력하세요.",
   "This swap has a price impact of at least {{amount}}%. Please confirm that you would like to continue with this swap.": "이 스왑은 {{amount}}% 이상의 가격 영향이 있습니다. 이 스왑을 계속하려면 확인하세요."
 }

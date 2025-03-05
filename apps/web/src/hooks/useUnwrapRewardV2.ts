@@ -1,6 +1,4 @@
-import { ChainId } from '@pancakeswap/chains'
 import { Token } from '@pancakeswap/swap-sdk-core'
-import { CAKE } from '@pancakeswap/tokens'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import { useWNativeContract } from 'hooks/useContract'
 import useNativeCurrency from 'hooks/useNativeCurrency'
@@ -58,13 +56,11 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
     [nativeInfo, rewardToken, wNativeContract, callWithGasPrice, addTransaction, onDone],
   )
 
-  const cake = CAKE[ChainId.KLAYTN]
-  const { balance } = useTokenBalance(cake.address)
-
+  const { balance } = useTokenBalance(rewardToken.address)
   const unwrapAllReward = useCallback(async () => {
     setInflight(true)
 
-    const balanceStr = balance.div(10 ** cake.decimals).toFixed(6)
+    const balanceStr = balance.div(10 ** rewardToken.decimals).toFixed(6)
 
     try {
       const txReceipt = await callWithGasPrice(wNativeContract, 'withdraw', [balance])

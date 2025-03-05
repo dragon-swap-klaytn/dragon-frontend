@@ -1,5 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
+import { WNATIVE } from '@pancakeswap/sdk'
 import { CAKE } from '@pancakeswap/tokens'
 import { ButtonV2, Chip, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
@@ -8,7 +9,7 @@ import usePortfolio from 'hooks/usePortfolio'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useUnwrapRewardV2 } from 'hooks/useUnwrapRewardV2'
 import NextLink from 'next/link'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { PoolType } from 'types'
 import { getDefaultStaticProps } from 'utils/pageUtils'
 import { Address } from 'viem'
@@ -33,14 +34,29 @@ const PoolsPage = () => {
   const [poolTypeOptions, setPoolTypeOptions] = useState(poolTypeSelectorOptions)
 
   const cake = CAKE[ChainId.KLAYTN]
-  const { balance, refetch } = useTokenBalance(cake.address)
+  const { balance: cakeBalance, refetch: refetchCakeBalance } = useTokenBalance(cake.address)
 
   const { unwrapAllReward } = useUnwrapRewardV2({
     rewardToken: cake,
     onDone: () => {
-      refetch()
+      refetchCakeBalance()
     },
   })
+
+  const wNative = WNATIVE[ChainId.KLAYTN]
+  const { balance: wNativeBalance, refetch: refetchWNative } = useTokenBalance(wNative.address)
+
+  const { unwrapAllReward: unwrapAllWNative } = useUnwrapRewardV2({
+    rewardToken: wNative,
+    onDone: () => {
+      refetchWNative()
+    },
+  })
+
+  const refetchHandler = useCallback(() => {
+    refetchCakeBalance()
+    refetchWNative()
+  }, [refetchCakeBalance, refetchWNative])
 
   const momoizedParams = useMemo(() => {
     return {
@@ -84,23 +100,34 @@ const PoolsPage = () => {
               }}
               portfolio={portfolio}
               invalidatePortflio={() => mutatePortfolio()}
-              onClaimed={refetch}
+              onClaimed={refetchHandler}
             />
           )}
         </div>
 
-        {!balance.isZero() && (
+        {!wNativeBalance.isZero() && (
+          <div className="flex items-center justify-end w-full space-x-2 mt-2">
+            <span className="text-sm text-right text-on-surface-subtle">
+              {t('WKAIA Balances')}:{' '}
+              {wNativeBalance
+                .div(10 ** wNative.decimals)
+                .precision(6)
+                .toString()}
+            </span>
+            <UnwrapButton onClick={unwrapAllWNative} />
+          </div>
+        )}
+
+        {!cakeBalance.isZero() && (
           <div className="flex items-center justify-end w-full space-x-2 mt-2">
             <span className="text-sm text-right text-on-surface-subtle">
               {t('RKAIA Balances')}:{' '}
-              {balance
+              {cakeBalance
                 .div(10 ** cake.decimals)
                 .precision(6)
                 .toString()}
             </span>
-            <ButtonV2 variant="primary" scale="xs" onClick={unwrapAllReward}>
-              {t('Unwrap to KAIA')}
-            </ButtonV2>
+            <UnwrapButton onClick={unwrapAllReward} />
           </div>
         )}
       </div>
@@ -169,3 +196,17 @@ const PoolsPage = () => {
 export default PoolsPage
 
 export const getStaticProps = getDefaultStaticProps(['common'])
+
+function UnwrapButton({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation()
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="bg-brand-subtle text-on-surface-brand-subtle text-xs h-6 px-2 rounded-xl hover:opacity-70"
+    >
+      {t('Unwrap to KAIA')}
+    </button>
+  )
+}

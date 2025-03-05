@@ -43,6 +43,7 @@ module.exports = {
           DEFAULT: '#f97316',
           hovered: '#ea580c',
           pressed: '#c2410c',
+          subtle: '#F973161A',
         },
         background: '#3f3f46',
         neutral: {
