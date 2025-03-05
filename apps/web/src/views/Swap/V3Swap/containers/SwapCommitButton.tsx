@@ -201,7 +201,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
         t,
       )
     ) {
-      return undefined
+      throw new TransactionRejectedError()
     }
     if (!swapCallback) {
       if (revertReason === 'insufficient allowance') {
