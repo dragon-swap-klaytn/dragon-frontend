@@ -60,7 +60,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
           <SwapModalFooterTitle title={t('Price')} />
 
           <div className="flex items-center space-x-2 text-sm">
-            <span>{executionPriceDisplay}</span>
+            <span className="whitespace-nowrap">{executionPriceDisplay}</span>
 
             <button type="button" onClick={() => setShowInverted(!showInverted)}>
               <ArrowsLeftRight size={16} />
@@ -86,7 +86,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
             )}
           />
 
-          <div className="flex items-center space-x-1 text-sm">
+          <div className="flex items-center space-x-1 text-sm whitespace-nowrap">
             <span>
               {tradeType === TradeType.EXACT_INPUT
                 ? formatAmount(slippageAdjustedAmounts[Field.OUTPUT], 4) ?? '-'
@@ -127,7 +127,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
           />
 
           {realizedLPFee ? (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 whitespace-nowrap">
               <span className="text-sm">{`${formatAmount(realizedLPFee, 6)} ${inputAmount.currency.symbol}`}</span>
 
               <CurrencyLogo currency={currencyBalances.INPUT?.currency ?? inputAmount.currency} size={24} />
@@ -154,7 +154,7 @@ export const SwapModalFooter = memo(function SwapModalFooter({
 })
 
 function SwapModalFooterContainer({ children }: PropsWithChildren) {
-  return <div className="flex items-center justify-between">{children}</div>
+  return <div className="flex items-center justify-between space-x-2 overflow-x-auto">{children}</div>
 }
 
 function SwapModalFooterTitle({ title, questionHelperText }: { title: string; questionHelperText?: ReactNode }) {

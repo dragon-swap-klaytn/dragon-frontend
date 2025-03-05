@@ -1,8 +1,12 @@
+import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
+import { CAKE } from '@pancakeswap/tokens'
 import { ButtonV2, Chip, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import Page from 'components/Layout/Page'
 import usePortfolio from 'hooks/usePortfolio'
+import useTokenBalance from 'hooks/useTokenBalance'
+import { useUnwrapRewardV2 } from 'hooks/useUnwrapRewardV2'
 import NextLink from 'next/link'
 import { useMemo, useState } from 'react'
 import { PoolType } from 'types'
@@ -27,6 +31,16 @@ const PoolsPage = () => {
   const [searchKey, setSearchKey] = useState('')
   const [myPositionOnly, setMyPositionOnly] = useState(false)
   const [poolTypeOptions, setPoolTypeOptions] = useState(poolTypeSelectorOptions)
+
+  const cake = CAKE[ChainId.KLAYTN]
+  const { balance, refetch } = useTokenBalance(cake.address)
+
+  const { unwrapAllReward } = useUnwrapRewardV2({
+    rewardToken: cake,
+    onDone: () => {
+      refetch()
+    },
+  })
 
   const momoizedParams = useMemo(() => {
     return {
@@ -70,9 +84,25 @@ const PoolsPage = () => {
               }}
               portfolio={portfolio}
               invalidatePortflio={() => mutatePortfolio()}
+              onClaimed={refetch}
             />
           )}
         </div>
+
+        {!balance.isZero() && (
+          <div className="flex items-center justify-end w-full space-x-2 mt-2">
+            <span className="text-sm text-right text-on-surface-subtle">
+              {t('RKAIA Balances')}:{' '}
+              {balance
+                .div(10 ** cake.decimals)
+                .precision(6)
+                .toString()}
+            </span>
+            <ButtonV2 variant="primary" scale="xs" onClick={unwrapAllReward}>
+              {t('Unwrap to KAIA')}
+            </ButtonV2>
+          </div>
+        )}
       </div>
 
       {/* All Pools Section */}
