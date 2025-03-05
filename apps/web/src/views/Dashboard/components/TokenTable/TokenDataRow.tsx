@@ -66,10 +66,11 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
         </div>
       </td>
       <td className="text-on-surface px-4 py-6 text-left">
-        <div className="inline-flex items-center space-x-1">
-          <span>$</span>
-          <TokenRate rate={tokenData.priceUSD.current} hiddenDigitClassName="text-[9px] font-normal leading-none" />
-        </div>
+        <TokenRate
+          prefix="$"
+          rate={tokenData.priceUSD.current}
+          hiddenDigitClassName="text-[9px] font-normal leading-none"
+        />
       </td>
       <td className="text-on-surface px-4 py-6 text-left">
         <Percent value={(tokenData.priceUSD['24H'] / tokenData.priceUSD.current) * 100} />
