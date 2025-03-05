@@ -191,8 +191,8 @@ function bestTradeHookFactory({
       queryKey: [
         key,
         currency?.chainId,
-        amount?.currency?.symbol,
-        currency?.symbol,
+        amount?.currency?.wrapped.address,
+        currency?.wrapped.address,
         tradeType,
         deferQuotient,
         maxHops,
