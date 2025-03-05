@@ -9,6 +9,7 @@ import { useGetRemovedTokenAmounts } from 'views/RemoveLiquidity/RemoveStableLiq
 import { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
 import { useAccount } from 'wagmi'
 
+import { useRouter } from 'next/router'
 import { useLPApr } from 'state/swap/useLPApr'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
@@ -123,6 +124,7 @@ function MinimalPositionCardView({
   userPoolBalance,
   poolTokenPercentage,
 }: PositionCardProps) {
+  const { locale } = useRouter()
   const isStableLP = useContext(StableConfigContext)
 
   const { t } = useTranslation()
@@ -201,7 +203,13 @@ function MinimalPositionCardView({
                 'By adding liquidity, you’ll earn 50% from the fees of all trades on this pair, proportional to your share in the trading pair. Fees are added to the pair, accrue in real time, and can be claimed by withdrawing your liquidity. For more information on Stableswap fees click',
               )}
 
-              <ExternalLink href="https://docs.dgswap.io/products/stableswap#stableswap-fees" className="ml-1" hideIcon>
+              <ExternalLink
+                href={
+                  locale === 'ko' ? 'https://docs.dgswap.io/ko/services/fees' : 'https://docs.dgswap.io/services/fees'
+                }
+                className="ml-1"
+                hideIcon
+              >
                 {t('here.')}
               </ExternalLink>
             </>

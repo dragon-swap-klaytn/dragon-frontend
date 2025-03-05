@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import { CoingeckoLogo, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from 'components/Vector'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/router'
 
 const EXTERNAL_LINKS = [
   {
@@ -46,6 +47,8 @@ export function ExternalLinks({ className }: { className?: string }) {
 
 export default function Footer() {
   const pathName = usePathname()
+  const { locale } = useRouter()
+
   return (
     <div
       className={clsx('px-4 md:px-[60px] py-10 bg-transparent w-full max-w-layout mx-auto', {
@@ -75,7 +78,11 @@ export default function Footer() {
             <h4 className="font-bold text-on-surface">Support</h4>
 
             <a
-              href="mailto:contact@dgswap.io"
+              href={
+                locale === 'ko'
+                  ? 'https://docs.dgswap.io/ko/community/contact-us'
+                  : 'https://docs.dgswap.io/community/contact-us'
+              }
               target="_blank"
               rel="noreferrer noopener"
               className="text-on-surface-subtlest hover:opacity-70"
@@ -85,9 +92,8 @@ export default function Footer() {
           </div>
           <div className="flex flex-col items-start space-y-5">
             <h4 className="font-bold text-on-surface">About</h4>
-            {/* TODO: add ko docs */}
             <a
-              href="https://docs.dgswap.io/"
+              href={locale === 'ko' ? 'https://docs.dgswap.io/ko' : 'https://docs.dgswap.io'}
               target="_blank"
               rel="noreferrer noopener"
               className="text-on-surface-subtlest hover:opacity-70"

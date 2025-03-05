@@ -64,7 +64,7 @@ export const ApproveStepFlow: React.FC<React.PropsWithChildren<ApproveStepFlowPr
             </ExternalLink>
           )}
           {confirmModalState === ConfirmModalState.APPROVING_TOKEN && (
-            <ExternalLink href="https://docs.dgswap.io/products/how-to-trade" className="text-on-surface">
+            <ExternalLink href="https://docs.dgswap.io/products/swap" className="text-on-surface">
               <span>{t('Why')}</span>&nbsp;
               <span ref={targetRef} className="font-bold">
                 &nbsp;
