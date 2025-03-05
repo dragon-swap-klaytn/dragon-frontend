@@ -2,6 +2,7 @@ import useSWR from 'swr'
 import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import { PoolType } from 'types'
 import { SortDirection } from 'views/Dashboard/types'
+import { wkaiaToKaia } from 'views/Dashboard/utils/wkaiaToKaia'
 
 export const TOKENS_SORT_BY_LIST = ['priceChange24H', 'priceChange7D', 'volume24H', 'volume7D', 'tvl'] as const
 export type TokensSortBy = (typeof TOKENS_SORT_BY_LIST)[number]
@@ -68,7 +69,7 @@ export default function useTokensData(
   )
 
   return {
-    tokensData: data?.tokens,
+    tokensData: data?.tokens ? data.tokens.map(wkaiaToKaia) : undefined,
     totalPage: data?.totalPage,
     error,
     isLoading,

@@ -3,6 +3,7 @@ import { PoolParsed } from 'pages/api/pools'
 import useSWR from 'swr'
 import { PoolType } from 'types'
 import { SortDirection } from 'views/Dashboard/types'
+import { wkaiaToKaia } from 'views/Dashboard/utils/wkaiaToKaia'
 
 function buildSearchParams({
   poolTypes,
@@ -100,7 +101,13 @@ export default function usePools(
   )
 
   return {
-    poolsData: data?.pools,
+    poolsData: data?.pools
+      ? data.pools.map((p) => ({
+          ...p,
+          token0: wkaiaToKaia(p.token0),
+          token1: wkaiaToKaia(p.token1),
+        }))
+      : undefined,
     totalPage: data?.totalPage,
     poolsDataloading: !data && !error,
   }
