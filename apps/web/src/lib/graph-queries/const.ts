@@ -15,6 +15,7 @@ export const MIN_POOL_TVL_USD = 10
 export const MIN_TOKEN_TVL_USD = 10
 
 export const WKLAY_ADDRESS = '0x19aac5f612f524b754ca7e7c41cbfa2e981a4432' as Address
+export const WGCKLAY_ADDRESS = '0xa9999999c3d05fb75ce7230e0d22f5625527d583' as Address
 const USDT_ADDRESSES = {
   portal: '0x5c13e303a62fc5dedf5b52d66873f2e59fedadc2' as Address,
   synapse: '0xd6dab4cff47df175349e6e7ee2bf7c40bb8c05a3' as Address,
@@ -46,6 +47,10 @@ export const tokensToBeOverridden: Record<
   [WKLAY_ADDRESS]: {
     symbol: () => 'WKAIA',
     name: () => 'Wrapped Kaia',
+  },
+  [WGCKLAY_ADDRESS]: {
+    symbol: () => 'wGCKAIA',
+    name: () => 'Wrapped Governance Council Kaia',
   },
   [USDT_ADDRESSES.portal]: {
     name: (v) => `${v} (Portal Bridge)`,
