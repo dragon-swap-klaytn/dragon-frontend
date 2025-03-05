@@ -4,20 +4,12 @@
   "description": "Last of Klaytn and First of Project Dragon DEX",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#1FC7D4",
-  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "background_color": "#000000",
   "orientation": "portrait",
   "icons": [
-    {
-      "src": "favicon.ico",
-      "type": "image/x-icon",
-      "sizes": "256x256"
-    },
-    {
-      "src": "logo.png",
-      "type": "image/png",
-      "sizes": "400x400"
-    }
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
   ],
   "iconPath": "/logo.png"
 }

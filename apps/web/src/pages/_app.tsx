@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import { ErrorBoundary } from 'components/ErrorBoundary'
 import { NetworkModal } from 'components/NetworkModal'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
+import NextApp from 'next/app'
 // import useEagerConnectMP from 'hooks/useEagerConnect.bmp'
 import useLockedEndNotification from 'hooks/useLockedEndNotification'
 import useSentryUser from 'hooks/useSentryUser'
@@ -21,10 +22,12 @@ import { appWithTranslation } from '@pancakeswap/localization'
 import Footer from 'components/Menu/Footer'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
+import { useRouter } from 'next/router'
 import { useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
 import { Blocklist, Updaters } from '..'
-import { SEO } from '../../next-seo.config'
+import nextI18NextConfig from '../../next-i18next.config.js'
+import { defaultSeoEN, defaultSeoKO } from '../../next-seo.config'
 import Providers from '../Providers'
 import Menu from '../components/Menu'
 import '../style/global.css'
@@ -61,6 +64,10 @@ function MPGlobalHooks() {
 function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>) {
   const { pageProps, Component } = props
   const store = useStore(pageProps.initialReduxState)
+  const { locale } = useRouter()
+
+  // Choose the SEO config based on the current locale
+  const seoConfig = locale === 'ko' ? defaultSeoKO : defaultSeoEN
 
   return (
     <>
@@ -69,13 +76,9 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1, viewport-fit=cover"
         />
-        <meta
-          name="description"
-          content="DragonSwap is the No.1 DEX for ecosystem liquidity and an official Kaia D2I partner."
-        />
         <meta name="theme-color" content="#000" />
       </Head>
-      <DefaultSeo {...SEO} />
+      <DefaultSeo {...seoConfig} />
       <Providers store={store} dehydratedState={pageProps.dehydratedState}>
         {(Component as NextPageWithLayout).Meta && (
           // @ts-ignore
@@ -104,6 +107,14 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
   )
 }
 
+MyApp.getInitialProps = async (appContext) => {
+  // Get initial props for every page
+  const appProps = await NextApp.getInitialProps(appContext)
+  // Access the locale from the context (provided by Next.js i18n)
+  const { locale } = appContext.ctx
+  return { ...appProps, locale }
+}
+
 type NextPageWithLayout = NextPage & {
   Layout?: React.FC<React.PropsWithChildren<unknown>>
   /** render component without all layouts */
@@ -127,6 +138,13 @@ type AppPropsWithLayout = AppProps & {
 }
 
 const ProductionErrorBoundary = process.env.NODE_ENV === 'production' ? ErrorBoundary : Fragment
+
+const emptyInitialI18NextConfig = {
+  i18n: {
+    defaultLocale: nextI18NextConfig.i18n.defaultLocale,
+    locales: nextI18NextConfig.i18n.locales,
+  },
+}
 
 const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   if (Component.pure) {
@@ -152,4 +170,4 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   )
 }
 
-export default appWithTranslation(MyApp)
+export default appWithTranslation(MyApp, emptyInitialI18NextConfig as any)

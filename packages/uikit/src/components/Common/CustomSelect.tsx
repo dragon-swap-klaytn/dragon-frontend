@@ -74,7 +74,7 @@ export function CustomSelect({
         anchor="bottom"
         transition
         className={clsx(
-          "mt-2 w-[var(--button-width)] rounded-3xl border border-white/20 bg-gray-800 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
+          "mt-1.5 w-[var(--button-width)] rounded-lg border border-border bg-surface-raised p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
           "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0 z-modal"
         )}
       >
@@ -82,7 +82,7 @@ export function CustomSelect({
           <ListboxOption
             key={opt.label}
             value={opt}
-            className="group flex items-center gap-2 rounded-3xl py-1.5 px-3 select-none data-[focus]:bg-white/10"
+            className="group flex items-center space-x-1.5 rounded p-2 select-none data-[focus]:bg-neutral"
           >
             <Check className="invisible size-4 text-on-surface group-data-[selected]:visible" />
             <div className="text-sm/6 text-on-surface">{t(opt.label)}</div>

@@ -34,7 +34,7 @@ class MyDocument extends Document {
       <Html translate="no">
         <Head>
           <link rel="shortcut icon" href="/logo.png" />
-          <link rel="apple-touch-icon" href="/logo.png" />
+          <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
           {/* <link rel="manifest" href="/manifest.json" /> */}
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" />
