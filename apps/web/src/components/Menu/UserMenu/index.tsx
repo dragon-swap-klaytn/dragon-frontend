@@ -121,9 +121,7 @@ const UserMenu = ({
             },
           )}
         >
-          <h3 className="text-on-surface font-bold text-lg">{t('Preferences')}</h3>
-
-          <div className="mt-[30px] flex flex-col items-start space-y-6 text-on-surface">
+          <div className="flex flex-col items-start space-y-6 text-on-surface">
             <button
               type="button"
               className="text-sm whitespace-nowrap"
@@ -132,7 +130,7 @@ const UserMenu = ({
                 setUserMenuOpen(false)
               }}
             >
-              {t('Wallet')}
+              {t('My Wallet')}
             </button>
             <button
               type="button"

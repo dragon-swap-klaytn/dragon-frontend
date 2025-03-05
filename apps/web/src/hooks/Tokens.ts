@@ -53,7 +53,7 @@ export function useTokenMap({ skip = false, poolOnly = false }: { skip?: boolean
   )
 
   const tokenMap = useMemo(() => {
-    if (!fetchedTokenMap) return undefined
+    if (!fetchedTokenMap || !userAddedTokens) return undefined
 
     return userAddedTokens
       .filter((token) => !fetchedTokenMap[token.address.toLowerCase()])
@@ -115,7 +115,10 @@ export function useTokens(searchKey?: string) {
   const { tokenMap, tokenMapLoading } = useTokenMap()
   // const address = safeGetAddress(searchKey)
   const isAddress = useMemo(() => searchKey && VALID_ADDRESS_REGEX.test(searchKey), [searchKey])
-  const token = useMemo(() => (searchKey && tokenMap ? tokenMap[searchKey] : undefined), [searchKey, tokenMap])
+  const token = useMemo(
+    () => (searchKey && tokenMap ? (tokenMap[searchKey] as Token) : undefined),
+    [searchKey, tokenMap],
+  )
 
   const { data, isLoading } = useToken_({
     address: (searchKey as Address) || undefined,
@@ -155,7 +158,7 @@ export function useTokens(searchKey?: string) {
     }
 
     if (isAddress && tokenMap[searchKey]) {
-      return [tokenMap[searchKey]]
+      return [tokenMap[searchKey]] as Token[]
     }
 
     if (isLoading) return null

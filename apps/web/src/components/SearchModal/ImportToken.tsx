@@ -1,22 +1,24 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, Token } from '@pancakeswap/sdk'
 import { WrappedTokenInfo } from '@pancakeswap/token-lists'
-import { ButtonV2, CheckboxV2, ExternalLink, Notification, useTooltip } from '@pancakeswap/uikit'
+import { ButtonV2, CheckboxV2, ExternalLink, Notification } from '@pancakeswap/uikit'
 import truncateHash from '@pancakeswap/utils/truncateHash'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { Warning } from '@phosphor-icons/react'
 import { useActiveChainId } from 'hooks/useActiveChainId'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useCombinedInactiveList } from 'state/lists/hooks'
 import { useAddUserToken } from 'state/user/hooks'
+import { useUserAddedTokenMapFromLs } from 'state/user/hooks/useUserAddedTokens'
 import { getBlockExploreLink } from 'utils'
 
 interface ImportProps {
   tokens: Token[]
   handleCurrencySelect?: (currency: Currency) => void
+  onImported?: () => void
 }
 
-function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
+function ImportToken({ tokens, handleCurrencySelect, onImported }: ImportProps) {
   const { chainId } = useActiveChainId()
   const { t } = useTranslation()
   const [confirmed, setConfirmed] = useState(false)
@@ -24,6 +26,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
 
   // use for showing import source on inactive tokens
   const inactiveTokenList = useCombinedInactiveList()
+  const { setUserAddedTokenMap } = useUserAddedTokenMapFromLs()
 
   // const { data: hasRiskToken } = useQuery(
   //   ['has-risks', tokens],
@@ -39,9 +42,39 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
   //   },
   // )
 
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    t('I have read the scanning result, understood the risk and want to proceed with token importing.'),
-  )
+  // const { targetRef, tooltip, tooltipVisible } = useTooltip(
+  //   t('I have read the scanning result, understood the risk and want to proceed with token importing.'),
+  // )
+
+  const importHandler = useCallback(() => {
+    tokens.forEach((token) => {
+      const inactiveToken = chainId && inactiveTokenList?.[token.chainId]?.[token.address]
+      let tokenToAdd = token
+      if (inactiveToken) {
+        tokenToAdd = new WrappedTokenInfo({
+          ...token,
+          logoURI: inactiveToken.token.logoURI,
+          name: token.name || inactiveToken.token.name,
+        })
+      }
+      addToken(tokenToAdd)
+    })
+    if (handleCurrencySelect) {
+      handleCurrencySelect(tokens[0])
+    }
+
+    setUserAddedTokenMap((prev) => {
+      return {
+        ...prev,
+        ...tokens.reduce((acc, token) => {
+          return {
+            ...acc,
+            [token.address.toLowerCase()]: token,
+          }
+        }, {}),
+      }
+    })
+  }, [addToken, chainId, handleCurrencySelect, inactiveTokenList, onImported, tokens])
 
   return (
     <div className="w-full">
@@ -125,29 +158,7 @@ function ImportToken({ tokens, handleCurrencySelect }: ImportProps) {
         )} */}
       </div>
 
-      <ButtonV2
-        className="mt-3"
-        variant="primary"
-        disabled={!confirmed}
-        onClick={() => {
-          tokens.forEach((token) => {
-            const inactiveToken = chainId && inactiveTokenList?.[token.chainId]?.[token.address]
-            let tokenToAdd = token
-            if (inactiveToken) {
-              tokenToAdd = new WrappedTokenInfo({
-                ...token,
-                logoURI: inactiveToken.token.logoURI,
-                name: token.name || inactiveToken.token.name,
-              })
-            }
-            addToken(tokenToAdd)
-          })
-          if (handleCurrencySelect) {
-            handleCurrencySelect(tokens[0])
-          }
-        }}
-        fullWidth
-      >
+      <ButtonV2 className="mt-3" variant="primary" disabled={!confirmed} onClick={importHandler} fullWidth>
         {/* {hasRiskToken ? t('Proceed') : t('Import')} */}
         {t('Import')}
       </ButtonV2>

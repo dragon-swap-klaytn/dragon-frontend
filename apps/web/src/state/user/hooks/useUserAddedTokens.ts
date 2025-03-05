@@ -1,8 +1,9 @@
 import { Currency, Token } from '@pancakeswap/sdk'
-import { deserializeToken, SerializedWrappedToken } from '@pancakeswap/token-lists'
+import { deserializeToken } from '@pancakeswap/token-lists'
 import { createSelector } from '@reduxjs/toolkit'
 import { LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import { atom, useAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { UserAddedTokenMap } from 'state/user/reducer'
@@ -19,50 +20,55 @@ export default function useUserAddedTokens(): Token[] {
   return useSelector(useMemo(() => userAddedTokenSelector(chainId), [chainId]))
 }
 
+export const userAddedTokenMapAtom = atom<UserAddedTokenMap | null>(null)
 export function useUserAddedTokenMapFromLs() {
-  const [userAddedTokenMap, setUserAddedTokenMap] = useState<UserAddedTokenMap | null>(null)
-  useEffect(() => {
+  const [userAddedTokenMap, setUserAddedTokenMap] = useAtom(userAddedTokenMapAtom)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const refresh = useCallback(() => {
+    setIsLoading(true)
     const _useAddedTokenMap = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEYS.userAddedTokenMap) ?? '{}',
     ) as UserAddedTokenMap
 
     setUserAddedTokenMap(_useAddedTokenMap)
-  }, [])
-
-  return userAddedTokenMap
-}
-
-export function useUserAddedTokensFromLs() {
-  const [userAddedTokens, setUserAddedTokens] = useState<SerializedWrappedToken[]>([])
-
-  const refresh = useCallback(() => {
-    const _userAddedTokenMap = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_KEYS.userAddedTokenMap) ?? '{}',
-    ) as UserAddedTokenMap
-
-    setUserAddedTokens(Object.values(_userAddedTokenMap))
+    setIsLoading(false)
   }, [])
 
   useEffect(() => {
     refresh()
   }, [refresh])
 
-  return { userAddedTokens, refresh }
+  return {
+    isLoading,
+    userAddedTokenMap,
+    setUserAddedTokenMap,
+    refresh,
+  }
+}
+
+export function useUserAddedTokensFromLs() {
+  const { userAddedTokenMap, isLoading, refresh } = useUserAddedTokenMapFromLs()
+
+  return useMemo(
+    () => ({ userAddedTokens: userAddedTokenMap ? Object.values(userAddedTokenMap) : [], isLoading, refresh }),
+    [userAddedTokenMap, isLoading, refresh],
+  )
 }
 
 export function useIsUserAddedTokenFromLs(token: Currency) {
-  const [userAddedTokenMap, setUserAddedTokenMap] = useState<UserAddedTokenMap | null>(null)
-  useEffect(() => {
-    const _useAddedTokenMap = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_KEYS.userAddedTokenMap) ?? '{}',
-    ) as UserAddedTokenMap
-
-    setUserAddedTokenMap(_useAddedTokenMap)
-  }, [])
+  const { userAddedTokenMap, isLoading } = useUserAddedTokenMapFromLs()
 
   return useMemo(() => {
-    if (token.isNative || !userAddedTokenMap) return false
+    if (token.isNative)
+      return {
+        isAdded: false,
+        isLoading: false,
+      }
 
-    return !!userAddedTokenMap[token.wrapped.address.toLowerCase()]
+    return {
+      isAdded: !!userAddedTokenMap?.[token.address],
+      isLoading,
+    }
   }, [userAddedTokenMap])
 }

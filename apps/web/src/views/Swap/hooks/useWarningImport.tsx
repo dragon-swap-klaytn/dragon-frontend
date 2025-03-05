@@ -34,7 +34,7 @@ export default function useWarningImport() {
   )
 
   const { tokenMap: poolOnlyTokenMap } = useTokenMap({ poolOnly: true })
-  const userAddedTokenMap = useUserAddedTokenMapFromLs()
+  const { userAddedTokenMap } = useUserAddedTokenMapFromLs()
 
   const needToImportTokens = useMemo(() => {
     return poolOnlyTokenMap && !isWrongNetwork && userAddedTokenMap

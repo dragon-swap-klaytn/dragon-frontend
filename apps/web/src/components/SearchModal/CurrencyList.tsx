@@ -9,7 +9,9 @@ import useNativeCurrency from 'hooks/useNativeCurrency'
 import useRecentSelectedCurrencies from 'hooks/useRecentSelectedCurrencies'
 import useTokenPrices from 'hooks/useTokenPrices'
 import { useCallback, useMemo } from 'react'
-import { useIsUserAddedTokenFromLs } from 'state/user/hooks/useUserAddedTokens'
+import { useUserAddedTokenMapFromLs } from 'state/user/hooks/useUserAddedTokens'
+import { formatAmount } from 'utils/formatInfoNumbers'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import { useAccount, useBalance } from 'wagmi'
 import { useIsTokenActive } from '../../hooks/Tokens'
 import { useTokenBalancesWithLoading } from '../../state/wallet/hooks'
@@ -18,6 +20,7 @@ function CurrencyRow({
   currencyWithValue,
   onSelect,
   isSelected,
+  isAdded,
   showImportView,
   setImportToken,
 }: {
@@ -28,6 +31,7 @@ function CurrencyRow({
   }
   onSelect: () => void
   isSelected: boolean
+  isAdded: boolean
   showImportView: () => void
   setImportToken: (token: Token) => void
 }) {
@@ -35,7 +39,6 @@ function CurrencyRow({
   const { t } = useTranslation()
   const { currency, amount, value } = currencyWithValue
 
-  const isAdded = useIsUserAddedTokenFromLs(currency)
   const isActive = useIsTokenActive(currency)
   const needToImport = useMemo(() => !isAdded && !isActive, [isAdded, isActive])
 
@@ -74,8 +77,15 @@ function CurrencyRow({
           <Plus size={16} className="text-gray-200" />
         ) : (
           <div className="flex flex-col items-end">
-            <span className="text-right text-on-surface text-sm">{amount > 0 ? amount.toFixed(4) : amount}</span>
-            {value > 0 && <span className="text-right text-on-surface-subtlest text-xs">${value.toFixed(4)}</span>}
+            <span className="text-right text-on-surface text-sm">{amount > 0 ? formatAmount(amount) : amount}</span>
+            {value > 0 && (
+              <span className="text-right text-on-surface-subtlest text-xs">
+                {formatDollarAmountV2({
+                  num: value,
+                  withDollarSign: true,
+                })}
+              </span>
+            )}
           </div>
         )
       ) : (
@@ -103,6 +113,7 @@ export default function CurrencyList({
   const native = useNativeCurrency()
   const { address: account } = useAccount()
   const tokens = useMemo(() => currencies.filter((currency): currency is Token => currency.isToken), [currencies])
+  const { userAddedTokenMap, isLoading: userAddedTokenMapLoading } = useUserAddedTokenMapFromLs()
 
   const cakePrice = useCakePrice()
   const { prices, pricesLoading } = useTokenPrices()
@@ -168,13 +179,15 @@ export default function CurrencyList({
 
   const Row = useCallback(
     ({ index }) => {
-      if (!currenciesWithValue) return null
+      if (!currenciesWithValue || userAddedTokenMapLoading) return null
 
       const currencyWithValue = currenciesWithValue[index]
       if (!currencyWithValue) return null
 
       const currency = currencyWithValue?.currency
       if (!currency) return null
+
+      const isAdded = currency.isNative ? false : !!userAddedTokenMap?.[currency.wrapped.address]
 
       // the alternative to making a fiat currency token list
       // with class methods
@@ -192,6 +205,7 @@ export default function CurrencyList({
           key={`currencyRow:${currency.isNative ? ZERO_ADDRESS : currency.wrapped.address}`}
           currencyWithValue={currencyWithValue}
           isSelected={isSelected}
+          isAdded={isAdded}
           onSelect={handleSelect}
           showImportView={showImportView}
           setImportToken={setImportToken}
@@ -210,7 +224,7 @@ export default function CurrencyList({
 
   return (
     <div className="flex flex-col overflow-y-auto max-h-[350px] space-y-1">
-      {currenciesWithValue ? (
+      {currenciesWithValue && !userAddedTokenMapLoading ? (
         currenciesWithValue.map((_, index) => Row({ index }))
       ) : (
         <div className="flex items-center justify-center w-full h-[400px]">

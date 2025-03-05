@@ -777,19 +777,19 @@ function PositionHistory_({
 
   return (
     <div className="mt-8">
-      <SectionTitle>{`${t('History')}(Transaction)`}</SectionTitle>
+      <SectionTitle>{t('Transaction History')}</SectionTitle>
 
       <table className="w-full rounded-2xl overflow-hidden mt-3 bg-surface-overlay">
         <thead>
-          <tr className="text-sm text-on-surface-subtlest bg-neutral border-b border-border h-10">
-            <th className="text-left px-4 font-normal">{t('Timestamp')}</th>
-            <th className="text-left px-3 font-normal">{t('Action')}</th>
-            <th className="text-left px-3 font-normal">{t('Token Transferred')}</th>
+          <tr className="text-xs font-medium text-on-surface-subtlest bg-neutral border-b border-border h-10">
+            <th className="text-left px-4">{t('Time')}</th>
+            <th className="text-left px-3">{t('Action')}</th>
+            <th className="text-left px-3">{t('Token Transferred')}</th>
           </tr>
         </thead>
 
         <tbody>
-          {data.map((d) => {
+          {data.map((d, index) => {
             return (
               <Fragment key={d.id}>
                 {d.transaction.mints.map((positionTx) => (
@@ -799,6 +799,7 @@ function PositionHistory_({
                     type="mint"
                     currency0={currency0}
                     currency1={currency1}
+                    isLastIndex={index === data.length - 1}
                   />
                 ))}
                 {d.transaction.collects
@@ -832,6 +833,7 @@ function PositionHistory_({
                       type="collect"
                       currency0={currency0}
                       currency1={currency1}
+                      isLastIndex={index === data.length - 1}
                     />
                   ))}
                 {d.transaction.burns.map((positionTx) => (
@@ -841,6 +843,7 @@ function PositionHistory_({
                     type="burn"
                     currency0={currency0}
                     currency1={currency1}
+                    isLastIndex={index === data.length - 1}
                   />
                 ))}
               </Fragment>
@@ -864,11 +867,13 @@ function PositionHistoryRow({
   type,
   currency0,
   currency1,
+  isLastIndex,
 }: {
   positionTx: PositionTX
   type: PositionHistoryType
   currency0: Currency
   currency1: Currency
+  isLastIndex: boolean
 }) {
   const { isMobile } = useMatchBreakpoints()
 
@@ -953,7 +958,11 @@ function PositionHistoryRow({
   }
 
   return (
-    <tr className="border-b border-border">
+    <tr
+      className={clsx({
+        'border-b border-border': !isLastIndex,
+      })}
+    >
       <td className="p-3">
         <ExternalLink
           href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction')}

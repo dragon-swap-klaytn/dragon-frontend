@@ -10,6 +10,7 @@ import { RefObject, useCallback, useMemo, useRef, useState } from 'react'
 import { useRemoveUserAddedToken } from 'state/user/hooks'
 import { useUserAddedTokensFromLs } from 'state/user/hooks/useUserAddedTokens'
 import { safeGetAddress } from 'utils'
+import { Address } from 'viem'
 import { CurrencyModalView } from './types'
 
 export default function ManageTokens({
@@ -38,19 +39,19 @@ export default function ManageTokens({
   }, [])
 
   // all tokens for local list
-  const { userAddedTokens, refresh } = useUserAddedTokensFromLs()
+  const { userAddedTokens, isLoading, refresh } = useUserAddedTokensFromLs()
   const removeToken = useRemoveUserAddedToken()
 
   const removeTokenHandler = useCallback(
-    (token: Token) => {
-      removeToken(chainId, token.address)
+    (address: Address) => {
+      removeToken(chainId, address)
       refresh()
     },
     [chainId, removeToken, refresh],
   )
 
   const handleRemoveAll = useCallback(() => {
-    if (!chainId) return
+    if (!chainId || !userAddedTokens) return
 
     userAddedTokens.forEach((token) => {
       return removeToken(chainId, token.address)
@@ -60,8 +61,6 @@ export default function ManageTokens({
   }, [removeToken, userAddedTokens, chainId, refresh])
 
   const searchedUserAddedTokens = useMemo(() => {
-    if (!userAddedTokens) return []
-
     return userAddedTokens
       .filter(
         (token) =>
@@ -76,7 +75,7 @@ export default function ManageTokens({
   }, [userAddedTokens, searchQuery])
 
   const unimportedTokens = useMemo(() => {
-    if (!poolOnlyTokenMap || !searchTokens) return []
+    if (!poolOnlyTokenMap || !searchTokens || !userAddedTokens) return []
 
     return (
       searchTokens
@@ -96,32 +95,34 @@ export default function ManageTokens({
     <div className="flex flex-col">
       <SearchBar ref={inputRef as RefObject<HTMLInputElement>} value={searchQuery} onChange={handleInput} fullWidth />
 
-      <div className="flex flex-col items-start w-full mt-4 px-2 max-h-[400px] overflow-y-auto">
-        {[...unimportedTokens, ...searchedUserAddedTokens].map((token) =>
-          token.isAdded ? (
-            <div key={token.address} className="flex items-center space-x-2 justify-between w-full py-2">
-              <div className="flex items-center space-x-2">
-                <CurrencyLogoWithSymbol addressA={token.address} symbol={token.symbol} />
-                <span className="text-gray-400 text-xs">{token.name}</span>
+      {!isLoading && (
+        <div className="flex flex-col items-start w-full mt-4 px-2 max-h-[400px] overflow-y-auto">
+          {[...unimportedTokens, ...searchedUserAddedTokens].map((token) =>
+            token.isAdded ? (
+              <div key={token.address} className="flex items-center space-x-2 justify-between w-full py-2">
+                <div className="flex items-center space-x-2">
+                  <CurrencyLogoWithSymbol addressA={token.address} symbol={token.symbol} />
+                  <span className="text-gray-400 text-xs">{token.name}</span>
+                </div>
+
+                <button type="button" className="hover:opacity-70" onClick={() => removeTokenHandler(token.address)}>
+                  <TrashSimple size={16} className="text-gray-200" />
+                </button>
               </div>
+            ) : (
+              <ImportRow
+                className="w-full"
+                token={new ERC20Token(chainId, token.address, token.decimals, token.symbol, token.name)}
+                showImportView={() => setModalView(CurrencyModalView.importToken)}
+                setImportToken={setImportToken}
+                style={{ height: 'fit-content' }}
+              />
+            ),
+          )}
+        </div>
+      )}
 
-              <button type="button" className="hover:opacity-70" onClick={() => removeTokenHandler(token)}>
-                <TrashSimple size={16} className="text-gray-200" />
-              </button>
-            </div>
-          ) : (
-            <ImportRow
-              className="w-full"
-              token={new ERC20Token(chainId, token.address, token.decimals, token.symbol, token.name)}
-              showImportView={() => setModalView(CurrencyModalView.importToken)}
-              setImportToken={setImportToken}
-              style={{ height: 'fit-content' }}
-            />
-          ),
-        )}
-      </div>
-
-      {userAddedTokens?.length > 0 ? (
+      {userAddedTokens && userAddedTokens?.length > 0 ? (
         <div className="flex items-center space-x-2 justify-between px-2 mt-4">
           <span className="text-sm text-on-surface">
             {userAddedTokens?.length} {userAddedTokens.length === 1 ? t('Imported Token') : t('Imported Tokens')}
@@ -133,7 +134,7 @@ export default function ManageTokens({
             </ButtonV2>
           )}
         </div>
-      ) : !debouncedQuery && (userAddedTokens?.length || 0) === 0 ? (
+      ) : !debouncedQuery && !isLoading && userAddedTokens.length === 0 ? (
         <p className="text-center py-4 text-on-surface text-sm">{t('No imported tokens.')}</p>
       ) : !!debouncedQuery && (searchTokens?.length || 0) === 0 ? (
         <p className="text-center py-4 text-on-surface text-sm">{t('No results found.')}</p>

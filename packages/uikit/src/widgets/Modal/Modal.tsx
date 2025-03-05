@@ -58,7 +58,10 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
       </div>
 
       <div
-        className={clsx("flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[72vh] mt-8", contentMinHeight)}
+        className={clsx(
+          "flex relative overflow-y-auto overflow-x-hidden flex-col max-h-[72vh] mt-8 space-y-2",
+          contentMinHeight
+        )}
       >
         {children}
       </div>

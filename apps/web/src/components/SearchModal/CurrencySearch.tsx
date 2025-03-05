@@ -11,7 +11,6 @@ import { safeGetAddress } from 'utils'
 import { useTokenMap, useTokens } from '../../hooks/Tokens'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
-import useTokenComparator from './sorting'
 import { getSwapSound } from './swapSound'
 
 interface CurrencySearchProps {
@@ -43,8 +42,6 @@ function CurrencySearch({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 500)
 
-  const [invertSearchOrder] = useState<boolean>(false)
-
   const { tokenMap: onlyPoolTokenMap } = useTokenMap({ poolOnly: true })
   const searchTokens = useTokens(debouncedQuery)
 
@@ -59,18 +56,10 @@ function CurrencySearch({
     return native && native.symbol?.toLowerCase?.()?.indexOf(s) !== -1
   }, [debouncedQuery, native, tokensToShow])
 
-  const tokenComparator = useTokenComparator(invertSearchOrder)
-
-  const sortedTokens = useMemo(() => {
-    if (!searchTokens && !onlyPoolTokenMap) {
-      return null
-    }
-
-    const _tokens = searchTokens || (onlyPoolTokenMap ? Object.values(onlyPoolTokenMap) : ([] as Token[]))
-
-    return _tokens.sort(tokenComparator)
-  }, [searchTokens, onlyPoolTokenMap, tokenComparator])
-
+  const currencies = useMemo(
+    () => searchTokens || (onlyPoolTokenMap ? Object.values(onlyPoolTokenMap) : ([] as Token[])),
+    [onlyPoolTokenMap, searchTokens],
+  )
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
       onCurrencySelect(currency)
@@ -96,14 +85,14 @@ function CurrencySearch({
   }, [])
 
   const getCurrencyListRows = useCallback(() => {
-    return !sortedTokens ? (
+    return !currencies ? (
       <div className="min-h-[350px] flex items-center justify-center">
         <Spinner />
       </div>
-    ) : sortedTokens.length > 0 ? (
+    ) : currencies.length > 0 ? (
       <CurrencyList
         showNative={showNative}
-        currencies={sortedTokens}
+        currencies={currencies}
         onCurrencySelect={handleCurrencySelect}
         selectedCurrency={selectedCurrency}
         showImportView={showImportView}
@@ -112,7 +101,7 @@ function CurrencySearch({
     ) : (
       <p className="text-center py-4 text-on-surface text-sm">{t('No results found.')}</p>
     )
-  }, [sortedTokens, handleCurrencySelect, selectedCurrency, setImportToken, showNative, showImportView, t])
+  }, [currencies, handleCurrencySelect, selectedCurrency, setImportToken, showNative, showImportView, t])
 
   const searchBarRef = useRef<HTMLInputElement>(null)
   useEffect(() => {

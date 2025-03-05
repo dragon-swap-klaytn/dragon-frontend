@@ -150,7 +150,8 @@ export function AprCalculator({
       !sqrtRatioX96 ||
       !feeAmount ||
       !currencyAUsdPrice ||
-      !currencyBUsdPrice
+      !currencyBUsdPrice ||
+      (validAmountA.toExact() === '0' && validAmountB.toExact() === '0')
     ) {
       return { lpApr: 0 }
     }
