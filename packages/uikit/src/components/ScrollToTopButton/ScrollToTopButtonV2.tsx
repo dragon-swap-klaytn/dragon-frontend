@@ -32,7 +32,7 @@ const ScrollToTopButtonV2 = () => {
 
   return (
     <div
-      className={clsx("fixed right-5 bottom-10", {
+      className={clsx("z-20 fixed right-5 bottom-10", {
         inline: visible,
         hidden: !visible,
       })}

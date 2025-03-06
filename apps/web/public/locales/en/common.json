@@ -1,17 +1,20 @@
 {
   "main-first-header-1": "Kaia’s Leading DEX",
-  "main-first-header-2": "",
-  "main-first-content-1": "DragonSwap is the No.1 DEX for ecosystem liquidity and an official Kaia D2I partner.",
-  "main-first-content-2": "",
+  "main-first-header-2": "DragonSwap",
+  "main-first-content-1": "DragonSwap is the official partner of the Kaia Foundation’s D2I program and a flagship DEX in Kaia network.",
+  "main-first-content-2": "Our advanced V3 liquidity provisioning ensures a stable trading experience.",
 
-  "main-second-header-1": "Unmatched Trading Volume",
-  "main-second-header-2": "Decentralized Exchange",
-  "main-second-content-1": "DragonSwap not only leads in liquidity size but also maintains",
-  "main-second-content-2": "an overwhelming No.1 position in trading volume and transaction count.",
+  "main-second-header-1": "#1 Trading Volume",
+  "main-second-header-2": "Within Kaia Network",
+  "main-second-content-1": "DragonSwap <w>dominates</w> not just in <w>liquidity</w>, but also in <w>trading volume and transaction counts</w>, maintaining its <w>position as the top DEX.</w>",
 
-  "main-third-header-1": "Liquidity Provision",
-  "main-third-content-1": "With DragonSwap’s AMM-based decentralized exchange,",
-  "main-third-content-2": "trade directly from your wallet without relying on centralized platforms.",
+  "main-third-header-1": "Kaia’s Largest Liquidity Hub",
+  "main-third-content-1": "DragonSwap <w>holds more than half of Kaia’s total liquidity</w>, ensuring a <w>strong</w> and <w>stable</w> base for the ecosystem.",
+
+  "main-swap-description": "DragonSwap is an <w>AMM-based DEX</w> that allows users to <w>trade directly</w> from their wallets without relying on a centralized exchange.",
+  "main-pools-description": "Provide liquidity <w>efficiently</w> and <w>securely</w> with DragonSwap’s <w>V3 pools</w> and start your <w>DeFi money lego</w> journey.",
+
+  "main-partnership-content": "Introducing DragonSwap Partnership – creating new opportunities through strategic collaborations in DeFi.",
 
   "wallet-connect-terms": "By connecting a wallet, you agree to Dragonswap's <href />"
 }

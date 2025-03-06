@@ -1,21 +1,25 @@
 {
   "main-first-header-1": "카이아의 최대",
   "main-first-header-2": "탈중앙화 거래소",
-  "main-first-content-1": "드래곤스왑은 생태계 전체 유동성 규모 1위 탈중앙화 거래소로,",
-  "main-first-content-2": "카이아 재단 D2I 프로그램의 공식 파트너입니다.",
+  "main-first-content-1": "드래곤스왑은 카이아 재단 D2I 프로그램의 공식 파트너로서 생태계를 대표하는 탈중앙화 거래소입니다.",
+  "main-first-content-2": "가장 효율적인 V3 방식의 유동성 공급을 통해 안정적인 거래 환경을 제공합니다.",
 
-  "main-second-header-1": "압도적인 거래량의",
-  "main-second-header-2": "탈중앙화 거래소",
-  "main-second-content-1": "드래곤 스왑은 유동성 규모 뿐만 아니라 거래량, 거래수에서도",
-  "main-second-content-2": "압도적인 1위를 유지하고 있습니다.",
+  "main-second-header-1": "생태계 내",
+  "main-second-header-2": "압도적 1위 풀 거래량",
+  "main-second-content-1": "드래곤스왑은 유동성 규모 뿐만 아니라 <w>거래량, 거래수</w>에서도 <w>압도적인 1위</w>를 유지하고 있습니다.",
 
-  "main-third-header-1": "유동성 공급",
-  "main-third-content-1": "드래곤스왑은 AMM 기반의 탈중앙화 거래소입니다.",
-  "main-third-content-2": "중앙화 거래소를 거치지 않고 사용자의 지갑에서 직접적인 거래가 가능합니다.",
+  "main-third-header-1": "카이아 생태계 과반의 유동성 보유",
+  "main-third-content-1": "드래곤 스왑은 <w>카이아 생태계 전체 유동성의 절반 이상을 보유</w>하며, <w>안정적인 운영</w>으로 <w>생태계를 견고하게 지탱</w>합니다.",
+
+  "main-swap-description": "드래곤스왑은 <w>AMM 기반의 탈중앙화 거래소</w>입니다. 중앙화 거래소를 거치지 않고 사용자의 지갑에서 <w>직접적인 거래</w>가 가능합니다.",
+  "main-pools-description": "드래곤스왑의 발전된 <w>V3 유동성 풀</w>을 통해 <w>가장 효율적이고 안전한 방식</w>으로 유동성을 공급하고, <w>DeFi 머니 레고</w>를 시작해 보세요.",
+
+  "main-partnership-content": "드래곤스왑 파트너십을 소개합니다 – 전략적 협업을 통해 DeFi 생태계를 확장하고 새로운 기회를 제공합니다.",
 
   "Balance: {{balance}}": "잔액: {{balance}}",
 
   "Swap": "스왑",
+  "Partnership": "파트너십",
   "Swap tokens instantly": "토큰을 즉시 스왑해보세요",
   "Settings": "설정",
   "Slippage Tolerance": "슬리피지 허용 범위",
