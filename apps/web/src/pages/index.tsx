@@ -32,7 +32,7 @@ const HomePage = () => {
       <div
         className="absolute top-0 -left-1/2 translate-x-1/2 w-full h-[700px] lg:h-[880px] bg-center bg-cover"
         style={{
-          backgroundImage: 'url(/images/home/background_waves.png)',
+          backgroundImage: 'url(/images/home/background_waves.webp)',
         }}
       />
       <div className="relative z-10 bg-black/60 bg-blend-color-dodge">
