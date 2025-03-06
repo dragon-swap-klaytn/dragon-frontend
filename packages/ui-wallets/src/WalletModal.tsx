@@ -174,6 +174,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
               setSelected(null)
               removeListeners()
+              onDismiss?.()
             })
             walletConnectNoQrCodeConnector.addListener('error', (e: any) => {
               console.error('[walletConnectNoQrCodeConnector] connect error', e)
@@ -187,7 +188,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
         },
       )
     },
-    [walletConnectNoQrCodeConnector, setQrCode, setSelected, setError],
+    [walletConnectNoQrCodeConnector, setQrCode, setSelected, setError, onDismiss],
   )
 
   const connectWallet = useCallback(
