@@ -15,6 +15,8 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
+import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 import useWarningImport from '../../hooks/useWarningImport'
 import { useAllowRecipient, useIsWrapping } from '../hooks'
@@ -65,6 +67,9 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
     }
   }, [maxAmountInput, onUserInput])
 
+  const router = useRouter()
+  const pathname = usePathname()
+
   const handleCurrencySelect = useCallback(
     (newCurrency: Currency, field: Field, currentInputCurrencyId?: string, currentOutputCurrencyId?: string) => {
       onCurrencySelection(field, newCurrency)
@@ -74,12 +79,22 @@ export function FormMain({ pricingAndSlippage, inputAmount, outputAmount, tradeL
       const oldCurrencyId = isInput ? currentInputCurrencyId : currentOutputCurrencyId
       const otherCurrencyId = isInput ? currentOutputCurrencyId : currentInputCurrencyId
       const newCurrencyId = currencyId(newCurrency)
+
+      const urlQueryString = new URLSearchParams(router.query as Record<string, string>)
+
       if (newCurrencyId === otherCurrencyId) {
         replaceBrowserHistory(isInput ? 'outputCurrency' : 'inputCurrency', oldCurrencyId)
+        if (oldCurrencyId) {
+          urlQueryString.set(isInput ? 'outputCurrency' : 'inputCurrency', oldCurrencyId)
+        }
       }
+
+      urlQueryString.set(isInput ? 'inputCurrency' : 'outputCurrency', newCurrencyId)
       replaceBrowserHistory(isInput ? 'inputCurrency' : 'outputCurrency', newCurrencyId)
+
+      router.replace({ pathname, query: urlQueryString.toString() }, undefined, { shallow: true })
     },
-    [onCurrencySelection, warningSwapHandler],
+    [onCurrencySelection, warningSwapHandler, router, pathname],
   )
   const handleInputSelect = useCallback(
     (newCurrency: Currency) => handleCurrencySelect(newCurrency, Field.INPUT, inputCurrencyId, outputCurrencyId),

@@ -436,5 +436,8 @@
 
   "Oops, page not found.": "죄송합니다. 페이지를 찾을 수 없습니다.",
   "Oops, something wrong.": "앗, 문제가 발생했습니다.",
-  "Back Home": "홈으로 돌아가기"
+  "Back Home": "홈으로 돌아가기",
+
+  "Set Starting Price": "시작 가격 설정",
+  "Set Price Range": "가격 범위 설정"
 }
