@@ -1,15 +1,15 @@
 {
-  "main-first-header-1": "Kaia’s Leading DEX",
-  "main-first-header-2": "",
-  "main-first-content-1": "DragonSwap is the official partner of the Kaia Foundation’s D2I program and a flagship decentralized exchange in the ecosystem.",
-  "main-first-content-2": "It delivers a stable trading environment through the most efficient V3 liquidity provisioning.",
+  "main-first-header-1": "KAIA’s Leading DEX",
+  "main-first-header-2": "DragonSwap",
+  "main-first-content-1": "DragonSwap is the official partner of the Kaia Foundation’s D2I program and a flagship DEX in Kaia network.",
+  "main-first-content-2": "Our advanced V3 liquidity provisioning ensures a stable trading experience.",
 
-  "main-second-header-1": "Unrivaled Trading Volume",
+  "main-second-header-1": "#1 Trading Volume",
   "main-second-header-2": "Within the Ecosystem",
-  "main-second-content-1": "DragonSwap continues to hold the top spot not only in liquidity but also in trading volume and transaction counts.",
+  "main-second-content-1": "DragonSwap dominates not just in liquidity, but also in trading volume and the number of transactions, maintaining its position as the top DEX.",
 
-  "main-third-header-1": "Holds Half of the Liquidity in the Kaia ecosystem.",
-  "main-third-content-1": "DragonSwap holds over half of the total liquidity within the KAIA ecosystem, providing a robust foundation for the entire network through its stable operations.",
+  "main-third-header-1": "Kaia’s Largest Liquidity Hub.",
+  "main-third-content-1": "DragonSwap holds more than half of Kaia’s total liquidity, ensuring a strong and stable base for the ecosystem.",
 
   "wallet-connect-terms": "By connecting a wallet, you agree to Dragonswap's <href />"
 }

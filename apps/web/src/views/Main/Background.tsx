@@ -9,7 +9,7 @@ export default function Background() {
 
   return (
     <>
-      <div className="absolute -z-10 w-full left-0 top-[900px] lg:top-[800px]">
+      <div className="absolute -z-10 w-full left-0 top-[450px] lg:top-[800px]">
         <div
           className={clsx(
             'rounded-full -rotate-[17] bg-[#ff6600] absolute',
@@ -27,7 +27,7 @@ export default function Background() {
         />
       </div>
 
-      <div className="absolute -z-10 w-full left-0 top-[2250px] s:top-[2200px] lg:top-[2000px]">
+      <div className="absolute -z-10 w-full left-0 top-[2150px] s:top-[2200px] lg:top-[2000px]">
         <div
           className={clsx(
             'rounded-full -rotate-[17] bg-[#FF2200] absolute',
