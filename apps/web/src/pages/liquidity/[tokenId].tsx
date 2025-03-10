@@ -127,15 +127,15 @@ function PositionPriceSection({
         <RangePriceSection
           title={t('Min Price')}
           price={formatTickPrice(priceLower, tickAtLimit, Bound.LOWER, locale)}
-          currency0={manuallyInverted ? currencyQuote : currencyBase}
-          currency1={manuallyInverted ? currencyBase : currencyQuote}
+          currency0={currencyQuote}
+          currency1={currencyBase}
         />
 
         <RangePriceSection
           title={t('Max Price')}
           price={formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER, locale)}
-          currency0={manuallyInverted ? currencyQuote : currencyBase}
-          currency1={manuallyInverted ? currencyBase : currencyQuote}
+          currency0={currencyQuote}
+          currency1={currencyBase}
         />
 
         <div className="flex items-center col-span-2 md:col-span-1">
@@ -146,9 +146,9 @@ function PositionPriceSection({
               className="pl-4"
               title={t('Current Price')}
               titleColor="text-on-surface-brand"
-              currency0={manuallyInverted ? currencyQuote : currencyBase}
-              currency1={manuallyInverted ? currencyBase : currencyQuote}
-              price={formatPrice(manuallyInverted ? pool.token0Price : pool.token1Price, 6, locale)}
+              currency0={currencyQuote}
+              currency1={currencyBase}
+              price={formatPrice(manuallyInverted ? pool.token1Price : pool.token0Price, 6, locale)}
             />
           ) : null}
         </div>
@@ -640,11 +640,13 @@ export default function PoolPage() {
                       onClick={onClaimFee}
                       variant="primary"
                     >
-                      {!!collectMigrationHash && !isCollectPending
-                        ? t('Collected')
-                        : isCollectPending || collecting
-                        ? t('Collecting...')
-                        : t('Collect')}
+                      <span className="whitespace-nowrap">
+                        {!!collectMigrationHash && !isCollectPending
+                          ? t('Collected')
+                          : isCollectPending || collecting
+                          ? t('Collecting...')
+                          : t('Collect')}
+                      </span>
                     </ButtonV2>
 
                     {showCollectAsWNative && (
