@@ -133,6 +133,9 @@
   "Collecting fees will withdraw currently available fees for you": "수수료 수령은 현재 사용 가능한 수수료를 가져옵니다.",
   "Transaction rejected": "트랜잭션 거부됨",
   "wating confirm...": "확인 대기 중...",
+  "Fees Earned": "획득한 수수료",
+  "Update with a new quote?": "가격정보를 업데이트하시겠습니까?",
+  "Accept": "허용",
 
   "Add {{assetA}}-{{assetB}} Liquidity": "{{assetA}}-{{assetB}} 유동성 공급",
   "Fee Tier": "수수료",
