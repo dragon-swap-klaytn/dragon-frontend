@@ -29,7 +29,7 @@ export function TokenRate({
     return (
       <span className={className}>
         <span className="inline-flex items-end">
-          <span className="whitespace-nowrap">{prefix ? `${prefix} ` : ''}0.0</span>
+          <span className="whitespace-nowrap">{prefix || ''}0.0</span>
           <span className={hiddenDigitClassName}>{hiddenDigits}</span>
           <span>{fractions}</span>
         </span>
@@ -40,7 +40,7 @@ export function TokenRate({
   if (rate < 10) {
     return (
       <span className={clsx(className, 'whitespace-nowrap')}>
-        {prefix ? `${prefix} ` : ''}
+        {prefix || ''}
         {rate.toLocaleString(undefined, {
           minimumSignificantDigits: sigs,
           maximumSignificantDigits: sigs,
@@ -51,7 +51,7 @@ export function TokenRate({
 
   return (
     <span className={clsx(className, 'whitespace-nowrap')}>
-      {prefix ? `${prefix} ` : ''}
+      {prefix || ''}
       {rate.toLocaleString(undefined, {
         minimumFractionDigits: rate < 1000 ? 2 : 0,
         maximumFractionDigits: rate < 1000 ? 2 : 0,

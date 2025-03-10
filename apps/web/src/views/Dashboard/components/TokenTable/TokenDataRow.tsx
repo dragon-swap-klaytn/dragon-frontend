@@ -67,7 +67,7 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
       </td>
       <td className="px-4 py-6 text-left">
         <TokenRate
-          prefix="$"
+          prefix="$ "
           rate={tokenData.priceUSD.current}
           hiddenDigitClassName="text-[9px] font-normal leading-none"
         />

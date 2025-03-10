@@ -6,7 +6,7 @@ import BarChart from 'views/Dashboard/components/BarChart/alt'
 import LineChart from 'views/Dashboard/components/LineChart/alt'
 import usePoolChartData from 'views/Dashboard/hooks/usePoolChartData'
 import { timestampToDate } from 'views/Dashboard/utils/date'
-import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 
 type ChartType = 'volume' | 'TVL' | 'tx'
 const CHART_TYPES: ChartType[] = ['volume', 'TVL', 'tx']
@@ -56,32 +56,43 @@ export function PoolChart({ poolType, address }: PoolChartProps) {
     }
   }, [chartData])
 
+  const formatValue = useCallback(
+    (value: number) => {
+      if (chartType === 'tx') {
+        return value.toLocaleString()
+      }
+
+      return formatDollarAmountV2({ num: value, withDollarSign: true })
+    },
+    [chartType],
+  )
+
   const resetTooltip = useCallback(() => {
     if (!data) return
 
     const item = data[chartType][data[chartType].length - 1]
-    const formattedValue = chartType === 'tx' ? item.value.toLocaleString() : formatDollarAmount(item.value)
+    const formattedValue = formatValue(item.value)
 
     setTooltipContent({
       label: formattedValue,
       date: `${dayjs(item.time).format('MMM D, YYYY')} (UTC)`,
     })
-  }, [data, chartType])
+  }, [data, chartType, formatValue])
 
   useEffect(() => {
     resetTooltip()
-  }, [chartType, resetTooltip])
+  }, [resetTooltip])
 
   const onMouseMove = useCallback(
     (value: number, label: string) => {
-      const formattedValue = chartType === 'tx' ? value.toLocaleString() : formatDollarAmount(value)
+      const formattedValue = formatValue(value)
 
       setTooltipContent({
         label: formattedValue,
         date: `${label} (UTC)`,
       })
     },
-    [chartType],
+    [formatValue],
   )
 
   const onMouseLeave = resetTooltip

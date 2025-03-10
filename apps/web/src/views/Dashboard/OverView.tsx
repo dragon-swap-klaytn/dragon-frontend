@@ -17,7 +17,7 @@ import LineChart from './components/LineChart/alt'
 import { VolumeWindow } from './types'
 import { getPercentChange } from './utils/data'
 import { timestampToDate } from './utils/date'
-import { formatDollarAmount } from './utils/numbers'
+import { formatDollarAmountV2 } from './utils/numbers'
 
 export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: { poolType?: T }) {
   const { chainId } = useActiveChainId()
@@ -85,7 +85,17 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
     if (volumeWindowStr === 'W') setVolumeWindow(VolumeWindow.weekly)
     if (volumeWindowStr === 'M') setVolumeWindow(VolumeWindow.monthly)
   }, [volumeWindowStr])
-  const tvlValue = useMemo(() => formatDollarAmount(liquidityHover, 2, true), [liquidityHover])
+
+  const tvlValue = useMemo(
+    () =>
+      formatDollarAmountV2({
+        num: liquidityHover,
+        digits: 2,
+        round: true,
+        withDollarSign: true,
+      }),
+    [liquidityHover],
+  )
 
   const tvlChartMoveHandler = useCallback(
     (value: number, time: string) => {
@@ -120,7 +130,12 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
           {!!protocolData && (
             <OverviewData
               title={t('Volume 24H')}
-              value={formatDollarAmount(protocolData.volumeUSD.total - protocolData.volumeUSD['24H'])}
+              value={formatDollarAmountV2({
+                num: protocolData.volumeUSD.total - protocolData.volumeUSD['24H'],
+                digits: 2,
+                round: true,
+                withDollarSign: true,
+              })}
               diff={getPercentChange(
                 (protocolData.volumeUSD.total - protocolData.volumeUSD['24H']).toString(),
                 (protocolData.volumeUSD['24H'] - protocolData.volumeUSD['48H']).toString(),
@@ -131,9 +146,12 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
           {poolType === 'v3' && protocolData && (
             <OverviewData
               title={t('Fees 24H')}
-              value={formatDollarAmount(
-                (protocolData as ProtocolV3Data).feeUSD.total - (protocolData as ProtocolV3Data).feeUSD['24H'],
-              )}
+              value={formatDollarAmountV2({
+                num: (protocolData as ProtocolV3Data).feeUSD.total - (protocolData as ProtocolV3Data).feeUSD['24H'],
+                digits: 2,
+                round: true,
+                withDollarSign: true,
+              })}
               diff={getPercentChange(
                 (
                   (protocolData as ProtocolV3Data).feeUSD.total - (protocolData as ProtocolV3Data).feeUSD['24H']
@@ -145,7 +163,16 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
             />
           )}
 
-          <OverviewData title={t('TVL')} value={formatDollarAmount(tvlUSD)} diff={tvlUSDChangeRate24H} />
+          <OverviewData
+            title={t('TVL')}
+            value={formatDollarAmountV2({
+              num: tvlUSD,
+              digits: 2,
+              round: true,
+              withDollarSign: true,
+            })}
+            diff={tvlUSDChangeRate24H}
+          />
         </div>
       </div>
 
@@ -185,8 +212,18 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
                 title={t('Volume')}
                 value={
                   volumeHover
-                    ? formatDollarAmount(volumeHover)
-                    : formatDollarAmount(formattedVolumeData[formattedVolumeData.length - 1]?.value, 2)
+                    ? formatDollarAmountV2({
+                        num: volumeHover,
+                        digits: 2,
+                        round: true,
+                        withDollarSign: true,
+                      })
+                    : formatDollarAmountV2({
+                        num: formattedVolumeData[formattedVolumeData.length - 1]?.value,
+                        digits: 2,
+                        round: true,
+                        withDollarSign: true,
+                      })
                 }
                 date={`${rightLabel ?? now.format('MMM D, YYYY')} (UTC)`}
               />
@@ -207,8 +244,8 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
 function ChartHeader({ title, value, date }: { title: string; value: string; date: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <h4 className="text-sm text-on-surface">{title}</h4>
-      <span className="text-[32px] text-on-surface">{value}</span>
+      <h4 className="text-sm">{title}</h4>
+      <span className="text-[32px]">{value}</span>
       <span className="text-sm text-on-surface-subtlest">{date}</span>
     </div>
   )
