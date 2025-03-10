@@ -9,5 +9,5 @@ body {
 }
 
 body {
-  @apply pt-14 bg-gray-950 text-on-surface;
+  @apply pt-14 bg-gray-950 text-on-surface antialiased;
 }
