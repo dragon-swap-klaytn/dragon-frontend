@@ -12,6 +12,7 @@ import {
   Spinner,
   TagV2,
   ToggleSwitch,
+  WKAIA_ADDRESS,
   useMatchBreakpoints,
   useModal,
 } from '@pancakeswap/uikit'
@@ -107,11 +108,31 @@ function PositionPriceSection({
   tickAtLimit,
   setManuallyInverted,
   manuallyInverted,
+}: {
+  priceUpper?: Price<Token, Token>
+  currencyQuote?: Currency
+  currencyBase?: Currency
+  priceLower?: Price<Token, Token>
+  pool: Pool | null
+  tickAtLimit: {
+    LOWER: boolean | undefined
+    UPPER: boolean | undefined
+  }
+  setManuallyInverted: (value: boolean) => void
+  manuallyInverted: boolean
 }) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation()
+
+  const tokenPrice = useMemo(() => {
+    if (currencyBase?.isNative) {
+      return pool?.token0.address.toLowerCase() === WKAIA_ADDRESS.toLowerCase() ? pool?.token0Price : pool?.token1Price
+    }
+
+    return currencyBase ? (pool?.token0.equals(currencyBase) ? pool.token0Price : pool?.token1Price) : undefined
+  }, [currencyBase, pool])
 
   return (
     <>
@@ -148,7 +169,7 @@ function PositionPriceSection({
               titleColor="text-on-surface-brand"
               currency0={currencyQuote}
               currency1={currencyBase}
-              price={formatPrice(manuallyInverted ? pool.token1Price : pool.token0Price, 6, locale)}
+              price={formatPrice(tokenPrice, 6, locale)}
             />
           ) : null}
         </div>
