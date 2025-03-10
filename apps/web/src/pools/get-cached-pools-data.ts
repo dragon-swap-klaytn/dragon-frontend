@@ -1,4 +1,4 @@
-import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
+import { getBlockNumbers, getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Pools } from 'lib/graph-queries/get-v2-pools'
 import { getV3Pools } from 'lib/graph-queries/get-v3-pools'
 import { PoolV2Base, PoolV3Base } from 'lib/graph-queries/types'
@@ -391,7 +391,7 @@ const getV3PoolsDetailedDataByIds = async ({
 export const getPoolsDataByIds = async (poolIds: string[]) => {
   const now = Date.now()
   const timestamps = [now - 7 * DAY, now - DAY, now]
-  const blockNumbers = await getCachedBlockNumbers(timestamps)
+  const blockNumbers = await getBlockNumbers(timestamps)
 
   const blocks = {
     blockNumber7D: blockNumbers[0],

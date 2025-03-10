@@ -14,7 +14,7 @@ export const TokenDataRowSkeleton = ({ isLastIndex }: { isLastIndex?: boolean })
       })}
     >
       {/* Symbol & Name */}
-      <td className="text-on-surface px-4 s:px-6 py-6 text-left">
+      <td className="px-4 s:px-6 py-6 text-left">
         <div className="flex items-center space-x-2">
           <CurrencyLogoWithSymbol addressA="dummy" />
           <div className="w-12 h-4 bg-neutral rounded-full animate-pulse" />
@@ -22,27 +22,27 @@ export const TokenDataRowSkeleton = ({ isLastIndex }: { isLastIndex?: boolean })
         </div>
       </td>
       {/* Price */}
-      <td className="text-on-surface px-4 py-6 text-left">
+      <td className="px-4 py-6 text-left">
         <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Price Change 24H */}
-      <td className="text-on-surface px-4 py-6 text-left">
+      <td className="px-4 py-6 text-left">
         <div className="w-12 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Price Change 7D */}
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+      <td className="px-4 py-6 text-left hidden md:table-cell">
         <div className="w-12 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Volume 24H */}
-      <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
+      <td className="px-4 py-6 text-left hidden s:table-cell">
         <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Volume 7D */}
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+      <td className="px-4 py-6 text-left hidden md:table-cell">
         <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* TVL */}
-      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
+      <td className="px-4 py-6 text-left hidden sm:table-cell">
         <div className="w-10 h-4 bg-neutral rounded-full animate-pulse" />
       </td>
     </tr>
@@ -56,7 +56,7 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
         'border-b border-border': !isLastIndex,
       })}
     >
-      <td className="text-on-surface px-4 s:px-6 py-6 text-left">
+      <td className="px-4 s:px-6 py-6 text-left">
         <div className="flex items-center space-x-2">
           <NextLink href={`/tokens/${tokenData.type}/${tokenData.id}`} className="hover:underline hover:opacity-70">
             <CurrencyLogoWithSymbol addressA={tokenData.id} symbol={tokenData.symbol} />
@@ -65,26 +65,26 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
           <span className="text-on-surface-subtlest hidden lg:block line-clamp-1">{tokenData.name}</span>
         </div>
       </td>
-      <td className="text-on-surface px-4 py-6 text-left">
+      <td className="px-4 py-6 text-left">
         <TokenRate
           prefix="$"
           rate={tokenData.priceUSD.current}
           hiddenDigitClassName="text-[9px] font-normal leading-none"
         />
       </td>
-      <td className="text-on-surface px-4 py-6 text-left">
+      <td className="px-4 py-6 text-left">
         <Percent value={(tokenData.priceUSD['24H'] / tokenData.priceUSD.current) * 100} />
       </td>
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+      <td className="px-4 py-6 text-left hidden md:table-cell">
         <Percent value={(tokenData.priceUSD['7D'] / tokenData.priceUSD.current) * 100} />
       </td>
-      <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
+      <td className="px-4 py-6 text-left hidden s:table-cell">
         {formatDollarAmountV2({ num: tokenData.volumeUSD['24H'] })}
       </td>
-      <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
+      <td className="px-4 py-6 text-left hidden md:table-cell">
         {formatDollarAmountV2({ num: tokenData.volumeUSD['7D'] })}
       </td>
-      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
+      <td className="px-4 py-6 text-left hidden sm:table-cell">
         {formatDollarAmountV2({ num: tokenData.tvlUSD.current })}
       </td>
     </tr>

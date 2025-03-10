@@ -8,17 +8,17 @@ const BUCKET_SIZE = 10 * 60 // 600 seconds = 10 minutes
  * Convert a millisecond timestamp to a "bucketed" timestamp (in seconds).
  * For example, if BUCKET_SIZE = 600, we group each 600-second window.
  */
-function bucketTimestamp(msTimestamp: number): number {
+function bucketTimestamp(msTimestamp: number, { bucketSize = BUCKET_SIZE } = {}): number {
   // 1) Convert ms => seconds
   // 2) Divide by BUCKET_SIZE
   // 3) Floor
   // 4) Multiply back by BUCKET_SIZE to get the start of that bucket
-  return Math.floor(msTimestamp / 1000 / BUCKET_SIZE) * BUCKET_SIZE
+  return Math.floor(msTimestamp / 1000 / bucketSize) * bucketSize
 }
 
 export async function getCachedBlockNumbers(timestamps: number[]): Promise<number[]> {
   // 1. Convert the original (ms) timestamps to their bucketed (sec) equivalents
-  const bucketedTimestamps = timestamps.map(bucketTimestamp)
+  const bucketedTimestamps = timestamps.map((timestamp) => bucketTimestamp(timestamp))
 
   // 2. Check cache for each bucketed timestamp
   //    We'll build a local map: bucketKey => cachedBlockNumber|null
@@ -59,4 +59,12 @@ export async function getCachedBlockNumbers(timestamps: number[]): Promise<numbe
   // 7. Finally, return the block numbers in the same order as `timestamps`
   //    by looking up their bucketed key in `bucketedMap`.
   return bucketedTimestamps.map((bucketKey) => bucketedMap[bucketKey] as number)
+}
+
+export async function getBlockNumbers(timestamps: number[], { bucketSize = 1 } = {}) {
+  // 1. Convert the original (ms) timestamps to their bucketed (sec) equivalents
+  const bucketedTimestamps = timestamps.map((timestamp) => bucketTimestamp(timestamp, { bucketSize }))
+
+  // 2. Fetch block numbers for each bucketed timestamp
+  return Promise.all(bucketedTimestamps.map((bucketKey) => getBlockNumberOfTimestamp(bucketKey * 1000).then(Number)))
 }
