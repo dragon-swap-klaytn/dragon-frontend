@@ -109,7 +109,12 @@ const handler: NextApiHandler = async (req, res) => {
     )
 
     if (missingPoolIds.length > 0) {
-      const { v2Pools: missingV2Pools, v3Pools: missingV3Pools } = await getPoolsDataByIds(missingPoolIds)
+      const { v2Pools: missingV2Pools, v3Pools: missingV3Pools } = await getPoolsDataByIds(missingPoolIds).catch(
+        (err) => {
+          console.error(`Failed to fetch missing pools: ${missingPoolIds.join(',')}`, err)
+          return { v2Pools: [], v3Pools: [] }
+        },
+      )
 
       v2Pools.push(...missingV2Pools)
       v3Pools.push(...missingV3Pools)
