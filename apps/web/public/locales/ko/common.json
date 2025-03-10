@@ -449,5 +449,12 @@
   "Back Home": "홈으로 돌아가기",
 
   "Set Starting Price": "시작 가격 설정",
-  "Set Price Range": "가격 범위 설정"
+  "Set Price Range": "가격 범위 설정",
+
+  "This liquidity position is currently staking in the Farm. Adding or removing liquidity will also harvest any unclaimed {{cake}} to your wallet.": "현재 이 유동성 포지션은 파밍(Farm)에 스테이킹되어 있습니다. 유동성을 추가하거나 제거하면, 지급되지 않은 RKAIA 보상도 자동으로 지갑으로 수령됩니다.",
+
+  "Input": "제공",
+  "Receive": "수령",
+  "You are creating a trading pair": "신규 페어를 생성합니다",
+  "Create Pair & Supply": "페어 생성 및 유동성 공급"
 }

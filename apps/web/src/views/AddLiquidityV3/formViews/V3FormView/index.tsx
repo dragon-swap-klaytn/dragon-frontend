@@ -373,18 +373,8 @@ export default function V3FormView({
   const pendingText = useMemo(
     () =>
       !outOfRange
-        ? t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
-            amountA: translationData.amountA,
-            symbolA: translationData.symbolA,
-            amountB: translationData.amountB,
-            symbolB: translationData.symbolB,
-          })
-        : t('Supplying {{amount}} {{symbol}}', {
-            amountA: translationData.amountA,
-            symbolA: translationData.symbolA,
-            amountB: translationData.amountB,
-            symbolB: translationData.symbolB,
-          }),
+        ? t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', translationData)
+        : t('Supplying {{amount}} {{symbol}}', translationData),
     [t, outOfRange, translationData],
   )
 

@@ -77,7 +77,7 @@ export const AddLiquidityModalHeader = ({
       {children}
 
       <div>
-        <SectionTitle>{t('You will receive')}</SectionTitle>
+        <SectionTitle>{t('Receive')}</SectionTitle>
 
         <ContainerV2 className="mt-2">
           <CurrencyLogoWithAmount
