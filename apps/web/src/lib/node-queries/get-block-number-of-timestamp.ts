@@ -30,7 +30,7 @@ export const getBlockNumberOfTimestamp = async (
   //    we throw an error. (i.e., we assume the base block is already
   //    older or equal in time to the target)
   if (timestampInMS > baseTS) {
-    throw new Error('Invalid timestamp')
+    return baseBN
   }
 
   // 3) Force the target timestamp to a multiple of 1000 ms:

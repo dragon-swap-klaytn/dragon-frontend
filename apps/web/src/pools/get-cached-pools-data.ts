@@ -391,7 +391,7 @@ const getV3PoolsDetailedDataByIds = async ({
 export const getPoolsDataByIds = async (poolIds: string[]) => {
   const now = Date.now()
   const timestamps = [now - 7 * DAY, now - DAY, now]
-  const blockNumbers = await getBlockNumbers(timestamps)
+  const blockNumbers = await getBlockNumbers(timestamps, { bucketSize: 10 })
 
   const blocks = {
     blockNumber7D: blockNumbers[0],
