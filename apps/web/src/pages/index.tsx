@@ -30,12 +30,10 @@ const HomePage = () => {
     <div className="overflow-x-hidden">
       <div
         className="absolute top-14 -left-1/2 translate-x-1/2 w-full h-[700px] lg:h-[880px] bg-center bg-cover"
-        style={{
-          backgroundImage: 'url(/images/home/background_waves.webp)',
-        }}
+        style={{ backgroundImage: 'url(/images/home/background_waves_2.webp)' }}
       />
-      <div className="relative z-10 bg-black/60 bg-blend-color-dodge">
-        <div className="max-w-[1200px] mx-auto px-5 md:px-8 lg:px-12">
+      <div className="relative z-10 bg-black/30 bg-blend-color-dodge">
+        <div className="relative max-w-[1200px] mx-auto px-5 md:px-8 lg:px-12">
           <Background />
           {/* Hero Section */}
           <div className="pt-20 pb-[120px] lg:pb-[160px] xl:pb-[200px]">

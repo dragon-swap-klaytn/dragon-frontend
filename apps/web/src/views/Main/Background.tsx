@@ -9,25 +9,25 @@ export default function Background() {
 
   return (
     <>
-      <div className="absolute -z-10 w-full left-0 top-[460px] lg:top-[800px]">
+      <div className="absolute -z-10 w-full -left-[40px] sm:-left-[120px] -xl:-left-[200px] top-[460px] lg:top-[520px] xl:top-[700px]">
         <div
           className={clsx(
             'rounded-full -rotate-[17] bg-[#ff6600] absolute',
-            'w-[410px] h-[220px] blur-[140px] -left-[120px] top-[200px]',
-            'sm:w-[590px] sm:h-[317px] sm:blur-[200px] sm:left-0',
+            'w-[240px] h-[200px] blur-[140px] -left-[120px] top-[200px]',
+            'sm:w-[520px] sm:h-[300x] sm:blur-[200px] sm:left-0',
           )}
         />
 
         <div
           className={clsx(
             'rounded-full bg-[#FF2200] absolute',
-            'w-[350px] h-[350px] blur-[140px] left-[120px]',
-            'sm:w-[420px] sm:h-[420px] sm:blur-[200px] sm:right-auto sm:left-[400px]',
+            'w-[300px] h-[300px] blur-[140px] left-[120px]',
+            'sm:w-[400px] sm:h-[400px] sm:blur-[200px] sm:right-auto sm:left-[400px]',
           )}
         />
       </div>
 
-      <div className="absolute -z-10 w-full left-0 top-[2280px] s:top-[2200px] lg:top-[2000px]">
+      <div className="absolute -z-10 w-full left-0 top-[2280px] s:top-[2200px] lg:top-[2000px] xl:top-[2400px]">
         <div
           className={clsx(
             'rounded-full -rotate-[17] bg-[#FF2200] absolute',
