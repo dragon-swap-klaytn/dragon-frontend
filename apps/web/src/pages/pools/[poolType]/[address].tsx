@@ -15,6 +15,7 @@ import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
 import { defaultStaticPaths, getTokenStaticProps } from 'utils/pageUtils'
+import toChecksumTokenId from 'utils/toChecksumTokenId'
 import { unwrapWKAIAAdress } from 'utils/unwrap-wkaia-address'
 import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
@@ -351,7 +352,7 @@ function PoolPositionsV2({
   return (
     <NextLink
       className={clsx('rounded-xl w-full p-6', bgClassName)}
-      href={`/v2/pair/${pool.token0.id}/${pool.token1.id}`}
+      href={`/v2/pair/${toChecksumTokenId(pool.token0.id)}/${toChecksumTokenId(pool.token1.id)}`}
     >
       <h5>{`${pool.token0.symbol}-${pool.token1.symbol}`}</h5>
       <div className="mt-4 space-x-12">

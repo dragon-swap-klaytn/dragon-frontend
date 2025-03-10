@@ -4,7 +4,6 @@ import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
 import { Position } from '@pancakeswap/v3-sdk'
 import { useToken } from 'hooks/Tokens'
 import { ReactNode, useMemo } from 'react'
-import { toChecksumCurrencyAmount } from 'utils/toChecksumCurrencyAmount'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { useAccount } from 'wagmi'
 import { usePool } from './usePools'
@@ -63,15 +62,11 @@ export function useDerivedV3BurnInfo({
 
   const liquidityValue0 =
     token0 && typeof discountedAmount0 !== 'undefined'
-      ? toChecksumCurrencyAmount(
-          CurrencyAmount.fromRawAmount(asWNATIVE ? token0 : unwrappedToken(token0)!, discountedAmount0),
-        )
+      ? CurrencyAmount.fromRawAmount(asWNATIVE ? token0 : unwrappedToken(token0)!, discountedAmount0)
       : undefined
   const liquidityValue1 =
     token1 && typeof discountedAmount1 !== 'undefined'
-      ? toChecksumCurrencyAmount(
-          CurrencyAmount.fromRawAmount(asWNATIVE ? token1 : unwrappedToken(token1)!, discountedAmount1),
-        )
+      ? CurrencyAmount.fromRawAmount(asWNATIVE ? token1 : unwrappedToken(token1)!, discountedAmount1)
       : undefined
 
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, position?.tokenId, asWNATIVE)

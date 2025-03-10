@@ -17,6 +17,7 @@ import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
 import { calculateAPR, calculateAPY } from 'utils/calculate-interests'
+import toChecksumTokenId from 'utils/toChecksumTokenId'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import { useAccount } from 'wagmi'
 
@@ -377,7 +378,7 @@ function V2PositionCard({
   return (
     <NextLink
       className="p-5 rounded-xl flex flex-col items-start space-y-5 bg-neutral-dark w-full hover:bg-neutral-dark-hovered"
-      href={`/v2/pair/${token0.id}/${token1.id}`}
+      href={`/v2/pair/${toChecksumTokenId(token0.id)}/${toChecksumTokenId(token1.id)}`}
     >
       <h5>{`${token0.symbol}-${token1.symbol}`}</h5>
 

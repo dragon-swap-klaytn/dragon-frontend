@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import { useUnsupportedTokenList, useWarningTokenList } from 'state/lists/hooks'
 import useSWR from 'swr'
 import { safeGetAddress } from 'utils'
+import { toChecksumToken } from 'utils/toChecksumToken'
 import { Address } from 'viem'
 import { useToken as useToken_ } from 'wagmi'
 import useUserAddedTokens, { useUserAddedTokensFromLs } from '../state/user/hooks/useUserAddedTokens'
@@ -170,9 +171,9 @@ export function useTokens(searchKey?: string) {
   }, [token, chainId, isAddress, isLoading, data, tokenMap, searchKey])
 }
 
-export function useToken(searchKey?: string): ERC20Token | undefined | null {
+export function useToken(searchKey = '', needChecksummed = true): ERC20Token | undefined | null {
   const tokens = useTokens(searchKey)
-  return tokens?.[0]
+  return !needChecksummed ? tokens?.[0] : tokens?.[0] ? toChecksumToken(tokens?.[0]) : undefined
 }
 
 export function useCurrency(currencyId: string | undefined): Currency | ERC20Token | null | undefined {

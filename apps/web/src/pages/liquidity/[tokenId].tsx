@@ -634,7 +634,8 @@ export default function PoolPage() {
                         !isOwnNFT ||
                         collecting ||
                         isCollectPending ||
-                        !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
+                        !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash) ||
+                        (!!collectMigrationHash && !isCollectPending)
                       }
                       onClick={onClaimFee}
                       variant="primary"
