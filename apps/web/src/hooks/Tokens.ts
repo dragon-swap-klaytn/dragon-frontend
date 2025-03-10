@@ -9,7 +9,7 @@ import { useUnsupportedTokenList, useWarningTokenList } from 'state/lists/hooks'
 import useSWR from 'swr'
 import { safeGetAddress } from 'utils'
 import { toChecksumToken } from 'utils/toChecksumToken'
-import { Address } from 'viem'
+import { Address, getAddress } from 'viem'
 import { useToken as useToken_ } from 'wagmi'
 import useUserAddedTokens, { useUserAddedTokensFromLs } from '../state/user/hooks/useUserAddedTokens'
 import { useActiveChainId } from './useActiveChainId'
@@ -56,7 +56,7 @@ export function useTokenMap({ skip = false, poolOnly = false }: { skip?: boolean
   const tokenMap = useMemo(() => {
     if (!fetchedTokenMap || !userAddedTokens) return undefined
 
-    return userAddedTokens
+    const lowercased = userAddedTokens
       .filter((token) => !fetchedTokenMap[token.address.toLowerCase()])
       .reduce<{ [address: Address]: Token }>(
         (tokenMap_, token) => ({
@@ -65,6 +65,17 @@ export function useTokenMap({ skip = false, poolOnly = false }: { skip?: boolean
         }),
         fetchedTokenMap,
       )
+
+    return {
+      ...lowercased,
+      ...Object.entries(lowercased).reduce(
+        (acc, [address, token]) => ({
+          ...acc,
+          [getAddress(address)]: token,
+        }),
+        {} as { [address: `0x${string}`]: Token },
+      ),
+    }
   }, [userAddedTokens, fetchedTokenMap])
 
   return {
@@ -171,14 +182,17 @@ export function useTokens(searchKey?: string) {
   }, [token, chainId, isAddress, isLoading, data, tokenMap, searchKey])
 }
 
-export function useToken(searchKey = '', needChecksummed = true): ERC20Token | undefined | null {
+export function useToken(searchKey = '', { needChecksummed = false } = {}): ERC20Token | undefined | null {
   const tokens = useTokens(searchKey)
   return !needChecksummed ? tokens?.[0] : tokens?.[0] ? toChecksumToken(tokens?.[0]) : undefined
 }
 
-export function useCurrency(currencyId: string | undefined): Currency | ERC20Token | null | undefined {
+export function useCurrency(
+  currencyId = '',
+  { needChecksummed = false } = {},
+): Currency | ERC20Token | null | undefined {
   const native = useNativeCurrency()
   const isNative = useMemo(() => currencyId?.toLowerCase() === native.symbol?.toLowerCase(), [currencyId, native])
-  const token = useToken(isNative ? undefined : currencyId)
+  const token = useToken(isNative ? undefined : currencyId, { needChecksummed })
   return isNative ? native : token
 }

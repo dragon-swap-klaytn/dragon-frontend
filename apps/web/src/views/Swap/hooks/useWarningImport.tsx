@@ -40,7 +40,7 @@ export default function useWarningImport() {
     return poolOnlyTokenMap && !isWrongNetwork && userAddedTokenMap
       ? urlLoadedTokens.filter((token: Token) => {
           return (
-            !poolOnlyTokenMap[token.address] &&
+            !poolOnlyTokenMap[token.address.toLowerCase()] &&
             !userAddedTokenMap[token.address.toLowerCase()] &&
             token.chainId === chainId
           )

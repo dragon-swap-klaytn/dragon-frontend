@@ -196,8 +196,8 @@ export default function PoolPage() {
 
   const removed = liquidity === 0n
 
-  const token0 = useToken(token0Address)
-  const token1 = useToken(token1Address)
+  const token0 = useToken(token0Address, { needChecksummed: true })
+  const token1 = useToken(token1Address, { needChecksummed: true })
 
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
