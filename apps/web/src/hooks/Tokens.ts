@@ -9,7 +9,7 @@ import { useUnsupportedTokenList, useWarningTokenList } from 'state/lists/hooks'
 import useSWR from 'swr'
 import { safeGetAddress } from 'utils'
 import { toChecksumToken } from 'utils/toChecksumToken'
-import { Address, getAddress } from 'viem'
+import { Address } from 'viem'
 import { useToken as useToken_ } from 'wagmi'
 import useUserAddedTokens, { useUserAddedTokensFromLs } from '../state/user/hooks/useUserAddedTokens'
 import { useActiveChainId } from './useActiveChainId'
@@ -56,7 +56,7 @@ export function useTokenMap({ skip = false, poolOnly = false }: { skip?: boolean
   const tokenMap = useMemo(() => {
     if (!fetchedTokenMap || !userAddedTokens) return undefined
 
-    const lowercased = userAddedTokens
+    return userAddedTokens
       .filter((token) => !fetchedTokenMap[token.address.toLowerCase()])
       .reduce<{ [address: Address]: Token }>(
         (tokenMap_, token) => ({
@@ -65,17 +65,6 @@ export function useTokenMap({ skip = false, poolOnly = false }: { skip?: boolean
         }),
         fetchedTokenMap,
       )
-
-    return {
-      ...lowercased,
-      ...Object.entries(lowercased).reduce(
-        (acc, [address, token]) => ({
-          ...acc,
-          [getAddress(address)]: token,
-        }),
-        {} as { [address: `0x${string}`]: Token },
-      ),
-    }
   }, [userAddedTokens, fetchedTokenMap])
 
   return {
