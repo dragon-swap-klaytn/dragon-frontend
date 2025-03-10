@@ -29,7 +29,7 @@ const HomePage = () => {
   return (
     <div className="overflow-x-hidden">
       <div
-        className="absolute top-0 -left-1/2 translate-x-1/2 w-full h-[700px] lg:h-[880px] bg-center bg-cover"
+        className="absolute top-14 -left-1/2 translate-x-1/2 w-full h-[700px] lg:h-[880px] bg-center bg-cover"
         style={{
           backgroundImage: 'url(/images/home/background_waves.webp)',
         }}

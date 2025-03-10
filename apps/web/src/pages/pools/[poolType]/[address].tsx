@@ -42,7 +42,7 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
     <Page
       title={t('Pools') + (poolData ? `(${poolData.type}) ${poolData.token0.symbol}-${poolData.token1.symbol}` : '')}
       image="/images/og-images/pools.jpeg"
-      className="w-full"
+      className="w-full mt-[60px]"
     >
       <div className="flex flex-col xs:flex-row xs:justify-between">
         {!!poolType && (

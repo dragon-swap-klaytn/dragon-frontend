@@ -405,6 +405,7 @@ export function AddLiquidityV3Layout({
   return (
     <Page>
       <AppBody
+        className="mt-[60px]"
         maxWidth={clsx({ 'max-w-md': selectType === SELECTOR_TYPE.V2, 'max-w-4xl': selectType !== SELECTOR_TYPE.V2 })}
       >
         <AppHeader

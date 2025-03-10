@@ -149,7 +149,7 @@ export default function PoolV2Page() {
 
   return (
     <Page>
-      <AppBody>
+      <AppBody className="mt-[60px]">
         <AppHeader
           title={
             <div className="flex items-center space-x-2 w-full justify-between">

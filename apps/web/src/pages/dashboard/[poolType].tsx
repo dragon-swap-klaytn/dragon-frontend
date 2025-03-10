@@ -69,7 +69,7 @@ const DashboardDetail = ({ poolType }: InferGetStaticPropsType<typeof getStaticP
     <Page
       title={t('Dashboard')}
       image="/images/og-images/dashboard.jpeg"
-      className="w-full flex flex-col items-center space-y-8"
+      className="mt-[60px] w-full flex flex-col items-center space-y-8"
     >
       <div className="flex flex-wrap items-center w-full justify-between gap-2">
         <h2 className="text-[40px] text-on-surface">{t('Dashboard')}</h2>

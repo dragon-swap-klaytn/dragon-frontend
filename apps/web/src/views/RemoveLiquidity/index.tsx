@@ -592,7 +592,7 @@ export const RemoveLiquidityLayout = ({ currencyA, currencyB, children }) => {
 
   return (
     <Page>
-      <AppBody>
+      <AppBody className="mt-[60px]">
         <AppHeader
           backTo={backTo}
           title={t('Remove {{assetA}}-{{assetB}} Liquidity', {

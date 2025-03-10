@@ -350,7 +350,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
 
   return (
     <Page>
-      <AppBody>
+      <AppBody className="mt-[60px]">
         <AppHeader
           backTo={`/liquidity/${tokenId}`}
           title={t('Remove {{assetA}}-{{assetB}} Liquidity', {

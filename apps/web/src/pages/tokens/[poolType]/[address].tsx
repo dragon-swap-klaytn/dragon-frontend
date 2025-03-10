@@ -29,7 +29,7 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
   const tokenData = !tokensData ? undefined : isUnknownToken ? null : tokensData[0]
 
   return (
-    <Page title={tokenData ? tokenData.name : undefined} className="w-full">
+    <Page title={tokenData ? tokenData.name : undefined} className="w-full mt-[60px]">
       <div className="flex flex-col xs:flex-row xs:justify-between">
         {!!poolType && (
           <BreadscrumbsV2

@@ -499,7 +499,7 @@ export default function PoolPage() {
   return (
     <Page>
       {!isLoading && <NextSeo title={`${currencyQuote?.symbol}-${currencyBase?.symbol} V3 LP #${tokenIdFromUrl}`} />}
-      <AppBody maxWidth="max-w-[900px]">
+      <AppBody maxWidth="max-w-[900px] mt-[60px]">
         {isLoading ? (
           <div className="mx-auto h-[450px] flex items-center justify-center">
             <Spinner />

@@ -273,7 +273,7 @@ export default function PoolListPage() {
 
   return (
     <Page>
-      <AppBody maxWidth="max-w-4xl">
+      <AppBody maxWidth="max-w-4xl mt-[60px]">
         <AppHeader
           title={t('Your Liquidity')}
           subtitle={t('List of your liquidity positions')}

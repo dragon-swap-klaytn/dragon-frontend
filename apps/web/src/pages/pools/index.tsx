@@ -68,7 +68,7 @@ const PoolsPage = () => {
   }, [portfolio, boostedOnly, searchKey, poolTypeOptions, myPositionOnly])
 
   return (
-    <Page title={t('Pools')} image="/images/og-images/pools.jpeg">
+    <Page title={t('Pools')} image="/images/og-images/pools.jpeg" className="mt-[60px]">
       {/* Header Section */}
       <div className="flex flex-col s:flex-row s:items-center s:justify-between">
         <div>

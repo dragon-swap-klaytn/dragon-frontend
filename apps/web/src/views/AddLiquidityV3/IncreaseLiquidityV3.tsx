@@ -369,7 +369,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
 
   return (
     <Page>
-      <div className="max-w-md mx-auto md:bg-surface-raised rounded-2xl">
+      <div className="max-w-md mt-[60px] mx-auto md:bg-surface-raised rounded-2xl">
         <AppHeader
           backTo={backTo}
           title={t('Add {{assetA}}-{{assetB}} Liquidity', {
