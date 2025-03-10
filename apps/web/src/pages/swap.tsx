@@ -26,7 +26,7 @@ const SwapPage = () => {
         }}
       />
 
-      <div className="max-w-sm bg-surface-raised rounded-2xl p-5 mx-auto">
+      <div className="max-w-sm mt-10 bg-surface-raised rounded-2xl p-5 mx-auto">
         <FormHeader onRefresh={refresh} refreshDisabled={!trade} syncing={syncing} />
 
         <FormMain

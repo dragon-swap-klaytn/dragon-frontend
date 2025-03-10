@@ -2,7 +2,6 @@ import { Trans, useTranslation } from '@pancakeswap/localization'
 import { COMMON_BUTTON_STYLE, DragonSwapLogo, MD_BUTTON_STYLE } from '@pancakeswap/uikit'
 import { ArrowsCounterClockwise, ArrowUpRight, SwimmingPool } from '@phosphor-icons/react'
 import clsx from 'clsx'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import { getDefaultStaticProps } from 'utils/pageUtils'
@@ -69,7 +68,7 @@ const HomePage = () => {
           </div>
 
           {/* Volume Section */}
-          <div className="py-[120px] lg:py-[160px] xl:py-[200px] lg:flex justify-between items-center gap-12">
+          <div className="py-[60px] lg:py-[70px] xl:py-[80px] lg:flex justify-between items-center gap-12">
             <div>
               <Title>
                 {t('main-second-header-1')}
@@ -89,12 +88,12 @@ const HomePage = () => {
             </div>
 
             <div className="mt-10 flex-1">
-              <Link href="/dashboard/v3" className="hover:opacity-70 block max-w-xs xl:max-w-[480px] mx-auto">
+              <div className="max-w-xs xl:max-w-[480px] mx-auto">
                 <div className="relative px-4 py-5 xl:px-6 xl:py-6 bg-white bg-opacity-[0.02] rounded-[14px] border border-white/10 backdrop-blur-2xl">
                   <DottedBackground />
                   <div className="flex justify-between items-center">
                     <div>
-                      <Image
+                      <img
                         className="h-5 w-auto xl:h-8"
                         src="/images/home/logo_landscape.png"
                         alt="DragonSwap"
@@ -108,7 +107,7 @@ const HomePage = () => {
                       <span className="text-[28px] xl:text-[40px]">%</span>
                     </p>
                   </div>
-                  <Image
+                  <img
                     className="mx-auto -my-3 xl:my-4 w-60 xl:w-72"
                     src="/images/home/volume_chart.png"
                     alt={`Pie Chart: ${((DATA.volumeUSD.dragonSwap / DATA.volumeUSD.kaia) * 100).toFixed(1)}%`}
@@ -140,7 +139,7 @@ const HomePage = () => {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             </div>
           </div>
 
@@ -177,7 +176,7 @@ const HomePage = () => {
                 value={`${((DATA.tvlUSD.dragonSwap / DATA.tvlUSD.kaia) * 100).toFixed(2)}%`}
                 valueClassName="text-green-400"
                 chart={
-                  <Image
+                  <img
                     src="/images/home/tvl_chart.png"
                     alt={`Pie Chart: ${((DATA.tvlUSD.dragonSwap / DATA.tvlUSD.kaia) * 100).toFixed(2)}%`}
                     width={90}
@@ -190,7 +189,7 @@ const HomePage = () => {
           </div>
 
           {/* Features Section */}
-          <div className="py-[120px] lg:py-[160px] xl:py-[200px]">
+          <div className="py-[120px] lg:pb-[160px] xl:pb-[200px]">
             <div className="flex flex-col lg:grid grid-cols-2 gap-8 lg:gap-4 xl:gap-8">
               <FeatureCard
                 href="/swap"
@@ -230,7 +229,7 @@ const HomePage = () => {
           </div>
 
           {/* Partners Section */}
-          <div className="py-[120px] lg:py-[160px] xl:py-[200px]">
+          <div className="py-[120px] lg:pb-[160px] xl:pb-[200px]">
             <Title>{t('Partnership')}</Title>
 
             <Description className="mt-8 text-white/60">{t('main-partnership-content')}</Description>
@@ -326,7 +325,7 @@ function FeatureCard({
 
   return (
     <Link href={href} className={className}>
-      <div className="relative p-5 md:p-7 flex flex-col w-full h-full rounded-[20px] bg-white bg-opacity-[0.04] border border-white/10 backdrop-blur-2xl hover:opacity-70">
+      <div className="relative p-5 md:p-7 flex flex-col w-full h-full rounded-[20px] bg-white bg-opacity-[0.04] border border-white/10 backdrop-blur-2xl hover:bg-opacity-[0.08] transition-colors duration-200">
         <ArrowUpRight className="absolute top-4 right-4" size={24} />
 
         <div className="flex items-center space-x-5">
