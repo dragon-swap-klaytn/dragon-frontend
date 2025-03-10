@@ -412,7 +412,15 @@ export default function V3FormView({
     true,
     true,
     'TransactionConfirmationModal',
-    [attemptingTxn, txHash, position, outOfRange, ticksAtLimit, baseCurrency],
+    [
+      attemptingTxn,
+      txHash,
+      position?.amount0.numerator,
+      position?.amount1.numerator,
+      outOfRange,
+      ticksAtLimit,
+      baseCurrency,
+    ],
   )
 
   const addIsWarning = useIsTransactionWarning(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
