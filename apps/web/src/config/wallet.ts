@@ -40,6 +40,22 @@ const isMetamaskInstalled = () => {
   return false
 }
 
+const isKaiaWalletInstalled = () => {
+  if (isMobile) {
+    return true
+  }
+
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  if (window.klaytn) {
+    return true
+  }
+
+  return false
+}
+
 export const WALLET_MAP: {
   [id in WalletId]: {
     title: string
@@ -55,7 +71,7 @@ export const WALLET_MAP: {
     title: 'KaiaWallet',
     icon: getWalletIcon('kaiawallet'),
     connectorId: ConnectorIds.kaiawallet,
-    installed: true,
+    installed: isKaiaWalletInstalled(),
     downloadLink: 'https://www.kaiawallet.io/',
     deepLink: `https://app.kaikas.io/u/${DGSWAP_DOMAIN}`,
   },
