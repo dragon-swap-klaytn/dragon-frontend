@@ -197,7 +197,11 @@ const handler: NextApiHandler = async (req, res) => {
     }
   }
 
-  res.status(200).json({ pools: pools.slice(skip, skip + limit), totalPage: Math.ceil(pools.length / limit) })
+  res.status(200).json({
+    pools: pools.slice(skip, skip + limit),
+    totalPage: Math.ceil(pools.length / limit),
+    totalCount: pools.length,
+  })
 }
 
 export default handler

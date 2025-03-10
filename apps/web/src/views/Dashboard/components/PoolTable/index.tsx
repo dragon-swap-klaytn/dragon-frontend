@@ -1,9 +1,9 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Spinner } from '@pancakeswap/uikit'
+import { Notification, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { Portfolio } from 'hooks/usePortfolio'
+import { Portfolio, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PoolType } from 'types'
 import { Address } from 'viem'
 import Pagination from 'views/Dashboard/components/Pagination'
@@ -69,7 +69,7 @@ export default function PoolTable({
 
   const [isFirstRender, setIsFirstRender] = useState(true)
 
-  const { poolsData, totalPage } = usePools({
+  const { poolsData, totalPage, totalCount } = usePools({
     poolTypes,
     skip,
     tokenAddress,
@@ -112,8 +112,36 @@ export default function PoolTable({
     [sortDirection, sortBy],
   )
 
+  const hasMissingPools = useMemo(() => {
+    if (!addresses || !totalCount) {
+      return false
+    }
+
+    let poolCount = 0
+
+    if (portfolio) {
+      Object.values(portfolio).forEach((pool) => {
+        if (pool.type === 'v2') {
+          poolCount += 1
+        } else {
+          const v3Pool = pool as PortfolioV3DataBigInt
+          poolCount += v3Pool.positions.length
+        }
+      })
+    }
+
+    return poolCount !== totalCount
+  }, [portfolio, addresses, totalCount])
+
   return (
     <div className="w-full">
+      <Notification variant="info" nStyle="default" className={clsx('-mt-1 mb-4', { hidden: !hasMissingPools })}>
+        <p className="break-keep">
+          {t(
+            'When a new pool that didn’t previously exist on DragonSwap is created, it may take approximately 10 minutes for it to appear on the list.',
+          )}
+        </p>
+      </Notification>
       <table className="w-full rounded-xl overflow-hidden">
         <colgroup>
           {/* Pool */}

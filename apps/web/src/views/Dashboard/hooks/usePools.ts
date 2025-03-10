@@ -91,7 +91,7 @@ export default function usePools(
     paused || !poolTypes || poolTypes.length === 0 || !debouncedParams ? null : ['dashboard/pools', debouncedParams],
     async () => {
       const res = await fetch(`/api/pools?${debouncedParams}`)
-      const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number }
+      const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number; totalCount: number }
 
       return parsed
     },
@@ -109,6 +109,7 @@ export default function usePools(
         }))
       : undefined,
     totalPage: data?.totalPage,
+    totalCount: data?.totalCount,
     poolsDataloading: !data && !error,
   }
 }

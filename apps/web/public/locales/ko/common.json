@@ -362,6 +362,7 @@
   "Liquidity": "유동성",
   "Increase": "공급",
   "Increase Liquidity": "유동성 공급",
+  "Your position will appear here.": "포지션 정보를 불러오는 중입니다.",
 
   "Boost Completed": "부스트 완료",
   "Boost Canceled": "부스트 취소됨",
@@ -456,5 +457,7 @@
   "Input": "제공",
   "Receive": "수령",
   "You are creating a trading pair": "신규 페어를 생성합니다",
-  "Create Pair & Supply": "페어 생성 및 유동성 공급"
+  "Create Pair & Supply": "페어 생성 및 유동성 공급",
+  "Can't find the price of a new token?<br />Check it easily with the Swapscanner chart!": "DragonSwap에서 가격을 확인 할 수 없는 신규 토큰이 있다면 스왑스캐너 차트 서비스를 이용해보세요!",
+  "When a new pool that didn’t previously exist on DragonSwap is created, it may take approximately 10 minutes for it to appear on the list.": "기존 DragonSwap에 없던 신규 Pool을 새롭게 생성한 경우, 리스트에 Pool이 뜨는데에 약 10분정도가 소요될 수 있습니다."
 }

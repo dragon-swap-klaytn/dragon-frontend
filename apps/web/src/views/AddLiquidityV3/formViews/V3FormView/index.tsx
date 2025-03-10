@@ -1,7 +1,7 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
-import { AutoColumn, ButtonV2, Notification, NumberFormat, useModal } from '@pancakeswap/uikit'
+import { AutoColumn, ButtonV2, ExternalLink, Notification, NumberFormat, useModal } from '@pancakeswap/uikit'
 import {
   ConfirmationModalContent,
   LiquidityChartRangeInput,
@@ -24,7 +24,7 @@ import { Field } from 'state/mint/actions'
 import { basisPointsToPercent } from 'utils/exchange'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
-import { useTranslation } from '@pancakeswap/localization'
+import { Trans, useTranslation } from '@pancakeswap/localization'
 import { Plus } from '@phosphor-icons/react'
 import { CurrencySelect } from 'components/CurrencySelect'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
@@ -611,6 +611,26 @@ export default function V3FormView({
               {price ? (invertPrice ? price?.invert()?.toSignificant(5) : price?.toSignificant(5)) : '-'}{' '}
               {quoteCurrency?.symbol}
             </p>
+
+            <Notification variant="positive" nStyle="default" className="my-2">
+              <div className="flex flex-col">
+                <p className="break-keep">
+                  <Trans
+                    t={t}
+                    i18nKey="Can't find the price of a new token?<br />Check it easily with the Swapscanner chart!"
+                  />
+                </p>
+
+                <ExternalLink
+                  href={`https://swapscanner.io/${router.locale === 'en' ? '' : 'ko/'}swap?from=${
+                    quoteCurrency?.wrapped.address
+                  }&to=${baseCurrency?.wrapped.address}`}
+                  className="mt-4"
+                >
+                  {t('Use Swapscanner')}
+                </ExternalLink>
+              </div>
+            </Notification>
           </div>
         )}
 

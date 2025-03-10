@@ -33,7 +33,7 @@ export function Notification({
             positive: "bg-teal-950",
             caution: "bg-yellow-950",
             warning: "bg-red-950",
-            info: "bg-gray-950",
+            info: "bg-neutral",
           },
         }[nStyle][variant],
         {
