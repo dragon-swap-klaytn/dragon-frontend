@@ -106,7 +106,7 @@ const HomePage = () => {
                     </p>
                   </div>
                   <img
-                    className="mx-auto -my-3 xl:my-4 w-60 xl:w-72"
+                    className="relative mx-auto -my-3 xl:my-4 w-60 xl:w-72"
                     src="/images/home/volume_chart.png"
                     alt={`Pie Chart: ${((DATA.volumeUSD.dragonSwap / DATA.volumeUSD.kaia) * 100).toFixed(1)}%`}
                     width={240}
@@ -175,6 +175,7 @@ const HomePage = () => {
                 valueClassName="text-green-400"
                 chart={
                   <img
+                    className="relative"
                     src="/images/home/tvl_chart.png"
                     alt={`Pie Chart: ${((DATA.tvlUSD.dragonSwap / DATA.tvlUSD.kaia) * 100).toFixed(2)}%`}
                     width={90}
@@ -269,7 +270,7 @@ function DottedBackground() {
   return (
     <div
       aria-hidden="true"
-      className="absolute inset-0 h-full w-full bg-[radial-gradient(#ffffff20_1px,transparent_1px)] [background-size:12px_12px]"
+      className="absolute inset-0 h-full w-full bg-[radial-gradient(#ffffff14_1px,transparent_1px)] [background-size:12px_12px]"
     />
   )
 }
