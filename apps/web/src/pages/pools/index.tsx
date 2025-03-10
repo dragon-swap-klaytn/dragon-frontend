@@ -12,7 +12,6 @@ import NextLink from 'next/link'
 import { useCallback, useMemo, useState } from 'react'
 import { PoolType } from 'types'
 import { getDefaultStaticProps } from 'utils/pageUtils'
-import { Address } from 'viem'
 import PoolTable from 'views/Dashboard/components/PoolTable'
 import { MyPositionsSummary } from 'views/PoolsV2/components/MyPositionsSummary'
 import PoolTypeSelector, { poolTypeSelectorOptions } from 'views/PoolsV2/components/PoolTypeSelector'
@@ -62,8 +61,13 @@ const PoolsPage = () => {
     return {
       boostedOnly,
       searchKey,
-      poolTypes: (myPositionOnly ? poolTypeSelectorOptions : poolTypeOptions).map(({ value }) => value as PoolType),
-      addresses: myPositionOnly && portfolio ? (Object.keys(portfolio) as Address[]) : undefined,
+      poolTypes: poolTypeOptions.map(({ value }) => value as PoolType),
+      addresses:
+        myPositionOnly && portfolio
+          ? Object.values(portfolio)
+              .filter(({ type }) => poolTypeOptions.find(({ value }) => value === type))
+              .map(({ poolId }) => poolId)
+          : undefined,
     }
   }, [portfolio, boostedOnly, searchKey, poolTypeOptions, myPositionOnly])
 
