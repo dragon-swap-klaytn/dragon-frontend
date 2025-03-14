@@ -1,10 +1,10 @@
-import { AnimatePresence, Variants, LazyMotion, domAnimation } from "framer-motion";
+import { AnimatePresence, LazyMotion, Variants, domAnimation } from "framer-motion";
+import debounce from "lodash/debounce";
 import React, { useCallback, useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
 import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
-import { isMobile } from "react-device-detect";
 import { useTheme } from "styled-components";
-import debounce from "lodash/debounce";
 import getPortalRoot from "../../util/getPortalRoot";
 import isTouchDevice from "../../util/isTouchDevice";
 import { Arrow, StyledTooltip } from "./StyledTooltip";
@@ -205,7 +205,7 @@ const useTooltip = (content: React.ReactNode, options?: TooltipOptions): Tooltip
   const tooltip = (
     <StyledTooltip
       onClick={stopPropagation}
-      data-theme={isDark ? "light" : "dark"}
+      data-theme="dark"
       {...animationMap}
       variants={animationVariants}
       transition={{ duration: 0.3 }}
