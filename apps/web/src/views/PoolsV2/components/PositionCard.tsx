@@ -319,6 +319,7 @@ function MinMaxPrice({
             className="hover:opacity-70 text-on-surface-subtlest"
             onClick={(e) => {
               e.preventDefault()
+              e.stopPropagation()
               setInverted(!inverted)
             }}
           >
