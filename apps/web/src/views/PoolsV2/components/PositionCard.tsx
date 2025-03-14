@@ -311,13 +311,16 @@ function MinMaxPrice({
 
         <div className="flex items-center space-x-1">
           <span className="text-xs">
-            {!inverted ? `${token0.symbol}-${token1.symbol}` : `${token1.symbol}-${token0.symbol}`}
+            {!inverted ? `${token0.symbol}/${token1.symbol}` : `${token1.symbol}/${token0.symbol}`}
           </span>
 
           <button
             type="button"
             className="hover:opacity-70 text-on-surface-subtlest"
-            onClick={() => setInverted(!inverted)}
+            onClick={(e) => {
+              e.preventDefault()
+              setInverted(!inverted)
+            }}
           >
             <ArrowsLeftRight />
           </button>

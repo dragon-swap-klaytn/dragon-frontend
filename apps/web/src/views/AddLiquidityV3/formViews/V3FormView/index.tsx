@@ -630,7 +630,7 @@ export default function V3FormView({
                 </p>
 
                 <ExternalLink
-                  href={`https://swapscanner.io/${router.locale === 'en' ? '' : 'ko/'}/pro/swap?from=${
+                  href={`https://swapscanner.io${router.locale === 'en' ? '' : '/ko'}/pro/swap?from=${
                     quoteCurrency?.wrapped.address
                   }&to=${baseCurrency?.wrapped.address}`}
                   className="mt-4"
