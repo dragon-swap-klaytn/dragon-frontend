@@ -442,9 +442,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
               </p>
 
               <ExternalLink
-                href={`https://swapscanner.io/${
-                  language === 'en' ? '' : 'ko/'
-                }swap?from=${inputCurrencyFilteredBySs}&to=${outputCurrencyFilteredBySs}`}
+                href={`https://swapscanner.io${
+                  language === 'en' ? '' : '/ko'
+                }/swap?from=${inputCurrencyFilteredBySs}&to=${outputCurrencyFilteredBySs}`}
                 className="mt-4"
               >
                 {t('Use Swapscanner')}
