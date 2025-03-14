@@ -42,18 +42,15 @@ export const PositionPreview = ({
   const currency0 = unwrappedToken(position.pool.token0)
   const currency1 = unwrappedToken(position.pool.token1)
 
+  const baseEqualsCurrency0 = baseCurrencyDefault && currency0 && baseCurrencyDefault.equals(currency0)
+  const baseEqualsCurrency1 = baseCurrencyDefault && currency1 && baseCurrencyDefault.equals(currency1)
+
   // track which currency should be base
   const [baseCurrency, setBaseCurrency] = useState(
-    baseCurrencyDefault
-      ? baseCurrencyDefault === currency0
-        ? currency0
-        : baseCurrencyDefault === currency1
-        ? currency1
-        : currency0
-      : currency0,
+    baseCurrencyDefault ? (baseEqualsCurrency0 ? currency0 : baseEqualsCurrency1 ? currency1 : currency0) : currency0,
   )
 
-  const sorted = baseCurrency === currency0
+  const sorted = currency0 && baseCurrency?.equals(currency0)
   const quoteCurrency = sorted ? currency1 : currency0
 
   const price = sorted ? position.pool.priceOf(position.pool.token0) : position.pool.priceOf(position.pool.token1)
