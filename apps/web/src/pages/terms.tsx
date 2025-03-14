@@ -1,5 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 
+import { getDefaultStaticProps } from 'utils/pageUtils'
+
 const TermsPage = () => {
   return (
     <div className="max-w-[1200px] px-4 mx-auto">
@@ -340,5 +342,7 @@ const TermsPage = () => {
     </div>
   )
 }
+
+export const getStaticProps = getDefaultStaticProps(['common'])
 
 export default TermsPage

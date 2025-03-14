@@ -61,6 +61,7 @@ interface WalletModalV2Props extends ModalV2Props {
 }
 
 export function WalletModalV2(props: WalletModalV2Props) {
+  const { i18n } = useTranslation()
   const {
     wallets: _wallets,
     login,
@@ -447,7 +448,12 @@ export function WalletModalV2(props: WalletModalV2Props) {
           t={t}
           components={{
             href: (
-              <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
+              <a
+                href={i18n.language === 'ko' ? '/ko/terms' : '/terms'}
+                className="font-bold underline underline-offset-2 hover:opacity-70"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
                 {t('Terms Of Service')}
               </a>
             ),
