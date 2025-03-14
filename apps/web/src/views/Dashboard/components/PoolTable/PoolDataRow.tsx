@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import getPercentage from 'utils/getPercentage'
 import { feeTierPercent } from 'views/Dashboard/utils'
-import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import PositionCardList from 'views/PoolsV2/components/PositionCard'
 
 export const PoolDataRowSkeleton = ({
@@ -182,13 +182,26 @@ export const PoolDataRow = ({
           />
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
-          <span>{formatDollarAmount(poolData.tvlUSD.current)}</span>
+          <span>
+            {formatDollarAmountV2({
+              num: poolData.tvlUSD.current,
+              withDollarSign: true,
+            })}
+          </span>
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
-          <span>{formatDollarAmount(poolData.volumeUSD['24H'])}</span>
+          <span>
+            {formatDollarAmountV2({
+              num: poolData.volumeUSD['24H'],
+              withDollarSign: true,
+            })}
+          </span>
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
-          {formatDollarAmount(poolData.volumeUSD['7D'])}
+          {formatDollarAmountV2({
+            num: poolData.volumeUSD['7D'],
+            withDollarSign: true,
+          })}
         </td>
         {openable && (
           <td className="text-on-surface pr-4 py-6 text-left">
