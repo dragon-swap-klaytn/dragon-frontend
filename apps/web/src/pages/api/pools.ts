@@ -181,11 +181,19 @@ const handler: NextApiHandler = async (req, res) => {
       break
     }
     case 'apy24H': {
-      pools.sort((a, b) => useDesc * (a.apy['24H'] - b.apy['24H']))
+      pools.sort(
+        (a, b) =>
+          useDesc *
+          (a.apy['24H'] + ((a as PoolV3Parsed).rewardApr ?? 0) - b.apy['24H'] - ((b as PoolV3Parsed).rewardApr ?? 0)),
+      )
       break
     }
     case 'apy7D': {
-      pools.sort((a, b) => useDesc * (a.apy['7D'] - b.apy['7D']))
+      pools.sort(
+        (a, b) =>
+          useDesc *
+          (a.apy['7D'] + ((a as PoolV3Parsed).rewardApr ?? 0) - b.apy['7D'] - ((b as PoolV3Parsed).rewardApr ?? 0)),
+      )
       break
     }
     case 'tvl': {
