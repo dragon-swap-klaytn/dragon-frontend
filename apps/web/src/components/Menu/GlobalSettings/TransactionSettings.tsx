@@ -152,7 +152,7 @@ const SlippageTabs = () => {
             ? t('Enter a valid slippage percentage')
             : slippageError === SlippageError.RiskyLow
             ? t('Your transaction may fail')
-            : t('Your transaction may be frontrun')}
+            : t('Your order may be filled at an unfavorable price due to the high slippage settings')}
         </p>
       )}
 

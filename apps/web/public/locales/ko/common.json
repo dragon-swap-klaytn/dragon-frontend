@@ -432,7 +432,8 @@
 
   "Enter a valid slippage percentage": "유효한 슬리피지 퍼센티지를 입력하세요",
   "Your transaction may fail": "거래가 실패할 수 있습니다",
-  "Your transaction may be frontrun": "거래가 프론트런될 가능성이 있습니다",
+  "Your order may be filled at an unfavorable price due to the high slippage settings": "높은 슬리피지 설정으로 인해 불리한 가격에 체결될 수 있습니다.",
+
   "Claimed": "수령됨",
 
   "Select a Token": "토큰 선택",
@@ -459,5 +460,6 @@
   "You are creating a trading pair": "신규 페어를 생성합니다",
   "Create Pair & Supply": "페어 생성 및 유동성 공급",
   "Can't find the price of a new token?<br />Check it easily with the Swapscanner chart!": "DragonSwap에서 가격을 확인 할 수 없는 신규 토큰이 있다면 스왑스캐너 차트 서비스를 이용해보세요!",
-  "When a new pool that didn’t previously exist on DragonSwap is created, it may take approximately 10 minutes for it to appear on the list.": "기존 DragonSwap에 없던 신규 Pool을 새롭게 생성한 경우, 리스트에 Pool이 뜨는데에 약 10분정도가 소요될 수 있습니다."
+  "When a new pool that didn’t previously exist on DragonSwap is created, it may take approximately 10 minutes for it to appear on the list.": "기존 DragonSwap에 없던 신규 Pool을 새롭게 생성한 경우, 리스트에 Pool이 뜨는데에 약 10분정도가 소요될 수 있습니다.",
+  "Routing through these tokens resulted in the best price for your trade.": "이 경로를 통해 최적의 가격을 제공합니다."
 }
