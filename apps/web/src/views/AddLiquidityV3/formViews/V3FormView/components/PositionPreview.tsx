@@ -15,8 +15,10 @@ import clsx from 'clsx'
 import { RangeTag } from 'components/RangeTag'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useMasterchefV3 } from 'hooks/useContract'
+import useTokenPrices from 'hooks/useTokenPrices'
 import { useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import { useRouter } from 'next/router'
+import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import RateToggle from './RateToggle'
 
 export const PositionPreview = ({
@@ -58,8 +60,24 @@ export const PositionPreview = ({
   const priceLower = sorted ? position.token0PriceLower : position.token0PriceUpper.invert()
   const priceUpper = sorted ? position.token0PriceUpper : position.token0PriceLower.invert()
 
+  const { prices } = useTokenPrices()
+  const { prices: pricesFromSs } = useTokenPrices({ source: 'swapscanner' })
+
   const price0 = useStablecoinPrice(position.pool.token0 ?? undefined, { enabled: !!position.amount0 })
   const price1 = useStablecoinPrice(position.pool.token1 ?? undefined, { enabled: !!position.amount1 })
+
+  const token0Price = +(
+    price0?.toSignificant(6) ||
+    prices?.[position.pool.token0.address] ||
+    pricesFromSs?.[position.pool.token0.address] ||
+    0
+  )
+  const token1Price = +(
+    price1?.toSignificant(6) ||
+    prices?.[position.pool.token1.address] ||
+    pricesFromSs?.[position.pool.token1.address] ||
+    0
+  )
 
   const handleRateChange = useCallback(() => {
     setBaseCurrency(quoteCurrency)
@@ -109,22 +127,20 @@ export const PositionPreview = ({
           currencyA={currency0}
           symbol={currency0?.symbol}
           amount={<FormattedCurrencyAmount currencyAmount={position.amount0} />}
-          value={
-            position.amount0 && price0
-              ? `~$${price0.quote(position.amount0?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-              : ''
-          }
+          value={formatDollarAmountV2({
+            num: token0Price * (+position.amount0.toSignificant(6) || 0),
+            withDollarSign: true,
+          })}
         />
         <CurrencyLogoWithAmount
           className="py-2 border-b border-border"
           currencyA={currency1}
           symbol={currency1?.symbol}
           amount={<FormattedCurrencyAmount currencyAmount={position.amount1} />}
-          value={
-            position.amount1 && price1
-              ? `~$${price1.quote(position.amount1?.wrapped).toFixed(2, { groupSeparator: ',' })}`
-              : ''
-          }
+          value={formatDollarAmountV2({
+            num: token1Price * (+position.amount1.toSignificant(6) || 0),
+            withDollarSign: true,
+          })}
         />
       </div>
 
