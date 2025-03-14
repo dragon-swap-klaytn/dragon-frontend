@@ -437,23 +437,31 @@ export function WalletModalV2(props: WalletModalV2Props) {
         </div>
       )}
 
-      {!(qrCode && selected) && (
-        <p className="text-sm text-on-surface mt-4">
-          <Trans
-            i18nKey="wallet-connect-terms"
-            t={t}
-            components={{
-              href: (
-                <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
-                  {t('Terms Of Service')}
-                </a>
-              ),
-            }}
-          />
-        </p>
-      )}
+      <p
+        className={clsx('text-sm text-on-surface mt-4', {
+          hidden: qrCode && selected,
+        })}
+      >
+        <Trans
+          i18nKey="wallet-connect-terms"
+          t={t}
+          components={{
+            href: (
+              <a href="/terms" className="font-bold underline underline-offset-2 hover:opacity-70">
+                {t('Terms Of Service')}
+              </a>
+            ),
+          }}
+        />
+      </p>
 
-      {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
+      <p
+        className={clsx('text-sm text-red-400 mt-2', {
+          hidden: !error,
+        })}
+      >
+        {error}
+      </p>
     </Modal>
   )
 }
