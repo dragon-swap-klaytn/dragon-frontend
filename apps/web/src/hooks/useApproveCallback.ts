@@ -22,14 +22,6 @@ export enum ApprovalState {
   APPROVED,
 }
 
-// <ApprovalConfirmationModal
-// minWidth={['100%', null, '420px']}
-// title={t('Confirm Approval')}
-// content={() => <></>}
-// hash={undefined}
-// attemptingTxn
-// />,
-
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
 export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,

@@ -4,11 +4,12 @@ import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 
-import { PortfolioData, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
+import { Portfolio, PortfolioData, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import { useTranslation } from 'next-i18next'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { useMemo, useState } from 'react'
+import { KeyedMutator } from 'swr'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import getPercentage from 'utils/getPercentage'
 import { feeTierPercent } from 'views/Dashboard/utils'
@@ -91,11 +92,13 @@ const APRWithBoost = ({ lpApr, rewardApr, isBoosted }: { lpApr: number; rewardAp
 export const PoolDataRow = ({
   poolData,
   portfolioData,
+  mutatePortfolio,
   isLastIndex,
   openable = false,
 }: {
   poolData: PoolParsed
   portfolioData?: PortfolioData
+  mutatePortfolio?: KeyedMutator<Portfolio>
   isLastIndex: boolean
   openable?: boolean
 }) => {
@@ -264,7 +267,12 @@ export const PoolDataRow = ({
                 </div>
               </div>
 
-              <PositionCardList className="flex-1" poolData={poolData} portfolioData={portfolioData} />
+              <PositionCardList
+                className="flex-1"
+                poolData={poolData}
+                portfolioData={portfolioData}
+                mutatePortfolio={mutatePortfolio}
+              />
             </div>
           </td>
         </Transition>

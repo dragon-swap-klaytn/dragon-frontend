@@ -328,6 +328,7 @@ function PoolPositionsV3({ pool, position }: { pool: PoolV3Parsed; position: Pos
       token1={pool.token1}
       volume24H={pool.volumeUSD['24H']}
       rewardApr={pool.rewardApr || 0}
+      poolId={pool.id}
       pool={v3Pool}
       position={position}
       priceMap={priceMap}

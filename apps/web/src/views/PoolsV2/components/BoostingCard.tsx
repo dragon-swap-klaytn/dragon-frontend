@@ -1,24 +1,15 @@
 import { CAKE } from '@pancakeswap/tokens'
-import { ButtonV2, useModal, useToast } from '@pancakeswap/uikit'
-import { MasterChefV3, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
-import { useQueryClient } from '@tanstack/react-query'
+import { ButtonV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
-import { ToastDescriptionWithTx } from 'components/Toast'
-import { MASTERCHEFV3_ADDRESS, V3_NFT_POSITION_MANAGER_ADDRESS } from 'const'
 import { useActiveChainId } from 'hooks/useActiveChainId'
+import useBoost from 'hooks/useBoost'
 import { useCakePrice } from 'hooks/useCakePrice'
-import useCatchTxError from 'hooks/useCatchTxError'
-import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/usePortfolio'
-import { useUnwrapRewardV2 } from 'hooks/useUnwrapRewardV2'
 import { useTranslation } from 'next-i18next'
-import { useCallback, useMemo } from 'react'
-import { calculateGasMargin } from 'utils'
+import { useMemo } from 'react'
 import { formatAmount } from 'utils/formatInfoNumbers'
-import { viemClients } from 'utils/viem'
-import { Address, hexToBigInt } from 'viem'
-import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
+import { Address } from 'viem'
+import { useAccount } from 'wagmi'
 
 export default function BoostingCard({
   className,
@@ -35,12 +26,7 @@ export default function BoostingCard({
 }) {
   const { t } = useTranslation()
   const { address: account } = useAccount()
-  const { data: signer } = useWalletClient()
   const { chainId } = useActiveChainId()
-  const publicClient = viemClients[chainId as keyof typeof viemClients]
-  const { loading, setLoading, fetchWithCatchTxError } = useCatchTxError()
-  const { sendTransactionAsync } = useSendTransaction()
-  const { toastSuccess } = useToast()
   const { portfolio } = usePortfolio({ account, onlyPoolIds: [poolId] })
   const positionData = useMemo(() => {
     if (!portfolio || !portfolio[poolId]) return null
@@ -55,192 +41,13 @@ export default function BoostingCard({
     return positionData.rewards.reduce((acc, r) => acc + r.amount, 0)
   }, [positionData])
 
-  const handleDismissConfirmation = useCallback(() => {
-    setLoading(false)
-  }, [setLoading])
-
-  const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
-    <ApprovalConfirmationModal
-      title={t('Confirm Transaction')}
-      content={() => ''}
-      pendingText={t('wating confirm...')}
-      attemptingTxn
-      customOnDismiss={handleDismissConfirmation}
-    />,
-    true,
-    true,
-    'TxConfirmationModal',
-  )
-  const showKlipQrCode = useKlipQrCondition()
-  const onStake = useCallback(async () => {
-    if (!account) return
-
-    const { calldata, value } = NonfungiblePositionManager.safeTransferFromParameters({
-      tokenId: positionId,
-      recipient: MASTERCHEFV3_ADDRESS,
-      sender: account,
-    })
-
-    const txn = {
-      to: V3_NFT_POSITION_MANAGER_ADDRESS,
-      data: calldata,
-      value: hexToBigInt(value),
-      account,
-      chain: signer?.chain,
-    }
-
-    if (showKlipQrCode) {
-      onPresentKlipTxModal()
-    }
-
-    const resp = await fetchWithCatchTxError(() =>
-      publicClient.estimateGas(txn).then((estimate) => {
-        const newTxn = {
-          ...txn,
-          gas: calculateGasMargin(estimate),
-        }
-
-        return sendTransactionAsync(newTxn)
-      }),
-    )
-
-    if (resp?.status) {
-      toastSuccess(`${t('Boost Completed')}!`, <ToastDescriptionWithTx txHash={resp.transactionHash} />)
-
-      onDone?.()
-    }
-  }, [
-    account,
-    fetchWithCatchTxError,
-    publicClient,
-    sendTransactionAsync,
-    signer,
-    t,
-    toastSuccess,
-    positionId,
-    onPresentKlipTxModal,
-    showKlipQrCode,
-    onDone,
-  ])
-
   const cakePrice = useCakePrice()
   const rewardToken = CAKE[chainId]
-
-  const { onAlert } = useUnwrapRewardV2({
-    rewardToken,
+  const { onStake, onUnstake, onHarvest, attemptingTxn } = useBoost({
+    poolId,
+    positionId,
+    onDone,
   })
-
-  const onUnstake = useCallback(async () => {
-    if (!account) return
-    const { calldata, value } = MasterChefV3.withdrawCallParameters({ tokenId: positionId, to: account })
-
-    const txn = {
-      account,
-      to: MASTERCHEFV3_ADDRESS,
-      data: calldata,
-      value: hexToBigInt(value),
-      chain: signer?.chain,
-    }
-
-    const resp = await fetchWithCatchTxError(() =>
-      publicClient.estimateGas(txn).then((estimate) => {
-        const newTxn = {
-          ...txn,
-          gas: calculateGasMargin(estimate),
-        }
-
-        return sendTransactionAsync(newTxn)
-      }),
-    )
-    if (resp?.status) {
-      if (rewardAmount > 0) {
-        await onAlert(rewardAmount)
-      } else {
-        toastSuccess(`${t('Boost Canceled')}!`, <ToastDescriptionWithTx txHash={resp.transactionHash} />)
-      }
-
-      onDone?.()
-    }
-  }, [
-    account,
-    fetchWithCatchTxError,
-    publicClient,
-    sendTransactionAsync,
-    signer,
-    t,
-    toastSuccess,
-    positionId,
-    rewardAmount,
-    onDone,
-    onAlert,
-  ])
-
-  const queryClient = useQueryClient()
-  const onHarvest = useCallback(async () => {
-    if (!account) return
-    const { calldata } = MasterChefV3.harvestCallParameters({ tokenId: positionId, to: account })
-
-    const txn = {
-      to: MASTERCHEFV3_ADDRESS,
-      data: calldata,
-      value: 0n,
-    }
-
-    const resp = await fetchWithCatchTxError(() =>
-      publicClient
-        .estimateGas({
-          account,
-          ...txn,
-        })
-        .then((estimate) => {
-          const newTxn = {
-            ...txn,
-            account,
-            chain: signer?.chain,
-            gas: calculateGasMargin(estimate),
-          }
-
-          return sendTransactionAsync(newTxn)
-        }),
-    )
-
-    if (resp?.status) {
-      if (rewardAmount) {
-        await onAlert(rewardAmount)
-      } else {
-        toastSuccess(`${t('Harvested')}!`, <ToastDescriptionWithTx txHash={resp.transactionHash} />)
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['mcv3-harvest'] })
-
-      onDone?.()
-    }
-  }, [
-    account,
-    fetchWithCatchTxError,
-    publicClient,
-    sendTransactionAsync,
-    signer,
-    t,
-    toastSuccess,
-    queryClient,
-    onDone,
-    positionId,
-    rewardAmount,
-    onAlert,
-  ])
-
-  const handleHarvest = useCallback(async () => {
-    if (showKlipQrCode) {
-      onPresentKlipTxModal()
-    }
-
-    await onHarvest()
-
-    if (showKlipQrCode) {
-      onDismissKlipTxModal({ force: true })
-    }
-  }, [onPresentKlipTxModal, onDismissKlipTxModal, showKlipQrCode, onHarvest])
 
   return (
     <div className={clsx('px-4 py-3 rounded-xl bg-neutral w-full', className)}>
@@ -260,7 +67,7 @@ export default function BoostingCard({
               </p>
             </div>
 
-            <ButtonV2 variant="primary" onClick={onStake} disabled={loading}>
+            <ButtonV2 variant="primary" onClick={onStake} disabled={attemptingTxn}>
               {t('Start Boost')}
             </ButtonV2>
           </>
@@ -277,11 +84,11 @@ export default function BoostingCard({
             </div>
 
             <div className="flex items-center space-x-3">
-              <ButtonV2 variant="subtle" onClick={onUnstake} disabled={loading}>
+              <ButtonV2 variant="subtle" onClick={onUnstake} disabled={attemptingTxn}>
                 {t('Cancel Boost')}
               </ButtonV2>
 
-              <ButtonV2 variant="secondary" onClick={handleHarvest} disabled={loading || !rewardAmount}>
+              <ButtonV2 variant="secondary" onClick={onHarvest} disabled={attemptingTxn || !rewardAmount}>
                 {t('Harvest')}
               </ButtonV2>
             </div>

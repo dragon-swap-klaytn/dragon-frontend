@@ -1,6 +1,9 @@
 import { Token } from '@pancakeswap/swap-sdk-core'
+import { useModal } from '@pancakeswap/uikit'
+import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
 import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import { useWNativeContract } from 'hooks/useContract'
+import useKlipQrCondition from 'hooks/useKlipQrCondition'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useTranslation } from 'next-i18next'
@@ -11,9 +14,10 @@ import { SendTransactionResult } from 'wagmi/actions'
 interface IProps {
   rewardToken: Token
   onDone?: (tx: SendTransactionResult) => void
+  modalKey: string
 }
 
-export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
+export function useUnwrapRewardV2({ rewardToken, onDone, modalKey }: IProps) {
   const { t } = useTranslation()
   const [inflight, setInflight] = useState(false)
 
@@ -22,6 +26,24 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
 
   const nativeInfo = useNativeCurrency()
   const wNativeContract = useWNativeContract(rewardToken.address)
+  const showKlipQrCode = useKlipQrCondition()
+
+  const handleDismissConfirmation = useCallback(() => {
+    setInflight(false)
+  }, [setInflight])
+
+  const [onPresentKlipTxModal, onDismissKlipTxModal] = useModal(
+    <ApprovalConfirmationModal
+      title={t('Confirm Transaction')}
+      content={() => ''}
+      pendingText={t('wating confirm...')}
+      attemptingTxn={inflight}
+      customOnDismiss={handleDismissConfirmation}
+    />,
+    true,
+    true,
+    `TxConfirmationModal:unwrapRewardV2:${modalKey}`,
+  )
 
   const unwrapReward = useCallback(
     async (reward: number) => {
@@ -31,6 +53,10 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
         minimumSignificantDigits: 6,
         maximumSignificantDigits: 6,
       })
+
+      if (showKlipQrCode) {
+        onPresentKlipTxModal()
+      }
 
       try {
         const txReceipt = await callWithGasPrice(wNativeContract, 'withdraw', [numeratedRewardAmount])
@@ -45,6 +71,10 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
           },
         })
 
+        if (showKlipQrCode) {
+          onDismissKlipTxModal({ force: true })
+        }
+
         return true
       } catch (e) {
         console.error('Could not withdraw', e)
@@ -53,7 +83,17 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
         setInflight(false)
       }
     },
-    [nativeInfo, rewardToken, wNativeContract, callWithGasPrice, addTransaction, onDone],
+    [
+      nativeInfo,
+      rewardToken,
+      wNativeContract,
+      callWithGasPrice,
+      addTransaction,
+      onDone,
+      showKlipQrCode,
+      onPresentKlipTxModal,
+      onDismissKlipTxModal,
+    ],
   )
 
   const { balance } = useTokenBalance(rewardToken.address)
@@ -63,6 +103,10 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
     const balanceStr = balance.div(10 ** rewardToken.decimals).toFixed(6)
 
     try {
+      if (showKlipQrCode) {
+        onPresentKlipTxModal()
+      }
+
       const txReceipt = await callWithGasPrice(wNativeContract, 'withdraw', [balance])
       onDone?.(txReceipt)
 
@@ -75,6 +119,10 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
         },
       })
 
+      if (showKlipQrCode) {
+        onDismissKlipTxModal({ force: true })
+      }
+
       return true
     } catch (e) {
       console.error('Could not unwrap', e)
@@ -82,7 +130,18 @@ export function useUnwrapRewardV2({ rewardToken, onDone }: IProps) {
     } finally {
       setInflight(false)
     }
-  }, [nativeInfo, rewardToken, wNativeContract, callWithGasPrice, addTransaction, onDone, balance])
+  }, [
+    nativeInfo,
+    rewardToken,
+    wNativeContract,
+    callWithGasPrice,
+    addTransaction,
+    onDone,
+    balance,
+    showKlipQrCode,
+    onPresentKlipTxModal,
+    onDismissKlipTxModal,
+  ])
 
   const onAlert = useCallback(
     async (reward: number) => {

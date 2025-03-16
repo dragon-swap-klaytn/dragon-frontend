@@ -65,6 +65,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
       setCollectMigrationHash(tx.hash)
       onClaimed?.()
     },
+    modalKey: 'useClaimModals',
   })
 
   const positions = useMemo<{ staked: PositionV3[]; unstaked: PositionV3[]; rewardClaimable: boolean }>(() => {

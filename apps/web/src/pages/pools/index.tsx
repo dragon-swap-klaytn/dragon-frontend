@@ -2,7 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { WNATIVE } from '@pancakeswap/sdk'
 import { CAKE } from '@pancakeswap/tokens'
-import { ButtonV2, Chip, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
+import { ButtonV2, Chip, Notification, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import Page from 'components/Layout/Page'
 import usePortfolio from 'hooks/usePortfolio'
@@ -40,6 +40,7 @@ const PoolsPage = () => {
     onDone: () => {
       refetchCakeBalance()
     },
+    modalKey: 'unwrapAllCake',
   })
 
   const wNative = WNATIVE[ChainId.KLAYTN]
@@ -50,6 +51,7 @@ const PoolsPage = () => {
     onDone: () => {
       refetchWNative()
     },
+    modalKey: 'unwrapAllWNative',
   })
 
   const refetchHandler = useCallback(() => {
@@ -89,6 +91,9 @@ const PoolsPage = () => {
       {/* My Positions Section */}
       <div className="mt-8">
         <h2 className="text-xl font-medium">{t('My Positions')}</h2>
+        <Notification variant="info" fullWidth className="mt-5">
+          {t('Add liquidity to the pool and earn fees. View your positions here.')}
+        </Notification>
         <div className="mt-5">
           {account && !portfolio ? (
             <div className="rounded-xl p-6 bg-surface-raised flex justify-center items-center min-h-[180px]">
@@ -189,7 +194,13 @@ const PoolsPage = () => {
               </ButtonV2>
             </div>
           ) : (
-            <PoolTable {...momoizedParams} portfolio={portfolio} initialSortBy="apy24H" openable />
+            <PoolTable
+              {...momoizedParams}
+              portfolio={portfolio}
+              mutatePortfolio={mutatePortfolio}
+              initialSortBy="apy24H"
+              openable
+            />
           )}
         </div>
       </div>

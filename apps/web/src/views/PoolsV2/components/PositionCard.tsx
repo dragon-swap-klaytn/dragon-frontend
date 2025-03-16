@@ -1,12 +1,13 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Price, Token } from '@pancakeswap/swap-sdk-core'
-import { TagV2 } from '@pancakeswap/uikit'
+import { ButtonV2, TagV2, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { FeeCalculator, Pool, Position } from '@pancakeswap/v3-sdk'
 import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
-import { PortfolioData, PortfolioV3DataBigInt, PositionV3 } from 'hooks/usePortfolio'
+import useBoost from 'hooks/useBoost'
+import { Portfolio, PortfolioData, PortfolioV3DataBigInt, PositionV3 } from 'hooks/usePortfolio'
 import useTokenPrices from 'hooks/useTokenPrices'
 import { useV3Pool } from 'hooks/v3/use-v3-pool'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
@@ -16,19 +17,22 @@ import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
 import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
+import { KeyedMutator } from 'swr'
 import { calculateAPR, calculateAPY } from 'utils/calculate-interests'
 import toChecksumTokenId from 'utils/toChecksumTokenId'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
-import { useAccount } from 'wagmi'
+import { Address, useAccount } from 'wagmi'
 
 export default function PositionCardList({
   className,
   poolData,
   portfolioData,
+  mutatePortfolio,
 }: {
   className?: string
   poolData: PoolParsed
   portfolioData?: PortfolioData
+  mutatePortfolio?: KeyedMutator<Portfolio>
 }) {
   const { prices } = useTokenPrices()
   // use swapscanner price as fallback
@@ -55,10 +59,12 @@ export default function PositionCardList({
               key={`${portfolioData.poolId}:position:${position.positionId}`}
               token0={poolData.token0}
               token1={poolData.token1}
+              poolId={poolData.id}
               pool={v3Pool}
               volume24H={poolData.volumeUSD['24H']}
               rewardApr={(poolData as PoolV3Parsed).rewardApr || 0}
               position={position}
+              mutatePortfolio={mutatePortfolio}
               priceMap={priceMap}
             />
           ) : null,
@@ -92,8 +98,10 @@ function EmptyPositionCard() {
 export function V3PositionCard({
   token0,
   token1,
+  poolId,
   pool,
   position: _position,
+  mutatePortfolio,
   volume24H,
   rewardApr,
   priceMap,
@@ -101,8 +109,10 @@ export function V3PositionCard({
 }: {
   token0: TokenSimple
   token1: TokenSimple
+  poolId: Address
   pool: Pool
   position: PositionV3
+  mutatePortfolio?: KeyedMutator<Portfolio>
   volume24H: number
   rewardApr: number
   priceMap: Record<string, number>
@@ -182,25 +192,56 @@ export function V3PositionCard({
   const priceLower = inverted ? position.token0PriceLower : position.token0PriceUpper.invert()
   const priceUpper = inverted ? position.token0PriceUpper : position.token0PriceLower.invert()
 
+  const { isMobile } = useMatchBreakpoints()
+  const { onStake } = useBoost({
+    poolId,
+    positionId: _position.positionId,
+    onDone: () => {
+      mutatePortfolio?.()
+
+      setTimeout(() => {
+        mutatePortfolio?.()
+      }, 3000)
+    },
+  })
+
   return (
     <NextLink
       className={clsx('p-5 rounded-xl space-y-5 w-full', bgClassName)}
       href={`/liquidity/${_position.positionId}`}
     >
-      <div className="w-full space-y-2">
-        <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start space-x-2 w-full">
+        <div className="w-full space-y-2">
           <div className="flex items-center space-x-2">
             <h5 className="text-on-surface">{`${token0.symbol}/${token1.symbol}`}</h5>
             <span className="text-[13px] text-gray-500">#{_position.positionId}</span>
           </div>
-          <TagV2 className={clsx('min-w-8', { hidden: !isBoosted })} color="orange">
-            {t('Boost 🔥')}
+          <TagV2 className="min-w-8" color={_position.isOutOfBounds ? 'red' : 'green'}>
+            {_position.isOutOfBounds ? t('Out of range') : t('In range')}
           </TagV2>
         </div>
 
-        <TagV2 className="min-w-8" color={_position.isOutOfBounds ? 'red' : 'green'}>
-          {_position.isOutOfBounds ? t('Out of range') : t('In range')}
-        </TagV2>
+        {isBoosted ? (
+          <TagV2 className="min-w-8 whitespace-nowrap" color="orange">
+            {t('Boost 🔥')}
+          </TagV2>
+        ) : !_position.isStaked ? (
+          <ButtonV2
+            variant="primary"
+            scale={isMobile ? 'sm' : 'md'}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+
+              onStake()
+            }}
+            className="whitespace-nowrap"
+          >
+            {t('Start Boost')}
+          </ButtonV2>
+        ) : (
+          <></>
+        )}
       </div>
 
       <div className="lg:hidden">

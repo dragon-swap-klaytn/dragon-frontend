@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { Portfolio, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { KeyedMutator } from 'swr'
 import { PoolType } from 'types'
 import { Address } from 'viem'
 import Pagination from 'views/Dashboard/components/Pagination'
@@ -45,6 +46,7 @@ export default function PoolTable({
   boostedOnly,
   openable = false,
   portfolio,
+  mutatePortfolio,
   initialSortBy = 'tvl',
 }: {
   poolTypes?: PoolType[]
@@ -54,6 +56,7 @@ export default function PoolTable({
   boostedOnly?: boolean
   openable?: boolean
   portfolio?: Portfolio
+  mutatePortfolio?: KeyedMutator<Portfolio>
   initialSortBy?: PoolsSortBy
 }) {
   const { t } = useTranslation()
@@ -135,7 +138,7 @@ export default function PoolTable({
 
   return (
     <div className="w-full">
-      <Notification variant="info" nStyle="default" className={clsx('-mt-1 mb-4', { hidden: !hasMissingPools })}>
+      <Notification variant="info" nStyle="default" className={clsx('-mt-1 mb-4 hidden', { block: hasMissingPools })}>
         <p className="break-keep">
           {t(
             'When a new pool that didn’t previously exist on DragonSwap is created, it may take approximately 10 minutes for it to appear on the list.',
@@ -205,6 +208,7 @@ export default function PoolTable({
                 <PoolDataRow
                   key={`poolTable:${poolData.id}`}
                   portfolioData={portfolio?.[poolData.id]}
+                  mutatePortfolio={mutatePortfolio}
                   poolData={poolData}
                   isLastIndex={index === poolsData.length - 1}
                   openable={openable}
