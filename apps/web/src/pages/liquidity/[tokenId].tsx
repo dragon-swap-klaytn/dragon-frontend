@@ -552,7 +552,7 @@ export default function PoolPage() {
             />
 
             <div className="p-5 md:p-8">
-              {!!tokenId && isOwnNFT && !!farm?.lpAddress && (
+              {!!tokenId && isOwnNFT && !!farm?.lpAddress && !removed && (
                 <>
                   <SectionTitle>{t('Boosts')}</SectionTitle>
 
