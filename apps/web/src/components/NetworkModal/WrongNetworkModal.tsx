@@ -1,35 +1,47 @@
-import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
-import { useTranslation } from '@pancakeswap/localization'
+import { ChainId } from '@pancakeswap/chains'
+import { Trans, useTranslation } from '@pancakeswap/localization'
 import { ArrowForwardIcon, ButtonV2, Modal } from '@pancakeswap/uikit'
 import { ChainLogo } from 'components/Logo/ChainLogo'
 import useAuth from 'hooks/useAuth'
 import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
-import { Chain, useNetwork } from 'wagmi'
+import { useNetwork } from 'wagmi'
 import Dots from '../Loader/Dots'
 
 // Where page network is not equal to wallet network
-export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain?: Chain; onDismiss: () => void }) {
+export function WrongNetworkModal({ onDismiss }: { onDismiss: () => void }) {
   const { switchNetworkAsync, isLoading, canSwitch } = useSwitchNetwork()
   const { chain } = useNetwork()
   const { logout } = useAuth()
-  const chainId = currentChain?.id || DEFAULT_CHAIN_ID
   const { t } = useTranslation()
 
-  // const switchText = t('Switch to {{network}}', { network: currentChain.name })
   const switchText = t('Switch to {{network}}', { network: 'Kaia' })
 
   return (
-    <Modal title={t('You are in wrong network')} onDismiss={onDismiss}>
+    <Modal title={t('Network Configuration Error')} onDismiss={onDismiss} hideCloseButton>
       <div className="w-full">
-        {/* <p>{t('This page is located for {{network}}.', { network: currentChain.name })}</p> */}
-        <p className="text-sm text-on-surface">{t('This page is located for {{network}}.', { network: 'Kaia' })}</p>
         <p className="text-sm text-on-surface">
-          {t('You are under {{network}} now, please switch the network to continue.', { network: chain?.name ?? '' })}
+          <Trans
+            t={t}
+            i18nKey="This page is designed for the <b>Kaia network</b> only."
+            components={{
+              b: <b />,
+            }}
+          />
+        </p>
+        <p className="text-sm text-on-surface">
+          <Trans
+            t={t}
+            i18nKey="You are currently connected to <b>{{network}}</b>. Please switch networks to continue."
+            values={{ network: chain?.name ?? '' }}
+            components={{
+              b: <b />,
+            }}
+          />
         </p>
 
         <div className="flex items-center space-x-2 p-3 rounded-xl bg-red-950 mt-4 text-sm text-on-surface">
           <ChainLogo chainId={chain?.id ?? 0} /> <ArrowForwardIcon color="#D67E0A" />
-          <ChainLogo chainId={chainId} />
+          <ChainLogo chainId={ChainId.KLAYTN} />
           <span>{t('Switch network to continue.')}</span>
         </div>
 
@@ -38,7 +50,8 @@ export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain?: 
             <ButtonV2
               variant="primary"
               state={isLoading ? 'loading' : 'default'}
-              onClick={() => switchNetworkAsync(chainId)}
+              onClick={() => switchNetworkAsync(ChainId.KLAYTN)}
+              disabled={isLoading}
             >
               {isLoading ? <Dots>{switchText}</Dots> : switchText}
             </ButtonV2>

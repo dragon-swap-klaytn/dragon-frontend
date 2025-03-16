@@ -1,4 +1,4 @@
-import { Button, Flex, Text } from '@pancakeswap/uikit'
+import { ButtonV2 } from '@pancakeswap/uikit'
 import Page from 'components/Layout/Page'
 import { Component, PropsWithChildren, ReactNode } from 'react'
 
@@ -27,10 +27,13 @@ export class ErrorBoundary extends Component<
       return (
         <>
           <Page>
-            <Flex flexDirection="column" justifyContent="center" alignItems="center">
-              <Text mb="16px">{this.props.fallback || 'Oops, something wrong.'} </Text>
-              <Button onClick={() => window.location.reload()}>Click here to reset!</Button>
-            </Flex>
+            <div className="flex flex-col items-center justify-center space-y-3 h-[60vh]">
+              <p className="text-on-surface text-lg">{this.props.fallback || 'Oops, something wrong.'}</p>
+
+              <ButtonV2 variant="primary" onClick={window.location.reload}>
+                Reload
+              </ButtonV2>
+            </div>
           </Page>
         </>
       )

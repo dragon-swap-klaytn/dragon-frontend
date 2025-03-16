@@ -20,6 +20,8 @@ import { Fragment } from 'react'
 import { ChainId } from '@pancakeswap/chains'
 import { appWithTranslation } from '@pancakeswap/localization'
 import Footer from 'components/Menu/Footer'
+import Oops from 'components/Oops'
+import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
 import { useRouter } from 'next/router'
@@ -147,7 +149,10 @@ const emptyInitialI18NextConfig = {
 }
 
 const App = ({ Component, pageProps }: AppPropsWithLayout) => {
-  if (Component.pure) {
+  const { chainId } = useActiveWeb3React()
+  const isPageNotSupported = chainId !== ChainId.KLAYTN
+
+  if (Component.pure && !isPageNotSupported) {
     return <Component {...pageProps} />
   }
 
@@ -158,13 +163,11 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   return (
     <ProductionErrorBoundary>
       <Menu />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <Layout>{isPageNotSupported ? <Oops /> : <Component {...pageProps} />}</Layout>
 
       <Footer />
       <ToastListener />
-      <NetworkModal pageSupportedChains={Component.chains} />
+      <NetworkModal />
       {isShowScrollToTopButton && <ScrollToTopButtonV2 />}
     </ProductionErrorBoundary>
   )

@@ -5,8 +5,6 @@ import {
   WalletConnectorNotFoundError,
   WalletSwitchChainError,
 } from '@pancakeswap/ui-wallets'
-import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
-import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useCallback, useRef } from 'react'
 import { useAppDispatch } from 'state'
 import {
@@ -53,7 +51,6 @@ const useAuth = () => {
         }
 
         if (!connected.chain.unsupported && connected.chain.id !== chainId) {
-          replaceBrowserHistory('chain', CHAIN_QUERY_NAME[connected.chain.id])
           setSessionChainId(connected.chain.id)
           lastRequestedConnectorIdRef.current = ''
         }

@@ -277,7 +277,7 @@
   "Please switch your network to continue.": "계속하려면 네트워크를 변경하세요.",
   "Disconnect Wallet": "지갑 연결 해제",
   "Switch to {{network}}": "{{network}}로 전환",
-  "You are under {{network}} now, please switch the network to continue.": "현재 {{network}} 네트워크에 있습니다. 계속하려면 네트워크를 변경하세요.",
+  "You are under <b>{{network}}</b> now, please switch the network to continue.": "현재 <b>{{network}}</b> 네트워크에 있습니다. 계속하려면 네트워크를 변경하세요.",
   "please make sure you're visiting {{domain}} - check the URL carefully.": "현재 방문 중인 사이트가 {{domain}}인지 확인하세요. URL을 주의 깊게 확인하세요.",
   "Pooled {{asset}}": "풀된 {{asset}}",
   "By adding liquidity, you’ll earn 50% from the fees of all trades on this pair, proportional to your share in the trading pair. Fees are added to the pair, accrue in real time, and can be claimed by withdrawing your liquidity. For more information on Stableswap fees click": "유동성을 공급하면 해당 거래쌍의 모든 거래 수수료 중 50%를 거래쌍에서 보유한 비율에 따라 얻을 수 있습니다. 수수료는 거래쌍에 추가되며 실시간으로 적립되며, 유동성을 인출하여 청구할 수 있습니다. Stableswap 수수료에 대한 자세한 내용은 여기를 클릭하세요.",
@@ -461,5 +461,17 @@
   "Create Pair & Supply": "페어 생성 및 유동성 공급",
   "Can't find the price of a new token?<br />Check it easily with the Swapscanner chart!": "DragonSwap에서 가격을 확인 할 수 없는 신규 토큰이 있다면 스왑스캐너 차트 서비스를 이용해보세요!",
   "When a new pool that didn’t previously exist on DragonSwap is created, it may take approximately 10 minutes for it to appear on the list.": "기존 DragonSwap에 없던 신규 Pool을 새롭게 생성한 경우, 리스트에 Pool이 뜨는데에 약 10분정도가 소요될 수 있습니다.",
-  "Routing through these tokens resulted in the best price for your trade.": "이 경로를 통해 최적의 가격을 제공합니다."
+  "Routing through these tokens resulted in the best price for your trade.": "이 경로를 통해 최적의 가격을 제공합니다.",
+
+  "You are in wrong network": "네트워크 설정 오류",
+  "This page is located for {{network}}.": "이 페이지는 {{network}} 네트워크를 위해 제작되었습니다.",
+  "Switch network to continue.": "계속하려면 네트워크를 전환하세요.",
+  "Reload": "새로고침",
+  "Wrong Network": "잘못된 네트워크",
+  "Check your network": "네트워크 확인",
+  "Switch to %network%": "%network%(으)로 전환",
+
+  "Network Configuration Error": "네트워크 설정 오류",
+  "This page is designed for the <b>Kaia network</b> only.": "이 페이지는 <b>Kaia 네트워크</b>에서만 사용할 수 있습니다.",
+  "You are currently connected to <b>{{network}}</b>. Please switch networks to continue.": "현재 <b>{{network}}</b> 네트워크에 연결되어 있습니다. 계속하려면 네트워크를 변경하세요."
 }

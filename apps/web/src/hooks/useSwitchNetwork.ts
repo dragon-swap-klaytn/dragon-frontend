@@ -1,9 +1,6 @@
 /* eslint-disable consistent-return */
-import { DEFAULT_CHAIN_ID } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
 import { useToast } from '@pancakeswap/uikit'
-import replaceBrowserHistory from '@pancakeswap/utils/replaceBrowserHistory'
-import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useCallback, useMemo } from 'react'
 import { useAccount, useSwitchNetwork as useSwitchNetworkWallet } from 'wagmi'
 import { useSessionChainId } from './useSessionChainId'
@@ -14,7 +11,6 @@ export function useSwitchNetworkLocal() {
   return useCallback(
     (chainId: number) => {
       setSessionChainId(chainId)
-      replaceBrowserHistory('chain', chainId === DEFAULT_CHAIN_ID ? null : CHAIN_QUERY_NAME[chainId])
     },
     [setSessionChainId],
   )
