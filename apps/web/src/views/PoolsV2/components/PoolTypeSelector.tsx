@@ -12,6 +12,7 @@ export const poolTypeSelectorOptions = [
     value: 'v3' as PoolType,
   },
 ]
+export type PoolTypeSelectorOptions = typeof poolTypeSelectorOptions
 
 type PoolTypeSelectorProps = {
   selectedPoolTypes: SelectOption[]

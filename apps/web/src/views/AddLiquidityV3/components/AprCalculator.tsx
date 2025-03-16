@@ -25,7 +25,7 @@ import { Calculator } from '@phosphor-icons/react'
 import useTokenPrices from 'hooks/useTokenPrices'
 import { PoolV3Parsed } from 'pages/api/pools'
 import { calculateAPR } from 'utils/calculate-interests'
-import usePools from 'views/Dashboard/hooks/usePools'
+import usePools, { buildUsePoolsSearchParams } from 'views/Dashboard/hooks/usePools'
 import { useV3MintActionHandlers } from '../formViews/V3FormView/form/hooks/useV3MintActionHandlers'
 import { useV3FormState } from '../formViews/V3FormView/form/reducer'
 
@@ -92,7 +92,8 @@ export function AprCalculator({
   const router = useRouter()
   const poolAddress = useMemo(() => (pool ? Pool.getAddress(pool.token0, pool.token1, pool.fee) : undefined), [pool])
 
-  const { poolsData } = usePools({ addresses: [poolAddress?.toLowerCase() ?? ''] }, { paused: !poolAddress })
+  const query = buildUsePoolsSearchParams({ addresses: [poolAddress?.toLowerCase() ?? ''] })
+  const { poolsData } = usePools(query.toString(), { paused: !poolAddress || !query })
 
   const poolData = poolsData && poolsData[0] ? poolsData[0] : undefined
 

@@ -1,6 +1,8 @@
 import { ChainId } from '@pancakeswap/chains'
 import { WKAIA_ADDRESS } from '@pancakeswap/uikit'
+import { PoolType } from 'types'
 import { Address } from 'viem'
+import { poolTypeSelectorOptions } from 'views/PoolsV2/components/PoolTypeSelector'
 
 export const DEFAULT_TOKEN_LIST = [
   {
@@ -378,3 +380,13 @@ export const DEFAULT_TOKEN_LIST = [
 
 export const MASTERCHEFV3_ADDRESS = '0x6AC953CAD04b0Ce38a454f17D1d92620e456c9C0' as Address
 export const V3_NFT_POSITION_MANAGER_ADDRESS = '0x68f762d28CebaD501c090949e4680697e56848fC' as Address
+
+export const DEFAULT_POOLS_FILTERS = {
+  poolTypes: poolTypeSelectorOptions.map(({ value }) => value as PoolType),
+  boostedOnly: false,
+  searchKey: '',
+  myPositionOnly: false,
+  sortBy: 'apy24H' as const,
+  sortDirection: 'desc' as const,
+  page: 1,
+}

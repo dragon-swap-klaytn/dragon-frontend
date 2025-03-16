@@ -13,12 +13,13 @@ import Percent from 'views/Dashboard/components/Percent'
 import PoolTable from 'views/Dashboard/components/PoolTable'
 import { TokenChart } from 'views/Dashboard/components/TokenChart'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
-import useTokensData from 'views/Dashboard/hooks/useTokensData'
+import useTokensData, { buildUseTokensSearchParams } from 'views/Dashboard/hooks/useTokensData'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 
 const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: Address }) => {
   const { t } = useTranslation()
-  const { tokensData } = useTokensData({ poolType, addresses: [address] }, { paused: !poolType || !address })
+  const query = buildUseTokensSearchParams({ addresses: [address] })
+  const { tokensData } = useTokensData({ poolType, query }, { paused: !poolType || !query })
 
   const isUnknownToken = tokensData && tokensData.length === 0
   /**
@@ -186,7 +187,12 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
             <div className="mt-8">
               <h2 className="text-xl">Pools</h2>
               <div className="mt-5">
-                <PoolTable poolTypes={poolType ? [poolType] : undefined} tokenAddress={tokenData.id} />
+                <PoolTable
+                  baseParams={{
+                    poolTypes: [poolType],
+                    tokenAddress: tokenData.id,
+                  }}
+                />
               </div>
             </div>
           </div>

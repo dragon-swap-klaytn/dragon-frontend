@@ -1,22 +1,38 @@
 import { ChainId } from '@pancakeswap/chains'
+import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { WNATIVE } from '@pancakeswap/sdk'
 import { CAKE } from '@pancakeswap/tokens'
 import { ButtonV2, Chip, Notification, SearchBar, SegmentedControl, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import Page from 'components/Layout/Page'
+import { DEFAULT_POOLS_FILTERS } from 'const'
 import usePortfolio from 'hooks/usePortfolio'
+import useRouterReady from 'hooks/useRouterReady'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useUnwrapRewardV2 } from 'hooks/useUnwrapRewardV2'
 import NextLink from 'next/link'
-import { useCallback, useMemo, useState } from 'react'
+import { useRouter } from 'next/router'
+import { useCallback, useEffect, useState } from 'react'
 import { PoolType } from 'types'
+import useDeepCompareEffect from 'use-deep-compare-effect'
+import isEmptyObject from 'utils/isEmptyObject'
 import { getDefaultStaticProps } from 'utils/pageUtils'
 import PoolTable from 'views/Dashboard/components/PoolTable'
 import { MyPositionsSummary } from 'views/PoolsV2/components/MyPositionsSummary'
-import PoolTypeSelector, { poolTypeSelectorOptions } from 'views/PoolsV2/components/PoolTypeSelector'
-import { useAccount } from 'wagmi'
+import PoolTypeSelector, {
+  PoolTypeSelectorOptions,
+  poolTypeSelectorOptions,
+} from 'views/PoolsV2/components/PoolTypeSelector'
+import { Address, useAccount } from 'wagmi'
 
+type PoolsBaseParams = {
+  poolTypes: PoolType[]
+  boostedOnly: boolean
+  searchKey: string
+  myPositionOnly: boolean
+  addresses?: Address[]
+}
 const PoolsPage = () => {
   const { address: account } = useAccount()
 
@@ -27,10 +43,89 @@ const PoolsPage = () => {
     poolTypes: ['v3', 'v2'],
   })
 
-  const [boostedOnly, setBoostedOnly] = useState(false)
-  const [searchKey, setSearchKey] = useState('')
-  const [myPositionOnly, setMyPositionOnly] = useState(false)
+  const [boostedOnly, setBoostedOnly] = useState(DEFAULT_POOLS_FILTERS.boostedOnly)
+  const [searchKey, setSearchKey] = useState(DEFAULT_POOLS_FILTERS.searchKey)
+  const [myPositionOnly, setMyPositionOnly] = useState(DEFAULT_POOLS_FILTERS.myPositionOnly)
   const [poolTypeOptions, setPoolTypeOptions] = useState(poolTypeSelectorOptions)
+
+  const debouncedSearchKey = useDebounce(searchKey, 500)
+  const addresses = myPositionOnly && portfolio ? (Object.keys(portfolio) as Address[]) : undefined
+
+  const router = useRouter()
+  const isRouterReady = useRouterReady()
+
+  const [baseParams, setBaseParams] = useState<PoolsBaseParams>({} as PoolsBaseParams)
+
+  useEffect(() => {
+    if (!router.isReady || !isRouterReady) return
+    if (!isEmptyObject(baseParams)) return
+
+    const {
+      poolsTypes: _poolTypes,
+      boostedOnly: _boostedOnly,
+      poolsSearchKey: _searchKey,
+      myPositionOnly: _myPositionOnly,
+    } = router.query || {}
+
+    if (!_poolTypes && !_boostedOnly && !_searchKey && !_myPositionOnly) {
+      setBaseParams({
+        poolTypes: DEFAULT_POOLS_FILTERS.poolTypes,
+        boostedOnly: DEFAULT_POOLS_FILTERS.boostedOnly,
+        searchKey: DEFAULT_POOLS_FILTERS.searchKey,
+        myPositionOnly: DEFAULT_POOLS_FILTERS.myPositionOnly,
+      })
+
+      return
+    }
+
+    let newOptions: PoolTypeSelectorOptions | undefined
+    if (typeof _poolTypes === 'string') {
+      const splited = _poolTypes.split(',').sort((a, b) => a.localeCompare(b))
+      const types = splited.every((type) => poolTypeSelectorOptions.some((option) => option.value === type))
+        ? (splited as PoolType[])
+        : poolTypeSelectorOptions.map(({ value }) => value as PoolType)
+
+      const filtered = poolTypeSelectorOptions.filter((option) => types.includes(option.value))
+
+      setPoolTypeOptions((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(filtered)) {
+          newOptions = prev
+        }
+
+        newOptions = filtered
+
+        return newOptions
+      })
+    }
+
+    const newBoostedOnly = _boostedOnly === 'true'
+    setBoostedOnly(newBoostedOnly)
+
+    const newSearchKey = typeof _searchKey === 'string' ? _searchKey : ''
+    setSearchKey(newSearchKey)
+
+    const newMyPositionOnly = _myPositionOnly === 'true'
+    setMyPositionOnly(newMyPositionOnly)
+
+    setBaseParams({
+      poolTypes: (newOptions ?? poolTypeSelectorOptions).map(({ value }) => value as PoolType),
+      boostedOnly: newBoostedOnly,
+      searchKey: newSearchKey,
+      myPositionOnly: newMyPositionOnly,
+      addresses,
+    })
+  }, [router.query, router.isReady, baseParams, isRouterReady, addresses])
+
+  useDeepCompareEffect(() => {
+    if (isEmptyObject(baseParams) || !isRouterReady) return
+    setBaseParams({
+      poolTypes: poolTypeOptions.map(({ value }) => value as PoolType),
+      boostedOnly,
+      myPositionOnly,
+      searchKey: debouncedSearchKey,
+      addresses,
+    })
+  }, [poolTypeOptions, boostedOnly, myPositionOnly, debouncedSearchKey, baseParams, isRouterReady, addresses])
 
   const cake = CAKE[ChainId.KLAYTN]
   const { balance: cakeBalance, refetch: refetchCakeBalance } = useTokenBalance(cake.address)
@@ -57,21 +152,17 @@ const PoolsPage = () => {
   const refetchHandler = useCallback(() => {
     refetchCakeBalance()
     refetchWNative()
-  }, [refetchCakeBalance, refetchWNative])
+    mutatePortfolio()
+  }, [refetchCakeBalance, refetchWNative, mutatePortfolio])
 
-  const momoizedParams = useMemo(() => {
-    return {
-      boostedOnly,
-      searchKey,
-      poolTypes: poolTypeOptions.map(({ value }) => value as PoolType),
-      addresses:
-        myPositionOnly && portfolio
-          ? Object.values(portfolio)
-              .filter(({ type }) => poolTypeOptions.find(({ value }) => value === type))
-              .map(({ poolId }) => poolId)
-          : undefined,
-    }
-  }, [portfolio, boostedOnly, searchKey, poolTypeOptions, myPositionOnly])
+  const resetPoolTypeOptions = useCallback(() => setPoolTypeOptions(poolTypeSelectorOptions), [])
+  const resetBaseParams = useCallback(() => {
+    setBaseParams({} as PoolsBaseParams)
+    setBoostedOnly(DEFAULT_POOLS_FILTERS.boostedOnly)
+    setSearchKey(DEFAULT_POOLS_FILTERS.searchKey)
+    setMyPositionOnly(DEFAULT_POOLS_FILTERS.myPositionOnly)
+    setPoolTypeOptions(poolTypeSelectorOptions)
+  }, [])
 
   return (
     <Page title={t('Pools')} image="/images/og-images/pools.jpeg" className="mt-[60px]">
@@ -157,11 +248,12 @@ const PoolsPage = () => {
           </div>
           <div
             className={clsx('inline-block', {
-              hidden: Object.keys(portfolio ?? {}).length === 0,
+              hidden: isEmptyObject(portfolio ?? {}),
             })}
           >
-            <Chip label={t('My Position')} selected={myPositionOnly} setSelected={setMyPositionOnly} />
+            <Chip label={t('My Positions')} selected={myPositionOnly} setSelected={setMyPositionOnly} />
           </div>
+
           <div className="inline-block flex-1 !mx-0" />
           <div className="hidden md:inline-block">
             <SearchBar value={searchKey} onChange={(e) => setSearchKey(e.target.value)} placeholder={t('Search...')} />
@@ -182,26 +274,15 @@ const PoolsPage = () => {
           />
         </div>
         <div className="mt-5">
-          {momoizedParams.poolTypes.length === 0 ? (
-            <div className="mt-8">
-              <p className="text-on-surface">{t('Please select at least one pool type.')}</p>
-              <ButtonV2
-                className="mt-4"
-                variant="secondary"
-                onClick={() => setPoolTypeOptions(poolTypeSelectorOptions)}
-              >
-                {t('Select All')}
-              </ButtonV2>
-            </div>
-          ) : (
-            <PoolTable
-              {...momoizedParams}
-              portfolio={portfolio}
-              mutatePortfolio={mutatePortfolio}
-              initialSortBy="apy24H"
-              openable
-            />
-          )}
+          <PoolTable
+            baseParams={baseParams}
+            portfolio={portfolio}
+            mutatePortfolio={mutatePortfolio}
+            initialSortBy="apy24H"
+            openable
+            resetPoolTypeOptions={resetPoolTypeOptions}
+            resetBaseParams={resetBaseParams}
+          />
         </div>
       </div>
     </Page>

@@ -1,12 +1,17 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/router'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PoolType } from 'types'
+import useDeepCompareEffect from 'use-deep-compare-effect'
+import isEmptyObject from 'utils/isEmptyObject'
 import Pagination from 'views/Dashboard/components/Pagination'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import { TokenDataRow, TokenDataRowSkeleton } from 'views/Dashboard/components/TokenTable/TokenDataRow'
-import useTokensData, { TokensSortBy } from 'views/Dashboard/hooks/useTokensData'
+import useTokensData, { buildUseTokensSearchParams, TokensSortBy } from 'views/Dashboard/hooks/useTokensData'
+import { DEFAULT_TOKENS_FILTERS } from 'views/Dashboard/Tokens'
 import { SortDirection } from 'views/Dashboard/types'
 
 const HEADER_IDS = ['name', 'price', 'priceChange24H', 'priceChange7D', 'volume24H', 'volume7D', 'tvl'] as const
@@ -42,50 +47,169 @@ const HEADERS: TokenTableHeader[] = [
 
 const SHOW_TOKENS_COUNT = 10
 
+type TokensAdditionalParams = {
+  sortBy: TokensSortBy
+  sortDirection: SortDirection
+  page: number
+}
 export default function TokenTable({
-  poolType,
-  searchInput,
+  baseParams,
+  resetBaseParams,
 }: {
-  poolType: PoolType
   maxItems?: number
-  searchInput?: string
+  baseParams: {
+    poolType: PoolType
+    searchKey: string
+    addresses?: string[]
+  }
+  resetBaseParams?: () => void
 }) {
-  const { t } = useTranslation()
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation()
 
   // for sorting
-  const [sortBy, setSortBy] = useState<TokensSortBy>('volume24H')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [sortBy, setSortBy] = useState<TokensSortBy>(DEFAULT_TOKENS_FILTERS.sortBy)
+  const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_TOKENS_FILTERS.sortDirection)
 
   // pagination
   const [page, setPage] = useState(1)
-  const skip = (page - 1) * SHOW_TOKENS_COUNT
-  const [_totalPage, setTotalPage] = useState(1)
+  const [totalPage, setTotalPage] = useState(0)
 
-  const [isFirstRender, setIsFirstRender] = useState(true)
+  const isFirstRenderRef = useRef(true)
+  const [isRouterReady, setRouterReady] = useState(true)
+  // To use useDeepCompareEffect, initialize with {} instead of null.
+  const [additionalParams, setAdditionalParams] = useState<TokensAdditionalParams>({} as TokensAdditionalParams)
 
-  const { tokensData, totalPage } = useTokensData({
-    poolType,
-    skip,
-    sortBy,
-    sortDirection,
-    searchKey: searchInput,
-  })
+  const init = useCallback(() => {
+    setRouterReady(false)
+    isFirstRenderRef.current = true
+    setAdditionalParams({} as TokensAdditionalParams)
+    setSortBy(DEFAULT_TOKENS_FILTERS.sortBy)
+    setSortDirection(DEFAULT_TOKENS_FILTERS.sortDirection)
+    setPage(DEFAULT_TOKENS_FILTERS.page)
+    resetBaseParams?.()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [resetBaseParams])
+
+  const router = useRouter()
+  const pathname = usePathname()
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      if (url === `${locale === 'ko' ? '/ko' : ''}${pathname}`) {
+        init()
+      }
+    }
+
+    const handleRouteChangeComplete = () => setRouterReady(true)
+
+    router.events.on('routeChangeStart', handleRouteChange)
+    router.events.on('routeChangeComplete', handleRouteChangeComplete)
+
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange)
+      router.events.off('routeChangeComplete', handleRouteChangeComplete)
+    }
+  }, [router.events, pathname, locale, init])
 
   useEffect(() => {
-    if (tokensData && tokensData.length > 0) {
-      setIsFirstRender(false)
-    }
+    if (!router.isReady || !isRouterReady) return
+    if (!isEmptyObject(additionalParams)) return
+
+    const { tokensPage: _page, tokensSortBy: _sortBy, tokensSortDirection: _sortDirection } = router.query
+
+    const newPage = Number(_page) || DEFAULT_TOKENS_FILTERS.page
+    setPage(newPage)
+
+    const newSortBy = (_sortBy as TokensSortBy) || DEFAULT_TOKENS_FILTERS.sortBy
+    setSortBy(newSortBy)
+
+    const newSortDirection = (_sortDirection as SortDirection) || DEFAULT_TOKENS_FILTERS.sortDirection
+    setSortDirection(newSortDirection)
+
+    setAdditionalParams({
+      sortBy: newSortBy,
+      sortDirection: newSortDirection,
+      page: newPage,
+    })
+  }, [router.isReady, router.query, additionalParams, isRouterReady])
+
+  useDeepCompareEffect(() => {
+    if (isEmptyObject(additionalParams)) return
+    setAdditionalParams({
+      page,
+      sortBy,
+      sortDirection,
+    })
+  }, [page, sortBy, sortDirection, additionalParams])
+
+  useDeepCompareEffect(() => {
+    if (!router.isReady || isFirstRenderRef.current || !isRouterReady) return
+    if (isEmptyObject(baseParams) || isEmptyObject(additionalParams)) return
+
+    const { poolType, searchKey } = baseParams
+    const { page: _page, sortBy: _sortBy, sortDirection: _sortDirection } = additionalParams
+
+    const urlSearchParams = new URLSearchParams({
+      ...router.query,
+      tokensTypes: poolType,
+      tokensPage: _page.toString(),
+      tokensSortBy: _sortBy,
+      tokensSortDirection: _sortDirection,
+    })
+
+    urlSearchParams.set('tokensSearchKey', searchKey)
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: urlSearchParams.toString(),
+      },
+      undefined,
+      { shallow: true, locale },
+    )
+  }, [baseParams, additionalParams, router.isReady, locale, isRouterReady])
+
+  const query = useMemo(() => {
+    if (isEmptyObject(baseParams) || isEmptyObject(additionalParams)) return ''
+
+    return buildUseTokensSearchParams({
+      ...baseParams,
+      ...additionalParams,
+      skip: (additionalParams.page - 1) * SHOW_TOKENS_COUNT,
+    })
+  }, [baseParams, additionalParams])
+
+  const { tokensData, totalPage: fetchedTotalPage } = useTokensData({
+    poolType: baseParams?.poolType,
+    query,
+  })
+  useEffect(() => {
+    if (!tokensData) return
+
+    isFirstRenderRef.current = false
   }, [tokensData])
 
   useEffect(() => {
-    if (totalPage === undefined) return
+    if (fetchedTotalPage === undefined) return
 
-    setTotalPage(totalPage)
-  }, [totalPage])
+    setTotalPage(fetchedTotalPage || 0)
+  }, [fetchedTotalPage])
+
+  const paramsString = [
+    baseParams?.poolType ?? '',
+    baseParams?.searchKey,
+    baseParams?.addresses?.join('-') ?? '',
+    sortBy,
+    sortDirection,
+  ].join(';')
 
   useEffect(() => {
+    if (isFirstRenderRef.current) return
+
     setPage(1)
-  }, [searchInput, poolType])
+  }, [baseParams?.searchKey, paramsString])
 
   const handleSort = useCallback(
     (newField: TokensSortBy) => {
@@ -137,7 +261,7 @@ export default function TokenTable({
           </tr>
         </thead>
         <tbody>
-          {!isFirstRender &&
+          {!isFirstRenderRef.current &&
             (!tokensData ? (
               Array.from({ length: SHOW_TOKENS_COUNT }).map((_, index) => (
                 <TokenDataRowSkeleton
@@ -165,13 +289,13 @@ export default function TokenTable({
         </tbody>
       </table>
 
-      {isFirstRender && (
+      {isFirstRenderRef.current && (
         <div className="flex items-center justify-center w-full h-[250px] md:h-[300px]">
           <Spinner />
         </div>
       )}
 
-      <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
+      <Pagination page={page} setPage={setPage} totalPage={totalPage} />
     </>
   )
 }

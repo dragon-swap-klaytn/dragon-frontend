@@ -5,8 +5,19 @@ import { PoolType } from 'types'
 import { SortDirection } from 'views/Dashboard/types'
 import { wkaiaToKaia } from 'views/Dashboard/utils/wkaiaToKaia'
 
-function buildSearchParams({
-  poolTypes,
+type UsePoolsSearchParams = {
+  poolTypes?: PoolType[]
+  skip?: number
+  addresses?: string[]
+  tokenAddress?: string
+  boostedOnly?: boolean
+  searchKey?: string
+  sortBy?: PoolsSortBy
+  sortDirection?: SortDirection
+}
+
+export function buildUsePoolsSearchParams({
+  poolTypes = ['v3'],
   skip,
   addresses,
   tokenAddress,
@@ -14,10 +25,7 @@ function buildSearchParams({
   searchKey,
   sortBy,
   sortDirection,
-}: Pick<
-  UsePoolsParams,
-  'poolTypes' | 'skip' | 'addresses' | 'tokenAddress' | 'boostedOnly' | 'searchKey' | 'sortBy' | 'sortDirection'
->) {
+}: UsePoolsSearchParams) {
   const params = new URLSearchParams()
   if (poolTypes) {
     params.set('types', poolTypes.join(','))
@@ -51,44 +59,20 @@ function buildSearchParams({
     params.set('tokenAddress', tokenAddress)
   }
 
-  return params.toString()
+  return params
 }
 
 export const POOLS_SORT_BY_LIST = ['apy24H', 'apy7D', 'volume24H', 'volume7D', 'tvl'] as const
 export type PoolsSortBy = (typeof POOLS_SORT_BY_LIST)[number]
 
-type UsePoolsParams = {
-  poolTypes?: PoolType[]
-  skip?: number
-  addresses?: string[]
-  tokenAddress?: string
-  boostedOnly?: boolean
-  searchKey?: string
-  sortBy?: PoolsSortBy
-  sortDirection?: SortDirection
-}
 type UsePoolsOptions = {
   paused?: boolean
 }
-export default function usePools(
-  { poolTypes = ['v3'], skip, addresses, tokenAddress, boostedOnly, searchKey, sortBy, sortDirection }: UsePoolsParams,
-  { paused = false }: UsePoolsOptions = {},
-) {
-  const params = buildSearchParams({
-    poolTypes,
-    skip,
-    addresses,
-    tokenAddress,
-    boostedOnly,
-    searchKey,
-    sortBy,
-    sortDirection,
-  })
-
-  const debouncedParams = useDebounce(params, 500)
+export default function usePools(query: string, { paused = false }: UsePoolsOptions = {}) {
+  const debouncedParams = useDebounce(query, 500)
 
   const { data, error } = useSWR(
-    paused || !poolTypes || poolTypes.length === 0 || !debouncedParams ? null : ['dashboard/pools', debouncedParams],
+    paused || !debouncedParams || query !== debouncedParams ? null : ['dashboard/pools', debouncedParams],
     async () => {
       const res = await fetch(`/api/pools?${debouncedParams}`)
       const parsed = (await res.json()) as { pools: PoolParsed[]; totalPage: number; totalCount: number }

@@ -1,3 +1,4 @@
+import { useDebounce } from '@pancakeswap/hooks'
 import useSWR from 'swr'
 import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import { PoolType } from 'types'
@@ -7,13 +8,19 @@ import { wkaiaToKaia } from 'views/Dashboard/utils/wkaiaToKaia'
 export const TOKENS_SORT_BY_LIST = ['priceChange24H', 'priceChange7D', 'volume24H', 'volume7D', 'tvl'] as const
 export type TokensSortBy = (typeof TOKENS_SORT_BY_LIST)[number]
 
-function buildSearchParams({
+export function buildUseTokensSearchParams({
+  searchKey,
   addresses,
   skip,
-  searchKey,
   sortBy,
   sortDirection,
-}: Pick<UseTokensDataParams, 'addresses' | 'skip' | 'searchKey' | 'sortBy' | 'sortDirection'>) {
+}: {
+  searchKey?: string
+  addresses?: string[]
+  skip?: number
+  sortBy?: TokensSortBy
+  sortDirection?: SortDirection
+}) {
   const params = new URLSearchParams()
 
   if (addresses) {
@@ -40,12 +47,8 @@ function buildSearchParams({
 }
 
 type UseTokensDataParams = {
-  poolType: PoolType
-  searchKey?: string
-  addresses?: string[]
-  skip?: number
-  sortBy?: TokensSortBy
-  sortDirection?: SortDirection
+  poolType?: PoolType
+  query: string
 }
 
 type UseTokensDataOptions = {
@@ -53,15 +56,15 @@ type UseTokensDataOptions = {
 }
 
 export default function useTokensData(
-  { poolType = 'v3', searchKey, addresses, skip, sortBy, sortDirection }: UseTokensDataParams,
+  { poolType = 'v3', query }: UseTokensDataParams,
   { paused = false }: UseTokensDataOptions = {},
 ) {
-  const params = buildSearchParams({ addresses, skip, searchKey, sortBy, sortDirection })
+  const debouncedParams = useDebounce(query, 500)
 
   const { data, error, isLoading } = useSWR(
-    !paused ? `dashboard/stats/tokens/${poolType}?${params}` : null,
+    paused || !debouncedParams || query !== debouncedParams ? null : ['dashboard/tokens', debouncedParams],
     async () => {
-      const res = await fetch(`/api/stats/tokens/${poolType}?${params}`)
+      const res = await fetch(`/api/stats/tokens/${poolType}?${debouncedParams}`)
       const parsed = (await res.json()) as { tokens: TokenDetailed[]; totalPage: number }
 
       return parsed

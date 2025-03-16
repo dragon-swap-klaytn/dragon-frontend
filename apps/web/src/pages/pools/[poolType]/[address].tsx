@@ -21,14 +21,15 @@ import { Address } from 'viem'
 import Percent from 'views/Dashboard/components/Percent'
 import { PoolChart } from 'views/Dashboard/components/PoolChart'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
-import usePools from 'views/Dashboard/hooks/usePools'
+import usePools, { buildUsePoolsSearchParams } from 'views/Dashboard/hooks/usePools'
 import { formatDollarAmount } from 'views/Dashboard/utils/numbers'
 import { V3PositionCard } from 'views/PoolsV2/components/PositionCard'
 import { useAccount } from 'wagmi'
 
 const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: T; address: Address }) => {
   const { t } = useTranslation()
-  const { poolsData } = usePools({ poolTypes: [poolType], addresses: [address] }, { paused: !poolType || !address })
+  const query = buildUsePoolsSearchParams({ poolTypes: [poolType], addresses: [address] })
+  const { poolsData } = usePools(query.toString(), { paused: !poolType || !address || !query })
 
   const isUnknownPool = poolsData && poolsData.length === 0
   /**
@@ -298,7 +299,11 @@ function PoolPositions({ pool }: { pool: PoolParsed }) {
           <PoolPositionsV2 pool={pool} position={(positions as PositionV2[])[0]} />
         ) : (
           positions.map((position) => (
-            <PoolPositionsV3 key={pool.id} pool={pool as PoolV3Parsed} position={position as PositionV3} />
+            <PoolPositionsV3
+              key={`${pool.id}:${(position as PositionV3).positionId}`}
+              pool={pool as PoolV3Parsed}
+              position={position as PositionV3}
+            />
           ))
         )}
       </div>

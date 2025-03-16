@@ -1,16 +1,21 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Notification, Spinner } from '@pancakeswap/uikit'
+import { ButtonV2, Notification, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
+import { DEFAULT_POOLS_FILTERS } from 'const'
 import { Portfolio, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
+import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/router'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { KeyedMutator } from 'swr'
 import { PoolType } from 'types'
+import useDeepCompareEffect from 'use-deep-compare-effect'
+import isEmptyObject from 'utils/isEmptyObject'
 import { Address } from 'viem'
 import Pagination from 'views/Dashboard/components/Pagination'
 import { PoolDataRow, PoolDataRowSkeleton } from 'views/Dashboard/components/PoolTable/PoolDataRow'
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
-import usePools, { PoolsSortBy } from 'views/Dashboard/hooks/usePools'
+import usePools, { buildUsePoolsSearchParams, PoolsSortBy } from 'views/Dashboard/hooks/usePools'
 import { SortDirection } from 'views/Dashboard/types'
 
 const HEADER_IDS = ['pool', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
@@ -38,74 +43,197 @@ const HEADERS: PoolTableHeader[] = [
 
 const SHOW_POOL_COUNT = 10
 
+type PoolsAdditionalParams = {
+  sortBy: PoolsSortBy
+  sortDirection: SortDirection
+  page: number
+}
 export default function PoolTable({
-  poolTypes,
-  searchKey,
-  tokenAddress,
-  addresses,
-  boostedOnly,
+  baseParams,
   openable = false,
   portfolio,
   mutatePortfolio,
-  initialSortBy = 'tvl',
+  initialSortBy = DEFAULT_POOLS_FILTERS.sortBy,
+  resetPoolTypeOptions,
+  resetBaseParams,
 }: {
-  poolTypes?: PoolType[]
-  searchKey?: string
-  tokenAddress?: string
-  addresses?: Address[]
-  boostedOnly?: boolean
+  baseParams: {
+    poolTypes: PoolType[]
+    searchKey?: string
+    boostedOnly?: boolean
+    myPositionOnly?: boolean
+    tokenAddress?: string
+    addresses?: Address[]
+  }
   openable?: boolean
   portfolio?: Portfolio
   mutatePortfolio?: KeyedMutator<Portfolio>
   initialSortBy?: PoolsSortBy
+  resetPoolTypeOptions?: () => void
+  resetBaseParams?: () => void
 }) {
-  const { t } = useTranslation()
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation()
 
   // for sorting
   const [sortBy, setSortBy] = useState<PoolsSortBy>(initialSortBy)
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_POOLS_FILTERS.sortDirection)
 
   // pagination
-  const [page, setPage] = useState(1)
-  const skip = (page - 1) * SHOW_POOL_COUNT
-  const [_totalPage, setTotalPage] = useState(1)
+  const [page, setPage] = useState(DEFAULT_POOLS_FILTERS.page)
+  const [totalPage, setTotalPage] = useState(0)
 
-  const [isFirstRender, setIsFirstRender] = useState(true)
+  const isFirstRenderRef = useRef(true)
+  const [isRouterReady, setRouterReady] = useState(true)
+  // To use useDeepCompareEffect, initialize with {} instead of null.
+  const [additionalParams, setAdditionalParams] = useState<PoolsAdditionalParams>({} as PoolsAdditionalParams)
 
-  const { poolsData, totalPage, totalCount } = usePools({
-    poolTypes,
-    skip,
-    tokenAddress,
-    boostedOnly,
-    searchKey,
-    sortBy,
-    sortDirection,
-    addresses,
-  })
+  const init = useCallback(() => {
+    setRouterReady(false)
+    isFirstRenderRef.current = true
+    setAdditionalParams({} as PoolsAdditionalParams)
+    setSortBy(DEFAULT_POOLS_FILTERS.sortBy)
+    setSortDirection(DEFAULT_POOLS_FILTERS.sortDirection)
+    setPage(DEFAULT_POOLS_FILTERS.page)
+    resetBaseParams?.()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [resetBaseParams])
+
+  const router = useRouter()
+  const pathname = usePathname()
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      if (url === `${locale === 'ko' ? '/ko' : ''}${pathname}`) {
+        init()
+      }
+    }
+
+    const handleRouteChangeComplete = () => setRouterReady(true)
+
+    router.events.on('routeChangeStart', handleRouteChange)
+    router.events.on('routeChangeComplete', handleRouteChangeComplete)
+
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange)
+      router.events.off('routeChangeComplete', handleRouteChangeComplete)
+    }
+  }, [router.events, pathname, locale, init])
 
   useEffect(() => {
-    if (poolsData && poolsData.length > 0) {
-      setIsFirstRender(false)
-    }
+    // Set using the query string value on the first render
+    if (!router.isReady || !isRouterReady) return
+    if (!isEmptyObject(additionalParams)) return
+
+    const { poolsPage: _page, poolsSortBy: _sortBy, poolsSortDirection: _sortDirection } = router.query
+
+    const newPage = Number(_page) || DEFAULT_POOLS_FILTERS.page
+    setPage(newPage)
+
+    const newSortBy = (_sortBy as PoolsSortBy) || DEFAULT_POOLS_FILTERS.sortBy
+    setSortBy(newSortBy)
+
+    const newSortDirection = (_sortDirection as SortDirection) || DEFAULT_POOLS_FILTERS.sortDirection
+    setSortDirection(newSortDirection)
+
+    setAdditionalParams({
+      sortBy: newSortBy,
+      sortDirection: newSortDirection,
+      page: newPage,
+    })
+  }, [router.isReady, router.query, additionalParams, isRouterReady])
+
+  useDeepCompareEffect(() => {
+    if (isEmptyObject(additionalParams)) return
+
+    setAdditionalParams({
+      page,
+      sortBy,
+      sortDirection,
+    })
+  }, [page, sortBy, sortDirection, additionalParams])
+
+  useDeepCompareEffect(() => {
+    if (!router.isReady || isFirstRenderRef.current || !isRouterReady) return
+    if (isEmptyObject(baseParams) || isEmptyObject(additionalParams)) return
+
+    const { poolTypes, myPositionOnly, boostedOnly, searchKey } = baseParams
+    const { page: _page, sortBy: _sortBy, sortDirection: _sortDirection } = additionalParams
+
+    const urlSearchParams = new URLSearchParams({
+      ...router.query,
+      poolsTypes: poolTypes.join(','),
+      poolsPage: _page.toString(),
+      poolsSortBy: _sortBy,
+      poolsSortDirection: _sortDirection,
+    })
+
+    urlSearchParams.set('myPositionOnly', myPositionOnly ? myPositionOnly.toString() : 'false')
+    urlSearchParams.set('boostedOnly', boostedOnly ? boostedOnly.toString() : 'false')
+    urlSearchParams.set('poolsSearchKey', searchKey || '')
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: urlSearchParams.toString(),
+      },
+      undefined,
+      { shallow: true, locale },
+    )
+  }, [baseParams, additionalParams, router.isReady, locale, isRouterReady])
+
+  const query = useMemo(() => {
+    if (isEmptyObject(baseParams) || isEmptyObject(additionalParams)) return ''
+
+    return buildUsePoolsSearchParams({
+      ...baseParams,
+      ...additionalParams,
+      skip: (additionalParams.page - 1) * SHOW_POOL_COUNT,
+    })
+  }, [baseParams, additionalParams])
+
+  const {
+    poolsData,
+    totalPage: fetchedTotalPage,
+    totalCount,
+  } = usePools(query.toString(), { paused: !query.toString() })
+  useEffect(() => {
+    if (!poolsData) return
+
+    isFirstRenderRef.current = false
   }, [poolsData])
 
   useEffect(() => {
-    if (totalPage) setTotalPage(totalPage)
-  }, [totalPage])
+    if (fetchedTotalPage === undefined) return
+
+    setTotalPage(fetchedTotalPage || 0)
+  }, [fetchedTotalPage])
 
   const paramsString = [
-    poolTypes?.join('-') ?? '',
-    tokenAddress,
-    boostedOnly ? 'boosted' : '',
-    searchKey,
+    baseParams?.poolTypes?.join('-') ?? '',
+    baseParams?.tokenAddress,
+    baseParams?.addresses?.join('-') ?? '',
+    baseParams?.boostedOnly ? 'boosted' : '',
+    baseParams?.searchKey,
     sortBy,
     sortDirection,
-    addresses?.join('-') ?? '',
   ].join(';')
 
   useEffect(() => {
+    if (isFirstRenderRef.current) return
+
     setPage(1)
-  }, [searchKey, paramsString])
+  }, [baseParams?.searchKey, paramsString])
+
+  useEffect(() => {
+    if (totalPage === 0) return
+    if (!poolsData) return
+
+    if (page > totalPage) {
+      setPage(1)
+    }
+  }, [page, totalPage, poolsData])
 
   const handleSort = useCallback(
     (newField: PoolsSortBy) => {
@@ -116,7 +244,7 @@ export default function PoolTable({
   )
 
   const hasMissingPools = useMemo(() => {
-    if (!addresses || !totalCount) {
+    if (!baseParams?.addresses || !totalCount) {
       return false
     }
 
@@ -134,7 +262,7 @@ export default function PoolTable({
     }
 
     return poolCount !== totalCount
-  }, [portfolio, addresses, totalCount])
+  }, [portfolio, baseParams.addresses, totalCount])
 
   return (
     <div className="w-full">
@@ -145,97 +273,112 @@ export default function PoolTable({
           )}
         </p>
       </Notification>
-      <table className="w-full rounded-xl overflow-hidden">
-        <colgroup>
-          {/* Pool */}
-          <col width="*" />
-          {/* apy24H */}
-          <col width="88px" className="xs:hidden" />
-          <col width="124px" className="hidden xs:table-column" />
-          {/* apy7D */}
-          <col width="124px" className="hidden lg:table-column" />
-          {/* TVL */}
-          <col width="80px" className="hidden sm:table-column" />
-          {/* volume24H */}
-          <col width="80px" className="hidden s:table-column" />
-          {/* volume7D */}
-          <col width="80px" className="hidden lg:table-column" />
-          {/* open details */}
-          {openable && <col width="30px" />}
-        </colgroup>
-        <thead>
-          <tr
-            className={clsx('text-on-surface-subtle bg-neutral text-xs', {
-              hidden: poolsData?.length === 0,
-            })}
-          >
-            {HEADERS.map(({ title, sortBy: s, displayClassName }, index) => (
-              <th
-                key={`poolTable:${s}`}
-                className={clsx('py-3 text-left', displayClassName, {
-                  'px-4 s:px-6': index === 0,
-                  'px-4': index !== 0,
+
+      {baseParams?.poolTypes?.length === 0 ? (
+        <div className="flex flex-col space-y-3 items-center justify-center w-full h-[250px] md:h-[300px]">
+          <p className="text-on-surface">{t('Please select at least one pool type.')}</p>
+
+          {resetPoolTypeOptions && (
+            <ButtonV2 className="mt-4" variant="secondary" onClick={resetPoolTypeOptions}>
+              {t('Select All')}
+            </ButtonV2>
+          )}
+        </div>
+      ) : (
+        <>
+          <table className="w-full rounded-xl overflow-hidden">
+            <colgroup>
+              {/* Pool */}
+              <col width="*" />
+              {/* apy24H */}
+              <col width="88px" className="xs:hidden" />
+              <col width="124px" className="hidden xs:table-column" />
+              {/* apy7D */}
+              <col width="124px" className="hidden lg:table-column" />
+              {/* TVL */}
+              <col width="80px" className="hidden sm:table-column" />
+              {/* volume24H */}
+              <col width="80px" className="hidden s:table-column" />
+              {/* volume7D */}
+              <col width="80px" className="hidden lg:table-column" />
+              {/* open details */}
+              {openable && <col width="30px" />}
+            </colgroup>
+            <thead>
+              <tr
+                className={clsx('text-on-surface-subtle bg-neutral text-xs', {
+                  hidden: poolsData?.length === 0,
                 })}
               >
-                {s ? (
-                  <SortHeaderButton
-                    title={title}
-                    onClick={() => handleSort(s as PoolsSortBy)}
-                    isSelected={sortBy === s}
-                    sortDirection={sortDirection}
-                  />
-                ) : (
-                  <span className="font-medium">{title}</span>
-                )}
-              </th>
-            ))}
+                {HEADERS.map(({ title, sortBy: s, displayClassName }, index) => (
+                  <th
+                    key={`poolTable:${s}`}
+                    className={clsx('py-3 text-left', displayClassName, {
+                      'px-4 s:px-6': index === 0,
+                      'px-4': index !== 0,
+                    })}
+                  >
+                    {s ? (
+                      <SortHeaderButton
+                        title={title}
+                        onClick={() => handleSort(s as PoolsSortBy)}
+                        isSelected={sortBy === s}
+                        sortDirection={sortDirection}
+                      />
+                    ) : (
+                      <span className="font-medium">{title}</span>
+                    )}
+                  </th>
+                ))}
 
-            <th className="sr-only">open details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {!isFirstRender &&
-            (!poolsData ? (
-              Array.from({ length: SHOW_POOL_COUNT }).map((_, index) => (
-                <PoolDataRowSkeleton
-                  key={`poolTableSkeleton:${index + 1}`}
-                  isLastIndex={index === SHOW_POOL_COUNT - 1}
-                  openable={openable}
-                />
-              ))
-            ) : poolsData.length > 0 ? (
-              poolsData.map((poolData, index) => (
-                <PoolDataRow
-                  key={`poolTable:${poolData.id}`}
-                  portfolioData={portfolio?.[poolData.id]}
-                  mutatePortfolio={mutatePortfolio}
-                  poolData={poolData}
-                  isLastIndex={index === poolsData.length - 1}
-                  openable={openable}
-                />
-              ))
-            ) : (
-              <tr>
-                <td colSpan={HEADERS.length} className="h-[250px] md:h-[300px] text-center">
-                  <div className="flex items-center justify-center w-full">
-                    <p className="text-on-surface">{t('No Pools')}</p>
-                  </div>
-                </td>
+                <th className="sr-only">open details</th>
               </tr>
-            ))}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {!isFirstRenderRef.current &&
+                (!poolsData ? (
+                  Array.from({ length: SHOW_POOL_COUNT }).map((_, index) => (
+                    <PoolDataRowSkeleton
+                      key={`poolTableSkeleton:${index + 1}`}
+                      isLastIndex={index === SHOW_POOL_COUNT - 1}
+                      openable={openable}
+                    />
+                  ))
+                ) : poolsData.length > 0 ? (
+                  poolsData.map((poolData, index) => (
+                    <PoolDataRow
+                      key={`poolTable:${poolData.id}`}
+                      portfolioData={portfolio?.[poolData.id]}
+                      mutatePortfolio={mutatePortfolio}
+                      poolData={poolData}
+                      isLastIndex={index === poolsData.length - 1}
+                      openable={openable}
+                    />
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={HEADERS.length} className="h-[250px] md:h-[300px] text-center">
+                      <div className="flex items-center justify-center w-full">
+                        <p className="text-on-surface">{t('No Pools')}</p>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
 
-      {isFirstRender && (
-        <div className="flex items-center justify-center w-full h-[250px] md:h-[300px]">
-          <Spinner />
-        </div>
-      )}
+          {isFirstRenderRef.current && (
+            <div className="flex items-center justify-center w-full h-[250px] md:h-[300px]">
+              <Spinner />
+            </div>
+          )}
 
-      {poolTypes?.length !== 0 && (
-        <div className="mt-5">
-          <Pagination page={page} setPage={setPage} totalPage={_totalPage} />
-        </div>
+          {baseParams?.poolTypes?.length !== 0 && (
+            <div className="mt-5">
+              <Pagination page={page} setPage={setPage} totalPage={totalPage} />
+            </div>
+          )}
+        </>
       )}
     </div>
   )
