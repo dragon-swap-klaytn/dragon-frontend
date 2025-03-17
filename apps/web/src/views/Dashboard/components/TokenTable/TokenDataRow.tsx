@@ -67,7 +67,7 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
       </td>
       <td className="px-4 py-6 text-left">
         <TokenRate
-          prefix="$ "
+          prefix="$"
           rate={tokenData.priceUSD.current}
           hiddenDigitClassName="text-[9px] font-normal leading-none"
         />
@@ -79,13 +79,13 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
         <Percent value={(tokenData.priceUSD['7D'] / tokenData.priceUSD.current) * 100} />
       </td>
       <td className="px-4 py-6 text-left hidden s:table-cell">
-        {formatDollarAmountV2({ num: tokenData.volumeUSD['24H'] })}
+        {formatDollarAmountV2({ num: tokenData.volumeUSD['24H'], withDollarSign: true })}
       </td>
       <td className="px-4 py-6 text-left hidden md:table-cell">
-        {formatDollarAmountV2({ num: tokenData.volumeUSD['7D'] })}
+        {formatDollarAmountV2({ num: tokenData.volumeUSD['7D'], withDollarSign: true })}
       </td>
       <td className="px-4 py-6 text-left hidden sm:table-cell">
-        {formatDollarAmountV2({ num: tokenData.tvlUSD.current })}
+        {formatDollarAmountV2({ num: tokenData.tvlUSD.current, withDollarSign: true })}
       </td>
     </tr>
   )

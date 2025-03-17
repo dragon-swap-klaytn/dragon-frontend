@@ -9,7 +9,7 @@ import { formatAmount } from 'utils/formatInfoNumbers'
 import Pagination from 'views/Dashboard/components/Pagination'
 import { OverviewTransaction } from 'views/Dashboard/hooks/useOverviewData'
 import { Transaction, TransactionType } from '../../types'
-import { formatDollarAmount } from '../../utils/numbers'
+import { formatDollarAmountV2 } from '../../utils/numbers'
 
 const HEADER_IDS = ['summary', 'totalValue', 'amount0', 'amount1', 'time'] as const
 type HeaderId = (typeof HEADER_IDS)[number]
@@ -53,7 +53,10 @@ const DataRow = ({ transaction, isLastIndex }: { transaction: TransactionEventWi
       </td>
 
       <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
-        {formatDollarAmount(transaction.amountUSD)}
+        {formatDollarAmountV2({
+          num: transaction.amountUSD,
+          withDollarSign: true,
+        })}
       </td>
 
       <td className="text-on-surface px-4 py-6 text-left">
