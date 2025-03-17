@@ -271,7 +271,7 @@ export const PoolDataRow = ({
                 className="flex-1"
                 poolData={poolData}
                 portfolioData={portfolioData}
-                mutatePortfolio={mutatePortfolio}
+                mutatePositions={mutatePortfolio}
               />
             </div>
           </td>

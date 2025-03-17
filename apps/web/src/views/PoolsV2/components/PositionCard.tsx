@@ -27,12 +27,12 @@ export default function PositionCardList({
   className,
   poolData,
   portfolioData,
-  mutatePortfolio,
+  mutatePositions,
 }: {
   className?: string
   poolData: PoolParsed
   portfolioData?: PortfolioData
-  mutatePortfolio?: KeyedMutator<Portfolio>
+  mutatePositions?: KeyedMutator<Portfolio>
 }) {
   const { prices } = useTokenPrices()
   // use swapscanner price as fallback
@@ -64,7 +64,7 @@ export default function PositionCardList({
               volume24H={poolData.volumeUSD['24H']}
               rewardApr={(poolData as PoolV3Parsed).rewardApr || 0}
               position={position}
-              mutatePortfolio={mutatePortfolio}
+              mutatePositions={mutatePositions}
               priceMap={priceMap}
             />
           ) : null,
@@ -101,7 +101,7 @@ export function V3PositionCard({
   poolId,
   pool,
   position: _position,
-  mutatePortfolio,
+  mutatePositions,
   volume24H,
   rewardApr,
   priceMap,
@@ -112,7 +112,7 @@ export function V3PositionCard({
   poolId: Address
   pool: Pool
   position: PositionV3
-  mutatePortfolio?: KeyedMutator<Portfolio>
+  mutatePositions?: KeyedMutator<Portfolio>
   volume24H: number
   rewardApr: number
   priceMap: Record<string, number>
@@ -124,7 +124,8 @@ export function V3PositionCard({
   } = useTranslation()
 
   const [inverted, setInverted] = useState(false)
-
+  // Used to resolve the issue where stake status is not immediately updated due to delayed node synchronization
+  const [isStaked, setIsStaked] = useState<null | boolean>(null)
   const isBoosted = rewardApr > 0 && !_position.isOutOfBounds && _position.isStaked
 
   const position = useMemo(
@@ -197,11 +198,8 @@ export function V3PositionCard({
     poolId,
     positionId: _position.positionId,
     onDone: () => {
-      mutatePortfolio?.()
-
-      setTimeout(() => {
-        mutatePortfolio?.()
-      }, 3000)
+      mutatePositions?.()
+      setIsStaked(true)
     },
   })
 
@@ -221,11 +219,11 @@ export function V3PositionCard({
           </TagV2>
         </div>
 
-        {isBoosted ? (
+        {isStaked || isBoosted ? (
           <TagV2 className="min-w-8 whitespace-nowrap" color="orange">
             {t('Boost 🔥')}
           </TagV2>
-        ) : !_position.isStaked ? (
+        ) : rewardApr > 0 && !_position.isStaked ? (
           <ButtonV2
             variant="primary"
             scale={isMobile ? 'sm' : 'md'}

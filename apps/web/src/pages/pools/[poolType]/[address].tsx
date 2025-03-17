@@ -5,12 +5,13 @@ import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import Page from 'components/Layout/Page'
 import usePoolPositions from 'hooks/usePoolPositions'
-import { PositionV2, PositionV3 } from 'hooks/usePortfolio'
+import { Portfolio, PositionV2, PositionV3 } from 'hooks/usePortfolio'
 import useTokenPrices from 'hooks/useTokenPrices'
 import { useV3Pool } from 'hooks/v3/use-v3-pool'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV2Parsed, PoolV3Parsed } from 'pages/api/pools'
 import { useMemo } from 'react'
+import { KeyedMutator } from 'swr'
 import { PoolType } from 'types'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
 import { formatAmount } from 'utils/formatInfoNumbers'
@@ -276,7 +277,7 @@ function PoolPositions({ pool }: { pool: PoolParsed }) {
   const { t } = useTranslation()
 
   const { address: account } = useAccount()
-  const { positions, error } = usePoolPositions({
+  const { positions, mutatePositions, error } = usePoolPositions({
     account,
     poolType: pool.type,
     poolAddress: pool.id,
@@ -303,6 +304,7 @@ function PoolPositions({ pool }: { pool: PoolParsed }) {
               key={`${pool.id}:${(position as PositionV3).positionId}`}
               pool={pool as PoolV3Parsed}
               position={position as PositionV3}
+              mutatePositions={mutatePositions}
             />
           ))
         )}
@@ -311,7 +313,15 @@ function PoolPositions({ pool }: { pool: PoolParsed }) {
   )
 }
 
-function PoolPositionsV3({ pool, position }: { pool: PoolV3Parsed; position: PositionV3 }) {
+function PoolPositionsV3({
+  pool,
+  position,
+  mutatePositions,
+}: {
+  pool: PoolV3Parsed
+  position: PositionV3
+  mutatePositions: KeyedMutator<Portfolio>
+}) {
   const { prices } = useTokenPrices()
   // use swapscanner price as fallback
   const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
@@ -337,6 +347,7 @@ function PoolPositionsV3({ pool, position }: { pool: PoolV3Parsed; position: Pos
       pool={v3Pool}
       position={position}
       priceMap={priceMap}
+      mutatePositions={mutatePositions}
     />
   )
 }

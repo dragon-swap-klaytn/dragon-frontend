@@ -1,4 +1,5 @@
-import usePortfolio, { PortfolioV3DataBigInt, PositionV2, PositionV3 } from 'hooks/usePortfolio'
+import usePortfolio, { Portfolio, PortfolioV3DataBigInt, PositionV2, PositionV3 } from 'hooks/usePortfolio'
+import { KeyedMutator } from 'swr'
 import { PoolType } from 'types'
 import { Address } from 'viem'
 
@@ -16,8 +17,9 @@ export default function usePoolPositions<T extends PoolType>(
   positions?: T extends 'v2' ? PositionV2[] : PositionV3[]
   isLoading: boolean
   error?: Error
+  mutatePositions: KeyedMutator<Portfolio>
 } {
-  const { portfolio, error, isLoading } = usePortfolio(
+  const { portfolio, error, isLoading, mutatePortfolio } = usePortfolio(
     {
       account,
       onlyPoolIds: [poolAddress],
@@ -30,6 +32,7 @@ export default function usePoolPositions<T extends PoolType>(
       positions: undefined,
       isLoading,
       error,
+      mutatePositions: mutatePortfolio,
     }
   }
 
@@ -38,6 +41,7 @@ export default function usePoolPositions<T extends PoolType>(
       positions: [],
       isLoading,
       error,
+      mutatePositions: mutatePortfolio,
     }
   }
 
@@ -47,6 +51,7 @@ export default function usePoolPositions<T extends PoolType>(
         positions: [portfolio[poolAddress]] as T extends 'v2' ? PositionV2[] : PositionV3[],
         isLoading,
         error,
+        mutatePositions: mutatePortfolio,
       }
     case 'v3':
       return {
@@ -55,6 +60,7 @@ export default function usePoolPositions<T extends PoolType>(
           : PositionV3[],
         isLoading,
         error,
+        mutatePositions: mutatePortfolio,
       }
 
     default:
