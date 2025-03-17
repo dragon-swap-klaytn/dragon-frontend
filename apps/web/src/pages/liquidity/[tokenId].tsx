@@ -201,7 +201,7 @@ export default function PoolPage() {
 
   const parsedTokenId = tokenIdFromUrl ? BigInt(tokenIdFromUrl as string) : undefined
 
-  const { loading, position: positionDetails } = useV3PositionFromTokenId(parsedTokenId)
+  const { loading, position: positionDetails, refetch: refetchPosition } = useV3PositionFromTokenId(parsedTokenId)
 
   const {
     token0: token0Address,
@@ -476,7 +476,8 @@ export default function PoolPage() {
     updateUserPositionInfo()
     updateFarmsV3WithPositionsAndBooster()
     refetchAll()
-  }, [updateIsBoostedPool, updateUserPositionInfo, updateFarmsV3WithPositionsAndBooster, refetchAll])
+    refetchPosition()
+  }, [updateIsBoostedPool, updateUserPositionInfo, updateFarmsV3WithPositionsAndBooster, refetchAll, refetchPosition])
 
   const handleDismissConfirmation = useCallback(() => {
     setErrorMessage(undefined)

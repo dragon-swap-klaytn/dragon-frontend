@@ -6,11 +6,13 @@ import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import { MASTERCHEFV3_ADDRESS } from 'const'
 import useBoost from 'hooks/useBoost'
 import { Portfolio, PortfolioData, PortfolioV3DataBigInt, PositionV3 } from 'hooks/usePortfolio'
 import useTokenPrices from 'hooks/useTokenPrices'
 import { useV3Pool } from 'hooks/v3/use-v3-pool'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
+import { useV3TokenIdsByAccount } from 'hooks/v3/useV3Positions'
 import { formatTickPrice } from 'hooks/v3/utils/formatTickPrice'
 import { TokenSimple } from 'lib/graph-queries/types'
 import NextLink from 'next/link'
@@ -124,9 +126,13 @@ export function V3PositionCard({
   } = useTranslation()
 
   const [inverted, setInverted] = useState(false)
-  // Used to resolve the issue where stake status is not immediately updated due to delayed node synchronization
-  const [isStaked, setIsStaked] = useState<null | boolean>(null)
   const isBoosted = rewardApr > 0 && !_position.isOutOfBounds && _position.isStaked
+
+  // Used to resolve the issue where stake status is not immediately updated due to delayed node synchronization
+  const { address: account } = useAccount()
+  const { tokenIds: stakedTokenIds, refetchAll } = useV3TokenIdsByAccount(MASTERCHEFV3_ADDRESS, account)
+  const isStakedInMCv3 =
+    !!_position.positionId && Boolean(stakedTokenIds.find((id) => +id.toString() === _position.positionId))
 
   const position = useMemo(
     () =>
@@ -199,7 +205,7 @@ export function V3PositionCard({
     positionId: _position.positionId,
     onDone: () => {
       mutatePositions?.()
-      setIsStaked(true)
+      refetchAll()
     },
   })
 
@@ -219,7 +225,7 @@ export function V3PositionCard({
           </TagV2>
         </div>
 
-        {isStaked || isBoosted ? (
+        {isStakedInMCv3 || isBoosted ? (
           <TagV2 className="min-w-8 whitespace-nowrap" color="orange">
             {t('Boost 🔥')}
           </TagV2>

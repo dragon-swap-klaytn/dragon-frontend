@@ -9,11 +9,13 @@ import { Address, useContractRead, useContractReads } from 'wagmi'
 
 interface UseV3PositionsResults {
   loading: boolean
+  refetch: () => void
   positions: PositionDetails[] | undefined
 }
 
 interface UseV3PositionResults {
   loading: boolean
+  refetch: () => void
   position: PositionDetails | undefined
 }
 
@@ -34,7 +36,11 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
         : [],
     [chainId, positionManager, tokenIds],
   )
-  const { isLoading, data: positions = [] } = useContractReads({
+  const {
+    isLoading,
+    data: positions = [],
+    refetch,
+  } = useContractReads({
     contracts: inputs,
     watch: true,
     allowFailure: true,
@@ -44,6 +50,7 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
 
   return {
     loading: isLoading,
+    refetch,
     positions: useMemo(
       () =>
         positions
@@ -86,6 +93,7 @@ export function useV3PositionFromTokenId(tokenId: bigint | undefined): UseV3Posi
     () => ({
       loading: position.loading,
       position: position.positions?.[0],
+      refetch: position.refetch,
     }),
     [position.loading, position.positions],
   )
@@ -201,11 +209,12 @@ export function useV3Positions(account: Address | null | undefined): UseV3Positi
 
   const totalTokenIds = useMemo(() => [...stakedTokenIds, ...tokenIds], [stakedTokenIds, tokenIds])
 
-  const { positions, loading: positionsLoading } = useV3PositionsFromTokenIds(totalTokenIds)
+  const { positions, loading: positionsLoading, refetch } = useV3PositionsFromTokenIds(totalTokenIds)
 
   return useMemo(
     () => ({
       loading: tokenIdsLoading || positionsLoading,
+      refetch,
       positions: positions?.map((position) => ({
         ...position,
         isStaked: Boolean(stakedTokenIds?.find((s) => s === position.tokenId)),
