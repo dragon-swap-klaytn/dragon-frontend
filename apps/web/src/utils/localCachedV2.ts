@@ -136,6 +136,10 @@ export const localCachedV2 = <T = any>(
           const ttlCatch = await computeNextTTL(ttlOnCatch, err)
           expiresAt = Date.now() + ttlCatch
           console.error('Error during mutate:', err)
+
+          // clear the mutationPromise to prevent blocking future mutations
+          mutationPromise = Promise.resolve()
+
           throw err
         } finally {
           // Clear the in-flight request marker.
