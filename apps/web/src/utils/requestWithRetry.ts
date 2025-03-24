@@ -8,7 +8,8 @@ export const requestWithRetry = async <T>(
 
   for (let i = 0; i < retries; i++) {
     try {
-      return requestPromise
+      // eslint-disable-next-line no-await-in-loop
+      return await requestPromise
     } catch (error) {
       if (i === retries - 1) {
         console.error(`${logPrefix} requestWithRetry: failed after ${retries} retries`, error)
