@@ -14,9 +14,9 @@ const DAY = 24 * HOUR
 const POOL_LIQUIDITY_USD_THRESHOLD = 10
 
 enum PoolV2AccDataCacheIndex {
-  TVLUSD = 0,
-  VOLUMEUSD = 1,
-  TXCOUNT = 2,
+  tvlUSD = 0,
+  volumeUSD = 1,
+  txCount = 2,
 }
 
 const compressV2PoolAccData = (pools: PoolV2AccData[]): PoolV2AccDataCache => {
@@ -43,12 +43,12 @@ const getV2PoolsAccData = async (blockNumber: number) => {
 }
 
 enum PoolV3AccDataCacheIndex {
-  TVLUSD = 0,
-  VOLUMEUSD = 1,
-  TXCOUNT = 2,
-  FEEUSD = 3,
-  PROTOCOLFEEUSD = 4,
-  LIQUIDITYPROVIDERCOUNT = 5,
+  tvlUSD = 0,
+  volumeUSD = 1,
+  txCount = 2,
+  feeUSD = 3,
+  protocolFeeUSD = 4,
+  liquidityProviderCount = 5,
 }
 
 const compressV3PoolAccData = (pools: PoolV3AccData[]): PoolV3AccDataCache => {
@@ -125,18 +125,18 @@ const getV2PoolsDetailedData = async ({
           ...pool,
           tvlUSD: {
             current: tvlUSD,
-            '7D': tvlUSD - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.TVLUSD] ?? 0),
-            '24H': tvlUSD - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.TVLUSD] ?? 0),
+            '7D': tvlUSD - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.tvlUSD] ?? 0),
+            '24H': tvlUSD - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.tvlUSD] ?? 0),
           },
           volumeUSD: {
             total: volumeUSD,
-            '7D': volumeUSD - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.VOLUMEUSD] ?? 0),
-            '24H': volumeUSD - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.VOLUMEUSD] ?? 0),
+            '7D': volumeUSD - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.volumeUSD] ?? 0),
+            '24H': volumeUSD - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.volumeUSD] ?? 0),
           },
           txCount: {
             total: txCount,
-            '7D': txCount - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.TXCOUNT] ?? 0),
-            '24H': txCount - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.TXCOUNT] ?? 0),
+            '7D': txCount - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.txCount] ?? 0),
+            '24H': txCount - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.txCount] ?? 0),
           },
         } as PoolV2Detailed),
     )
@@ -206,33 +206,33 @@ const getV3PoolsDetailedData = async ({
           ...pool,
           tvlUSD: {
             current: tvlUSD,
-            '7D': tvlUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.TVLUSD] ?? 0),
-            '24H': tvlUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.TVLUSD] ?? 0),
+            '7D': tvlUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.tvlUSD] ?? 0),
+            '24H': tvlUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.tvlUSD] ?? 0),
           },
           volumeUSD: {
             total: volumeUSD,
-            '7D': volumeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.VOLUMEUSD] ?? 0),
-            '24H': volumeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.VOLUMEUSD] ?? 0),
+            '7D': volumeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.volumeUSD] ?? 0),
+            '24H': volumeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.volumeUSD] ?? 0),
           },
           feeUSD: {
             total: feeUSD,
-            '7D': feeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.FEEUSD] ?? 0),
-            '24H': feeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.FEEUSD] ?? 0),
+            '7D': feeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.feeUSD] ?? 0),
+            '24H': feeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.feeUSD] ?? 0),
           },
           protocolFeeUSD: {
             total: protocolFeeUSD,
-            '7D': protocolFeeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.PROTOCOLFEEUSD] ?? 0),
-            '24H': protocolFeeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.PROTOCOLFEEUSD] ?? 0),
+            '7D': protocolFeeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.protocolFeeUSD] ?? 0),
+            '24H': protocolFeeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.protocolFeeUSD] ?? 0),
           },
           txCount: {
             total: txCount,
-            '7D': txCount - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.TXCOUNT] ?? 0),
-            '24H': txCount - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.TXCOUNT] ?? 0),
+            '7D': txCount - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.txCount] ?? 0),
+            '24H': txCount - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.txCount] ?? 0),
           },
           liquidityProviderCount: {
             current: liquidityProviderCount,
-            '7D': liquidityProviderCount - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.LIQUIDITYPROVIDERCOUNT] ?? 0),
-            '24H': liquidityProviderCount - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.LIQUIDITYPROVIDERCOUNT] ?? 0),
+            '7D': liquidityProviderCount - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.liquidityProviderCount] ?? 0),
+            '24H': liquidityProviderCount - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.liquidityProviderCount] ?? 0),
           },
         } as PoolV3Detailed),
     )
