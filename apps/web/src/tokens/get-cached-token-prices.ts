@@ -24,7 +24,7 @@ const getTokenPrices = async () => {
       }>
     }
   > = {}
-  for (const [id, { priceUSD, tvlUSD }] of Object.entries(v2TokensAccData)) {
+  for (const [id, [priceUSD, _tvl, tvlUSD]] of Object.entries(v2TokensAccData)) {
     if (!priceUSD || !tvlUSD) {
       continue
     }
@@ -34,7 +34,7 @@ const getTokenPrices = async () => {
     }
   }
 
-  for (const [id, { priceUSD, tvlUSD }] of Object.entries(v3TokensAccData)) {
+  for (const [id, [priceUSD, _tvl, tvlUSD]] of Object.entries(v3TokensAccData)) {
     if (!priceUSD || !tvlUSD) {
       continue
     }
