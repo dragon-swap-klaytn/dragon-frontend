@@ -1,8 +1,8 @@
 import { getBlockNumbers, getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Pools } from 'lib/graph-queries/get-v2-pools'
 import { getV3Pools } from 'lib/graph-queries/get-v3-pools'
-import { PoolV2Base, PoolV3Base } from 'lib/graph-queries/types'
-import { v2PoolsAccDataCache, v3PoolsAccDataCache } from 'lru-caches'
+import { PoolV2AccData, PoolV2Base, PoolV3AccData, PoolV3Base } from 'lib/graph-queries/types'
+import { PoolV2AccDataCache, PoolV3AccDataCache, v2PoolsAccDataCache, v3PoolsAccDataCache } from 'lru-caches'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
 
@@ -12,6 +12,16 @@ const DAY = 24 * HOUR
 
 // FIXME: do we need threshold?
 const POOL_LIQUIDITY_USD_THRESHOLD = 10
+
+enum PoolV2AccDataCacheIndex {
+  TVLUSD = 0,
+  VOLUMEUSD = 1,
+  TXCOUNT = 2,
+}
+
+const compressV2PoolAccData = (pools: PoolV2AccData[]): PoolV2AccDataCache => {
+  return Object.fromEntries(pools.map(({ id, tvlUSD, volumeUSD, txCount }) => [id, [tvlUSD, volumeUSD, txCount]]))
+}
 
 const getV2PoolsAccData = async (blockNumber: number) => {
   // check lru cache
@@ -26,11 +36,28 @@ const getV2PoolsAccData = async (blockNumber: number) => {
   })
 
   // cache data
-  const poolsMap = Object.fromEntries(pools.map(({ id, ...pool }) => [id, pool]))
-
+  const poolsMap = compressV2PoolAccData(pools)
   v2PoolsAccDataCache.put(blockNumber.toString(), poolsMap)
 
   return poolsMap
+}
+
+enum PoolV3AccDataCacheIndex {
+  TVLUSD = 0,
+  VOLUMEUSD = 1,
+  TXCOUNT = 2,
+  FEEUSD = 3,
+  PROTOCOLFEEUSD = 4,
+  LIQUIDITYPROVIDERCOUNT = 5,
+}
+
+const compressV3PoolAccData = (pools: PoolV3AccData[]): PoolV3AccDataCache => {
+  return Object.fromEntries(
+    pools.map(({ id, tvlUSD, volumeUSD, txCount, feeUSD, protocolFeeUSD, liquidityProviderCount }) => [
+      id,
+      [tvlUSD, volumeUSD, txCount, feeUSD, protocolFeeUSD, liquidityProviderCount],
+    ]),
+  )
 }
 
 const getV3PoolsAccData = async (blockNumber: number) => {
@@ -46,7 +73,7 @@ const getV3PoolsAccData = async (blockNumber: number) => {
   })
 
   // cache data
-  const poolsMap = Object.fromEntries(pools.map(({ id, ...pool }) => [id, pool]))
+  const poolsMap = compressV3PoolAccData(pools)
 
   v3PoolsAccDataCache.put(blockNumber.toString(), poolsMap)
 
@@ -98,18 +125,18 @@ const getV2PoolsDetailedData = async ({
           ...pool,
           tvlUSD: {
             current: tvlUSD,
-            '7D': tvlUSD - (pools7D[pool.id]?.tvlUSD ?? 0),
-            '24H': tvlUSD - (pools24H[pool.id]?.tvlUSD ?? 0),
+            '7D': tvlUSD - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.TVLUSD] ?? 0),
+            '24H': tvlUSD - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.TVLUSD] ?? 0),
           },
           volumeUSD: {
             total: volumeUSD,
-            '7D': volumeUSD - (pools7D[pool.id]?.volumeUSD ?? 0),
-            '24H': volumeUSD - (pools24H[pool.id]?.volumeUSD ?? 0),
+            '7D': volumeUSD - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.VOLUMEUSD] ?? 0),
+            '24H': volumeUSD - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.VOLUMEUSD] ?? 0),
           },
           txCount: {
             total: txCount,
-            '7D': txCount - (pools7D[pool.id]?.txCount ?? 0),
-            '24H': txCount - (pools24H[pool.id]?.txCount ?? 0),
+            '7D': txCount - (pools7D[pool.id]?.[PoolV2AccDataCacheIndex.TXCOUNT] ?? 0),
+            '24H': txCount - (pools24H[pool.id]?.[PoolV2AccDataCacheIndex.TXCOUNT] ?? 0),
           },
         } as PoolV2Detailed),
     )
@@ -179,33 +206,33 @@ const getV3PoolsDetailedData = async ({
           ...pool,
           tvlUSD: {
             current: tvlUSD,
-            '7D': tvlUSD - (pools7D[pool.id]?.tvlUSD ?? 0),
-            '24H': tvlUSD - (pools24H[pool.id]?.tvlUSD ?? 0),
+            '7D': tvlUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.TVLUSD] ?? 0),
+            '24H': tvlUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.TVLUSD] ?? 0),
           },
           volumeUSD: {
             total: volumeUSD,
-            '7D': volumeUSD - (pools7D[pool.id]?.volumeUSD ?? 0),
-            '24H': volumeUSD - (pools24H[pool.id]?.volumeUSD ?? 0),
+            '7D': volumeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.VOLUMEUSD] ?? 0),
+            '24H': volumeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.VOLUMEUSD] ?? 0),
           },
           feeUSD: {
             total: feeUSD,
-            '7D': feeUSD - (pools7D[pool.id]?.feeUSD ?? 0),
-            '24H': feeUSD - (pools24H[pool.id]?.feeUSD ?? 0),
+            '7D': feeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.FEEUSD] ?? 0),
+            '24H': feeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.FEEUSD] ?? 0),
           },
           protocolFeeUSD: {
             total: protocolFeeUSD,
-            '7D': protocolFeeUSD - (pools7D[pool.id]?.protocolFeeUSD ?? 0),
-            '24H': protocolFeeUSD - (pools24H[pool.id]?.protocolFeeUSD ?? 0),
+            '7D': protocolFeeUSD - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.PROTOCOLFEEUSD] ?? 0),
+            '24H': protocolFeeUSD - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.PROTOCOLFEEUSD] ?? 0),
           },
           txCount: {
             total: txCount,
-            '7D': txCount - (pools7D[pool.id]?.txCount ?? 0),
-            '24H': txCount - (pools24H[pool.id]?.txCount ?? 0),
+            '7D': txCount - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.TXCOUNT] ?? 0),
+            '24H': txCount - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.TXCOUNT] ?? 0),
           },
           liquidityProviderCount: {
             current: liquidityProviderCount,
-            '7D': liquidityProviderCount - (pools7D[pool.id]?.liquidityProviderCount ?? 0),
-            '24H': liquidityProviderCount - (pools24H[pool.id]?.liquidityProviderCount ?? 0),
+            '7D': liquidityProviderCount - (pools7D[pool.id]?.[PoolV3AccDataCacheIndex.LIQUIDITYPROVIDERCOUNT] ?? 0),
+            '24H': liquidityProviderCount - (pools24H[pool.id]?.[PoolV3AccDataCacheIndex.LIQUIDITYPROVIDERCOUNT] ?? 0),
           },
         } as PoolV3Detailed),
     )
