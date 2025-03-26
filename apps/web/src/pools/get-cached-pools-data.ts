@@ -2,7 +2,7 @@ import { getBlockNumbers, getCachedBlockNumbers } from 'lib/get-cached-block-num
 import { getV2Pools } from 'lib/graph-queries/get-v2-pools'
 import { getV3Pools } from 'lib/graph-queries/get-v3-pools'
 import { PoolV2AccData, PoolV2Base, PoolV3AccData, PoolV3Base } from 'lib/graph-queries/types'
-import { PoolV2AccDataCache, PoolV3AccDataCache, v2PoolsAccDataCache, v3PoolsAccDataCache } from 'lru-caches'
+import { PoolV2AccDataCache, PoolV3AccDataCache } from 'lru-caches'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
 
@@ -25,9 +25,9 @@ const compressV2PoolAccData = (pools: PoolV2AccData[]): PoolV2AccDataCache => {
 
 const getV2PoolsAccData = async (blockNumber: number) => {
   // check lru cache
-  if (v2PoolsAccDataCache.get(blockNumber.toString())) {
-    return v2PoolsAccDataCache.get(blockNumber.toString())!
-  }
+  // if (v2PoolsAccDataCache.get(blockNumber.toString())) {
+  //   return v2PoolsAccDataCache.get(blockNumber.toString())!
+  // }
 
   // fetch data
   const poolsPromise = getV2Pools({ blockNumber, accOnly: true })
@@ -37,7 +37,7 @@ const getV2PoolsAccData = async (blockNumber: number) => {
 
   // cache data
   const poolsMap = compressV2PoolAccData(pools)
-  v2PoolsAccDataCache.put(blockNumber.toString(), poolsMap)
+  // v2PoolsAccDataCache.put(blockNumber.toString(), poolsMap)
 
   return poolsMap
 }
@@ -62,9 +62,9 @@ const compressV3PoolAccData = (pools: PoolV3AccData[]): PoolV3AccDataCache => {
 
 const getV3PoolsAccData = async (blockNumber: number) => {
   // check lru cache
-  if (v3PoolsAccDataCache.get(blockNumber.toString())) {
-    return v3PoolsAccDataCache.get(blockNumber.toString())!
-  }
+  // if (v3PoolsAccDataCache.get(blockNumber.toString())) {
+  //   return v3PoolsAccDataCache.get(blockNumber.toString())!
+  // }
 
   // fetch data
   const poolsPromise = getV3Pools({ blockNumber, accOnly: true })
@@ -75,7 +75,7 @@ const getV3PoolsAccData = async (blockNumber: number) => {
   // cache data
   const poolsMap = compressV3PoolAccData(pools)
 
-  v3PoolsAccDataCache.put(blockNumber.toString(), poolsMap)
+  // v3PoolsAccDataCache.put(blockNumber.toString(), poolsMap)
 
   return poolsMap
 }

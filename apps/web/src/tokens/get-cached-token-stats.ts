@@ -2,7 +2,7 @@ import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Tokens } from 'lib/graph-queries/get-v2-tokens'
 import { getV3Tokens } from 'lib/graph-queries/get-v3-tokens'
 import { TokenAccData, TokenBase } from 'lib/graph-queries/types'
-import { TokenAccDataCache, v2TokensAccDataCache, v3TokensAccDataCache } from 'lru-caches'
+import { TokenAccDataCache } from 'lru-caches'
 import { PoolType } from 'types'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
@@ -34,9 +34,9 @@ const compressTokenAccData = (tokens: TokenAccData[]): TokenAccDataCache => {
 
 export const getV2TokensAccData = async (blockNumber: number) => {
   // check lru cache
-  if (v2TokensAccDataCache.get(blockNumber.toString())) {
-    return v2TokensAccDataCache.get(blockNumber.toString())!
-  }
+  // if (v2TokensAccDataCache.get(blockNumber.toString())) {
+  //   return v2TokensAccDataCache.get(blockNumber.toString())!
+  // }
 
   // fetch data
   const tokensPromise = getV2Tokens({ blockNumber, accOnly: true })
@@ -47,16 +47,16 @@ export const getV2TokensAccData = async (blockNumber: number) => {
   // cache data
   const tokensMap = compressTokenAccData(tokens)
 
-  v2TokensAccDataCache.put(blockNumber.toString(), tokensMap)
+  // v2TokensAccDataCache.put(blockNumber.toString(), tokensMap)
 
   return tokensMap
 }
 
 export const getV3TokensAccData = async (blockNumber: number) => {
   // check lru cache
-  if (v3TokensAccDataCache.get(blockNumber.toString())) {
-    return v3TokensAccDataCache.get(blockNumber.toString())!
-  }
+  // if (v3TokensAccDataCache.get(blockNumber.toString())) {
+  //   return v3TokensAccDataCache.get(blockNumber.toString())!
+  // }
 
   // fetch data
   const tokensPromise = getV3Tokens({ blockNumber, accOnly: true })
@@ -67,7 +67,7 @@ export const getV3TokensAccData = async (blockNumber: number) => {
   // cache data
   const tokensMap = compressTokenAccData(tokens)
 
-  v3TokensAccDataCache.put(blockNumber.toString(), tokensMap)
+  // v3TokensAccDataCache.put(blockNumber.toString(), tokensMap)
 
   return tokensMap
 }
