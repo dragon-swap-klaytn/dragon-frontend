@@ -62,7 +62,7 @@ export default function useTokensData(
   const debouncedParams = useDebounce(query, 500)
 
   const { data, error, isLoading } = useSWR(
-    paused || !debouncedParams || query !== debouncedParams ? null : ['dashboard/tokens', debouncedParams],
+    paused || !debouncedParams || query !== debouncedParams ? null : ['dashboard/tokens', poolType, debouncedParams],
     async () => {
       const res = await fetch(`/api/stats/tokens/${poolType}?${debouncedParams}`)
       const parsed = (await res.json()) as { tokens: TokenDetailed[]; totalPage: number }
