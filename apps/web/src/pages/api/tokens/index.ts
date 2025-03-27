@@ -1,9 +1,9 @@
 import { ChainId, Token } from '@pancakeswap/sdk'
 import { ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { DEFAULT_TOKEN_LIST } from 'const'
-import { localCached } from 'lib/localCached'
 import { NextApiHandler } from 'next'
 import { getCachedV2TokenStats, getCachedV3TokenStats } from 'tokens/get-cached-token-stats'
+import { localCachedV2 } from 'utils/localCachedV2'
 import { Address } from 'viem'
 import { z } from 'zod'
 
@@ -27,9 +27,9 @@ async function fetchTokenMap() {
   return tokenMap
 }
 
-const getCahcedTokenMap = localCached<TokenMap>(fetchTokenMap, {
+const getCahcedTokenMap = localCachedV2<TokenMap>(fetchTokenMap, {
   ttl: 1_000 * 60 * 10, // 10 minutes
-})
+}).cachedFetcher
 
 async function fetchTokenMapFromSs() {
   const res = await fetch(SS_TOKENS_API)
@@ -57,9 +57,9 @@ async function fetchTokenMapFromSs() {
   return parsedTokens
 }
 
-const getCahcedTokenMapFromSs = localCached<TokenMap>(fetchTokenMapFromSs, {
+const getCahcedTokenMapFromSs = localCachedV2<TokenMap>(fetchTokenMapFromSs, {
   ttl: 1_000 * 60 * 10, // 10 minutes
-})
+}).cachedFetcher
 
 const tokensSchema = z.object({
   poolOnly: z.preprocess((v) => v === 'true', z.coerce.boolean()),

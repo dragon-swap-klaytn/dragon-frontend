@@ -1,4 +1,5 @@
 /**
+ * @deprecated Use `localCachedV2` instead
  * `localCached` will cache the return value of the given fetcher to memory storage.
  *
  * options options
