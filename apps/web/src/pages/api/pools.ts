@@ -70,7 +70,6 @@ function filteredBySearchKey(pool: PoolParsed, searchKey?: string) {
 }
 
 const farmsV3 = farmsV3ConfigChainMap[ChainId.KLAYTN]
-const farmFetcherV3 = createFarmFetcherV3(getViemClients)
 
 const handler: NextApiHandler = async (req, res) => {
   const { types, onlyPoolIds, tokenAddress, boostedOnly, searchKey, sortBy, sortDirection, skip, limit } =
@@ -88,6 +87,7 @@ const handler: NextApiHandler = async (req, res) => {
 
   const commonPrice = duplicateChecksumPriceMap({ ...ssPrices, ...prices })
 
+  const farmFetcherV3 = createFarmFetcherV3(getViemClients)
   const {
     farmsWithPrice,
     cakePerSecond,
