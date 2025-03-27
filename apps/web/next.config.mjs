@@ -51,6 +51,7 @@ const config = {
     styledComponents: true,
   },
   experimental: {
+    isrMemoryCacheSize: 0, // disable ISR cache
     scrollRestoration: true,
     fallbackNodePolyfills: false,
     outputFileTracingRoot: path.join(__dirname, '../../'),
