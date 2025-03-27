@@ -16,7 +16,7 @@ export const getDefaultStaticProps = (locales: string[]) => {
 export const defaultStaticPaths: GetStaticPaths = () => {
   return {
     paths: [],
-    fallback: 'blocking',
+    fallback: true,
   }
 }
 
