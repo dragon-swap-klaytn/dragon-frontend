@@ -3,7 +3,7 @@ import { ExtendedNextReq, MiddlewareFactory, NextMiddleware } from './types'
 
 export const withUserIp: MiddlewareFactory = (next: NextMiddleware) => {
   return async (request: ExtendedNextReq, _next: NextFetchEvent) => {
-    let ip = request.ip ?? request.headers.get('x-real-ip')
+    let ip = request.userIp ?? request.headers.get('x-real-ip')
     const forwardedFor = request.headers.get('x-forwarded-for')
     if (!ip && forwardedFor) ip = forwardedFor.split(',').at(0) ?? ip
 

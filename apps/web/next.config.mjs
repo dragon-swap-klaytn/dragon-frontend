@@ -51,13 +51,8 @@ const config = {
     styledComponents: true,
   },
   experimental: {
-    isrMemoryCacheSize: 0, // disable ISR cache
     scrollRestoration: true,
     fallbackNodePolyfills: false,
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-    outputFileTracingExcludes: {
-      '*': [],
-    },
   },
   transpilePackages: [
     '@pancakeswap/farms',
@@ -70,7 +65,6 @@ const config = {
     '@pancakeswap/gauges',
   ],
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     contentDispositionType: 'attachment',
     remotePatterns: [
