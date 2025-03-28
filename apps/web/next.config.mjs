@@ -46,6 +46,7 @@ const config = {
   typescript: {
     tsconfigPath: 'tsconfig.build.json',
   },
+  cacheMaxMemorySize: 0,
   output: process.env.STANDALONE ? 'standalone' : undefined,
   compiler: {
     styledComponents: true,
