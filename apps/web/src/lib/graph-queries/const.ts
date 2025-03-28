@@ -37,6 +37,8 @@ const WBTC_ADDRESSES = {
   synapse: '0xdcbacf3f7a069922e677912998c8d57423c37dfa' as Address,
 }
 
+const KRWO_ADDRESS = '0x7fc692699f2216647a0e06225d8bdf8cdee40e7f' as Address
+
 export const tokensToBeOverridden: Record<
   Address,
   Partial<{
@@ -81,5 +83,8 @@ export const tokensToBeOverridden: Record<
   },
   [WBTC_ADDRESSES.synapse]: {
     name: (v) => `${v} (Synapse Bridge)`,
+  },
+  [KRWO_ADDRESS]: {
+    name: () => 'KRWO',
   },
 }
