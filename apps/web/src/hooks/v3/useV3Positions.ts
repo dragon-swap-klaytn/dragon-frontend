@@ -3,6 +3,7 @@ import { PositionDetails } from '@pancakeswap/farms'
 import { masterChefV3ABI } from '@pancakeswap/v3-sdk'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
+import { useIsClient } from 'hooks/useIsClient'
 import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Address, useContractRead, useContractReads } from 'wagmi'
@@ -23,9 +24,10 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
   const positionManager = useV3NFTPositionManagerContract()
   const { chainId } = useActiveChainId()
 
+  const isClient = useIsClient()
   const inputs = useMemo(
     () =>
-      tokenIds && positionManager
+      isClient && tokenIds && positionManager
         ? tokenIds.map((tokenId) => ({
             abi: positionManager.abi,
             address: positionManager.address,
@@ -34,7 +36,7 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
             chainId,
           }))
         : [],
-    [chainId, positionManager, tokenIds],
+    [chainId, positionManager, tokenIds, isClient],
   )
   const {
     isLoading,
@@ -44,7 +46,7 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
     contracts: inputs,
     watch: true,
     allowFailure: true,
-    enabled: !!inputs.length,
+    enabled: isClient && !!inputs.length,
     keepPreviousData: true,
   })
 
