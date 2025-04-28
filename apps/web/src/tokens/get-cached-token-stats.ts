@@ -76,33 +76,33 @@ export type TokenDetailed = TokenBase & {
   type: PoolType
   priceUSD: {
     current: number
-    '7D': number
-    '24H': number
+    '7D': number | null
+    '24H': number | null
   }
   tvl: {
     current: number
-    '7D': number
-    '24H': number
+    '7D': number | null
+    '24H': number | null
   }
   tvlUSD: {
     current: number
-    '7D': number
-    '24H': number
+    '7D': number | null
+    '24H': number | null
   }
   volume: {
     total: number
-    '7D': number
-    '24H': number
+    '7D': number | null
+    '24H': number | null
   }
   volumeUSD: {
     total: number
-    '7D': number
-    '24H': number
+    '7D': number | null
+    '24H': number | null
   }
   txCount: {
     total: number
-    '7D': number
-    '24H': number
+    '7D': number | null
+    '24H': number | null
   }
 }
 
@@ -112,13 +112,17 @@ const getV2TokensDatailedData = async () => {
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
   const tokensPromise = getV2Tokens({ blockNumber: blockNumbers[2] })
-  const [tokens7D, tokens24H, tokens] = await Promise.all([
+  const [_tokens7D, _tokens24H, _tokens] = await Promise.allSettled([
     getV2TokensAccData(blockNumbers[0]),
     getV2TokensAccData(blockNumbers[1]),
     requestWithRetry(tokensPromise, {
       logPrefix: `getV2TokensDatailedData(${blockNumbers[2]})`,
     }),
   ])
+
+  const tokens7D = _tokens7D.status === 'fulfilled' ? _tokens7D.value : {}
+  const tokens24H = _tokens24H.status === 'fulfilled' ? _tokens24H.value : {}
+  const tokens = _tokens.status === 'fulfilled' ? _tokens.value : []
 
   const tokensDetailed = tokens
     .filter(({ tvlUSD }) => tvlUSD > TOKEN_LIQUIDITY_USD_THRESHOLD)
@@ -129,37 +133,61 @@ const getV2TokensDatailedData = async () => {
           type: 'v2',
           priceUSD: {
             current: priceUSD,
-            '7D': priceUSD - (tokens7D[token.id]?.[TokenAccDataCacheIndex.priceUSD] ?? 0),
-            '24H': priceUSD - (tokens24H[token.id]?.[TokenAccDataCacheIndex.priceUSD] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.priceUSD]
+              ? null
+              : priceUSD - tokens7D[token.id][TokenAccDataCacheIndex.priceUSD],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.priceUSD]
+              ? null
+              : priceUSD - tokens24H[token.id][TokenAccDataCacheIndex.priceUSD],
           },
           tvl: {
             current: tvl,
-            '7D': tvl - (tokens7D[token.id]?.[TokenAccDataCacheIndex.tvl] ?? 0),
-            '24H': tvl - (tokens24H[token.id]?.[TokenAccDataCacheIndex.tvl] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.tvl]
+              ? null
+              : tvl - tokens7D[token.id][TokenAccDataCacheIndex.tvl],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.tvl]
+              ? null
+              : tvl - tokens24H[token.id][TokenAccDataCacheIndex.tvl],
           },
           tvlUSD: {
             current: tvlUSD,
-            '7D': tvlUSD - (tokens7D[token.id]?.[TokenAccDataCacheIndex.tvlUSD] ?? 0),
-            '24H': tvlUSD - (tokens24H[token.id]?.[TokenAccDataCacheIndex.tvlUSD] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.tvlUSD]
+              ? null
+              : tvlUSD - tokens7D[token.id][TokenAccDataCacheIndex.tvlUSD],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.tvlUSD]
+              ? null
+              : tvlUSD - tokens24H[token.id][TokenAccDataCacheIndex.tvlUSD],
           },
           volume: {
             total: volume,
-            '7D': volume - (tokens7D[token.id]?.[TokenAccDataCacheIndex.volume] ?? 0),
-            '24H': volume - (tokens24H[token.id]?.[TokenAccDataCacheIndex.volume] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.volume]
+              ? null
+              : volume - tokens7D[token.id][TokenAccDataCacheIndex.volume],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.volume]
+              ? null
+              : volume - tokens24H[token.id][TokenAccDataCacheIndex.volume],
           },
           volumeUSD: {
             total: volumeUSD,
-            '7D': volumeUSD - (tokens7D[token.id]?.[TokenAccDataCacheIndex.volumeUSD] ?? 0),
-            '24H': volumeUSD - (tokens24H[token.id]?.[TokenAccDataCacheIndex.volumeUSD] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.volumeUSD]
+              ? null
+              : volumeUSD - tokens7D[token.id][TokenAccDataCacheIndex.volumeUSD],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.volumeUSD]
+              ? null
+              : volumeUSD - tokens24H[token.id][TokenAccDataCacheIndex.volumeUSD],
           },
           txCount: {
             total: txCount,
-            '7D': txCount - (tokens7D[token.id]?.[TokenAccDataCacheIndex.txCount] ?? 0),
-            '24H': txCount - (tokens24H[token.id]?.[TokenAccDataCacheIndex.txCount] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.txCount]
+              ? null
+              : txCount - tokens7D[token.id][TokenAccDataCacheIndex.txCount],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.txCount]
+              ? null
+              : txCount - tokens24H[token.id][TokenAccDataCacheIndex.txCount],
           },
         } as TokenDetailed),
     )
-    .sort((a, b) => b.volumeUSD['24H'] - a.volumeUSD['24H'])
+    .sort((a, b) => (b.volumeUSD['24H'] ?? 0) - (a.volumeUSD['24H'] ?? 0))
 
   return tokensDetailed
 }
@@ -176,13 +204,17 @@ const getV3TokensDatailedData = async () => {
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
   const tokensPromise = getV3Tokens({ blockNumber: blockNumbers[2] })
-  const [tokens7D, tokens24H, tokens] = await Promise.all([
+  const [_tokens7D, _tokens24H, _tokens] = await Promise.allSettled([
     getV3TokensAccData(blockNumbers[0]),
     getV3TokensAccData(blockNumbers[1]),
     requestWithRetry(tokensPromise, {
       logPrefix: `getV3TokensDatailedData(${blockNumbers[2]})`,
     }),
   ])
+
+  const tokens7D = _tokens7D.status === 'fulfilled' ? _tokens7D.value : {}
+  const tokens24H = _tokens24H.status === 'fulfilled' ? _tokens24H.value : {}
+  const tokens = _tokens.status === 'fulfilled' ? _tokens.value : []
 
   const tokensDetailed = tokens
     .filter(({ tvlUSD }) => tvlUSD > TOKEN_LIQUIDITY_USD_THRESHOLD)
@@ -193,37 +225,61 @@ const getV3TokensDatailedData = async () => {
           type: 'v3',
           priceUSD: {
             current: priceUSD,
-            '7D': priceUSD - (tokens7D[token.id]?.[TokenAccDataCacheIndex.priceUSD] ?? 0),
-            '24H': priceUSD - (tokens24H[token.id]?.[TokenAccDataCacheIndex.priceUSD] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.priceUSD]
+              ? null
+              : priceUSD - tokens7D[token.id][TokenAccDataCacheIndex.priceUSD],
+            '24H': !tokens7D[token.id]?.[TokenAccDataCacheIndex.priceUSD]
+              ? null
+              : priceUSD - tokens24H[token.id][TokenAccDataCacheIndex.priceUSD],
           },
           tvl: {
             current: tvl,
-            '7D': tvl - (tokens7D[token.id]?.[TokenAccDataCacheIndex.tvl] ?? 0),
-            '24H': tvl - (tokens24H[token.id]?.[TokenAccDataCacheIndex.tvl] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.tvl]
+              ? null
+              : tvl - tokens7D[token.id][TokenAccDataCacheIndex.tvl],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.tvl]
+              ? null
+              : tvl - tokens24H[token.id][TokenAccDataCacheIndex.tvl],
           },
           tvlUSD: {
             current: tvlUSD,
-            '7D': tvlUSD - (tokens7D[token.id]?.[TokenAccDataCacheIndex.tvlUSD] ?? 0),
-            '24H': tvlUSD - (tokens24H[token.id]?.[TokenAccDataCacheIndex.tvlUSD] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.tvlUSD]
+              ? null
+              : tvlUSD - tokens7D[token.id][TokenAccDataCacheIndex.tvlUSD],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.tvlUSD]
+              ? null
+              : tvlUSD - tokens24H[token.id][TokenAccDataCacheIndex.tvlUSD],
           },
           volume: {
             total: volume,
-            '7D': volume - (tokens7D[token.id]?.[TokenAccDataCacheIndex.volume] ?? 0),
-            '24H': volume - (tokens24H[token.id]?.[TokenAccDataCacheIndex.volume] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.volume]
+              ? null
+              : volume - tokens7D[token.id][TokenAccDataCacheIndex.volume],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.volume]
+              ? null
+              : volume - tokens24H[token.id][TokenAccDataCacheIndex.volume],
           },
           volumeUSD: {
             total: volumeUSD,
-            '7D': volumeUSD - (tokens7D[token.id]?.[TokenAccDataCacheIndex.volumeUSD] ?? 0),
-            '24H': volumeUSD - (tokens24H[token.id]?.[TokenAccDataCacheIndex.volumeUSD] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.volumeUSD]
+              ? null
+              : volumeUSD - tokens7D[token.id][TokenAccDataCacheIndex.volumeUSD],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.volumeUSD]
+              ? null
+              : volumeUSD - tokens24H[token.id][TokenAccDataCacheIndex.volumeUSD],
           },
           txCount: {
             total: txCount,
-            '7D': txCount - (tokens7D[token.id]?.[TokenAccDataCacheIndex.txCount] ?? 0),
-            '24H': txCount - (tokens24H[token.id]?.[TokenAccDataCacheIndex.txCount] ?? 0),
+            '7D': !tokens7D[token.id]?.[TokenAccDataCacheIndex.txCount]
+              ? null
+              : txCount - tokens7D[token.id][TokenAccDataCacheIndex.txCount],
+            '24H': !tokens24H[token.id]?.[TokenAccDataCacheIndex.txCount]
+              ? null
+              : txCount - tokens24H[token.id][TokenAccDataCacheIndex.txCount],
           },
         } as TokenDetailed),
     )
-    .sort((a, b) => b.volumeUSD['24H'] - a.volumeUSD['24H'])
+    .sort((a, b) => (b.volumeUSD['24H'] ?? 0) - (a.volumeUSD['24H'] ?? 0))
 
   return tokensDetailed
 }

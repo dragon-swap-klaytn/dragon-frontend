@@ -101,17 +101,29 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
 
                 <div className="mt-3 flex items-center space-x-2">
                   <div className="flex items-center space-x-1">
-                    <Percent
-                      value={
-                        (tokenData.priceUSD['24H'] / (tokenData.priceUSD.current - tokenData.priceUSD['24H'])) * 100
-                      }
-                    />
+                    {tokenData.priceUSD['24H'] ? (
+                      <Percent
+                        value={
+                          (tokenData.priceUSD['24H'] / (tokenData.priceUSD.current - tokenData.priceUSD['24H'])) * 100
+                        }
+                      />
+                    ) : (
+                      '-'
+                    )}
+
                     <span className="text-xs font-normal text-on-surface-subtle">(24H)</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Percent
-                      value={(tokenData.priceUSD['7D'] / (tokenData.priceUSD.current - tokenData.priceUSD['7D'])) * 100}
-                    />
+                    {tokenData.priceUSD['7D'] ? (
+                      <Percent
+                        value={
+                          (tokenData.priceUSD['7D'] / (tokenData.priceUSD.current - tokenData.priceUSD['7D'])) * 100
+                        }
+                      />
+                    ) : (
+                      '-'
+                    )}
+
                     <span className="text-xs font-normal text-on-surface-subtle">(7D)</span>
                   </div>
                 </div>
@@ -134,15 +146,25 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
                   <p className="text-xl font-medium">$ {formatDollarAmount(tokenData.tvlUSD.current)}</p>
                   <div>
                     <div className="flex items-center space-x-1">
-                      <Percent
-                        value={(tokenData.tvlUSD['24H'] / (tokenData.tvlUSD.current - tokenData.tvlUSD['24H'])) * 100}
-                      />
+                      {tokenData.tvlUSD['24H'] ? (
+                        <Percent
+                          value={(tokenData.tvlUSD['24H'] / (tokenData.tvlUSD.current - tokenData.tvlUSD['24H'])) * 100}
+                        />
+                      ) : (
+                        '-'
+                      )}
+
                       <span className="text-xs font-normal text-on-surface-subtle">(24H)</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Percent
-                        value={(tokenData.tvlUSD['7D'] / (tokenData.tvlUSD.current - tokenData.tvlUSD['7D'])) * 100}
-                      />
+                      {tokenData.tvlUSD['7D'] ? (
+                        <Percent
+                          value={(tokenData.tvlUSD['7D'] / (tokenData.tvlUSD.current - tokenData.tvlUSD['7D'])) * 100}
+                        />
+                      ) : (
+                        '-'
+                      )}
+
                       <span className="text-xs font-normal text-on-surface-subtle">(7D)</span>
                     </div>
                   </div>
@@ -150,11 +172,15 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
                 <div className="flex justify-between space-x-4">
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">Volume 24H</h4>
-                    <p className="text-xl font-medium">$ {formatDollarAmount(tokenData.volumeUSD['24H'])}</p>
+                    <p className="text-xl font-medium">
+                      {tokenData.volumeUSD['24H'] ? `$ ${formatDollarAmount(tokenData.volumeUSD['24H'])}` : '-'}
+                    </p>
                   </div>
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">Volume 7D</h4>
-                    <p className="text-xl font-medium">$ {formatDollarAmount(tokenData.volumeUSD['7D'])}</p>
+                    <p className="text-xl font-medium">
+                      {tokenData.volumeUSD['7D'] ? `$ ${formatDollarAmount(tokenData.volumeUSD['7D'])}` : '-'}
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-1.5">
@@ -162,17 +188,26 @@ const TokenDetailsPage = ({ poolType, address }: { poolType: PoolType; address: 
                   <p className="text-xl font-medium">{tokenData.txCount.total.toLocaleString()}</p>
                   <div>
                     <div className="flex items-center space-x-1">
-                      <span className="text-sm text-emerald-400 flex items-center">
-                        <ArrowUp />
-                        <span>{tokenData.txCount['24H'].toLocaleString()}</span>
-                      </span>
+                      {tokenData.txCount['24H'] ? (
+                        <span className="text-sm text-emerald-400 flex items-center">
+                          <ArrowUp />
+                          <span>{tokenData.txCount['24H'].toLocaleString()}</span>
+                        </span>
+                      ) : (
+                        '-'
+                      )}
+
                       <span className="text-xs font-normal text-on-surface-subtle">(24H)</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <span className="text-sm text-emerald-400 flex items-center">
-                        <ArrowUp />
-                        <span>{tokenData.txCount['7D'].toLocaleString()}</span>
-                      </span>
+                      {tokenData.txCount['7D'] ? (
+                        <span className="text-sm text-emerald-400 flex items-center">
+                          <ArrowUp />
+                          <span>{tokenData.txCount['7D'].toLocaleString()}</span>
+                        </span>
+                      ) : (
+                        '-'
+                      )}
                       <span className="text-xs font-normal text-on-surface-subtle">(7D)</span>
                     </div>
                   </div>

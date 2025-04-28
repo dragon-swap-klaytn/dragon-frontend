@@ -38,10 +38,9 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
 
   // const prevPoolTypeRef = useRef<PoolType>(poolType)
   const tvlUSD = protocolData?.tvlUSD.current
-  const tvlUSDChangeRate24H = getPercentChange(
-    protocolData?.tvlUSD.current.toString(),
-    protocolData?.tvlUSD['24H'].toString(),
-  )
+  const tvlUSDChangeRate24H = !protocolData?.tvlUSD['24H']
+    ? 0
+    : getPercentChange(protocolData?.tvlUSD.current.toString(), protocolData.tvlUSD['24H'].toString())
 
   useEffect(() => {
     if (!tvlUSD) return
@@ -130,36 +129,56 @@ export default function Overview<T extends PoolType>({ poolType = 'v3' as T }: {
           {!!protocolData && (
             <OverviewData
               title={t('Volume 24H')}
-              value={formatDollarAmountV2({
-                num: protocolData.volumeUSD.total - protocolData.volumeUSD['24H'],
-                digits: 2,
-                round: true,
-                withDollarSign: true,
-              })}
-              diff={getPercentChange(
-                (protocolData.volumeUSD.total - protocolData.volumeUSD['24H']).toString(),
-                (protocolData.volumeUSD['24H'] - protocolData.volumeUSD['48H']).toString(),
-              )}
+              value={
+                protocolData.volumeUSD['24H'] === null
+                  ? '-'
+                  : formatDollarAmountV2({
+                      num: protocolData.volumeUSD.total - protocolData.volumeUSD['24H'],
+                      digits: 2,
+                      round: true,
+                      withDollarSign: true,
+                    })
+              }
+              diff={
+                protocolData.volumeUSD['24H'] && protocolData.volumeUSD['48H']
+                  ? getPercentChange(
+                      (protocolData.volumeUSD.total - protocolData.volumeUSD['24H']).toString(),
+                      (protocolData.volumeUSD['24H'] - protocolData.volumeUSD['48H']).toString(),
+                    )
+                  : 0
+              }
             />
           )}
 
           {poolType === 'v3' && protocolData && (
             <OverviewData
               title={t('Fees 24H')}
-              value={formatDollarAmountV2({
-                num: (protocolData as ProtocolV3Data).feeUSD.total - (protocolData as ProtocolV3Data).feeUSD['24H'],
-                digits: 2,
-                round: true,
-                withDollarSign: true,
-              })}
-              diff={getPercentChange(
-                (
-                  (protocolData as ProtocolV3Data).feeUSD.total - (protocolData as ProtocolV3Data).feeUSD['24H']
-                ).toString(),
-                (
-                  (protocolData as ProtocolV3Data).feeUSD['24H'] - (protocolData as ProtocolV3Data).feeUSD['48H']
-                ).toString(),
-              )}
+              value={
+                (protocolData as ProtocolV3Data).feeUSD['24H'] === null
+                  ? '-'
+                  : formatDollarAmountV2({
+                      num:
+                        (protocolData as ProtocolV3Data).feeUSD.total -
+                        ((protocolData as ProtocolV3Data).feeUSD['24H'] ?? 0),
+                      digits: 2,
+                      round: true,
+                      withDollarSign: true,
+                    })
+              }
+              diff={
+                (protocolData as ProtocolV3Data).feeUSD['24H'] && (protocolData as ProtocolV3Data).feeUSD['48H']
+                  ? getPercentChange(
+                      (
+                        (protocolData as ProtocolV3Data).feeUSD.total -
+                        ((protocolData as ProtocolV3Data).feeUSD['24H'] ?? 0)
+                      ).toString(),
+                      (
+                        ((protocolData as ProtocolV3Data).feeUSD['24H'] ?? 0) -
+                        ((protocolData as ProtocolV3Data).feeUSD['48H'] ?? 0)
+                      ).toString(),
+                    )
+                  : 0
+              }
             />
           )}
 
@@ -258,7 +277,7 @@ function OverviewData({ title, value, diff }: { title: string; value: string; di
         {title}: {value}
       </h5>
 
-      {diff !== undefined && (
+      {(!!diff || diff === 0) && (
         <span className="text-on-surface-brand flex items-center">
           ({diff < 0 ? <ArrowDown /> : <ArrowUp />}
           {Math.abs(diff).toFixed(2)}%)

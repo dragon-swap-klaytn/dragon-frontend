@@ -10,39 +10,51 @@ const WEEK = 7 * DAY
 type WithAPY<T> = T & {
   type: PoolType
   apy: {
-    '24H': number
-    '7D': number
+    '24H': number | null
+    '7D': number | null
   }
   apr: {
-    '24H': number
-    '7D': number
+    '24H': number | null
+    '7D': number | null
   }
 }
 
 export const parseV2Pool = (pool: PoolV2Detailed): WithAPY<PoolV2Detailed> => {
-  const apy24H = calculateAPY({
-    interest: pool.volumeUSD['24H'] * LP_HOLDERS_FEE,
-    principal: pool.tvlUSD.current,
-    duration: DAY,
-  })
+  const apy24H =
+    pool.volumeUSD['24H'] === null
+      ? null
+      : calculateAPY({
+          interest: pool.volumeUSD['24H'] * LP_HOLDERS_FEE,
+          principal: pool.tvlUSD.current,
+          duration: DAY,
+        })
 
-  const apy7D = calculateAPY({
-    interest: pool.volumeUSD['7D'] * LP_HOLDERS_FEE,
-    principal: pool.tvlUSD.current,
-    duration: WEEK,
-  })
+  const apy7D =
+    pool.volumeUSD['7D'] === null
+      ? null
+      : calculateAPY({
+          interest: pool.volumeUSD['7D'] * LP_HOLDERS_FEE,
+          principal: pool.tvlUSD.current,
+          duration: WEEK,
+        })
 
-  const apr24H = calculateAPR({
-    interest: pool.volumeUSD['24H'] * LP_HOLDERS_FEE,
-    principal: pool.tvlUSD.current,
-    duration: DAY,
-  })
+  const apr24H =
+    pool.volumeUSD['24H'] === null
+      ? null
+      : calculateAPR({
+          interest: pool.volumeUSD['24H'] * LP_HOLDERS_FEE,
+          principal: pool.tvlUSD.current,
+          duration: DAY,
+        })
 
-  const apr7D = calculateAPR({
-    interest: pool.volumeUSD['7D'] * LP_HOLDERS_FEE,
-    principal: pool.tvlUSD.current,
-    duration: WEEK,
-  })
+  const apr7D =
+    pool.volumeUSD['7D'] === null
+      ? null
+      : calculateAPR({
+          interest: pool.volumeUSD['7D'] * LP_HOLDERS_FEE,
+          principal: pool.tvlUSD.current,
+          duration: WEEK,
+        })
 
   return {
     type: 'v2',
@@ -59,29 +71,41 @@ export const parseV2Pool = (pool: PoolV2Detailed): WithAPY<PoolV2Detailed> => {
 }
 
 export const parseV3Pool = (pool: PoolV3Detailed): WithAPY<PoolV3Detailed> => {
-  const apy24H = calculateAPY({
-    interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
-    principal: pool.tvlUSD.current,
-    duration: DAY,
-  })
+  const apy24H =
+    pool.feeUSD['24H'] === null || pool.protocolFeeUSD['24H'] === null
+      ? null
+      : calculateAPY({
+          interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
+          principal: pool.tvlUSD.current,
+          duration: DAY,
+        })
 
-  const apy7D = calculateAPY({
-    interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
-    principal: pool.tvlUSD.current,
-    duration: WEEK,
-  })
+  const apy7D =
+    pool.feeUSD['7D'] === null || pool.protocolFeeUSD['7D'] === null
+      ? null
+      : calculateAPY({
+          interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
+          principal: pool.tvlUSD.current,
+          duration: WEEK,
+        })
 
-  const apr24H = calculateAPR({
-    interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
-    principal: pool.tvlUSD.current,
-    duration: DAY,
-  })
+  const apr24H =
+    pool.feeUSD['24H'] === null || pool.protocolFeeUSD['24H'] === null
+      ? null
+      : calculateAPR({
+          interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
+          principal: pool.tvlUSD.current,
+          duration: DAY,
+        })
 
-  const apr7D = calculateAPR({
-    interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
-    principal: pool.tvlUSD.current,
-    duration: WEEK,
-  })
+  const apr7D =
+    pool.feeUSD['7D'] === null || pool.protocolFeeUSD['7D'] === null
+      ? null
+      : calculateAPR({
+          interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
+          principal: pool.tvlUSD.current,
+          duration: WEEK,
+        })
 
   return {
     type: 'v3',

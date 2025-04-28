@@ -171,18 +171,26 @@ export const PoolDataRow = ({
           </div>
         </td>
         <td className="text-on-surface px-4 py-6 text-left">
-          <APRWithBoost
-            lpApr={poolData.apy['24H']}
-            rewardApr={(poolData as PoolV3Parsed).rewardApr}
-            isBoosted={isBoosted}
-          />
+          {poolData.apy['24H'] === null ? (
+            '-'
+          ) : (
+            <APRWithBoost
+              lpApr={poolData.apy['24H']}
+              rewardApr={(poolData as PoolV3Parsed).rewardApr}
+              isBoosted={isBoosted}
+            />
+          )}
         </td>
-        <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
-          <APRWithBoost
-            lpApr={poolData.apy['7D']}
-            rewardApr={(poolData as PoolV3Parsed).rewardApr}
-            isBoosted={isBoosted}
-          />
+        <td className="text-on-surface px-4 py-6 hidden lg:table-cell text-left">
+          {poolData.apy['7D'] === null ? (
+            '-'
+          ) : (
+            <APRWithBoost
+              lpApr={poolData.apy['7D']}
+              rewardApr={(poolData as PoolV3Parsed).rewardApr}
+              isBoosted={isBoosted}
+            />
+          )}
         </td>
         <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
           <span>
@@ -192,19 +200,33 @@ export const PoolDataRow = ({
             })}
           </span>
         </td>
-        <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
+        <td
+          className={clsx('text-on-surface px-4 py-6 hidden s:table-cell', {
+            'text-center': poolData.volumeUSD['24H'] === null,
+            'text-left': poolData.volumeUSD['24H'] !== null,
+          })}
+        >
           <span>
-            {formatDollarAmountV2({
-              num: poolData.volumeUSD['24H'],
-              withDollarSign: true,
-            })}
+            {poolData.volumeUSD['24H'] === null
+              ? '-'
+              : formatDollarAmountV2({
+                  num: poolData.volumeUSD['24H'],
+                  withDollarSign: true,
+                })}
           </span>
         </td>
-        <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
-          {formatDollarAmountV2({
-            num: poolData.volumeUSD['7D'],
-            withDollarSign: true,
+        <td
+          className={clsx('text-on-surface px-4 py-6 text-left hidden lg:table-cell', {
+            'text-center': poolData.volumeUSD['7D'] === null,
+            'text-left': poolData.volumeUSD['7D'] !== null,
           })}
+        >
+          {poolData.volumeUSD['7D'] === null
+            ? '-'
+            : formatDollarAmountV2({
+                num: poolData.volumeUSD['7D'],
+                withDollarSign: true,
+              })}
         </td>
         {openable && (
           <td className="text-on-surface pr-4 py-6 text-left">
