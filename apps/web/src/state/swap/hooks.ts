@@ -4,8 +4,6 @@ import { STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useUserSlippage } from '@pancakeswap/utils/user'
-import { useQuery } from '@tanstack/react-query'
-import { SLOW_INTERVAL } from 'config/constants'
 import { DEFAULT_INPUT_CURRENCY } from 'config/constants/exchange'
 import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -22,10 +20,7 @@ import { getTokenAddress } from 'views/Swap/components/Chart/utils'
 import { useAccount } from 'wagmi'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, replaceSwapState } from './actions'
-import fetchDerivedPriceData, { getTokenBestTvlProtocol } from './fetch/fetchDerivedPriceData'
-import { normalizeDerivedChartData, normalizeDerivedPairDataByActiveToken } from './normalizers'
 import { SwapState, swapReducerAtom } from './reducer'
-import { PairDataTimeWindowEnum } from './types'
 
 export function useSwapState() {
   return useAtomValue(swapReducerAtom)
@@ -281,94 +276,4 @@ export function useDefaultsFromURLSearch():
   }, [dispatch, chainId, query, native, isReady])
 
   return result
-}
-
-type useFetchPairPricesParams = {
-  token0Address: string
-  token1Address: string
-  timeWindow: PairDataTimeWindowEnum
-  currentSwapPrice: {
-    [key: string]: number
-  }
-}
-
-export const useFetchPairPricesV3 = ({
-  token0Address,
-  token1Address,
-  timeWindow,
-  currentSwapPrice,
-}: useFetchPairPricesParams) => {
-  const { chainId } = useActiveChainId()
-  const { data: protocol0 } = useQuery(
-    ['protocol', token0Address, chainId],
-    async () => {
-      if (!chainId) return undefined
-      return getTokenBestTvlProtocol(token0Address, chainId)
-    },
-    {
-      enabled: Boolean(token0Address && chainId),
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    },
-  )
-  const { data: protocol1 } = useQuery(
-    ['protocol', token1Address, chainId],
-    async () => {
-      if (!chainId) return undefined
-      return getTokenBestTvlProtocol(token1Address, chainId)
-    },
-    {
-      enabled: Boolean(token1Address && chainId),
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    },
-  )
-
-  const {
-    data: normalizedDerivedPairData,
-    error,
-    isLoading,
-  } = useQuery(
-    ['derivedPrice', { token0Address, token1Address, chainId, protocol0, protocol1, timeWindow }],
-    async () => {
-      if (!chainId) return undefined
-      const data = await fetchDerivedPriceData(
-        token0Address,
-        token1Address,
-        timeWindow,
-        protocol0 ?? 'v3',
-        protocol1 ?? 'v3',
-        chainId,
-      )
-      return normalizeDerivedPairDataByActiveToken({
-        activeToken: token0Address,
-        pairData: normalizeDerivedChartData(data),
-      })
-    },
-    {
-      enabled: Boolean(protocol0 && protocol1 && token0Address && chainId && token1Address),
-      refetchInterval: SLOW_INTERVAL,
-      staleTime: SLOW_INTERVAL,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    },
-  )
-
-  const hasSwapPrice = currentSwapPrice && currentSwapPrice[token0Address] > 0
-  const normalizedDerivedPairDataWithCurrentSwapPrice = useMemo(
-    () =>
-      normalizedDerivedPairData && normalizedDerivedPairData?.length > 0 && hasSwapPrice
-        ? [...normalizedDerivedPairData, { time: new Date(), value: currentSwapPrice[token0Address] }]
-        : normalizedDerivedPairData,
-    [currentSwapPrice, hasSwapPrice, normalizedDerivedPairData, token0Address],
-  )
-
-  return {
-    data: normalizedDerivedPairDataWithCurrentSwapPrice,
-    error,
-    isLoading,
-  }
 }

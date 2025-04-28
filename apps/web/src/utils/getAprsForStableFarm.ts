@@ -1,14 +1,12 @@
 import BigNumber from 'bignumber.js'
 import { gql } from 'graphql-request'
+import { getBlockNumberOfTimestamp } from 'lib/node-queries/get-block-number-of-timestamp'
 import _toLower from 'lodash/toLower'
-import { getDeltaTimestamps } from './getDeltaTimestamps'
-import { getBlocksFromTimestamps } from './getBlocksFromTimestamps'
 import { stableSwapClient } from './graphql'
 
 export const getAprsForStableFarm = async (stableSwapAddress?: string): Promise<BigNumber> => {
   try {
-    const [, , t7d] = getDeltaTimestamps()
-    const [blockDay7Ago] = await getBlocksFromTimestamps([t7d])
+    const block7d = await getBlockNumberOfTimestamp(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
     const { virtualPriceAtLatestBlock, virtualPriceOneDayAgo: virtualPrice7DayAgo } = await stableSwapClient.request(
       gql`
@@ -21,7 +19,7 @@ export const getAprsForStableFarm = async (stableSwapAddress?: string): Promise<
           }
         }
       `,
-      { stableSwapAddress: _toLower(stableSwapAddress), blockDayAgo: blockDay7Ago.number },
+      { stableSwapAddress: _toLower(stableSwapAddress), blockDayAgo: Number(block7d) },
     )
 
     const virtualPrice = virtualPriceAtLatestBlock?.virtualPrice

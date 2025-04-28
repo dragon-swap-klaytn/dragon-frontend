@@ -15,11 +15,9 @@ test('exports', () => {
       "isTestnetChainId",
       "V3_SUBGRAPHS",
       "V2_SUBGRAPHS",
-      "BLOCKS_SUBGRAPHS",
       "STABLESWAP_SUBGRAPHS",
       "getV3Subgraphs",
-      "getV2Subgraphs",
-      "getBlocksSubgraphs",
+      "getV2Subgraphs"
     ]
   `)
 })

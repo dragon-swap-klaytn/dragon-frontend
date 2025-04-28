@@ -1,6 +1,6 @@
 // DEV_NOTE : 외부 API(static, governance, subgraph 등) URL
 
-import { BLOCKS_SUBGRAPHS, ChainId, V2_SUBGRAPHS, V3_SUBGRAPHS } from '@pancakeswap/chains'
+import { V2_SUBGRAPHS, V3_SUBGRAPHS } from '@pancakeswap/chains'
 
 export const GRAPH_API_PROFILE = ''
 
@@ -27,9 +27,6 @@ export const V3_BSC_INFO_CLIENT = `https://open-platform.nodereal.io/${
   process.env.NEXT_PUBLIC_NODE_REAL_API_INFO || process.env.NEXT_PUBLIC_NODE_REAL_API_ETH
 }/pancakeswap-v3/graphql`
 
-export const BLOCKS_CLIENT_KLAYTN = BLOCKS_SUBGRAPHS[ChainId.KLAYTN]
-export const BLOCKS_CLIENT_KLAYTN_TESTNET = BLOCKS_SUBGRAPHS[ChainId.KLAYTN_TESTNET]
-
 export const GRAPH_API_NFTMARKET = 'https://api.thegraph.com/subgraphs/name/pancakeswap/nft-market'
 export const GRAPH_HEALTH = 'https://api.thegraph.com/index-node/graphql'
 
@@ -43,8 +40,6 @@ export const ACCESS_RISK_API = ''
 export const CELER_API = 'https://api.celerscan.com/scan'
 
 export const INFO_CLIENT_WITH_CHAIN = V2_SUBGRAPHS
-
-export const BLOCKS_CLIENT_WITH_CHAIN = BLOCKS_SUBGRAPHS
 
 export const ASSET_CDN = ''
 

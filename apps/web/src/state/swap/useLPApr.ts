@@ -5,9 +5,8 @@ import { SLOW_INTERVAL } from 'config/constants'
 import { LP_HOLDERS_FEE, WEEKS_IN_YEAR } from 'config/constants/info'
 import request, { gql } from 'graphql-request'
 import { subgraphUrls } from 'lib/graph-queries/const'
-import { getBlocksFromTimestamps } from 'utils/getBlocksFromTimestamps'
+import { getBlockNumberOfTimestamp } from 'lib/node-queries/get-block-number-of-timestamp'
 import { getChangeForPeriod } from 'utils/getChangeForPeriod'
-import { getDeltaTimestamps } from 'utils/getDeltaTimestamps'
 
 // interface PoolReserveVolume {
 //   reserveUSD: string
@@ -27,11 +26,9 @@ export const useLPApr = (pair?: Pair | null) => {
     ['LP7dApr', pair?.liquidityToken.address],
     async () => {
       if (!pair) return undefined
-      const timestampsArray = getDeltaTimestamps()
-      const blocks = await getBlocksFromTimestamps(timestampsArray, 'desc', 1000)
-      const [, , block7d] = blocks ?? []
+      const block7d = await getBlockNumberOfTimestamp(Date.now() - 7 * 24 * 60 * 60 * 1000)
       const { error, data } = await fetchPoolVolumeAndReserveData(
-        block7d.number,
+        Number(block7d),
         pair.liquidityToken.address.toLowerCase(),
       )
       if (error) return null

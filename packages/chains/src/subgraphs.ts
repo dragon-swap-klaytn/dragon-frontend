@@ -4,7 +4,6 @@ const DGSWAP_GATEWAY = process.env.NEXT_PUBLIC_DGSWAP_GATEWAY || 'https://gatewa
 
 export const V3_SUBGRAPHS = getV3Subgraphs()
 export const V2_SUBGRAPHS = getV2Subgraphs()
-export const BLOCKS_SUBGRAPHS = getBlocksSubgraphs()
 
 export const STABLESWAP_SUBGRAPHS = {
   [ChainId.KLAYTN]: '',
@@ -22,13 +21,6 @@ export function getV3Subgraphs() {
 export function getV2Subgraphs() {
   return {
     [ChainId.KLAYTN]: `${DGSWAP_GATEWAY}/dgswap-exchange-v2-kaia`,
-    [ChainId.KLAYTN_TESTNET]: '',
-  }
-}
-
-export function getBlocksSubgraphs() {
-  return {
-    [ChainId.KLAYTN]: `${DGSWAP_GATEWAY}/dgswap-blocks-kaia`,
     [ChainId.KLAYTN_TESTNET]: '',
   }
 }
