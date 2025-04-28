@@ -115,7 +115,7 @@ export function V3PositionCard({
   pool: Pool
   position: PositionV3
   mutatePositions?: KeyedMutator<Portfolio>
-  volume24H: number
+  volume24H: number | null
   rewardApr: number
   priceMap: Record<string, number>
   bgClassName?: string
@@ -171,7 +171,7 @@ export function V3PositionCard({
       amountB: position.amount1,
       tickLower: position.tickLower,
       tickUpper: position.tickUpper,
-      volume24H,
+      volume24H: volume24H ?? 0,
       sqrtRatioX96: pool.sqrtRatioX96,
       mostActiveLiquidity: pool.liquidity,
       fee: pool.fee,
@@ -402,7 +402,7 @@ function V2PositionCard({
   portfolioV2: PortfolioV2Data
   priceMap: Record<string, number>
   poolTvlUSD: number
-  poolAPY: number
+  poolAPY: number | null
 }) {
   const { t } = useTranslation()
 
@@ -453,11 +453,13 @@ function V2PositionCard({
         </div>
         <div className="s:min-w-24">
           <div className="text-sm">
-            {poolAPY.toLocaleString(undefined, {
-              style: 'percent',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {poolAPY === null
+              ? '-'
+              : poolAPY.toLocaleString(undefined, {
+                  style: 'percent',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
           </div>
 
           <div className="mt-1 text-xs text-on-surface-subtlest">{t('APY')}</div>

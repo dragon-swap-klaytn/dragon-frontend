@@ -1,6 +1,7 @@
 import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2FactoryData } from 'lib/graph-queries/get-v2-factory-data'
 import { getV3FactoryData } from 'lib/graph-queries/get-v3-factory-data'
+import { FactoryDataV2Raw, FactoryDataV3Raw } from 'lib/graph-queries/types'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
 
@@ -11,23 +12,23 @@ const DAY = 24 * HOUR
 export type ProtocolV2Data = {
   poolCount: {
     current: number
-    '48H': number
-    '24H': number
+    '48H': number | null
+    '24H': number | null
   }
   txCount: {
     total: number
-    '48H': number
-    '24H': number
+    '48H': number | null
+    '24H': number | null
   }
   volumeUSD: {
     total: number
-    '48H': number
-    '24H': number
+    '48H': number | null
+    '24H': number | null
   }
   tvlUSD: {
     current: number
-    '48H': number
-    '24H': number
+    '48H': number | null
+    '24H': number | null
   }
 }
 
@@ -36,13 +37,17 @@ const getV2ProtocolData = async () => {
   const timestamps = [now - 2 * DAY, now - DAY, now]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
-  const [data48H, data24H, data] = await Promise.all(
+  const [_data48H, _data24H, _data] = await Promise.allSettled(
     blockNumbers.map((blockNumber) =>
       requestWithRetry(getV2FactoryData({ blockNumber }), {
         logPrefix: `getV2ProtocolData(${blockNumber})`,
       }),
     ),
   )
+
+  const data48H = _data48H.status === 'fulfilled' ? _data48H.value : ({} as FactoryDataV2Raw)
+  const data24H = _data24H.status === 'fulfilled' ? _data24H.value : ({} as FactoryDataV2Raw)
+  const data = _data.status === 'fulfilled' ? _data.value : ({} as FactoryDataV2Raw)
 
   return {
     poolCount: {
@@ -77,13 +82,13 @@ export const getCachedV2ProtocolData = localCachedV2(getV2ProtocolData, {
 export type ProtocolV3Data = ProtocolV2Data & {
   feeUSD: {
     total: number
-    '48H': number
-    '24H': number
+    '48H': number | null
+    '24H': number | null
   }
   protocolFeeUSD: {
     total: number
-    '48H': number
-    '24H': number
+    '48H': number | null
+    '24H': number | null
   }
 }
 
@@ -92,13 +97,17 @@ const getV3ProtocolData = async () => {
   const timestamps = [now - 2 * DAY, now - DAY, now]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
-  const [data48H, data24H, data] = await Promise.all(
+  const [_data48H, _data24H, _data] = await Promise.allSettled(
     blockNumbers.map((blockNumber) =>
       requestWithRetry(getV3FactoryData({ blockNumber }), {
         logPrefix: `getV3ProtocolData(${blockNumber})`,
       }),
     ),
   )
+
+  const data48H = _data48H.status === 'fulfilled' ? _data48H.value : ({} as FactoryDataV3Raw)
+  const data24H = _data24H.status === 'fulfilled' ? _data24H.value : ({} as FactoryDataV3Raw)
+  const data = _data.status === 'fulfilled' ? _data.value : ({} as FactoryDataV3Raw)
 
   return {
     poolCount: {

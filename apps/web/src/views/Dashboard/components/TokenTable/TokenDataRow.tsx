@@ -72,17 +72,49 @@ export const TokenDataRow = ({ tokenData, isLastIndex }: { tokenData: TokenDetai
           hiddenDigitClassName="text-[9px] font-normal leading-none"
         />
       </td>
-      <td className="px-4 py-6 text-left">
-        <Percent value={(tokenData.priceUSD['24H'] / tokenData.priceUSD.current) * 100} />
+      <td
+        className={clsx('px-4 py-6', {
+          'text-left': tokenData.priceUSD['24H'] !== null,
+          'text-center': tokenData.priceUSD['24H'] === null,
+        })}
+      >
+        {tokenData.priceUSD['24H'] === null ? (
+          '-'
+        ) : (
+          <Percent value={(tokenData.priceUSD['24H'] / tokenData.priceUSD.current) * 100} />
+        )}
       </td>
-      <td className="px-4 py-6 text-left hidden md:table-cell">
-        <Percent value={(tokenData.priceUSD['7D'] / tokenData.priceUSD.current) * 100} />
+      <td
+        className={clsx('px-4 py-6 hidden md:table-cell', {
+          'text-left': tokenData.priceUSD['7D'] !== null,
+          'text-center': tokenData.priceUSD['7D'] === null,
+        })}
+      >
+        {tokenData.priceUSD['7D'] === null ? (
+          '-'
+        ) : (
+          <Percent value={(tokenData.priceUSD['7D'] / tokenData.priceUSD.current) * 100} />
+        )}
       </td>
-      <td className="px-4 py-6 text-left hidden s:table-cell">
-        {formatDollarAmountV2({ num: tokenData.volumeUSD['24H'], withDollarSign: true })}
+      <td
+        className={clsx('px-4 py-6 hidden s:table-cell', {
+          'text-left': tokenData.volumeUSD['24H'] !== null,
+          'text-center': tokenData.volumeUSD['24H'] === null,
+        })}
+      >
+        {tokenData.volumeUSD['24H'] === null
+          ? '-'
+          : formatDollarAmountV2({ num: tokenData.volumeUSD['24H'], withDollarSign: true })}
       </td>
-      <td className="px-4 py-6 text-left hidden md:table-cell">
-        {formatDollarAmountV2({ num: tokenData.volumeUSD['7D'], withDollarSign: true })}
+      <td
+        className={clsx('px-4 py-6 hidden md:table-cell', {
+          'text-left': tokenData.volumeUSD['7D'] !== null,
+          'text-center': tokenData.volumeUSD['7D'] === null,
+        })}
+      >
+        {tokenData.volumeUSD['7D'] === null
+          ? '-'
+          : formatDollarAmountV2({ num: tokenData.volumeUSD['7D'], withDollarSign: true })}
       </td>
       <td className="px-4 py-6 text-left hidden sm:table-cell">
         {formatDollarAmountV2({ num: tokenData.tvlUSD.current, withDollarSign: true })}
