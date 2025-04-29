@@ -21,7 +21,7 @@ export function createMongoCache<T = any>({ collectionName }: { collectionName: 
   const privateMethods = {
     getCollection: async () => {
       const db = await getDb()
-      return db.collection<{ _id: string; value: T }>(collectionName)
+      return db.collection<{ _id: string; value: T; updatedAt: Date }>(collectionName)
     },
   }
 
@@ -42,7 +42,7 @@ export function createMongoCache<T = any>({ collectionName }: { collectionName: 
      */
     put: async (key: string, value: T) => {
       const col = await privateMethods.getCollection()
-      await col.replaceOne({ _id: key }, { value }, { upsert: true })
+      await col.replaceOne({ _id: key }, { value, updatedAt: new Date() }, { upsert: true })
     },
   }
 
