@@ -25,7 +25,6 @@ import {
 import { klaytnTokens } from '@pancakeswap/tokens'
 import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { getBalanceNumber } from '@pancakeswap/utils/formatBalance'
-import { getCurrencyUsdPrice } from '@pancakeswap/utils/getCurrencyPrice'
 import { PayloadAction, createAsyncThunk, createSlice, isAnyOf } from '@reduxjs/toolkit'
 import BigNumber from 'bignumber.js'
 import keyBy from 'lodash/keyBy'
@@ -49,6 +48,7 @@ import { getViemClients } from 'utils/viem'
 import { publicClient } from 'utils/wagmi'
 import { Address, erc20ABI } from 'wagmi'
 
+import { getTokenPrices } from 'hooks/useTokenPrices'
 import fetchFarms from '../farms/fetchFarms'
 import { nativeStableLpMap } from '../farms/getFarmsPrices'
 import { resetUserState } from '../global/actions'
@@ -208,16 +208,18 @@ export const fetchPoolsPublicDataAsync = (chainId: number) => async (dispatch, g
 
       const stakingTokenAddress = safeGetAddress(pool.stakingToken.address)
       let stakingTokenPrice = stakingTokenAddress ? prices[stakingTokenAddress] : 0
+      // eslint-disable-next-line no-await-in-loop
+      const tokenPricesMap = await getTokenPrices()
       if (stakingTokenAddress && !prices[stakingTokenAddress] && !isPoolFinished) {
         // eslint-disable-next-line no-await-in-loop
-        stakingTokenPrice = await getCurrencyUsdPrice({ chainId, address: stakingTokenAddress })
+        stakingTokenPrice = tokenPricesMap[stakingTokenAddress]
       }
 
       const earningTokenAddress = safeGetAddress(pool.earningToken.address)
       let earningTokenPrice = earningTokenAddress ? prices[earningTokenAddress] : 0
       if (earningTokenAddress && !prices[earningTokenAddress] && !isPoolFinished) {
         // eslint-disable-next-line no-await-in-loop
-        earningTokenPrice = await getCurrencyUsdPrice({ chainId, address: earningTokenAddress })
+        earningTokenPrice = tokenPricesMap[earningTokenAddress]
       }
       const totalStaked = getBalanceNumber(new BigNumber(totalStaking.totalStaked), pool.stakingToken.decimals)
       const apr = !isPoolFinished

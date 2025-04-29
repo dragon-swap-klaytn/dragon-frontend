@@ -1,6 +1,6 @@
 import { useDebounce } from '@pancakeswap/hooks'
+import { TokenDetailed } from 'lib/graph-queries/types'
 import useSWR from 'swr'
-import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import { PoolType } from 'types'
 import { SortDirection } from 'views/Dashboard/types'
 import { wkaiaToKaia } from 'views/Dashboard/utils/wkaiaToKaia'

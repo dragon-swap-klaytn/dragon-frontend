@@ -1,11 +1,14 @@
 import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Tokens } from 'lib/graph-queries/get-v2-tokens'
 import { getV3Tokens } from 'lib/graph-queries/get-v3-tokens'
-import { TokenAccData, TokenBase } from 'lib/graph-queries/types'
+import { TokenAccData, TokenDetailed } from 'lib/graph-queries/types'
 import { TokenAccDataCache, v2TokensAccDataCache, v3TokensAccDataCache } from 'lru-caches'
-import { PoolType } from 'types'
+import { v2TokensAccDataMongoCache, v3TokensAccDataMongoCache } from 'mongo-caches'
+import { localCachedProactive } from 'utils/localCachedProactive'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
+
+const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true'
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
@@ -33,8 +36,13 @@ const compressTokenAccData = (tokens: TokenAccData[]): TokenAccDataCache => {
 }
 
 export const getV2TokensAccData = async (blockNumber: number) => {
-  // check lru cache
-  if (v2TokensAccDataCache.get(blockNumber.toString())) {
+  if (USE_MONGO_CACHE) {
+    const v2Tokens = await v2TokensAccDataMongoCache.get(blockNumber.toString())
+    if (v2Tokens) {
+      return v2Tokens
+    }
+    // check lru cache
+  } else if (v2TokensAccDataCache.get(blockNumber.toString())) {
     return v2TokensAccDataCache.get(blockNumber.toString())!
   }
 
@@ -47,14 +55,23 @@ export const getV2TokensAccData = async (blockNumber: number) => {
   // cache data
   const tokensMap = compressTokenAccData(tokens)
 
-  v2TokensAccDataCache.put(blockNumber.toString(), tokensMap)
+  if (USE_MONGO_CACHE) {
+    await v2TokensAccDataMongoCache.put(blockNumber.toString(), tokensMap)
+  } else {
+    v2TokensAccDataCache.put(blockNumber.toString(), tokensMap)
+  }
 
   return tokensMap
 }
 
 export const getV3TokensAccData = async (blockNumber: number) => {
-  // check lru cache
-  if (v3TokensAccDataCache.get(blockNumber.toString())) {
+  if (USE_MONGO_CACHE) {
+    const v3Tokens = await v3TokensAccDataMongoCache.get(blockNumber.toString())
+    if (v3Tokens) {
+      return v3Tokens
+    }
+    // check lru cache
+  } else if (v3TokensAccDataCache.get(blockNumber.toString())) {
     return v3TokensAccDataCache.get(blockNumber.toString())!
   }
 
@@ -67,57 +84,50 @@ export const getV3TokensAccData = async (blockNumber: number) => {
   // cache data
   const tokensMap = compressTokenAccData(tokens)
 
-  v3TokensAccDataCache.put(blockNumber.toString(), tokensMap)
+  if (USE_MONGO_CACHE) {
+    await v3TokensAccDataMongoCache.put(blockNumber.toString(), tokensMap)
+  } else {
+    v3TokensAccDataCache.put(blockNumber.toString(), tokensMap)
+  }
 
   return tokensMap
 }
 
-export type TokenDetailed = TokenBase & {
-  type: PoolType
-  priceUSD: {
-    current: number
-    '7D': number | null
-    '24H': number | null
-  }
-  tvl: {
-    current: number
-    '7D': number | null
-    '24H': number | null
-  }
-  tvlUSD: {
-    current: number
-    '7D': number | null
-    '24H': number | null
-  }
-  volume: {
-    total: number
-    '7D': number | null
-    '24H': number | null
-  }
-  volumeUSD: {
-    total: number
-    '7D': number | null
-    '24H': number | null
-  }
-  txCount: {
-    total: number
-    '7D': number | null
-    '24H': number | null
-  }
-}
+const getProactivelyCachedV2TokensData = localCachedProactive(
+  async () => {
+    if (USE_MONGO_CACHE) {
+      console.log('proactive caching v2 tokens with MongoDB')
+    }
+    const [blockNumber] = await getCachedBlockNumbers([Date.now()])
+    const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
+      logPrefix: `getV2TokensDatailedData(${blockNumber})`,
+    })
+
+    // cache data
+    const compressedTokens = compressTokenAccData(tokens)
+
+    if (USE_MONGO_CACHE) {
+      await v2TokensAccDataMongoCache.put(blockNumber.toString(), compressedTokens)
+    } else {
+      v2TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+    }
+
+    return tokens
+  },
+  {
+    interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
+  },
+)
 
 const getV2TokensDatailedData = async () => {
   const now = Date.now()
-  const timestamps = [now - 7 * DAY, now - DAY, now]
+  const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
-  const tokensPromise = getV2Tokens({ blockNumber: blockNumbers[2] })
   const [_tokens7D, _tokens24H, _tokens] = await Promise.allSettled([
     getV2TokensAccData(blockNumbers[0]),
     getV2TokensAccData(blockNumbers[1]),
-    requestWithRetry(tokensPromise, {
-      logPrefix: `getV2TokensDatailedData(${blockNumbers[2]})`,
-    }),
+    getProactivelyCachedV2TokensData(),
   ])
 
   const tokens7D = _tokens7D.status === 'fulfilled' ? _tokens7D.value : {}
@@ -198,18 +208,41 @@ export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
   ttlOnCatch: 5_000,
 }).cachedFetcher
 
+const getProactivelyCachedV3TokensData = localCachedProactive(
+  async () => {
+    if (USE_MONGO_CACHE) {
+      console.log('proactive caching v3 tokens with MongoDB')
+    }
+    const [blockNumber] = await getCachedBlockNumbers([Date.now()])
+    const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
+      logPrefix: `getV3TokensDatailedData(${blockNumber})`,
+    })
+
+    // cache data
+    const compressedTokens = compressTokenAccData(tokens)
+
+    if (USE_MONGO_CACHE) {
+      await v3TokensAccDataMongoCache.put(blockNumber.toString(), compressedTokens)
+    } else {
+      v3TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+    }
+
+    return tokens
+  },
+  {
+    interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
+  },
+)
+
 const getV3TokensDatailedData = async () => {
   const now = Date.now()
-  const timestamps = [now - 7 * DAY, now - DAY, now]
+  const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
-  const tokensPromise = getV3Tokens({ blockNumber: blockNumbers[2] })
   const [_tokens7D, _tokens24H, _tokens] = await Promise.allSettled([
     getV3TokensAccData(blockNumbers[0]),
     getV3TokensAccData(blockNumbers[1]),
-    requestWithRetry(tokensPromise, {
-      logPrefix: `getV3TokensDatailedData(${blockNumbers[2]})`,
-    }),
+    getProactivelyCachedV3TokensData(),
   ])
 
   const tokens7D = _tokens7D.status === 'fulfilled' ? _tokens7D.value : {}

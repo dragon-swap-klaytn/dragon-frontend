@@ -34,11 +34,11 @@ const handler: NextApiHandler = async (req, res) => {
 
   switch (sortBy) {
     case 'volume24H': {
-      filteredTokens.sort((a, b) => useDesc * (a.volumeUSD['24H'] - b.volumeUSD['24H']))
+      filteredTokens.sort((a, b) => useDesc * ((a.volumeUSD['24H'] ?? 0) - (b.volumeUSD['24H'] ?? 0)))
       break
     }
     case 'volume7D': {
-      filteredTokens.sort((a, b) => useDesc * (a.volumeUSD['7D'] - b.volumeUSD['7D']))
+      filteredTokens.sort((a, b) => useDesc * ((a.volumeUSD['7D'] ?? 0) - (b.volumeUSD['7D'] ?? 0)))
       break
     }
     case 'tvl': {
@@ -49,8 +49,8 @@ const handler: NextApiHandler = async (req, res) => {
       filteredTokens.sort(
         (a, b) =>
           useDesc *
-          ((a.priceUSD['24H'] - a.priceUSD.current) / a.priceUSD.current -
-            (b.priceUSD['24H'] - b.priceUSD.current) / b.priceUSD.current),
+          (((a.priceUSD['24H'] ?? 0) - a.priceUSD.current) / a.priceUSD.current -
+            ((b.priceUSD['24H'] ?? 0) - b.priceUSD.current) / b.priceUSD.current),
       )
       break
     }
@@ -58,8 +58,8 @@ const handler: NextApiHandler = async (req, res) => {
       filteredTokens.sort(
         (a, b) =>
           useDesc *
-          ((a.priceUSD['7D'] - a.priceUSD.current) / a.priceUSD.current -
-            (b.priceUSD['7D'] - b.priceUSD.current) / b.priceUSD.current),
+          (((a.priceUSD['7D'] ?? 0) - a.priceUSD.current) / a.priceUSD.current -
+            ((b.priceUSD['7D'] ?? 0) - b.priceUSD.current) / b.priceUSD.current),
       )
       break
     }

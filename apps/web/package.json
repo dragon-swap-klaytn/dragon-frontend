@@ -96,6 +96,7 @@
     "local-storage": "^2.0.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
+    "mongodb": "^6.16.0",
     "next": "15.2.4",
     "next-i18next": "^14.0.3",
     "next-seo": "^5.15.0",

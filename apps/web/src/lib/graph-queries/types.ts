@@ -1,3 +1,4 @@
+import { PoolType } from 'types'
 import { Address } from 'viem'
 import { TransactionType } from 'views/Dashboard/types'
 
@@ -66,6 +67,40 @@ export type TokenAccData = {
 }
 
 export type TokenRaw = TokenBase & TokenAccData
+
+export type TokenDetailed = TokenBase & {
+  type: PoolType
+  priceUSD: {
+    current: number
+    '7D': number | null
+    '24H': number | null
+  }
+  tvl: {
+    current: number
+    '7D': number | null
+    '24H': number | null
+  }
+  tvlUSD: {
+    current: number
+    '7D': number | null
+    '24H': number | null
+  }
+  volume: {
+    total: number
+    '7D': number | null
+    '24H': number | null
+  }
+  volumeUSD: {
+    total: number
+    '7D': number | null
+    '24H': number | null
+  }
+  txCount: {
+    total: number
+    '7D': number | null
+    '24H': number | null
+  }
+}
 
 export type DayDataV2 = {
   timestamp: number
