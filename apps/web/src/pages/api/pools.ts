@@ -173,19 +173,21 @@ const handler: NextApiHandler = async (req, res) => {
 
   switch (sortBy) {
     case 'volume24H': {
-      pools.sort((a, b) => useDesc * (a.volumeUSD['24H'] ?? 0 - (b.volumeUSD['24H'] ?? 0)))
+      pools.sort((a, b) => useDesc * ((a.volumeUSD['24H'] ?? 0) - (b.volumeUSD['24H'] ?? 0)))
       break
     }
     case 'volume7D': {
-      pools.sort((a, b) => useDesc * (a.volumeUSD['7D'] ?? 0 - (b.volumeUSD['7D'] ?? 0)))
+      pools.sort((a, b) => useDesc * ((a.volumeUSD['7D'] ?? 0) - (b.volumeUSD['7D'] ?? 0)))
       break
     }
     case 'apy24H': {
       pools.sort(
         (a, b) =>
           useDesc *
-          (a.apy['24H'] ??
-            0 + ((a as PoolV3Parsed).rewardApr ?? 0) - (b.apy['24H'] ?? 0) - ((b as PoolV3Parsed).rewardApr ?? 0)),
+          ((a.apy['24H'] ?? 0) +
+            ((a as PoolV3Parsed).rewardApr ?? 0) -
+            (b.apy['24H'] ?? 0) -
+            ((b as PoolV3Parsed).rewardApr ?? 0)),
       )
       break
     }
@@ -193,8 +195,10 @@ const handler: NextApiHandler = async (req, res) => {
       pools.sort(
         (a, b) =>
           useDesc *
-          (a.apy['7D'] ??
-            0 + ((a as PoolV3Parsed).rewardApr ?? 0) - (b.apy['7D'] ?? 0) - ((b as PoolV3Parsed).rewardApr ?? 0)),
+          ((a.apy['7D'] ?? 0) +
+            ((a as PoolV3Parsed).rewardApr ?? 0) -
+            (b.apy['7D'] ?? 0) -
+            ((b as PoolV3Parsed).rewardApr ?? 0)),
       )
       break
     }

@@ -1,7 +1,7 @@
 import { CurrencyLogoWithSymbol } from '@pancakeswap/uikit'
 import clsx from 'clsx'
+import { TokenDetailed } from 'lib/graph-queries/types'
 import NextLink from 'next/link'
-import { TokenDetailed } from 'tokens/get-cached-token-stats'
 import Percent from 'views/Dashboard/components/Percent'
 import { TokenRate } from 'views/Dashboard/components/TokenRate'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'

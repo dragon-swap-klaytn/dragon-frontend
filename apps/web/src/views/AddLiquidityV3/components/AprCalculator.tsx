@@ -365,7 +365,7 @@ export function AprCalculator({
         feeAmount={feeAmount}
         protocolFee={applyProtocolFee}
         ticks={data}
-        volume24H={volume24H}
+        volume24H={volume24H ?? 0}
         priceUpper={priceUpper}
         priceLower={priceLower}
         priceSpan={priceSpan}
