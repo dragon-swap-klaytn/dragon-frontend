@@ -85,26 +85,30 @@ export default function TransactionTable({ transactions }: { transactions?: Over
 
   const [filteredTransactions, setFilteredTransactions] = useState<TransactionEventWithType[] | undefined>(undefined)
   useEffect(() => {
-    const swaps = (transactions?.swaps ?? []).map((tx) => ({ ...tx, type: TransactionType.SWAP }))
-    const adds = (transactions?.mints ?? []).map((tx) => ({ ...tx, type: TransactionType.MINT }))
-    const removes = (transactions?.burns ?? []).map((tx) => ({ ...tx, type: TransactionType.BURN }))
+    if (!transactions) return
+
+    const swaps = transactions.swaps.map((tx) => ({ ...tx, type: TransactionType.SWAP }))
+    const adds = transactions.mints.map((tx) => ({ ...tx, type: TransactionType.MINT }))
+    const removes = transactions.burns.map((tx) => ({ ...tx, type: TransactionType.BURN }))
 
     setFilteredTransactions([...swaps, ...adds, ...removes])
   }, [transactions, page])
 
   useEffect(() => {
-    if (filteredTransactions && filteredTransactions.length > 0) {
+    if (!isFirstRender) {
+      return
+    }
+
+    if (filteredTransactions) {
+      const totalPageResult = Math.ceil((filteredTransactions?.length ?? 0) / SHOW_TRANSACTION_COUNT)
+      setTotalPage(totalPageResult)
+      if (totalPageResult === 0) {
+        setPage(0)
+      }
+
       setIsFirstRender(false)
     }
-  }, [filteredTransactions])
-
-  useEffect(() => {
-    const totalPageResult = Math.ceil((filteredTransactions?.length ?? 0) / SHOW_TRANSACTION_COUNT)
-
-    setTotalPage(totalPageResult)
-    if (totalPageResult === 0) setPage(0)
-    else setPage(1)
-  }, [filteredTransactions])
+  }, [filteredTransactions, isFirstRender])
 
   const sortedTransactions = useMemo(() => {
     if (!filteredTransactions) return undefined
@@ -176,7 +180,7 @@ export default function TransactionTable({ transactions }: { transactions?: Over
         </div>
       )}
 
-      <Pagination page={page} setPage={setPage} totalPage={totalPage} />
+      {!isFirstRender && <Pagination page={page} setPage={setPage} totalPage={totalPage} />}
     </>
   )
 }
