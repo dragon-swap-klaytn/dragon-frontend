@@ -412,13 +412,17 @@ const getV3PoolsDetailedDataByIds = async ({
 
   // fetch data
   const poolsPromise = getV3Pools({ blockNumber: blockNumberNow, poolIds })
-  const [pools7D, pools24H, pools] = await Promise.all([
+  const [_pools7D, _pools24H, _pools] = await Promise.allSettled([
     getV3PoolsAccDataByIds({ poolIds, blockNumber: blockNumber7D }),
     getV3PoolsAccDataByIds({ poolIds, blockNumber: blockNumber24H }),
     requestWithRetry(poolsPromise, {
       logPrefix: `getV3PoolsDetailedDataByIds`,
     }),
   ])
+
+  const pools7D = _pools7D.status === 'fulfilled' ? _pools7D.value : {}
+  const pools24H = _pools24H.status === 'fulfilled' ? _pools24H.value : {}
+  const pools = _pools.status === 'fulfilled' ? _pools.value : ([] as PoolV3Raw[])
 
   const poolsDetails = pools
     .map(
