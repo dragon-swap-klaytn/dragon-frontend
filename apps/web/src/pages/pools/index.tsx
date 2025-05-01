@@ -49,12 +49,17 @@ const PoolsPage = () => {
   const [poolTypeOptions, setPoolTypeOptions] = useState(poolTypeSelectorOptions)
 
   const debouncedSearchKey = useDebounce(searchKey, 500)
-  const addresses = myPositionOnly && portfolio ? (Object.keys(portfolio) as Address[]) : undefined
 
   const router = useRouter()
   const isRouterReady = useRouterReady()
 
   const [baseParams, setBaseParams] = useState<PoolsBaseParams>({} as PoolsBaseParams)
+  const addresses =
+    myPositionOnly && portfolio
+      ? Object.values(portfolio)
+          .filter(({ type }) => poolTypeOptions.find((option) => option.value === type))
+          .map(({ poolId }) => poolId)
+      : undefined
 
   useEffect(() => {
     if (!router.isReady || !isRouterReady) return
