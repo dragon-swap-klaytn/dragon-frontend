@@ -6,6 +6,12 @@ const sourceUrls = {
   swapscanner: '/api/tokens/prices/ss',
 }
 
+export const getTokenPrices = async (source: 'default' | 'swapscanner' = 'default') => {
+  const data = await fetch(sourceUrls[source])
+  const parsed = await data.json()
+  return duplicateChecksumPriceMap(parsed)
+}
+
 export default function useTokenPrices({
   source = 'default',
   refreshInterval = 1000 * 30,

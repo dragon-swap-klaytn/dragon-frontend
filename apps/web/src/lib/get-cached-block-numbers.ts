@@ -2,7 +2,9 @@ import { getBlockNumberOfTimestamp } from 'lib/node-queries/get-block-number-of-
 import { blockNumberCache } from 'lru-caches'
 
 // Each bucket covers 10 minutes (in seconds):
-const BUCKET_SIZE = 10 * 60 // 600 seconds = 10 minutes
+// const BUCKET_SIZE = 10 * 60 // 600 seconds = 10 minutes
+// if using MongoDB, we set the bucket size to 5 minutes (in seconds):
+const BUCKET_SIZE = process.env.USE_MONGO_CACHE === 'true' ? 5 * 60 : 10 * 60
 
 /**
  * Convert a millisecond timestamp to a "bucketed" timestamp (in seconds).

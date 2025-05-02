@@ -20,15 +20,21 @@ const getCahcedPricesFromSs = localCachedV2(fetchPricesFromSs, {
   ttl: 1_000 * 10, // 10s
 }).cachedFetcher
 
-const handler: NextApiHandler = async (req, res) => {
+export const getPricesFromSS = async () => {
   const priceMap = await getCahcedPricesFromSs()
 
-  return res.json({
+  return {
     ...priceMap,
     // WKLAY
     ['0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432'.toLowerCase()]: priceMap[ZERO_ADDRESS],
     KAIA: priceMap[ZERO_ADDRESS],
-  })
+  }
+}
+
+const handler: NextApiHandler = async (req, res) => {
+  const prices = await getPricesFromSS()
+
+  return res.json(prices)
 }
 
 export default handler

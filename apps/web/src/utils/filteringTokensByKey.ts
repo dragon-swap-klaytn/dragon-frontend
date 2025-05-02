@@ -1,4 +1,4 @@
-import { TokenDetailed } from 'tokens/get-cached-token-stats'
+import { TokenDetailed } from 'lib/graph-queries/types'
 
 export default function filteringTokensByKey(tokens: TokenDetailed[], key: string) {
   return tokens.filter(
