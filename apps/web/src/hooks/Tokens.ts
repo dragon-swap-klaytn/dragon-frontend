@@ -4,6 +4,7 @@ import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
+import { TETHER_TOKEN } from 'const'
 import { useMemo } from 'react'
 import { useUnsupportedTokenList, useWarningTokenList } from 'state/lists/hooks'
 import useSWR from 'swr'
@@ -111,6 +112,10 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
   return !!userAddedTokens.find((token) => currency?.equals(token))
 }
 
+const TOKEN_MAPPER = {
+  usdt: [TETHER_TOKEN],
+}
+
 export function useTokens(searchKey?: string) {
   const { chainId } = useActiveChainId()
   const { tokenMap, tokenMapLoading } = useTokenMap()
@@ -136,26 +141,58 @@ export function useTokens(searchKey?: string) {
     if (!chainId) return undefined
 
     if (searchKey) {
+      const filteredTokenMap = new Map<string, Token>()
+
+      if (TOKEN_MAPPER[searchKey.toLowerCase()]) {
+        const tokenMapper = TOKEN_MAPPER[searchKey.toLowerCase()]
+
+        tokenMapper.forEach((t) => {
+          const address = t.address.toLowerCase()
+          if (!filteredTokenMap.has(address)) {
+            filteredTokenMap.set(address, t)
+          }
+        })
+      }
+
       const filteredByAddress = Object.values(tokenMap).filter((t) =>
         t.address.toLowerCase().includes(searchKey.toLowerCase()),
       )
       if (filteredByAddress.length > 0) {
-        return filteredByAddress.map((t) => new Token(chainId, t.address, t.decimals, t.symbol, t.name))
+        filteredByAddress.forEach((t) => {
+          const address = t.address.toLowerCase()
+          if (!filteredTokenMap.has(address)) {
+            filteredTokenMap.set(address, t)
+          }
+        })
       }
 
       const filteredBySymbol = Object.values(tokenMap).filter((t) =>
         t.symbol.toLowerCase().includes(searchKey.toLowerCase()),
       )
       if (filteredBySymbol.length > 0) {
-        return filteredBySymbol.map((t) => new Token(chainId, t.address, t.decimals, t.symbol, t.name))
+        filteredBySymbol.forEach((t) => {
+          const address = t.address.toLowerCase()
+          if (!filteredTokenMap.has(address)) {
+            filteredTokenMap.set(address, t)
+          }
+        })
       }
 
       const filteredByName = Object.values(tokenMap).filter((t) =>
         t.name?.toLowerCase().includes(searchKey.toLowerCase()),
       )
       if (filteredByName.length > 0) {
-        return filteredByName.map((t) => new Token(chainId, t.address, t.decimals, t.symbol, t.name))
+        filteredByName.forEach((t) => {
+          const address = t.address.toLowerCase()
+          if (!filteredTokenMap.has(address)) {
+            filteredTokenMap.set(address, t)
+          }
+        })
       }
+
+      return Array.from(filteredTokenMap.values()).map(
+        (t) => new Token(chainId, t.address, t.decimals, t.symbol ?? 'UNKNOWN', t.name ?? 'Unknown Token'),
+      )
     }
 
     if (isAddress && tokenMap[searchKey]) {

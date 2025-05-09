@@ -1,5 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
-import { WKAIA_ADDRESS } from '@pancakeswap/uikit'
+import { Token } from '@pancakeswap/swap-sdk-core'
+import { TETHER_ADDRESS, WKAIA_ADDRESS } from '@pancakeswap/uikit'
 import { PoolType } from 'types'
 import { Address } from 'viem'
 import { poolTypeSelectorOptions } from 'views/PoolsV2/components/PoolTypeSelector'
@@ -376,6 +377,13 @@ export const DEFAULT_TOKEN_LIST = [
     symbol: 'Shin',
     decimals: 18,
   },
+  {
+    chainId: ChainId.KLAYTN,
+    address: TETHER_ADDRESS.toLowerCase(),
+    name: 'Tether USD',
+    symbol: 'USD₮',
+    decimals: 6,
+  },
 ]
 
 export const MASTERCHEFV3_ADDRESS = '0x6AC953CAD04b0Ce38a454f17D1d92620e456c9C0' as Address
@@ -389,4 +397,9 @@ export const DEFAULT_POOLS_FILTERS = {
   sortBy: 'apy24H' as const,
   sortDirection: 'desc' as const,
   page: 1,
+}
+
+export const TETHER_TOKEN = new Token(ChainId.KLAYTN, TETHER_ADDRESS.toLowerCase() as Address, 6, 'USD₮', 'Tether USD')
+export const SYMBOL_ALIASES: Record<string, string[]> = {
+  [TETHER_TOKEN.symbol]: ['usdt'],
 }

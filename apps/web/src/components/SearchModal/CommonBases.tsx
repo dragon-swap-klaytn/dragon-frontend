@@ -4,6 +4,7 @@ import { QuestionHelper } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 
+import { TETHER_TOKEN } from 'const'
 import useRecentSelectedCurrencies from 'hooks/useRecentSelectedCurrencies'
 import { CommonBasesType } from './types'
 
@@ -37,6 +38,13 @@ export default function CommonBases({
           currency={native}
           selected={selectedCurrency === native}
           symbol={native.symbol}
+        />
+
+        <RecentTokenButton
+          onClick={() => onSelect(TETHER_TOKEN)}
+          currency={TETHER_TOKEN}
+          selected={selectedCurrency?.equals(TETHER_TOKEN) || false}
+          symbol={TETHER_TOKEN.symbol}
         />
 
         {recentSelectedCurrencies.map((currency) => {

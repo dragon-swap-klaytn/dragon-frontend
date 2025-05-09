@@ -45,13 +45,7 @@ async function fetchTokenMapFromSs() {
       }
     },
 
-    DEFAULT_TOKEN_LIST.reduce(
-      (acc, token) => ({
-        ...acc,
-        [token.address]: new Token(ChainId.KLAYTN, token.address as Address, token.decimals, token.symbol, token.name),
-      }),
-      {},
-    ) as TokenMap,
+    {} as TokenMap,
   )
 
   return parsedTokens
@@ -74,7 +68,15 @@ const handler: NextApiHandler = async (req, res) => {
       !poolOnly ? getCahcedTokenMapFromSs() : new Promise<TokenMap>((resovle) => resovle({})),
     ])
 
-    return res.status(200).json({ ...tokenMap, ...tokenMapFromSs })
+    const defaultTokens = DEFAULT_TOKEN_LIST.reduce(
+      (acc, token) => ({
+        ...acc,
+        [token.address]: new Token(ChainId.KLAYTN, token.address as Address, token.decimals, token.symbol, token.name),
+      }),
+      {},
+    ) as TokenMap
+
+    return res.status(200).json({ ...defaultTokens, ...tokenMap, ...tokenMapFromSs })
   }
 
   return res.status(405).end()

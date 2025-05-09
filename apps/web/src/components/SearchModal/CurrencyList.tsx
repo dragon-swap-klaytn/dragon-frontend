@@ -4,6 +4,7 @@ import { Spinner, ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { CurrencyLogo } from '@pancakeswap/widgets-internal'
 import { Plus } from '@phosphor-icons/react'
 import clsx from 'clsx'
+import { SYMBOL_ALIASES } from 'const'
 import { useCakePrice } from 'hooks/useCakePrice'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import useRecentSelectedCurrencies from 'hooks/useRecentSelectedCurrencies'
@@ -102,6 +103,7 @@ export default function CurrencyList({
   showNative,
   showImportView,
   setImportToken,
+  searchQuery,
 }: {
   currencies: Currency[]
   selectedCurrency?: Currency | null
@@ -109,6 +111,7 @@ export default function CurrencyList({
   showNative: boolean
   showImportView: () => void
   setImportToken: (token: Token) => void
+  searchQuery?: string
 }) {
   const native = useNativeCurrency()
   const { address: account } = useAccount()
@@ -123,7 +126,7 @@ export default function CurrencyList({
   const [balances, balancesLoading] = useTokenBalancesWithLoading(account, tokens)
   const { data: nativeBalance, isLoading } = useBalance({ address: account, enabled: true })
 
-  const currenciesWithValue = useMemo(() => {
+  const sortedCurrenciesWithValue = useMemo(() => {
     if (balancesLoading || isLoading || pricesLoading || pricesLoadingFromSs) {
       return undefined
     }
@@ -132,7 +135,20 @@ export default function CurrencyList({
 
     if (!account) {
       return formatted
-        .sort((a, b) => a.symbol.localeCompare(b.symbol))
+        .sort((a, b) => {
+          if (searchQuery) {
+            const loweredSearchQuery = searchQuery.toLowerCase()
+            const aMatch =
+              a.symbol.toLowerCase() === loweredSearchQuery || SYMBOL_ALIASES[a.symbol]?.includes(loweredSearchQuery)
+            const bMatch =
+              b.symbol.toLowerCase() === loweredSearchQuery || SYMBOL_ALIASES[b.symbol]?.includes(loweredSearchQuery)
+
+            if (aMatch && !bMatch) return -1
+            if (!aMatch && bMatch) return 1
+          }
+
+          return a.symbol.localeCompare(b.symbol)
+        })
         .map((currency) => ({ currency, amount: 0, value: 0 }))
     }
 
@@ -158,7 +174,26 @@ export default function CurrencyList({
           value: amount * price,
         }
       })
-      .sort((a, b) => b.value - a.value)
+      .sort((a, b) => {
+        const aValue = a.value || 0
+        const bValue = b.value || 0
+
+        if (aValue === bValue && searchQuery) {
+          const loweredSearchQuery = searchQuery.toLowerCase()
+
+          const aMatch =
+            a.currency.symbol.toLowerCase() === loweredSearchQuery ||
+            SYMBOL_ALIASES[a.currency.symbol]?.includes(loweredSearchQuery)
+          const bMatch =
+            b.currency.symbol.toLowerCase() === loweredSearchQuery ||
+            SYMBOL_ALIASES[b.currency.symbol]?.includes(loweredSearchQuery)
+
+          if (aMatch && !bMatch) return -1
+          if (!aMatch && bMatch) return 1
+        }
+
+        return bValue - aValue
+      })
   }, [
     currencies,
     nativeBalance,
@@ -173,15 +208,16 @@ export default function CurrencyList({
     pricesLoading,
     pricesLoadingFromSs,
     account,
+    searchQuery,
   ])
 
   const { setRecentSelectedCurrency } = useRecentSelectedCurrencies()
 
   const Row = useCallback(
     ({ index }) => {
-      if (!currenciesWithValue || userAddedTokenMapLoading) return null
+      if (!sortedCurrenciesWithValue || userAddedTokenMapLoading) return null
 
-      const currencyWithValue = currenciesWithValue[index]
+      const currencyWithValue = sortedCurrenciesWithValue[index]
       if (!currencyWithValue) return null
 
       const currency = currencyWithValue?.currency
@@ -218,7 +254,7 @@ export default function CurrencyList({
       showImportView,
       setImportToken,
       setRecentSelectedCurrency,
-      currenciesWithValue,
+      sortedCurrenciesWithValue,
       userAddedTokenMap,
       userAddedTokenMapLoading,
     ],
@@ -226,8 +262,8 @@ export default function CurrencyList({
 
   return (
     <div className="flex flex-col overflow-y-auto max-h-[350px] space-y-1">
-      {currenciesWithValue && !userAddedTokenMapLoading ? (
-        currenciesWithValue.map((_, index) => Row({ index }))
+      {sortedCurrenciesWithValue && !userAddedTokenMapLoading ? (
+        sortedCurrenciesWithValue.map((_, index) => Row({ index }))
       ) : (
         <div className="flex items-center justify-center w-full h-[400px]">
           <Spinner />

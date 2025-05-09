@@ -97,11 +97,21 @@ function CurrencySearch({
         selectedCurrency={selectedCurrency}
         showImportView={showImportView}
         setImportToken={setImportToken}
+        searchQuery={debouncedQuery}
       />
     ) : (
       <p className="text-center py-4 text-on-surface text-sm">{t('No results found.')}</p>
     )
-  }, [currencies, handleCurrencySelect, selectedCurrency, setImportToken, showNative, showImportView, t])
+  }, [
+    currencies,
+    handleCurrencySelect,
+    selectedCurrency,
+    setImportToken,
+    showNative,
+    showImportView,
+    t,
+    debouncedQuery,
+  ])
 
   const searchBarRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
