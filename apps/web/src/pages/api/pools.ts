@@ -2,6 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { createFarmFetcherV3 } from '@pancakeswap/farms'
 import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
+import { TOKEN_MAPPER } from 'const'
 import { getCachedTokenPricesFromSwapscanner } from 'lib/ss'
 import { NextApiHandler } from 'next'
 
@@ -11,6 +12,7 @@ import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 import { Simplify } from 'type-fest'
 import { calculateAPR } from 'utils/calculate-interests'
 import { duplicateChecksumPriceMap } from 'utils/duplicate-checksum-price-map'
+import lowered from 'utils/lowered'
 import { getViemClients } from 'utils/viem.server'
 import { z } from 'zod'
 
@@ -47,9 +49,7 @@ function filteredByTokenAddress(pools: PoolParsed[], tokenAddress?: string) {
   }
 
   return pools.filter(
-    (pool) =>
-      pool.token0.id.toLowerCase() === tokenAddress.toLowerCase() ||
-      pool.token1.id.toLowerCase() === tokenAddress.toLowerCase(),
+    (pool) => lowered(pool.token0.id) === lowered(tokenAddress) || lowered(pool.token1.id) === lowered(tokenAddress),
   )
 }
 
@@ -58,14 +58,19 @@ function filteredBySearchKey(pool: PoolParsed, searchKey?: string) {
     return true
   }
 
+  const tokens = TOKEN_MAPPER[lowered(searchKey)] || []
+
   return (
-    pool.token0.symbol.toLowerCase().includes(searchKey.toLowerCase()) ||
-    pool.token1.symbol.toLowerCase().includes(searchKey.toLowerCase()) ||
-    pool.token0.name.toLowerCase().includes(searchKey.toLowerCase()) ||
-    pool.token1.name.toLowerCase().includes(searchKey.toLowerCase()) ||
-    pool.id.toLowerCase().includes(searchKey.toLowerCase()) ||
-    pool.token0.id.toLowerCase().includes(searchKey.toLowerCase()) ||
-    pool.token1.id.toLowerCase().includes(searchKey.toLowerCase())
+    [pool.token0.symbol, pool.token1.symbol].some((symbol) => lowered(symbol).includes(lowered(searchKey))) ||
+    [pool.token0.name, pool.token1.name].some((name) => lowered(name).includes(lowered(searchKey))) ||
+    [pool.token0.id, pool.token1.id].some((id) => lowered(id).includes(lowered(searchKey))) ||
+    lowered(pool.id).includes(lowered(searchKey)) ||
+    tokens.some(
+      (token) =>
+        [pool.token0.symbol, pool.token1.symbol].some((symbol) => lowered(symbol).includes(lowered(token.symbol))) ||
+        [pool.token0.name, pool.token1.name].some((name) => lowered(name).includes(lowered(token.name))) ||
+        [pool.token0.id, pool.token1.id].some((id) => lowered(id).includes(lowered(token.address))),
+    )
   )
 }
 
@@ -99,11 +104,11 @@ const handler: NextApiHandler = async (req, res) => {
   })
 
   const lpAddressToPoolWeights = Object.fromEntries(
-    farmsWithPrice.map((farm) => [farm.lpAddress.toLowerCase(), +farm.poolWeight]),
+    farmsWithPrice.map((farm) => [lowered(farm.lpAddress), +farm.poolWeight]),
   )
 
   if (onlyPoolIds.length > 0) {
-    const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => id.toLowerCase())
+    const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => lowered(id))
     const missingPoolIds = onlyPoolIdsLowerCased.filter(
       (id) => !v2Pools.some((pool) => pool.id === id) && !v3Pools.some((pool) => pool.id === id),
     )
@@ -145,7 +150,7 @@ const handler: NextApiHandler = async (req, res) => {
   let pools: PoolParsed[] = []
 
   if (onlyPoolIds.length > 0) {
-    const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => id.toLowerCase())
+    const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => lowered(id))
     pools.push(
       ...filteredV2Pools.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),
       ...filteredV3Pools.filter((pool) => onlyPoolIdsLowerCased.includes(pool.id)),

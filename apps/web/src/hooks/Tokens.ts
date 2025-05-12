@@ -4,7 +4,7 @@ import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
-import { TETHER_TOKEN } from 'const'
+import { TOKEN_MAPPER } from 'const'
 import { useMemo } from 'react'
 import { useUnsupportedTokenList, useWarningTokenList } from 'state/lists/hooks'
 import useSWR from 'swr'
@@ -110,10 +110,6 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
   }
 
   return !!userAddedTokens.find((token) => currency?.equals(token))
-}
-
-const TOKEN_MAPPER = {
-  usdt: [TETHER_TOKEN],
 }
 
 export function useTokens(searchKey?: string) {

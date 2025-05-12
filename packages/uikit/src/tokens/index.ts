@@ -73,3 +73,6 @@ export type Tokens = typeof tokens;
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const WKAIA_ADDRESS = "0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432";
 export const TETHER_ADDRESS = "0xd077A400968890Eacc75cdc901F0356c943e4fDb";
+export const TETHER_NAME = "Tether USD";
+export const TETHER_SYMBOL = "USD₮";
+export const TETHER_DECIMALS = 6;
