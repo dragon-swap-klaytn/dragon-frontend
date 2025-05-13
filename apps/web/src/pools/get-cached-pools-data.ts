@@ -558,7 +558,7 @@ export const getPoolsDataByIds = async (poolIds: string[]) => {
       }
     })
 
-    mutatePoolsCache({ v2Pools: Object.values(v2PoolsMap), v3Pools: Object.values(v3PoolsMap) })
+    mutatePoolsCache({ v2Pools: Object.values(v2PoolsMap), v3Pools: Object.values(v3PoolsMap) }, false, true)
   })
 
   return { v2Pools, v3Pools }

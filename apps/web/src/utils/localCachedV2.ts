@@ -93,9 +93,10 @@ export const localCachedV2 = <T = any>(
    *
    * @param data - Optional data to use for updating the cache.
    * @param force - If true, forces a fetch/update even if cache is valid or a request is in flight.
+   * @param preserveExpiresAt - If true, keeps the current expiration time.
    * @returns A Promise resolving to the fresh (or provided) data.
    */
-  const mutate = (data?: T, force: boolean = false): Promise<T> => {
+  const mutate = (data?: T, force: boolean = false, preserveExpiresAt = false): Promise<T> => {
     const now = Date.now()
 
     // If not forced and the cache is still valid, return it immediately.
@@ -127,8 +128,10 @@ export const localCachedV2 = <T = any>(
           const resolvedData = await freshData
           // Compute the TTL based on the resolved data.
           const ttlValue = await computeNextTTL(ttl, resolvedData)
-          // Update the cache expiration.
-          expiresAt = Date.now() + ttlValue
+          if (!preserveExpiresAt) {
+            // Update the cache expiration.
+            expiresAt = Date.now() + ttlValue
+          }
           // Save the new value in the cache.
           cached = resolvedData
         } catch (err) {

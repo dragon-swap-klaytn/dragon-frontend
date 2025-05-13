@@ -12,6 +12,7 @@ import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 import { Simplify } from 'type-fest'
 import { calculateAPR } from 'utils/calculate-interests'
 import { duplicateChecksumPriceMap } from 'utils/duplicate-checksum-price-map'
+import { localCachedProactiveV2 } from 'utils/local-cached-proactive-v2'
 import lowered from 'utils/lowered'
 import { getViemClients } from 'utils/viem.server'
 import { z } from 'zod'
@@ -75,6 +76,20 @@ function filteredBySearchKey(pool: PoolParsed, searchKey?: string) {
 }
 
 const farmsV3 = farmsV3ConfigChainMap[ChainId.KLAYTN]
+
+// special logic for KAIA/USD₮ and USDT/USD₮ pools
+localCachedProactiveV2(
+  () =>
+    getPoolsDataByIds([
+      // eslint-disable-next-line address/addr-type
+      '0x938779a1989e7635fdac1e040631255c3555708e', // KAIA/USD₮
+      // eslint-disable-next-line address/addr-type
+      '0x6f4e769d2dccfae8bcc1918d991ab1bc6b4a404c', // USDT/USD₮
+    ]),
+  {
+    interval: 1000 * 30, // 10 seconds
+  },
+)
 
 const handler: NextApiHandler = async (req, res) => {
   const { types, onlyPoolIds, tokenAddress, boostedOnly, searchKey, sortBy, sortDirection, skip, limit } =
