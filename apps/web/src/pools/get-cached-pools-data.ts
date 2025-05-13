@@ -1,10 +1,10 @@
 import { getBlockNumbers, getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Pools } from 'lib/graph-queries/get-v2-pools'
 import { getV3Pools } from 'lib/graph-queries/get-v3-pools'
-import { PoolV2AccData, PoolV2Base, PoolV3AccData, PoolV3Base, PoolV3Raw } from 'lib/graph-queries/types'
+import { PoolV2AccData, PoolV2Base, PoolV3AccData, PoolV3Base } from 'lib/graph-queries/types'
 import { PoolV2AccDataCache, PoolV3AccDataCache, v2PoolsAccDataCache, v3PoolsAccDataCache } from 'lru-caches'
 import { v2PoolsAccDataMongoCache, v3PoolsAccDataMongoCache } from 'mongo-caches'
-import { localCachedProactive } from 'utils/localCachedProactive'
+import { localCachedProactiveV2 } from 'utils/local-cached-proactive-v2'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
 
@@ -121,7 +121,7 @@ export type PoolV2Detailed = PoolV2Base & {
   }
 }
 
-const getProactivelyCachedV2Pools = localCachedProactive(
+const getProactivelyCachedV2Pools = localCachedProactiveV2(
   async () => {
     const [blockNumber] = await getCachedBlockNumbers([Date.now()])
     const pools = await requestWithRetry(getV2Pools({ blockNumber }), {
@@ -140,7 +140,7 @@ const getProactivelyCachedV2Pools = localCachedProactive(
     return pools
   },
   { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE },
-)
+).getData
 
 const getV2PoolsDetailedData = async ({
   blockNumber7D,
@@ -233,7 +233,7 @@ export type PoolV3Detailed = PoolV3Base & {
   }
 }
 
-const getProactivelyCachedV3Pools = localCachedProactive(
+const getProactivelyCachedV3Pools = localCachedProactiveV2(
   async () => {
     const [blockNumber] = await getCachedBlockNumbers([Date.now()])
     const pools = await requestWithRetry(getV3Pools({ blockNumber }), {
@@ -252,7 +252,7 @@ const getProactivelyCachedV3Pools = localCachedProactive(
     return pools
   },
   { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE },
-)
+).getData
 
 const getV3PoolsDetailedData = async ({
   blockNumber7D,
@@ -268,9 +268,9 @@ const getV3PoolsDetailedData = async ({
     getProactivelyCachedV3Pools(),
   ])
 
-  const pools7D = _pools7D.status === 'fulfilled' ? _pools7D.value : ({} as PoolV3AccDataCache)
-  const pools24H = _pools24H.status === 'fulfilled' ? _pools24H.value : ({} as PoolV3AccDataCache)
-  const pools = _pools.status === 'fulfilled' ? _pools.value : ([] as PoolV3Raw[])
+  const pools7D = _pools7D.status === 'fulfilled' ? _pools7D.value : {}
+  const pools24H = _pools24H.status === 'fulfilled' ? _pools24H.value : {}
+  const pools = _pools.status === 'fulfilled' ? _pools.value : []
 
   const poolsDetails = pools
     .filter(({ tvlUSD }) => tvlUSD > POOL_LIQUIDITY_USD_THRESHOLD)
@@ -476,7 +476,7 @@ const getV3PoolsDetailedDataByIds = async ({
 
   const pools7D = _pools7D.status === 'fulfilled' ? _pools7D.value : {}
   const pools24H = _pools24H.status === 'fulfilled' ? _pools24H.value : {}
-  const pools = _pools.status === 'fulfilled' ? _pools.value : ([] as PoolV3Raw[])
+  const pools = _pools.status === 'fulfilled' ? _pools.value : []
 
   const poolsDetails = pools
     .map(

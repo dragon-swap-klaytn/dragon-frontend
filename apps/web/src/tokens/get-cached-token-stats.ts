@@ -4,7 +4,7 @@ import { getV3Tokens } from 'lib/graph-queries/get-v3-tokens'
 import { TokenAccData, TokenDetailed } from 'lib/graph-queries/types'
 import { TokenAccDataCache, v2TokensAccDataCache, v3TokensAccDataCache } from 'lru-caches'
 import { v2TokensAccDataMongoCache, v3TokensAccDataMongoCache } from 'mongo-caches'
-import { localCachedProactive } from 'utils/localCachedProactive'
+import { localCachedProactiveV2 } from 'utils/local-cached-proactive-v2'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
 
@@ -93,7 +93,7 @@ export const getV3TokensAccData = async (blockNumber: number) => {
   return tokensMap
 }
 
-const getProactivelyCachedV2TokensData = localCachedProactive(
+const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   async () => {
     const [blockNumber] = await getCachedBlockNumbers([Date.now()])
     const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
@@ -114,7 +114,7 @@ const getProactivelyCachedV2TokensData = localCachedProactive(
   {
     interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
   },
-)
+).getData
 
 const getV2TokensDatailedData = async () => {
   const now = Date.now()
@@ -205,7 +205,7 @@ export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
   ttlOnCatch: 5_000,
 }).cachedFetcher
 
-const getProactivelyCachedV3TokensData = localCachedProactive(
+const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   async () => {
     const [blockNumber] = await getCachedBlockNumbers([Date.now()])
     const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
@@ -226,7 +226,7 @@ const getProactivelyCachedV3TokensData = localCachedProactive(
   {
     interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
   },
-)
+).getData
 
 const getV3TokensDatailedData = async () => {
   const now = Date.now()
