@@ -339,7 +339,7 @@ const getV3PoolsDetailedData = async ({
   return poolsDetails
 }
 
-export const getCachedPoolsData = localCachedV2(
+export const { cachedFetcher: getCachedPoolsData, mutate: mutatePoolsCache } = localCachedV2(
   async () => {
     const now = Date.now()
     const timestamps = [now - 7 * DAY, now - DAY]
@@ -359,7 +359,7 @@ export const getCachedPoolsData = localCachedV2(
     ttl: 5 * MINUTE,
     ttlOnCatch: 5_000,
   },
-).cachedFetcher
+)
 
 const getV2PoolsAccDataByIds = async ({ poolIds, blockNumber }: { poolIds: string[]; blockNumber: number }) => {
   if (poolIds.length === 0) {
@@ -539,6 +539,27 @@ export const getPoolsDataByIds = async (poolIds: string[]) => {
     getV2PoolsDetailedDataByIds({ poolIds, ...blocks }),
     getV3PoolsDetailedDataByIds({ poolIds, ...blocks }),
   ])
+
+  // mutate pools cache in the background
+  getCachedPoolsData().then((cached) => {
+    const { v2Pools: cachedV2Pools, v3Pools: cachedV3Pools } = cached
+    const v2PoolsMap = Object.fromEntries(cachedV2Pools.map((pool) => [pool.id, pool]))
+    const v3PoolsMap = Object.fromEntries(cachedV3Pools.map((pool) => [pool.id, pool]))
+
+    v2Pools.forEach((pool) => {
+      if (v2PoolsMap[pool.id]) {
+        Object.assign(v2PoolsMap[pool.id], pool)
+      }
+    })
+
+    v3Pools.forEach((pool) => {
+      if (v3PoolsMap[pool.id]) {
+        Object.assign(v3PoolsMap[pool.id], pool)
+      }
+    })
+
+    mutatePoolsCache({ v2Pools: Object.values(v2PoolsMap), v3Pools: Object.values(v3PoolsMap) })
+  })
 
   return { v2Pools, v3Pools }
 }
