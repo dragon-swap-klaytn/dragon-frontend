@@ -97,21 +97,27 @@ export const getV3TokensAccData = async (blockNumber: number) => {
 
 const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   async () => {
-    const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
-    const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
-      logPrefix: `getV2TokensDatailedData(${blockNumber})`,
-    })
+    try {
+      const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
+      const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
+        logPrefix: `getV2TokensDatailedData(${blockNumber})`,
+      })
 
-    // cache data
-    const compressedTokens = compressTokenAccData(tokens)
+      // cache data
+      const compressedTokens = compressTokenAccData(tokens)
 
-    if (USE_MONGO_CACHE) {
-      await v2TokensAccDataMongoCache.put(blockNumber, compressedTokens)
-    } else {
-      v2TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+      if (USE_MONGO_CACHE) {
+        await v2TokensAccDataMongoCache.put(blockNumber, compressedTokens)
+      } else {
+        v2TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+      }
+
+      return tokens
+    } catch (err) {
+      console.warn('Error in getProactivelyCachedV2TokensData:', err)
+
+      return getV2Tokens()
     }
-
-    return tokens
   },
   {
     interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
@@ -209,21 +215,27 @@ export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
 
 const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   async () => {
-    const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
-    const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
-      logPrefix: `getV3TokensDatailedData(${blockNumber})`,
-    })
+    try {
+      const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
+      const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
+        logPrefix: `getV3TokensDatailedData(${blockNumber})`,
+      })
 
-    // cache data
-    const compressedTokens = compressTokenAccData(tokens)
+      // cache data
+      const compressedTokens = compressTokenAccData(tokens)
 
-    if (USE_MONGO_CACHE) {
-      await v3TokensAccDataMongoCache.put(blockNumber, compressedTokens)
-    } else {
-      v3TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+      if (USE_MONGO_CACHE) {
+        await v3TokensAccDataMongoCache.put(blockNumber, compressedTokens)
+      } else {
+        v3TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+      }
+
+      return tokens
+    } catch (err) {
+      console.warn('Error in getProactivelyCachedV3TokensData:', err)
+
+      return getV3Tokens()
     }
-
-    return tokens
   },
   {
     interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
