@@ -32,7 +32,8 @@
       "persistent": true
     },
     "start": {
-      "cache": false
+      "cache": false,
+      "passThroughEnv": ["USE_MONGO_CACHE", "MONGODB"]
     },
     "build:list": {
       "outputs": ["list/**"]
