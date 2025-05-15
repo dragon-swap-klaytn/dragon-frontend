@@ -10,6 +10,8 @@ import { requestWithRetry } from 'utils/requestWithRetry'
 
 const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
+const TIMESTAMP_GUTTER = 5 * 1000 // 5 seconds
+
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
@@ -123,7 +125,7 @@ export type PoolV2Detailed = PoolV2Base & {
 
 const getProactivelyCachedV2Pools = localCachedProactiveV2(
   async () => {
-    const [blockNumber] = await getCachedBlockNumbers([Date.now()])
+    const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
     const pools = await requestWithRetry(getV2Pools({ blockNumber }), {
       logPrefix: `getV2PoolsDetailedData`,
     })
@@ -235,7 +237,7 @@ export type PoolV3Detailed = PoolV3Base & {
 
 const getProactivelyCachedV3Pools = localCachedProactiveV2(
   async () => {
-    const [blockNumber] = await getCachedBlockNumbers([Date.now()])
+    const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
     const pools = await requestWithRetry(getV3Pools({ blockNumber }), {
       logPrefix: `getV3PoolsDetailedData`,
     })
@@ -341,7 +343,7 @@ const getV3PoolsDetailedData = async ({
 
 export const { cachedFetcher: getCachedPoolsData, mutate: mutatePoolsCache } = localCachedV2(
   async () => {
-    const now = Date.now()
+    const now = Date.now() - TIMESTAMP_GUTTER
     const timestamps = [now - 7 * DAY, now - DAY]
     const blockNumbers = await getCachedBlockNumbers(timestamps)
 
@@ -525,7 +527,7 @@ const getV3PoolsDetailedDataByIds = async ({
 }
 
 export const getPoolsDataByIds = async (poolIds: string[]) => {
-  const now = Date.now() - 5 * 1000 // let the block number be a bit older than now
+  const now = Date.now() - TIMESTAMP_GUTTER
   const timestamps = [now - 7 * DAY, now - DAY, now]
   const blockNumbers = await getBlockNumbers(timestamps, { bucketSize: 10 })
 

@@ -10,6 +10,8 @@ import { requestWithRetry } from 'utils/requestWithRetry'
 
 const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
+const TIMESTAMP_GUTTER = 5 * 1000 // 5 seconds
+
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
@@ -95,7 +97,7 @@ export const getV3TokensAccData = async (blockNumber: number) => {
 
 const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   async () => {
-    const [blockNumber] = await getCachedBlockNumbers([Date.now()])
+    const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
     const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
       logPrefix: `getV2TokensDatailedData(${blockNumber})`,
     })
@@ -117,7 +119,7 @@ const getProactivelyCachedV2TokensData = localCachedProactiveV2(
 ).getData
 
 const getV2TokensDatailedData = async () => {
-  const now = Date.now()
+  const now = Date.now() - TIMESTAMP_GUTTER
   const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
@@ -207,7 +209,7 @@ export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
 
 const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   async () => {
-    const [blockNumber] = await getCachedBlockNumbers([Date.now()])
+    const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
     const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
       logPrefix: `getV3TokensDatailedData(${blockNumber})`,
     })
@@ -229,7 +231,7 @@ const getProactivelyCachedV3TokensData = localCachedProactiveV2(
 ).getData
 
 const getV3TokensDatailedData = async () => {
-  const now = Date.now()
+  const now = Date.now() - TIMESTAMP_GUTTER
   const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
