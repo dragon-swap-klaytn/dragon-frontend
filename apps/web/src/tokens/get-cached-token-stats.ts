@@ -10,7 +10,7 @@ import { requestWithRetry } from 'utils/requestWithRetry'
 
 const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
-const TIMESTAMP_GUTTER = 5 * 1000 // 5 seconds
+const TIMESTAMP_GUTTER = 30 * 1000 // 30 seconds
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
@@ -119,7 +119,7 @@ const getProactivelyCachedV2TokensData = localCachedProactiveV2(
 ).getData
 
 const getV2TokensDatailedData = async () => {
-  const now = Date.now() - TIMESTAMP_GUTTER
+  const now = Date.now()
   const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 
@@ -231,7 +231,7 @@ const getProactivelyCachedV3TokensData = localCachedProactiveV2(
 ).getData
 
 const getV3TokensDatailedData = async () => {
-  const now = Date.now() - TIMESTAMP_GUTTER
+  const now = Date.now()
   const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
 

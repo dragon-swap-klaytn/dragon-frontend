@@ -5,13 +5,12 @@ import { WKLAY_ADDRESS } from 'lib/graph-queries/const'
 import { getV2TokensAccData, getV3TokensAccData } from 'tokens/get-cached-token-stats'
 import { localCachedV2 } from 'utils/localCachedV2'
 
-const TIMESTAMP_GUTTER = 5 * 1000 // 5 seconds
+const TIMESTAMP_GUTTER = 30 * 1000 // 30 seconds
 
 const MINUTE = 60_000
 
 const getTokenPrices = async () => {
-  const now = Date.now() - TIMESTAMP_GUTTER
-  const [blockNumber] = await getCachedBlockNumbers([now])
+  const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
   const [v2TokensAccData, v3TokensAccData] = await Promise.all([
     getV2TokensAccData(blockNumber),
     getV3TokensAccData(blockNumber),

@@ -10,7 +10,7 @@ import { requestWithRetry } from 'utils/requestWithRetry'
 
 const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
-const TIMESTAMP_GUTTER = 5 * 1000 // 5 seconds
+const TIMESTAMP_GUTTER = 30 * 1000 // 30 seconds
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
@@ -343,7 +343,7 @@ const getV3PoolsDetailedData = async ({
 
 export const { cachedFetcher: getCachedPoolsData, mutate: mutatePoolsCache } = localCachedV2(
   async () => {
-    const now = Date.now() - TIMESTAMP_GUTTER
+    const now = Date.now()
     const timestamps = [now - 7 * DAY, now - DAY]
     const blockNumbers = await getCachedBlockNumbers(timestamps)
 
@@ -399,19 +399,17 @@ const getV2PoolsDetailedDataByIds = async ({
   poolIds,
   blockNumber7D,
   blockNumber24H,
-  blockNumberNow,
 }: {
   poolIds: string[]
   blockNumber7D: number
   blockNumber24H: number
-  blockNumberNow: number
 }) => {
   if (poolIds.length === 0) {
     return []
   }
 
   // fetch data
-  const poolsPromise = getV2Pools({ blockNumber: blockNumberNow, poolIds })
+  const poolsPromise = getV2Pools({ poolIds })
   const [_pools7D, _pools24H, _pools] = await Promise.allSettled([
     getV2PoolsAccDataByIds({ poolIds, blockNumber: blockNumber7D }),
     getV2PoolsAccDataByIds({ poolIds, blockNumber: blockNumber24H }),
@@ -455,19 +453,17 @@ const getV3PoolsDetailedDataByIds = async ({
   poolIds,
   blockNumber7D,
   blockNumber24H,
-  blockNumberNow,
 }: {
   poolIds: string[]
   blockNumber7D: number
   blockNumber24H: number
-  blockNumberNow: number
 }) => {
   if (poolIds.length === 0) {
     return []
   }
 
   // fetch data
-  const poolsPromise = getV3Pools({ blockNumber: blockNumberNow, poolIds })
+  const poolsPromise = getV3Pools({ poolIds })
   const [_pools7D, _pools24H, _pools] = await Promise.allSettled([
     getV3PoolsAccDataByIds({ poolIds, blockNumber: blockNumber7D }),
     getV3PoolsAccDataByIds({ poolIds, blockNumber: blockNumber24H }),
@@ -527,14 +523,13 @@ const getV3PoolsDetailedDataByIds = async ({
 }
 
 export const getPoolsDataByIds = async (poolIds: string[]) => {
-  const now = Date.now() - TIMESTAMP_GUTTER
-  const timestamps = [now - 7 * DAY, now - DAY, now]
+  const now = Date.now()
+  const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getBlockNumbers(timestamps, { bucketSize: 10 })
 
   const blocks = {
     blockNumber7D: blockNumbers[0],
     blockNumber24H: blockNumbers[1],
-    blockNumberNow: blockNumbers[2],
   }
 
   const [v2Pools, v3Pools] = await Promise.all([
