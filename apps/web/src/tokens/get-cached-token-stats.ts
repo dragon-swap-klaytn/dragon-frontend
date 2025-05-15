@@ -116,7 +116,9 @@ const getProactivelyCachedV2TokensData = localCachedProactiveV2(
     } catch (err) {
       console.warn('Error in getProactivelyCachedV2TokensData:', err)
 
-      return getV2Tokens()
+      return requestWithRetry(getV2Tokens(), {
+        logPrefix: 'getV2TokensDatailedData(catch)',
+      })
     }
   },
   {
@@ -234,7 +236,9 @@ const getProactivelyCachedV3TokensData = localCachedProactiveV2(
     } catch (err) {
       console.warn('Error in getProactivelyCachedV3TokensData:', err)
 
-      return getV3Tokens()
+      return requestWithRetry(getV3Tokens(), {
+        logPrefix: 'getV3TokensDatailedData(catch)',
+      })
     }
   },
   {
