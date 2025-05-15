@@ -126,9 +126,11 @@ export type PoolV2Detailed = PoolV2Base & {
 const getProactivelyCachedV2Pools = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
+      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
+        logPrefix: 'getProactivelyCachedV2Pools',
+      })
       const pools = await requestWithRetry(getV2Pools({ blockNumber }), {
-        logPrefix: `getV2PoolsDetailedData`,
+        logPrefix: `getProactivelyCachedV2Pools`,
       })
 
       // cache data
@@ -145,7 +147,7 @@ const getProactivelyCachedV2Pools = localCachedProactiveV2(
       console.warn('Error in getProactivelyCachedV2Pools:', err)
 
       return requestWithRetry(getV2Pools(), {
-        logPrefix: `getV2PoolsDetailedData(catch)`,
+        logPrefix: `getProactivelyCachedV2Pools(catch)`,
       })
     }
   },
@@ -246,9 +248,11 @@ export type PoolV3Detailed = PoolV3Base & {
 const getProactivelyCachedV3Pools = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
+      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
+        logPrefix: 'getProactivelyCachedV3Pools',
+      })
       const pools = await requestWithRetry(getV3Pools({ blockNumber }), {
-        logPrefix: `getV3PoolsDetailedData`,
+        logPrefix: `getProactivelyCachedV3Pools`,
       })
 
       // cache data
@@ -265,7 +269,7 @@ const getProactivelyCachedV3Pools = localCachedProactiveV2(
       console.warn('Error in getProactivelyCachedV3Pools:', err)
 
       return requestWithRetry(getV3Pools(), {
-        logPrefix: `getV3PoolsDetailedData(catch)`,
+        logPrefix: `getProactivelyCachedV3Pools(catch)`,
       })
     }
   },

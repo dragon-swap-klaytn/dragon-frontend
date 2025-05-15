@@ -98,9 +98,11 @@ export const getV3TokensAccData = async (blockNumber: number) => {
 const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
+      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
+        logPrefix: 'getProactivelyCachedV2TokensData',
+      })
       const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
-        logPrefix: `getV2TokensDatailedData(${blockNumber})`,
+        logPrefix: `getProactivelyCachedV2TokensData(${blockNumber})`,
       })
 
       // cache data
@@ -117,7 +119,7 @@ const getProactivelyCachedV2TokensData = localCachedProactiveV2(
       console.warn('Error in getProactivelyCachedV2TokensData:', err)
 
       return requestWithRetry(getV2Tokens(), {
-        logPrefix: 'getV2TokensDatailedData(catch)',
+        logPrefix: 'getProactivelyCachedV2TokensData(catch)',
       })
     }
   },
@@ -219,9 +221,11 @@ export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
 const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER])
+      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
+        logPrefix: 'getProactivelyCachedV3TokensData',
+      })
       const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
-        logPrefix: `getV3TokensDatailedData(${blockNumber})`,
+        logPrefix: `getProactivelyCachedV3TokensData(${blockNumber})`,
       })
 
       // cache data
@@ -238,7 +242,7 @@ const getProactivelyCachedV3TokensData = localCachedProactiveV2(
       console.warn('Error in getProactivelyCachedV3TokensData:', err)
 
       return requestWithRetry(getV3Tokens(), {
-        logPrefix: 'getV3TokensDatailedData(catch)',
+        logPrefix: 'getProactivelyCachedV3TokensData(catch)',
       })
     }
   },
