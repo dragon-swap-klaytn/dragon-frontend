@@ -7,7 +7,7 @@ import truncateHash from '@pancakeswap/utils/truncateHash'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'config/constants'
 import { hexValue } from 'ethers/lib/utils'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin, safeGetAddress } from 'utils'
@@ -20,12 +20,12 @@ import { Address, Hex, hexToBigInt, TransactionExecutionError } from 'viem'
 import { useSendTransaction } from 'wagmi'
 import { SendTransactionArgs, SendTransactionResult } from 'wagmi/actions'
 
+import { v5 } from '@kaiachain/ethers-ext'
 import { WalletStorageKey } from '@pancakeswap/ui-wallets'
 import { ConnectorId } from '@pancakeswap/uikit'
 import { logger } from 'utils/datadog'
 import { isZero } from '../utils/isZero'
 
-import { v5 } from '@kaiachain/ethers-ext'
 const { Web3Provider, TxType } = v5
 
 interface SwapCall {
@@ -85,8 +85,8 @@ export default function useSendSwapTransaction(
 
   const sendTxGasFeeDelegated = useCallback(
     async ({
-      account,
-      chainId,
+      account: _account,
+      chainId: _chainId,
       to,
       data,
       value,
@@ -95,7 +95,7 @@ export default function useSendSwapTransaction(
       SendTransactionArgs,
       'account' | 'chainId' | 'to' | 'data' | 'value' | 'gas'
     >): Promise<SendTransactionResult> => {
-      if (!account) {
+      if (!_account) {
         throw new Error('Wallet not connected.')
       }
       // Use window.klaytn or window.kaia based on availability
@@ -109,14 +109,14 @@ export default function useSendSwapTransaction(
       try {
         const txForSigning = {
           type: TxType.FeeDelegatedSmartContractExecution,
-          from: account as string,
+          from: _account as string,
           to: to as string,
           data: data as string,
           value: value ? hexValue(BigInt(value)) : '0x0',
-          nonce: await provider.getTransactionCount(account as string),
+          nonce: await provider.getTransactionCount(_account as string),
           gasLimit: gas ? hexValue(BigInt(gas)) : undefined,
           gasPrice: await provider.getFeeData().then((fee) => fee.gasPrice!),
-          chainId: chainId,
+          chainId: _chainId,
         }
 
         const signer = provider.getSigner()
@@ -154,190 +154,177 @@ export default function useSendSwapTransaction(
 
   const sendTx = useCallback(
     async (args: Pick<SendTransactionArgs, 'account' | 'chainId' | 'to' | 'data' | 'value' | 'gas'>) => {
-      return isKaiaWallet.current ? await sendTxGasFeeDelegated(args) : await sendTransactionAsync(args)
+      return isKaiaWallet.current ? sendTxGasFeeDelegated(args) : sendTransactionAsync(args)
     },
     [sendTxGasFeeDelegated, sendTransactionAsync],
   )
 
-  return useMemo(() => {
-    if (!trade || !sendTransactionAsync || !account || !chainId || !publicClient) {
-      return { callback: null }
-    }
-    return {
-      callback: async function onSwap(): Promise<SendTransactionResult> {
-        const estimatedCalls: SwapCallEstimate[] = await Promise.all(
-          swapCalls.map((call) => {
-            const { address, calldata, value } = call
-            if ('getCall' in call) {
-              // Only WallchainSwapCall, don't use rest of pipeline
+  if (!trade || !sendTransactionAsync || !account || !chainId || !publicClient) {
+    return { callback: null }
+  }
+
+  return {
+    callback: async function onSwap(): Promise<SendTransactionResult> {
+      const estimatedCalls: SwapCallEstimate[] = await Promise.all(
+        swapCalls.map((call) => {
+          const { address, calldata, value } = call
+          if ('getCall' in call) {
+            // Only WallchainSwapCall, don't use rest of pipeline
+            return {
+              call,
+              gasEstimate: undefined,
+            }
+          }
+          const tx =
+            !value || isZero(value)
+              ? { account, to: address, data: calldata, value: 0n }
+              : {
+                  account,
+                  to: address,
+                  data: calldata,
+                  value: hexToBigInt(value),
+                }
+
+          return publicClient
+            .estimateGas(tx)
+            .then((gasEstimate) => {
               return {
                 call,
-                gasEstimate: undefined,
+                gasEstimate,
               }
-            }
-            const tx =
-              !value || isZero(value)
-                ? { account, to: address, data: calldata, value: 0n }
-                : {
-                    account,
-                    to: address,
-                    data: calldata,
-                    value: hexToBigInt(value),
-                  }
+            })
+            .catch((gasError) => {
+              console.debug('Gas estimate failed, trying to extract error', call, gasError)
+              return { call, error: transactionErrorToUserReadableMessage(gasError, t) }
+            })
+        }),
+      )
 
-            return publicClient
-              .estimateGas(tx)
-              .then((gasEstimate) => {
-                return {
-                  call,
-                  gasEstimate,
-                }
-              })
-              .catch((gasError) => {
-                console.debug('Gas estimate failed, trying to extract error', call, gasError)
-                return { call, error: transactionErrorToUserReadableMessage(gasError, t) }
-              })
-          }),
+      // a successful estimation is a bignumber gas estimate and the next call is also a bignumber gas estimate
+      let bestCallOption: SuccessfulCall | SwapCallEstimate | undefined = estimatedCalls.find(
+        (el, ix, list): el is SuccessfulCall =>
+          'gasEstimate' in el && (ix === list.length - 1 || 'gasEstimate' in list[ix + 1]),
+      )
+
+      // check if any calls errored with a recognizable error
+      if (!bestCallOption) {
+        const errorCalls = estimatedCalls.filter((call): call is FailedCall => 'error' in call)
+        if (errorCalls.length > 0) throw errorCalls[errorCalls.length - 1].error
+        const firstNoErrorCall = estimatedCalls.find<SwapCallEstimate>(
+          (call): call is SwapCallEstimate => !('error' in call),
         )
+        if (!firstNoErrorCall) throw new Error(t('Unexpected error. Could not estimate gas for the swap.'))
+        bestCallOption = firstNoErrorCall
+      }
 
-        // a successful estimation is a bignumber gas estimate and the next call is also a bignumber gas estimate
-        let bestCallOption: SuccessfulCall | SwapCallEstimate | undefined = estimatedCalls.find(
-          (el, ix, list): el is SuccessfulCall =>
-            'gasEstimate' in el && (ix === list.length - 1 || 'gasEstimate' in list[ix + 1]),
-        )
+      const call =
+        'getCall' in bestCallOption.call
+          ? await bestCallOption.call.getCall()
+          : (bestCallOption.call as SwapCall & { gas?: string | bigint })
 
-        // check if any calls errored with a recognizable error
-        if (!bestCallOption) {
-          const errorCalls = estimatedCalls.filter((call): call is FailedCall => 'error' in call)
-          if (errorCalls.length > 0) throw errorCalls[errorCalls.length - 1].error
-          const firstNoErrorCall = estimatedCalls.find<SwapCallEstimate>(
-            (call): call is SwapCallEstimate => !('error' in call),
-          )
-          if (!firstNoErrorCall) throw new Error(t('Unexpected error. Could not estimate gas for the swap.'))
-          bestCallOption = firstNoErrorCall
-        }
+      if ('error' in call) {
+        throw new Error('Route lost. Need to restart.')
+      }
 
-        const call =
-          'getCall' in bestCallOption.call
-            ? await bestCallOption.call.getCall()
-            : (bestCallOption.call as SwapCall & { gas?: string | bigint })
+      if ('gas' in call && call.gas) {
+        // prepared Wallchain's call have gas estimate inside
+        call.gas = BigInt(call.gas)
+      } else {
+        call.gas =
+          'gasEstimate' in bestCallOption && bestCallOption.gasEstimate
+            ? calculateGasMargin(bestCallOption.gasEstimate)
+            : undefined
+      }
 
-        if ('error' in call) {
-          throw new Error('Route lost. Need to restart.')
-        }
+      return sendTx({
+        account,
+        chainId,
+        to: call.address,
+        data: call.calldata,
+        value: call.value && !isZero(call.value) ? hexToBigInt(call.value) : 0n,
+        gas: call.gas,
+      })
+        .then((response) => {
+          const inputSymbol = trade.inputAmount.currency.symbol
+          const outputSymbol = trade.outputAmount.currency.symbol
+          const pct = basisPointsToPercent(allowedSlippage)
+          const inputAmount =
+            trade.tradeType === TradeType.EXACT_INPUT
+              ? formatAmount(trade.inputAmount, 3)
+              : formatAmount(SmartRouter.maximumAmountIn(trade, pct), 3)
+          const outputAmount =
+            trade.tradeType === TradeType.EXACT_OUTPUT
+              ? formatAmount(trade.outputAmount, 3)
+              : formatAmount(SmartRouter.minimumAmountOut(trade, pct), 3)
 
-        if ('gas' in call && call.gas) {
-          // prepared Wallchain's call have gas estimate inside
-          call.gas = BigInt(call.gas)
-        } else {
-          call.gas =
-            'gasEstimate' in bestCallOption && bestCallOption.gasEstimate
-              ? calculateGasMargin(bestCallOption.gasEstimate)
-              : undefined
-        }
+          const base = `Swap ${
+            trade.tradeType === TradeType.EXACT_OUTPUT ? 'max. ' : ''
+          }${inputAmount} ${inputSymbol} for ${
+            trade.tradeType === TradeType.EXACT_INPUT ? 'min. ' : ''
+          }${outputAmount} ${outputSymbol}`
 
-        return sendTx({
-          account,
-          chainId,
-          to: call.address,
-          data: call.calldata,
-          value: call.value && !isZero(call.value) ? hexToBigInt(call.value) : 0n,
-          gas: call.gas,
-        })
-          .then((response) => {
-            const inputSymbol = trade.inputAmount.currency.symbol
-            const outputSymbol = trade.outputAmount.currency.symbol
-            const pct = basisPointsToPercent(allowedSlippage)
-            const inputAmount =
-              trade.tradeType === TradeType.EXACT_INPUT
-                ? formatAmount(trade.inputAmount, 3)
-                : formatAmount(SmartRouter.maximumAmountIn(trade, pct), 3)
-            const outputAmount =
-              trade.tradeType === TradeType.EXACT_OUTPUT
-                ? formatAmount(trade.outputAmount, 3)
-                : formatAmount(SmartRouter.minimumAmountOut(trade, pct), 3)
+          const recipientAddressText =
+            recipientAddress && safeGetAddress(recipientAddress) ? truncateHash(recipientAddress) : recipientAddress
 
-            const base = `Swap ${
-              trade.tradeType === TradeType.EXACT_OUTPUT ? 'max. ' : ''
-            }${inputAmount} ${inputSymbol} for ${
-              trade.tradeType === TradeType.EXACT_INPUT ? 'min. ' : ''
-            }${outputAmount} ${outputSymbol}`
+          const withRecipient = recipient === account ? base : `${base} to ${recipientAddressText}`
 
-            const recipientAddressText =
-              recipientAddress && safeGetAddress(recipientAddress) ? truncateHash(recipientAddress) : recipientAddress
-
-            const withRecipient = recipient === account ? base : `${base} to ${recipientAddressText}`
-
-            const translatableWithRecipient =
-              trade.tradeType === TradeType.EXACT_OUTPUT
-                ? !recipient || recipient === account
-                  ? 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}}'
-                  : 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
-                : !recipient || recipient === account
-                ? 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}}'
-                : 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
-            addTransaction(response, {
-              summary: withRecipient,
-              translatableSummary: {
-                text: translatableWithRecipient,
-                data: {
-                  inputAmount,
-                  inputSymbol,
-                  outputAmount,
-                  outputSymbol,
-                  ...(recipient !== account && { recipientAddress: recipientAddressText }),
-                },
+          const translatableWithRecipient =
+            trade.tradeType === TradeType.EXACT_OUTPUT
+              ? !recipient || recipient === account
+                ? 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}}'
+                : 'Swap max. {{inputAmount}} {{inputSymbol}} for {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
+              : !recipient || recipient === account
+              ? 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}}'
+              : 'Swap {{inputAmount}} {{inputSymbol}} for min. {{outputAmount}} {{outputSymbol}} to {{recipientAddress}}'
+          addTransaction(response, {
+            summary: withRecipient,
+            translatableSummary: {
+              text: translatableWithRecipient,
+              data: {
+                inputAmount,
+                inputSymbol,
+                outputAmount,
+                outputSymbol,
+                ...(recipient !== account && { recipientAddress: recipientAddressText }),
               },
-              type: 'swap',
-            })
-            logSwap({
-              account,
-              chainId,
-              hash: response.hash,
-              inputAmount,
-              outputAmount,
-              input: trade.inputAmount.currency,
-              output: trade.outputAmount.currency,
-              type: 'V3SmartSwap',
-            })
-            logTx({ account, chainId, hash: response.hash })
-            return response
+            },
+            type: 'swap',
           })
-          .catch((error) => {
-            // if the user rejected the tx, pass this along
-            if (isUserRejected(error)) {
-              throw new TransactionRejectedError(t('Transaction rejected'))
-            } else {
-              // otherwise, the error was unexpected and we need to convey that
-              logger.warn(
-                'Swap failed',
-                {
-                  chainId,
-                  input: trade.inputAmount.currency,
-                  output: trade.outputAmount.currency,
-                  address: call.address,
-                  value: call.value,
-                  cause: error instanceof TransactionExecutionError ? error.cause : undefined,
-                },
-                error,
-              )
+          logSwap({
+            account,
+            chainId,
+            hash: response.hash,
+            inputAmount,
+            outputAmount,
+            input: trade.inputAmount.currency,
+            output: trade.outputAmount.currency,
+            type: 'V3SmartSwap',
+          })
+          logTx({ account, chainId, hash: response.hash })
+          return response
+        })
+        .catch((error) => {
+          // if the user rejected the tx, pass this along
+          if (isUserRejected(error)) {
+            throw new TransactionRejectedError(t('Transaction rejected'))
+          } else {
+            // otherwise, the error was unexpected and we need to convey that
+            logger.warn(
+              'Swap failed',
+              {
+                chainId,
+                input: trade.inputAmount.currency,
+                output: trade.outputAmount.currency,
+                address: call.address,
+                value: call.value,
+                cause: error instanceof TransactionExecutionError ? error.cause : undefined,
+              },
+              error,
+            )
 
-              throw new Error(`Swap failed2: ${transactionErrorToUserReadableMessage(error, t)}`)
-            }
-          })
-      },
-    }
-  }, [
-    trade,
-    account,
-    chainId,
-    publicClient,
-    swapCalls,
-    t,
-    allowedSlippage,
-    recipientAddress,
-    recipient,
-    addTransaction,
-    sendTx,
-  ])
+            throw new Error(`Swap failed: ${transactionErrorToUserReadableMessage(error, t)}`)
+          }
+        })
+    },
+  }
 }
