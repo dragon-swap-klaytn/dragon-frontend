@@ -88,6 +88,7 @@ localCachedProactiveV2(
     ]),
   {
     interval: 1000 * 30, // 10 seconds
+    logPrefix: '/api/pools',
   },
 )
 

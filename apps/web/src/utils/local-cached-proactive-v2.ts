@@ -1,6 +1,6 @@
 export function localCachedProactiveV2<T = any>(
   fetcher: () => Promise<T>,
-  { interval = 1000 }: { interval?: number } = {}, // Add default value for the options object itself
+  { interval = 1000, logPrefix = '-' }: { interval?: number; logPrefix?: string } = {}, // Add default value for the options object itself
 ) {
   let data: T | null = null
   let lastError: any = null // To store background fetch errors
@@ -31,7 +31,7 @@ export function localCachedProactiveV2<T = any>(
       }
     } catch (err: any) {
       lastError = err
-      console.error('localCachedProactive: fetch error', err) // Log all fetch errors
+      console.error(`localCachedProactive:${logPrefix}:`, err) // Log all fetch errors
 
       if (!initialPromiseSettled) {
         rejectInitialPromise(err)

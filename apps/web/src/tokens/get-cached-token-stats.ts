@@ -123,6 +123,7 @@ const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   },
   {
     interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
+    logPrefix: 'getProactivelyCachedV2TokensData',
   },
 ).getData
 
@@ -243,6 +244,7 @@ const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   },
   {
     interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
+    logPrefix: 'getProactivelyCachedV3TokensData',
   },
 ).getData
 

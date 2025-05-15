@@ -149,7 +149,7 @@ const getProactivelyCachedV2Pools = localCachedProactiveV2(
       })
     }
   },
-  { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE },
+  { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE, logPrefix: 'getProactivelyCachedV2Pools' },
 ).getData
 
 const getV2PoolsDetailedData = async ({
@@ -269,7 +269,7 @@ const getProactivelyCachedV3Pools = localCachedProactiveV2(
       })
     }
   },
-  { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE },
+  { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE, logPrefix: 'getProactivelyCachedV3Pools' },
 ).getData
 
 const getV3PoolsDetailedData = async ({
