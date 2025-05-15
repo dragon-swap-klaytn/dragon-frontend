@@ -8,7 +8,7 @@ import { localCachedProactiveV2 } from 'utils/local-cached-proactive-v2'
 import { localCachedV2 } from 'utils/localCachedV2'
 import { requestWithRetry } from 'utils/requestWithRetry'
 
-const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true'
+const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
