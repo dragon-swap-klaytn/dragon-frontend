@@ -39,4 +39,5 @@ RUN pnpm build
 
 EXPOSE 3000
 
-ENTRYPOINT [ "pnpm", "start" ]
+CMD env
+# ENTRYPOINT [ "pnpm", "start" ]
