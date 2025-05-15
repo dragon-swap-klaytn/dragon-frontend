@@ -35,6 +35,9 @@ storybook-static
 .env.development
 .env.example
 .env.production
+**/.env
+**/.env*.local
+**/.env.*
 
 # debug
 *.log
