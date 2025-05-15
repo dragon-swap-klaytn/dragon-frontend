@@ -525,7 +525,7 @@ const getV3PoolsDetailedDataByIds = async ({
 }
 
 export const getPoolsDataByIds = async (poolIds: string[]) => {
-  const now = Date.now()
+  const now = Date.now() - 5 * 1000 // let the block number be a bit older than now
   const timestamps = [now - 7 * DAY, now - DAY, now]
   const blockNumbers = await getBlockNumbers(timestamps, { bucketSize: 10 })
 
