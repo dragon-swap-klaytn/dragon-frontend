@@ -18,6 +18,8 @@ export const injectedConnector = new InjectedConnector({
   },
 })
 
+console.log('build time walletConnectId', process.env.NEXT_PUBLIC_WALLET_CONNECT_ID)
+
 export const walletConnectConnector = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID
   ? new WalletConnectConnector({
       chains,
