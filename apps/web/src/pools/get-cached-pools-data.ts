@@ -42,8 +42,7 @@ const getV2PoolsAccData = async (blockNumber: number) => {
   }
 
   // fetch data
-  const poolsPromise = getV2Pools({ blockNumber, accOnly: true })
-  const pools = await requestWithRetry(poolsPromise, {
+  const pools = await requestWithRetry(() => getV2Pools({ blockNumber, accOnly: true }), {
     logPrefix: `getV2PoolsAccData(${blockNumber})`,
   })
 
@@ -89,8 +88,7 @@ const getV3PoolsAccData = async (blockNumber: number) => {
   }
 
   // fetch data
-  const poolsPromise = getV3Pools({ blockNumber, accOnly: true })
-  const pools = await requestWithRetry(poolsPromise, {
+  const pools = await requestWithRetry(() => getV3Pools({ blockNumber, accOnly: true }), {
     logPrefix: `getV3PoolsAccData(${blockNumber})`,
   })
 
@@ -127,13 +125,14 @@ export type PoolV2Detailed = PoolV2Base & {
 const getProactivelyCachedV2Pools = localCachedProactiveV2(
   async () => {
     try {
+      const now = Date.now()
       const { blockNumber, toBeCached } = await requestWithRetry(
-        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        () => getBucketedBlockNumber(now - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
         {
           logPrefix: 'getProactivelyCachedV2Pools',
         },
       )
-      const pools = await requestWithRetry(getV2Pools({ blockNumber }), {
+      const pools = await requestWithRetry(() => getV2Pools({ blockNumber }), {
         logPrefix: `getProactivelyCachedV2Pools`,
       })
 
@@ -150,7 +149,7 @@ const getProactivelyCachedV2Pools = localCachedProactiveV2(
 
       return pools
     } catch (err) {
-      return requestWithRetry(getV2Pools(), {
+      return requestWithRetry(() => getV2Pools(), {
         logPrefix: `getProactivelyCachedV2Pools(catch)`,
       })
     }
@@ -252,13 +251,14 @@ export type PoolV3Detailed = PoolV3Base & {
 const getProactivelyCachedV3Pools = localCachedProactiveV2(
   async () => {
     try {
+      const now = Date.now()
       const { blockNumber, toBeCached } = await requestWithRetry(
-        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        () => getBucketedBlockNumber(now - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
         {
           logPrefix: 'getProactivelyCachedV3Pools',
         },
       )
-      const pools = await requestWithRetry(getV3Pools({ blockNumber }), {
+      const pools = await requestWithRetry(() => getV3Pools({ blockNumber }), {
         logPrefix: `getProactivelyCachedV3Pools`,
       })
 
@@ -275,7 +275,7 @@ const getProactivelyCachedV3Pools = localCachedProactiveV2(
 
       return pools
     } catch (err) {
-      return requestWithRetry(getV3Pools(), {
+      return requestWithRetry(getV3Pools, {
         logPrefix: `getProactivelyCachedV3Pools(catch)`,
       })
     }
@@ -396,8 +396,7 @@ const getV2PoolsAccDataByIds = async ({ poolIds, blockNumber }: { poolIds: strin
   }
 
   // fetch data
-  const poolsPromise = getV2Pools({ blockNumber, poolIds, accOnly: true })
-  const pools = await requestWithRetry(poolsPromise, {
+  const pools = await requestWithRetry(() => getV2Pools({ blockNumber, poolIds, accOnly: true }), {
     logPrefix: `getV2PoolsAccDataByIds(${blockNumber})`,
   })
 
@@ -412,8 +411,7 @@ const getV3PoolsAccDataByIds = async ({ poolIds, blockNumber }: { poolIds: strin
   }
 
   // fetch data
-  const poolsPromise = getV3Pools({ blockNumber, poolIds, accOnly: true })
-  const pools = await requestWithRetry(poolsPromise, {
+  const pools = await requestWithRetry(() => getV3Pools({ blockNumber, poolIds, accOnly: true }), {
     logPrefix: `getV3PoolsAccDataByIds(${blockNumber})`,
   })
 
@@ -436,11 +434,10 @@ const getV2PoolsDetailedDataByIds = async ({
   }
 
   // fetch data
-  const poolsPromise = getV2Pools({ poolIds })
   const [_pools7D, _pools24H, _pools] = await Promise.allSettled([
     getV2PoolsAccDataByIds({ poolIds, blockNumber: blockNumber7D }),
     getV2PoolsAccDataByIds({ poolIds, blockNumber: blockNumber24H }),
-    requestWithRetry(poolsPromise, {
+    requestWithRetry(() => getV2Pools({ poolIds }), {
       logPrefix: `getV2PoolsDetailedDataByIds`,
     }),
   ])
@@ -490,11 +487,10 @@ const getV3PoolsDetailedDataByIds = async ({
   }
 
   // fetch data
-  const poolsPromise = getV3Pools({ poolIds })
   const [_pools7D, _pools24H, _pools] = await Promise.allSettled([
     getV3PoolsAccDataByIds({ poolIds, blockNumber: blockNumber7D }),
     getV3PoolsAccDataByIds({ poolIds, blockNumber: blockNumber24H }),
-    requestWithRetry(poolsPromise, {
+    requestWithRetry(() => getV3Pools({ poolIds }), {
       logPrefix: `getV3PoolsDetailedDataByIds`,
     }),
   ])

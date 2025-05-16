@@ -39,7 +39,7 @@ const getV2ProtocolData = async () => {
 
   const [_data48H, _data24H, _data] = await Promise.allSettled(
     blockNumbers.map((blockNumber) =>
-      requestWithRetry(getV2FactoryData({ blockNumber }), {
+      requestWithRetry(() => getV2FactoryData({ blockNumber }), {
         logPrefix: `getV2ProtocolData(${blockNumber})`,
       }),
     ),
@@ -99,7 +99,7 @@ const getV3ProtocolData = async () => {
 
   const [_data48H, _data24H, _data] = await Promise.allSettled(
     blockNumbers.map((blockNumber) =>
-      requestWithRetry(getV3FactoryData({ blockNumber }), {
+      requestWithRetry(() => getV3FactoryData({ blockNumber }), {
         logPrefix: `getV3ProtocolData(${blockNumber})`,
       }),
     ),

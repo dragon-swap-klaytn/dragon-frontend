@@ -1,5 +1,6 @@
 import { getBlockNumber } from 'lib/node-queries/get-block-number'
 import { getBlockTimestampMS } from 'lib/node-queries/get-block-timestamp-ms'
+import { BlockNotFoundError } from 'viem'
 
 function bigIntAbs(value: bigint) {
   return value < 0n ? -value : value
@@ -23,7 +24,13 @@ export const getBlockNumberOfTimestamp = async (
     baseTS = start.timestamp
   } else {
     baseBN = await getBlockNumber()
-    baseTS = await getBlockTimestampMS(baseBN)
+    baseTS = await getBlockTimestampMS(baseBN).catch((err) => {
+      if (err instanceof BlockNotFoundError) {
+        return Date.now()
+      }
+
+      throw err
+    })
   }
 
   // 2) If the target timestamp is *later* than the base timestamp,

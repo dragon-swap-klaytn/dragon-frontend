@@ -50,8 +50,7 @@ export const getV2TokensAccData = async (blockNumber: number) => {
   }
 
   // fetch data
-  const tokensPromise = getV2Tokens({ blockNumber, accOnly: true })
-  const tokens = await requestWithRetry(tokensPromise, {
+  const tokens = await requestWithRetry(() => getV2Tokens({ blockNumber, accOnly: true }), {
     logPrefix: `getV2TokensAccData(${blockNumber})`,
   })
 
@@ -79,8 +78,7 @@ export const getV3TokensAccData = async (blockNumber: number) => {
   }
 
   // fetch data
-  const tokensPromise = getV3Tokens({ blockNumber, accOnly: true })
-  const tokens = await requestWithRetry(tokensPromise, {
+  const tokens = await requestWithRetry(() => getV3Tokens({ blockNumber, accOnly: true }), {
     logPrefix: `getV3TokensAccData(${blockNumber})`,
   })
 
@@ -99,13 +97,14 @@ export const getV3TokensAccData = async (blockNumber: number) => {
 const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   async () => {
     try {
+      const now = Date.now()
       const { blockNumber, toBeCached } = await requestWithRetry(
-        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        () => getBucketedBlockNumber(now - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
         {
           logPrefix: 'getProactivelyCachedV2TokensData',
         },
       )
-      const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
+      const tokens = await requestWithRetry(() => getV2Tokens({ blockNumber }), {
         logPrefix: `getProactivelyCachedV2TokensData(${blockNumber})`,
       })
 
@@ -122,7 +121,7 @@ const getProactivelyCachedV2TokensData = localCachedProactiveV2(
 
       return tokens
     } catch (err) {
-      return requestWithRetry(getV2Tokens(), {
+      return requestWithRetry(getV2Tokens, {
         logPrefix: 'getProactivelyCachedV2TokensData(catch)',
       })
     }
@@ -225,13 +224,14 @@ export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
 const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   async () => {
     try {
+      const now = Date.now()
       const { blockNumber, toBeCached } = await requestWithRetry(
-        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        () => getBucketedBlockNumber(now - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
         {
           logPrefix: 'getProactivelyCachedV3TokensData',
         },
       )
-      const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
+      const tokens = await requestWithRetry(() => getV3Tokens({ blockNumber }), {
         logPrefix: `getProactivelyCachedV3TokensData(${blockNumber})`,
       })
 
@@ -248,7 +248,7 @@ const getProactivelyCachedV3TokensData = localCachedProactiveV2(
 
       return tokens
     } catch (err) {
-      return requestWithRetry(getV3Tokens(), {
+      return requestWithRetry(getV3Tokens, {
         logPrefix: 'getProactivelyCachedV3TokensData(catch)',
       })
     }
