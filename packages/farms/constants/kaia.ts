@@ -205,14 +205,14 @@ export const farmsV3 = defineFarmV3Configs([
     lpAddress: '0x938779A1989e7635fdac1E040631255C3555708e',
     token0: klaytnTokens.weth,
     token1: klaytnTokens.usdt,
-    feeAmount: FeeAmount.HIGHEST,
+    feeAmount: FeeAmount.MEDIUMLOW,
   },
   {
     pid: 29,
     lpAddress: '0x6f4E769D2dCCfAe8BCC1918d991aB1BC6B4a404C',
     token0: klaytnTokens.usdt_p,
     token1: klaytnTokens.usdt,
-    feeAmount: FeeAmount.HIGHEST,
+    feeAmount: FeeAmount.LOW,
   },
 ])
 
