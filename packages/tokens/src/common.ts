@@ -38,9 +38,9 @@ export const USDC = {
 export const USDT = {
   [ChainId.KLAYTN]: new ERC20Token(
     ChainId.KLAYTN,
-    '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2'.toLowerCase() as `0x${string}`,
+    '0xd077A400968890Eacc75cdc901F0356c943e4fDb'.toLowerCase() as `0x${string}`,
     6,
-    'USDT',
+    'USD₮',
     'Tether USD',
   ),
   [ChainId.KLAYTN_TESTNET]: new ERC20Token(

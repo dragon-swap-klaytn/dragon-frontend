@@ -5,6 +5,13 @@ import { CAKE, USDT } from './common'
 export const klaytnTokens = {
   weth: WETH9[ChainId.KLAYTN],
   usdt: USDT[ChainId.KLAYTN],
+  usdt_p: new ERC20Token(
+    ChainId.KLAYTN,
+    '0x5C13E303a62Fc5DEdf5B52D66873f2E59fEdADC2',
+    6,
+    'USDT',
+    'Tether USD (Portal)',
+  ),
   btcb: new ERC20Token(ChainId.KLAYTN, '0x15D9f3AB1982B0e5a415451259994Ff40369f584', 18, 'BTCB', 'BTCB Token'),
   eth: new ERC20Token(ChainId.KLAYTN, '0x98A8345bB9D3DDa9D808Ca1c9142a28F6b0430E1', 18, 'WETH', 'Wrapped Ether'),
   usdc: new ERC20Token(ChainId.KLAYTN, '0x608792Deb376CCE1c9FA4D0E6B7b44f507CfFa6A', 6, 'USDC', 'USD Coin'),
