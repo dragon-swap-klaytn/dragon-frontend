@@ -1,4 +1,4 @@
-import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
+import { getBucketedBlockNumber, getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Pools } from 'lib/graph-queries/get-v2-pools'
 import { getV3Pools } from 'lib/graph-queries/get-v3-pools'
 import { PoolV2AccData, PoolV2Base, PoolV3AccData, PoolV3Base } from 'lib/graph-queries/types'
@@ -10,7 +10,8 @@ import { requestWithRetry } from 'utils/requestWithRetry'
 
 const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
-const TIMESTAMP_GUTTER = 30 * 1000 // 30 seconds
+const PROACTIVE_BUCKET_SIZE = 30
+const PROACTIVE_INTERVAL = PROACTIVE_BUCKET_SIZE * 1000
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
@@ -126,32 +127,35 @@ export type PoolV2Detailed = PoolV2Base & {
 const getProactivelyCachedV2Pools = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
-        logPrefix: 'getProactivelyCachedV2Pools',
-      })
+      const { blockNumber, toBeCached } = await requestWithRetry(
+        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        {
+          logPrefix: 'getProactivelyCachedV2Pools',
+        },
+      )
       const pools = await requestWithRetry(getV2Pools({ blockNumber }), {
         logPrefix: `getProactivelyCachedV2Pools`,
       })
 
-      // cache data
-      const compressedV2Pools = compressV2PoolAccData(pools)
+      if (toBeCached) {
+        // cache data
+        const compressedV2Pools = compressV2PoolAccData(pools)
 
-      if (USE_MONGO_CACHE) {
-        await v2PoolsAccDataMongoCache.put(blockNumber, compressedV2Pools)
-      } else {
-        v2PoolsAccDataCache.put(blockNumber.toString(), compressedV2Pools)
+        if (USE_MONGO_CACHE) {
+          await v2PoolsAccDataMongoCache.put(blockNumber, compressedV2Pools)
+        } else {
+          v2PoolsAccDataCache.put(blockNumber.toString(), compressedV2Pools)
+        }
       }
 
       return pools
     } catch (err) {
-      console.warn('Error in getProactivelyCachedV2Pools:', err)
-
       return requestWithRetry(getV2Pools(), {
         logPrefix: `getProactivelyCachedV2Pools(catch)`,
       })
     }
   },
-  { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE, logPrefix: 'getProactivelyCachedV2Pools' },
+  { interval: PROACTIVE_INTERVAL, logPrefix: 'getProactivelyCachedV2Pools' },
 ).getData
 
 const getV2PoolsDetailedData = async ({
@@ -248,32 +252,35 @@ export type PoolV3Detailed = PoolV3Base & {
 const getProactivelyCachedV3Pools = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
-        logPrefix: 'getProactivelyCachedV3Pools',
-      })
+      const { blockNumber, toBeCached } = await requestWithRetry(
+        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        {
+          logPrefix: 'getProactivelyCachedV3Pools',
+        },
+      )
       const pools = await requestWithRetry(getV3Pools({ blockNumber }), {
         logPrefix: `getProactivelyCachedV3Pools`,
       })
 
-      // cache data
-      const compressedV3Pools = compressV3PoolAccData(pools)
+      if (toBeCached) {
+        // cache data
+        const compressedV3Pools = compressV3PoolAccData(pools)
 
-      if (USE_MONGO_CACHE) {
-        await v3PoolsAccDataMongoCache.put(blockNumber, compressedV3Pools)
-      } else {
-        v3PoolsAccDataCache.put(blockNumber.toString(), compressedV3Pools)
+        if (USE_MONGO_CACHE) {
+          await v3PoolsAccDataMongoCache.put(blockNumber, compressedV3Pools)
+        } else {
+          v3PoolsAccDataCache.put(blockNumber.toString(), compressedV3Pools)
+        }
       }
 
       return pools
     } catch (err) {
-      console.warn('Error in getProactivelyCachedV3Pools:', err)
-
       return requestWithRetry(getV3Pools(), {
         logPrefix: `getProactivelyCachedV3Pools(catch)`,
       })
     }
   },
-  { interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE, logPrefix: 'getProactivelyCachedV3Pools' },
+  { interval: PROACTIVE_INTERVAL, logPrefix: 'getProactivelyCachedV3Pools' },
 ).getData
 
 const getV3PoolsDetailedData = async ({

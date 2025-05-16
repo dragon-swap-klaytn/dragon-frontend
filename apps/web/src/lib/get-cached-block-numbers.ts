@@ -63,10 +63,33 @@ export async function getCachedBlockNumbers(timestamps: number[]): Promise<numbe
   return bucketedTimestamps.map((bucketKey) => bucketedMap[bucketKey] as number)
 }
 
-export async function getBlockNumbers(timestamps: number[], { bucketSize = 1 } = {}) {
-  // 1. Convert the original (ms) timestamps to their bucketed (sec) equivalents
-  const bucketedTimestamps = timestamps.map((timestamp) => bucketTimestamp(timestamp, { bucketSize }))
+export async function getBucketedBlockNumber(timestamp: number, { bucketSize = 1 } = {}) {
+  // 1. Convert the original (ms) timestamp to its bucketed (sec) equivalent
+  const bucketedTimestamp = bucketTimestamp(timestamp, { bucketSize })
 
-  // 2. Fetch block numbers for each bucketed timestamp
-  return Promise.all(bucketedTimestamps.map((bucketKey) => getBlockNumberOfTimestamp(bucketKey * 1000).then(Number)))
+  // 2. Check cache for the bucketed timestamp
+  const cachedBlockNumber = blockNumberCache.get(bucketedTimestamp.toString())
+
+  // If it's in the cache, return it
+  if (cachedBlockNumber != null) {
+    return {
+      timestamp: bucketedTimestamp,
+      blockNumber: cachedBlockNumber,
+    }
+  }
+
+  // Otherwise, fetch the block number and store it in the cache
+  const blockNumber = await getBlockNumberOfTimestamp(bucketedTimestamp * 1000).then(Number)
+
+  const toBeCached = bucketedTimestamp === bucketTimestamp(bucketedTimestamp * 1000)
+
+  if (toBeCached) {
+    blockNumberCache.put(bucketedTimestamp.toString(), blockNumber)
+  }
+
+  return {
+    timestamp: bucketedTimestamp,
+    blockNumber,
+    toBeCached,
+  }
 }

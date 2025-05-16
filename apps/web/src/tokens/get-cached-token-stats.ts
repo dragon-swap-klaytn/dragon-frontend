@@ -1,4 +1,4 @@
-import { getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
+import { getBucketedBlockNumber, getCachedBlockNumbers } from 'lib/get-cached-block-numbers'
 import { getV2Tokens } from 'lib/graph-queries/get-v2-tokens'
 import { getV3Tokens } from 'lib/graph-queries/get-v3-tokens'
 import { TokenAccData, TokenDetailed } from 'lib/graph-queries/types'
@@ -10,7 +10,8 @@ import { requestWithRetry } from 'utils/requestWithRetry'
 
 const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
-const TIMESTAMP_GUTTER = 30 * 1000 // 30 seconds
+const PROACTIVE_BUCKET_SIZE = 30
+const PROACTIVE_INTERVAL = PROACTIVE_BUCKET_SIZE * 1000
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
@@ -98,33 +99,36 @@ export const getV3TokensAccData = async (blockNumber: number) => {
 const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
-        logPrefix: 'getProactivelyCachedV2TokensData',
-      })
+      const { blockNumber, toBeCached } = await requestWithRetry(
+        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        {
+          logPrefix: 'getProactivelyCachedV2TokensData',
+        },
+      )
       const tokens = await requestWithRetry(getV2Tokens({ blockNumber }), {
         logPrefix: `getProactivelyCachedV2TokensData(${blockNumber})`,
       })
 
-      // cache data
-      const compressedTokens = compressTokenAccData(tokens)
+      if (toBeCached) {
+        // cache data
+        const compressedTokens = compressTokenAccData(tokens)
 
-      if (USE_MONGO_CACHE) {
-        await v2TokensAccDataMongoCache.put(blockNumber, compressedTokens)
-      } else {
-        v2TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+        if (USE_MONGO_CACHE) {
+          await v2TokensAccDataMongoCache.put(blockNumber, compressedTokens)
+        } else {
+          v2TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+        }
       }
 
       return tokens
     } catch (err) {
-      console.warn('Error in getProactivelyCachedV2TokensData:', err)
-
       return requestWithRetry(getV2Tokens(), {
         logPrefix: 'getProactivelyCachedV2TokensData(catch)',
       })
     }
   },
   {
-    interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
+    interval: PROACTIVE_INTERVAL,
     logPrefix: 'getProactivelyCachedV2TokensData',
   },
 ).getData
@@ -221,33 +225,36 @@ export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
 const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   async () => {
     try {
-      const [blockNumber] = await requestWithRetry(getCachedBlockNumbers([Date.now() - TIMESTAMP_GUTTER]), {
-        logPrefix: 'getProactivelyCachedV3TokensData',
-      })
+      const { blockNumber, toBeCached } = await requestWithRetry(
+        getBucketedBlockNumber(Date.now() - PROACTIVE_INTERVAL, { bucketSize: PROACTIVE_BUCKET_SIZE }),
+        {
+          logPrefix: 'getProactivelyCachedV3TokensData',
+        },
+      )
       const tokens = await requestWithRetry(getV3Tokens({ blockNumber }), {
         logPrefix: `getProactivelyCachedV3TokensData(${blockNumber})`,
       })
 
-      // cache data
-      const compressedTokens = compressTokenAccData(tokens)
+      if (toBeCached) {
+        // cache data
+        const compressedTokens = compressTokenAccData(tokens)
 
-      if (USE_MONGO_CACHE) {
-        await v3TokensAccDataMongoCache.put(blockNumber, compressedTokens)
-      } else {
-        v3TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+        if (USE_MONGO_CACHE) {
+          await v3TokensAccDataMongoCache.put(blockNumber, compressedTokens)
+        } else {
+          v3TokensAccDataCache.put(blockNumber.toString(), compressedTokens)
+        }
       }
 
       return tokens
     } catch (err) {
-      console.warn('Error in getProactivelyCachedV3TokensData:', err)
-
       return requestWithRetry(getV3Tokens(), {
         logPrefix: 'getProactivelyCachedV3TokensData(catch)',
       })
     }
   },
   {
-    interval: USE_MONGO_CACHE ? 3 * MINUTE : 5 * MINUTE,
+    interval: PROACTIVE_INTERVAL,
     logPrefix: 'getProactivelyCachedV3TokensData',
   },
 ).getData
