@@ -366,7 +366,8 @@ function PoolPositionsV3({
       token0={pool.token0}
       token1={pool.token1}
       volume24H={pool.volumeUSD['24H']}
-      rewardApr={pool.rewardApr || 0}
+      cakePerSecond={pool.cakePerSecond}
+      lmPoolLiquidity={pool.lmPoolLiquidity}
       poolId={pool.id}
       pool={v3Pool}
       position={position}
