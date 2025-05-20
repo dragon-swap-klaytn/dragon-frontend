@@ -588,6 +588,7 @@ export default function PoolPage() {
                       defaultDepositUsd={fiatValueOfLiquidity?.toFixed(2)}
                       tokenAmount0={inRange ? position?.amount0 : undefined}
                       tokenAmount1={inRange ? position?.amount1 : undefined}
+                      excludePositionLiquidity
                     />
                   </div>
 

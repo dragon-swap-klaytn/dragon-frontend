@@ -64,7 +64,8 @@ export default function PositionCardList({
               poolId={poolData.id}
               pool={v3Pool}
               volume24H={poolData.volumeUSD['24H']}
-              rewardApr={(poolData as PoolV3Parsed).rewardApr || 0}
+              cakePerSecond={(poolData as PoolV3Parsed).cakePerSecond}
+              lmPoolLiquidity={(poolData as PoolV3Parsed).lmPoolLiquidity}
               position={position}
               mutatePositions={mutatePositions}
               priceMap={priceMap}
@@ -105,7 +106,8 @@ export function V3PositionCard({
   position: _position,
   mutatePositions,
   volume24H,
-  rewardApr,
+  lmPoolLiquidity,
+  cakePerSecond,
   priceMap,
   bgClassName = 'bg-neutral-dark hover:bg-neutral-dark-hovered',
 }: {
@@ -116,7 +118,8 @@ export function V3PositionCard({
   position: PositionV3
   mutatePositions?: KeyedMutator<Portfolio>
   volume24H: number | null
-  rewardApr: number
+  lmPoolLiquidity?: string
+  cakePerSecond?: number
   priceMap: Record<string, number>
   bgClassName?: string
 }) {
@@ -126,8 +129,6 @@ export function V3PositionCard({
   } = useTranslation()
 
   const [inverted, setInverted] = useState(false)
-  const isBoosted = rewardApr > 0 && !_position.isOutOfBounds && _position.isStaked
-
   // Used to resolve the issue where stake status is not immediately updated due to delayed node synchronization
   const { address: account } = useAccount()
   const { tokenIds: stakedTokenIds, refetchAll } = useV3TokenIdsByAccount(MASTERCHEFV3_ADDRESS, account)
@@ -209,6 +210,33 @@ export function V3PositionCard({
     },
   })
 
+  const { boostApr, boostApy: _boostApy } = useMemo(() => {
+    if (!lmPoolLiquidity || !cakePerSecond) {
+      return {
+        boostApr: 0,
+        boostApy: 0,
+      }
+    }
+
+    const cakePrice = priceMap.KAIA ?? 0
+    const positionLiquidityUSD = token0USD.deposited + token1USD.deposited
+
+    return {
+      boostApr: calculateAPR({
+        interest: (cakePerSecond * cakePrice * Number(position.liquidity)) / +lmPoolLiquidity,
+        principal: positionLiquidityUSD,
+        duration: 1_000,
+      }),
+      boostApy: calculateAPY({
+        interest: (cakePerSecond * cakePrice * Number(position.liquidity)) / +lmPoolLiquidity,
+        principal: positionLiquidityUSD,
+        duration: 1_000,
+      }),
+    }
+  }, [lmPoolLiquidity, cakePerSecond, priceMap, position.liquidity, token0USD.deposited, token1USD.deposited])
+
+  const isBoosted = boostApr > 0 && !_position.isOutOfBounds && _position.isStaked
+
   return (
     <NextLink
       className={clsx('p-5 rounded-xl space-y-5 w-full', bgClassName)}
@@ -229,7 +257,7 @@ export function V3PositionCard({
           <TagV2 className="min-w-8 whitespace-nowrap" color="orange">
             {t('Boost 🔥')}
           </TagV2>
-        ) : rewardApr > 0 && !_position.isStaked ? (
+        ) : boostApr > 0 && !_position.isStaked ? (
           <ButtonV2
             variant="primary"
             scale={isMobile ? 'sm' : 'md'}
@@ -286,7 +314,7 @@ export function V3PositionCard({
               'text-brand': isBoosted,
             })}
           >
-            {(lpApr + (isBoosted ? rewardApr : 0)).toLocaleString(undefined, {
+            {(lpApr + (isBoosted ? boostApr : 0)).toLocaleString(undefined, {
               style: 'percent',
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,

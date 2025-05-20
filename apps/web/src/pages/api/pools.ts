@@ -21,6 +21,8 @@ export type PoolV2Parsed = Simplify<ReturnType<typeof parseV2Pool>>
 export type PoolV3Parsed = Simplify<
   ReturnType<typeof parseV3Pool> & {
     rewardApr: number
+    lmPoolLiquidity?: string
+    cakePerSecond?: number
   }
 >
 export type PoolParsed = PoolV2Parsed | PoolV3Parsed
@@ -120,9 +122,7 @@ const handler: NextApiHandler = async (req, res) => {
       commonPrice,
     })
 
-    const lpAddressToPoolWeights = Object.fromEntries(
-      farmsWithPrice.map((farm) => [lowered(farm.lpAddress), +farm.poolWeight]),
-    )
+    const lpAddressToFarm = Object.fromEntries(farmsWithPrice.map((farm) => [lowered(farm.lpAddress), farm]))
 
     if (onlyPoolIds.length > 0) {
       const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => lowered(id))
@@ -145,15 +145,21 @@ const handler: NextApiHandler = async (req, res) => {
 
     const v2PoolsParsed = v2Pools.map(parseV2Pool)
     const v3PoolsParsed = v3Pools.map((pool) => {
+      if (!lpAddressToFarm[pool.id]) {
+        return parseV3Pool(pool)
+      }
+
       const rewardApr = calculateAPR({
-        interest: lpAddressToPoolWeights[pool.id] * +cakePerSecond * prices.KAIA,
-        principal: pool.tvlUSD.current,
+        interest: +lpAddressToFarm[pool.id].poolWeight * +cakePerSecond * prices.KAIA,
+        principal: pool.tvlUSD.current * (+lpAddressToFarm[pool.id].lmPoolLiquidity / +pool.liquidity),
         duration: 1_000,
       })
 
       return {
         ...parseV3Pool(pool),
         rewardApr: Number.isFinite(rewardApr) ? rewardApr : 0,
+        lmPoolLiquidity: lpAddressToFarm[pool.id].lmPoolLiquidity,
+        cakePerSecond: +lpAddressToFarm[pool.id].poolWeight * +cakePerSecond,
       }
     })
 
@@ -185,7 +191,7 @@ const handler: NextApiHandler = async (req, res) => {
     if (boostedOnly) {
       pools = pools.filter(
         (pool) =>
-          lpAddressToPoolWeights[pool.id] > 0 &&
+          +lpAddressToFarm[pool.id].poolWeight > 0 &&
           (pool as PoolV3Parsed)?.rewardApr &&
           (pool as PoolV3Parsed).rewardApr > 0,
       )

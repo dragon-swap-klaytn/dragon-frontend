@@ -1,6 +1,6 @@
-import BN from 'bignumber.js'
-import { parseNumberToFraction, formatFraction } from '@pancakeswap/utils/formatFractions'
 import { BigintIsh, ZERO } from '@pancakeswap/sdk'
+import { formatFraction, parseNumberToFraction } from '@pancakeswap/utils/formatFractions'
+import BN from 'bignumber.js'
 
 type BigNumberish = BN | number | string
 
@@ -12,6 +12,8 @@ interface FarmAprParams {
   cakePerSecond: BigNumberish
 
   precision?: number
+
+  excludePositionLiquidity?: boolean
 }
 
 const SECONDS_FOR_YEAR = 365 * 60 * 60 * 24
@@ -59,6 +61,7 @@ export function getPositionFarmApr({
   liquidity,
   totalStakedLiquidity,
   precision = 6,
+  excludePositionLiquidity = false,
 }: PositionFarmAprParams) {
   const aprFactor = getPositionFarmAprFactor({
     poolWeight,
@@ -66,6 +69,7 @@ export function getPositionFarmApr({
     cakePerSecond,
     liquidity,
     totalStakedLiquidity,
+    excludePositionLiquidity,
   })
   if (!isValid(aprFactor) || !isValid(positionTvlUsd)) {
     return '0'
@@ -82,12 +86,13 @@ export function getPositionFarmAprFactor({
   cakePerSecond,
   liquidity,
   totalStakedLiquidity,
+  excludePositionLiquidity = false,
 }: Omit<PositionFarmAprParams, 'positionTvlUsd' | 'precision'>) {
   if (
     !isValid(poolWeight) ||
     !isValid(cakePriceUsd) ||
     !isValid(cakePerSecond) ||
-    BigInt(liquidity) === ZERO ||
+    (!excludePositionLiquidity && BigInt(liquidity) === ZERO) ||
     BigInt(totalStakedLiquidity) === ZERO
   ) {
     return new BN(0)
@@ -97,7 +102,7 @@ export function getPositionFarmAprFactor({
   const aprFactor = new BN(poolWeight)
     .times(cakeRewardPerYear)
     .times(cakePriceUsd)
-    .div((BigInt(liquidity) + BigInt(totalStakedLiquidity)).toString())
+    .div(((excludePositionLiquidity ? ZERO : BigInt(liquidity)) + BigInt(totalStakedLiquidity)).toString())
     .times(100)
 
   return aprFactor

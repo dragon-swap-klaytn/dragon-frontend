@@ -41,6 +41,7 @@ interface Props {
   tokenAmount0?: CurrencyAmount<Token>
   tokenAmount1?: CurrencyAmount<Token>
   className?: string
+  excludePositionLiquidity?: boolean
 }
 
 export function AprCalculator({
@@ -55,6 +56,7 @@ export function AprCalculator({
   tokenAmount0,
   tokenAmount1,
   className,
+  excludePositionLiquidity = false,
 }: Props) {
   const { t } = useTranslation()
   const [isOpen, setOpen] = useState(false)
@@ -237,6 +239,7 @@ export function AprCalculator({
         liquidity: positionLiquidity,
         cakePerSecond,
         totalStakedLiquidity: lmPoolLiquidity,
+        excludePositionLiquidity,
       }),
       positionFarmAprFactor: getPositionFarmAprFactor({
         poolWeight,
@@ -244,9 +247,10 @@ export function AprCalculator({
         liquidity: positionLiquidity,
         cakePerSecond,
         totalStakedLiquidity: lmPoolLiquidity,
+        excludePositionLiquidity,
       }),
     }
-  }, [farm, cakePrice, positionLiquidity, amount0, amount1, inRange])
+  }, [farm, cakePrice, positionLiquidity, amount0, amount1, inRange, excludePositionLiquidity])
 
   // NOTE: Assume no liquidity when opening modal
   const { onFieldAInput, onBothRangeInput, onSetFullRange } = useV3MintActionHandlers(false)
