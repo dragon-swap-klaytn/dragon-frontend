@@ -29,7 +29,9 @@ export const getV3FactoryData = async ({
     variables.blockNumber = blockNumber
   }
 
-  const { factories } = await request(subgraphUrls.v3Exchange, document, variables)
+  const { factories } = await request(subgraphUrls.v3Exchange, document, variables, {
+    'DS-User-Agent': 'dgswap-frontend',
+  })
 
   const item = factories[0]
 

@@ -46,7 +46,9 @@ export const getV3Tokens = async <AccOnly extends boolean = false>({
   }
 
   // Fetch the tokens from the subgraph.
-  const { tokens } = await request(subgraphUrls.v3Exchange, document, variables)
+  const { tokens } = await request(subgraphUrls.v3Exchange, document, variables, {
+    'DS-User-Agent': 'dgswap-frontend',
+  })
 
   // Recursively fetch more tokens if the API returned exactly `BATCH_SIZE` items.
   if (tokens.length === BATCH_SIZE) {

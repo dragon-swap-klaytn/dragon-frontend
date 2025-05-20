@@ -14,7 +14,14 @@ export const getV2PoolDayData = async (poolAddress: string, { length = 30 } = {}
     }
   `
 
-  const { pairDayDatas } = await request(subgraphUrls.v2Exchange, document, { first: length, address: poolAddress })
+  const { pairDayDatas } = await request(
+    subgraphUrls.v2Exchange,
+    document,
+    { first: length, address: poolAddress },
+    {
+      'DS-User-Agent': 'dgswap-frontend',
+    },
+  )
 
   return pairDayDatas
     .map(({ date, dailyVolumeUSD, reserveUSD, dailyTxns }) => ({

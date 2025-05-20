@@ -86,7 +86,14 @@ export const getV3LatestTransactions = async ({ length = 100 } = {}) => {
     }
   `
 
-  const { transactions } = await request(subgraphUrls.v3Exchange, document, { first: length })
+  const { transactions } = await request(
+    subgraphUrls.v3Exchange,
+    document,
+    { first: length },
+    {
+      'DS-User-Agent': 'dgswap-frontend',
+    },
+  )
 
   const mints = transactions.flatMap((t) =>
     t.mints.map((m) => ({

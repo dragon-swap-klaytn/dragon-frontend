@@ -14,7 +14,14 @@ export const getV2PancakeDayData = async ({ length = 30 } = {}): Promise<Pancake
     }
   `
 
-  const { pancakeDayDatas } = await request(subgraphUrls.v2Exchange, document, { first: length })
+  const { pancakeDayDatas } = await request(
+    subgraphUrls.v2Exchange,
+    document,
+    { first: length },
+    {
+      'DS-User-Agent': 'dgswap-frontend',
+    },
+  )
 
   return pancakeDayDatas
     .map(({ date, dailyVolumeUSD, totalLiquidityUSD, totalTransactions }) => ({

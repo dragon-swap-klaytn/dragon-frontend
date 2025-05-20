@@ -15,7 +15,14 @@ export const getV2TokenDayData = async (tokenAddress: string, { length = 30 } = 
     }
   `
 
-  const { tokenDayDatas } = await request(subgraphUrls.v2Exchange, document, { first: length, address: tokenAddress })
+  const { tokenDayDatas } = await request(
+    subgraphUrls.v2Exchange,
+    document,
+    { first: length, address: tokenAddress },
+    {
+      'DS-User-Agent': 'dgswap-frontend',
+    },
+  )
 
   return tokenDayDatas
     .map(({ date, dailyVolumeUSD, totalLiquidityUSD, dailyTxns, priceUSD }) => ({

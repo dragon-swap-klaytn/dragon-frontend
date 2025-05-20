@@ -64,7 +64,9 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
   }
 
   // Fetch the pairs from the subgraph.
-  const { pairs } = await request(subgraphUrls.v2Exchange, document, variables)
+  const { pairs } = await request(subgraphUrls.v2Exchange, document, variables, {
+    'DS-User-Agent': 'dgswap-frontend',
+  })
 
   // Recursively fetch more pairs if the API returned exactly `BATCH_SIZE` items.
   if (pairs.length === BATCH_SIZE) {

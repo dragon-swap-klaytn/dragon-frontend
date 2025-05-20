@@ -27,7 +27,9 @@ export const getV2FactoryData = async ({
     variables.blockNumber = blockNumber
   }
 
-  const { pancakeFactories } = await request(subgraphUrls.v2Exchange, document, variables)
+  const { pancakeFactories } = await request(subgraphUrls.v2Exchange, document, variables, {
+    'DS-User-Agent': 'dgswap-frontend',
+  })
 
   const item = pancakeFactories[0]
 

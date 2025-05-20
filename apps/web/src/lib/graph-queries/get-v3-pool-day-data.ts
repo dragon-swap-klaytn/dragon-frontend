@@ -16,7 +16,14 @@ export const getV3PoolDayData = async (poolAddress: string, { length = 30 } = {}
     }
   `
 
-  const { poolDayDatas } = await request(subgraphUrls.v3Exchange, document, { first: length, address: poolAddress })
+  const { poolDayDatas } = await request(
+    subgraphUrls.v3Exchange,
+    document,
+    { first: length, address: poolAddress },
+    {
+      'DS-User-Agent': 'dgswap-frontend',
+    },
+  )
 
   return poolDayDatas
     .map(({ date, volumeUSD, tvlUSD, txCount, feesUSD, protocolFeesUSD }) => ({

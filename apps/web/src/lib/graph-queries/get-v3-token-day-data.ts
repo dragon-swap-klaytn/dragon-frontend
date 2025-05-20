@@ -19,7 +19,14 @@ export const getV3TokenDayData = async (poolAddress: string, { length = 30 } = {
     }
   `
 
-  const { tokenDayDatas } = await request(subgraphUrls.v3Exchange, document, { first: length, address: poolAddress })
+  const { tokenDayDatas } = await request(
+    subgraphUrls.v3Exchange,
+    document,
+    { first: length, address: poolAddress },
+    {
+      'DS-User-Agent': 'dgswap-frontend',
+    },
+  )
 
   return tokenDayDatas
     .map(({ date, volumeUSD, totalValueLockedUSD, feesUSD, protocolFeesUSD, open, high, low, close }) => ({
