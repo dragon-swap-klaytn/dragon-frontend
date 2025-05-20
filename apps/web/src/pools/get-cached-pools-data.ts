@@ -10,7 +10,7 @@ import { requestWithRetry } from 'utils/requestWithRetry'
 
 const USE_MONGO_CACHE = process.env.USE_MONGO_CACHE === 'true' && !!process.env.MONGODB
 
-const PROACTIVE_BUCKET_SIZE = 30
+const PROACTIVE_BUCKET_SIZE = 2 * 60
 const PROACTIVE_INTERVAL = PROACTIVE_BUCKET_SIZE * 1000
 
 const MINUTE = 60_000
