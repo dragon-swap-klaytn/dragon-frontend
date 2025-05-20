@@ -19,7 +19,7 @@ export const getV2PoolDayData = async (poolAddress: string, { length = 30 } = {}
     document,
     { first: length, address: poolAddress },
     {
-      'DS-User-Agent': 'dgswap-frontend',
+      'X-DS-User-Agent': 'dgswap-frontend',
     },
   )
 

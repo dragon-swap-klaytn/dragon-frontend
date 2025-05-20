@@ -24,7 +24,7 @@ export const getV3TokenDayData = async (poolAddress: string, { length = 30 } = {
     document,
     { first: length, address: poolAddress },
     {
-      'DS-User-Agent': 'dgswap-frontend',
+      'X-DS-User-Agent': 'dgswap-frontend',
     },
   )
 

@@ -21,7 +21,7 @@ export const getV3PancakeDayData = async ({ length = 30 } = {}): Promise<Pancake
     document,
     { first: length },
     {
-      'DS-User-Agent': 'dgswap-frontend',
+      'X-DS-User-Agent': 'dgswap-frontend',
     },
   )
 

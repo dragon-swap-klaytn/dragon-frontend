@@ -91,7 +91,7 @@ export const getV3LatestTransactions = async ({ length = 100 } = {}) => {
     document,
     { first: length },
     {
-      'DS-User-Agent': 'dgswap-frontend',
+      'X-DS-User-Agent': 'dgswap-frontend',
     },
   )
 

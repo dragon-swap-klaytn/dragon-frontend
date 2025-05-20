@@ -74,7 +74,7 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
   }
 
   const { pools } = await request(subgraphUrls.v3Exchange, document, variables, {
-    'DS-User-Agent': 'dgswap-frontend',
+    'X-DS-User-Agent': 'dgswap-frontend',
   })
 
   // Recursively fetch more pools if the API returned exactly `BATCH_SIZE` items.

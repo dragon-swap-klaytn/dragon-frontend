@@ -20,7 +20,7 @@ export const getV2TokenDayData = async (tokenAddress: string, { length = 30 } = 
     document,
     { first: length, address: tokenAddress },
     {
-      'DS-User-Agent': 'dgswap-frontend',
+      'X-DS-User-Agent': 'dgswap-frontend',
     },
   )
 
