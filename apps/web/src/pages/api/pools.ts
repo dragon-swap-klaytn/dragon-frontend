@@ -191,7 +191,7 @@ const handler: NextApiHandler = async (req, res) => {
     if (boostedOnly) {
       pools = pools.filter(
         (pool) =>
-          +lpAddressToFarm[pool.id].poolWeight > 0 &&
+          +lpAddressToFarm[pool.id]?.poolWeight > 0 &&
           (pool as PoolV3Parsed)?.rewardApr &&
           (pool as PoolV3Parsed).rewardApr > 0,
       )
