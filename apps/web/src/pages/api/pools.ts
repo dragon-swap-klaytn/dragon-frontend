@@ -89,7 +89,7 @@ localCachedProactiveV2(
       '0x6f4e769d2dccfae8bcc1918d991ab1bc6b4a404c', // USDT/USD₮
     ]),
   {
-    interval: 1000 * 30, // 10 seconds
+    interval: 1000 * 60,
     logPrefix: '/api/pools',
   },
 )

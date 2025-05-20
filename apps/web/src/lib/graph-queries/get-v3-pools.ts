@@ -63,7 +63,9 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
     `
 
   // Define query variables safely
-  const variables: Record<string, any> = { first: BATCH_SIZE, skip }
+  const variables: Record<string, any> = poolIds?.length
+    ? { first: poolIds.length, skip: 0 }
+    : { first: BATCH_SIZE, skip }
   if (blockNumber !== undefined) {
     variables.blockNumber = blockNumber
   }
@@ -76,7 +78,7 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
   })
 
   // Recursively fetch more pools if the API returned exactly `BATCH_SIZE` items.
-  if (pools.length === BATCH_SIZE) {
+  if (!poolIds && pools.length === BATCH_SIZE) {
     const nextPools = await getV3Pools({ blockNumber, accOnly, skip: skip + BATCH_SIZE })
     return [...pools, ...nextPools] // Merge current batch with next batch.
   }

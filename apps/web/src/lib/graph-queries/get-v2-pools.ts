@@ -55,7 +55,9 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
   `
 
   // Define query variables safely
-  const variables: Record<string, any> = { first: BATCH_SIZE, skip }
+  const variables: Record<string, any> = poolIds?.length
+    ? { first: poolIds.length, skip: 0 }
+    : { first: BATCH_SIZE, skip }
   if (blockNumber !== undefined) {
     variables.blockNumber = blockNumber
   }
@@ -69,7 +71,7 @@ export const getV2Pools = async <AccOnly extends boolean = false>({
   })
 
   // Recursively fetch more pairs if the API returned exactly `BATCH_SIZE` items.
-  if (pairs.length === BATCH_SIZE) {
+  if (!poolIds && pairs.length === BATCH_SIZE) {
     const nextPools = await getV2Pools({ blockNumber, accOnly, skip: skip + BATCH_SIZE })
     return [...pairs, ...nextPools] // Merge current batch with next batch.
   }
