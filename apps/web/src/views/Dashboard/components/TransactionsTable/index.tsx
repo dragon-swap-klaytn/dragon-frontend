@@ -67,7 +67,7 @@ const DataRow = ({ transaction, isLastIndex }: { transaction: TransactionEventWi
       </td>
 
       <td className="text-on-surface px-4 py-6 text-left hidden md:table-cell">
-        {dayjs(transaction.timestamp).format('YYYY-MM-DD hh:mm:ss')}
+        {dayjs(transaction.timestamp).format('YYYY-MM-DD HH:mm:ss')}
       </td>
     </tr>
   )
