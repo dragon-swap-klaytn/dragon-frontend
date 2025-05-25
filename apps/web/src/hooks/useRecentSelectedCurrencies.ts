@@ -1,4 +1,5 @@
 import { Currency, Token } from '@pancakeswap/swap-sdk-core'
+import { TETHER_TOKEN } from 'const'
 import { DEFAULT_LOCAL_STORAGE_DATA, LOCAL_STORAGE_KEYS } from 'defines/local-storage-keys'
 
 import useLocalStorage from 'hooks/useLocalStorage'
@@ -19,7 +20,7 @@ export default function useRecentSelectedCurrencies() {
 
   const setRecentSelectedCurrency = useCallback(
     (currency: Token) => {
-      if (currency.isNative) return
+      if (currency.isNative || currency.equals(TETHER_TOKEN)) return
 
       const newRecent =
         recentSelectedCurrencies?.filter(
