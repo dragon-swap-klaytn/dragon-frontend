@@ -186,6 +186,10 @@ export function useTokens(searchKey?: string) {
         })
       }
 
+      if (filteredTokenMap.size === 0 && data) {
+        return [new Token(chainId, data.address, data.decimals, data.symbol ?? 'UNKNOWN', data.name ?? 'Unknown Token')]
+      }
+
       return Array.from(filteredTokenMap.values()).map(
         (t) => new Token(chainId, t.address, t.decimals, t.symbol ?? 'UNKNOWN', t.name ?? 'Unknown Token'),
       )
