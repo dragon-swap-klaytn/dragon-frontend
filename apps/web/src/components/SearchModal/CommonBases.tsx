@@ -8,6 +8,8 @@ import { TETHER_TOKEN } from 'const'
 import useRecentSelectedCurrencies from 'hooks/useRecentSelectedCurrencies'
 import { CommonBasesType } from './types'
 
+export const PINNED_CURRENCIES = [TETHER_TOKEN]
+
 export default function CommonBases({
   onSelect,
   selectedCurrency,
@@ -40,12 +42,15 @@ export default function CommonBases({
           symbol={native.symbol}
         />
 
-        <RecentTokenButton
-          onClick={() => onSelect(TETHER_TOKEN)}
-          currency={TETHER_TOKEN}
-          selected={selectedCurrency?.equals(TETHER_TOKEN) || false}
-          symbol={TETHER_TOKEN.symbol}
-        />
+        {PINNED_CURRENCIES.map((currency) => (
+          <RecentTokenButton
+            key={`pinnedCurrency:${currency.address}`}
+            onClick={() => onSelect(currency)}
+            currency={currency}
+            selected={selectedCurrency?.wrapped?.address.toLocaleLowerCase() === currency.address.toLowerCase()}
+            symbol={currency.symbol}
+          />
+        ))}
 
         {recentSelectedCurrencies.map((currency) => {
           const address = currency?.address
