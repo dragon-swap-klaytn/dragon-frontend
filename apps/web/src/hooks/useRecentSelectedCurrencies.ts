@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 
 export default function useRecentSelectedCurrencies() {
   const [recentSelectedCurrencies, setRecentSelectedCurrencies] = useLocalStorage<Currency[]>(
-    LOCAL_STORAGE_KEYS.recentSelectedCurrencies,
+    LOCAL_STORAGE_KEYS.recentSelectedCurrenciesV1,
     DEFAULT_LOCAL_STORAGE_DATA.recentSelectedCurrencies,
   )
 

@@ -2,6 +2,7 @@ import { Currency } from '@pancakeswap/swap-sdk-core'
 
 export const LOCAL_STORAGE_KEYS = {
   recentSelectedCurrencies: 'recent-selected-currencies',
+  recentSelectedCurrenciesV1: 'recent-selected-currencies-v1',
   slippageTolerance: 'slippage-tolerance',
   txTtl: 'tx-ttl',
   expertMode: 'expert-mode',
