@@ -384,6 +384,13 @@ export const DEFAULT_TOKEN_LIST = [
     symbol: TETHER_SYMBOL,
     decimals: TETHER_DECIMALS,
   },
+  {
+    chainId: ChainId.KLAYTN,
+    address: '0x8755D2e532b1559454689Bf0E8964Bd78b187Ff6'.toLowerCase(),
+    name: 'Elderglade',
+    symbol: 'ELDE',
+    decimals: 18,
+  },
 ]
 
 export const MASTERCHEFV3_ADDRESS = '0x6AC953CAD04b0Ce38a454f17D1d92620e456c9C0' as Address
