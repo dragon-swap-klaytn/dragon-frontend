@@ -216,7 +216,7 @@ export const farmsV3 = defineFarmV3Configs([
   },
   {
     pid: 30,
-    lpAddress: '0x6f4E769D2dCCfAe8BCC1918d991aB1BC6B4a404C',
+    lpAddress: '0x4B3f9A5a16aA5e8AeBdb79C8B18328379214D9E3',
     token0: klaytnTokens.krwo,
     token1: klaytnTokens.usdt,
     feeAmount: FeeAmount.MEDIUM,
