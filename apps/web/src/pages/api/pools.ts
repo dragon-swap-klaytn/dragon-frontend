@@ -3,6 +3,7 @@ import { createFarmFetcherV3 } from '@pancakeswap/farms'
 import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import { TOKEN_MAPPER } from 'const'
+import { FORCE_WHITELISTED_V3_POOLS } from 'lib/graph-queries/const'
 import { getCachedTokenPricesFromSwapscanner } from 'lib/ss'
 import { NextApiHandler } from 'next'
 
@@ -146,7 +147,7 @@ const handler: NextApiHandler = async (req, res) => {
     const v2PoolsParsed = v2Pools.map(parseV2Pool)
     const v3PoolsParsed = v3Pools.map((pool) => {
       if (!lpAddressToFarm[pool.id]) {
-        return parseV3Pool(pool)
+        return parseV3Pool(pool, { useVolumeOverFee: FORCE_WHITELISTED_V3_POOLS.includes(pool.id) })
       }
 
       const rewardApr = calculateAPR({
@@ -156,7 +157,7 @@ const handler: NextApiHandler = async (req, res) => {
       })
 
       return {
-        ...parseV3Pool(pool),
+        ...parseV3Pool(pool, { useVolumeOverFee: FORCE_WHITELISTED_V3_POOLS.includes(pool.id) }),
         rewardApr: Number.isFinite(rewardApr) ? rewardApr : 0,
         lmPoolLiquidity: lpAddressToFarm[pool.id].lmPoolLiquidity,
         cakePerSecond: +lpAddressToFarm[pool.id].poolWeight * +cakePerSecond,

@@ -1,9 +1,27 @@
 import { gql, request } from 'graphql-request'
-import { BATCH_SIZE, subgraphUrls } from 'lib/graph-queries/const'
+import { BATCH_SIZE, FORCE_WHITELISTED_V3_POOLS, subgraphUrls } from 'lib/graph-queries/const'
 import { PoolV3AccData, PoolV3Raw } from 'lib/graph-queries/types'
 import { overrideToken } from 'lib/graph-queries/utils'
 
 const FLOAT64_Q96 = 2 ** 96
+
+const parseVolumeUSD = (pool: any): number => {
+  if (FORCE_WHITELISTED_V3_POOLS.includes(pool.id)) {
+    const { volumeUSD, untrackedVolumeUSD } = pool
+    return +volumeUSD || +untrackedVolumeUSD || 0
+  }
+
+  return +pool.volumeUSD || 0
+}
+
+const parseTvlUSD = (pool: any): number => {
+  if (FORCE_WHITELISTED_V3_POOLS.includes(pool.id)) {
+    const { totalValueLockedUSD, totalValueLockedUSDUntracked } = pool
+    return +totalValueLockedUSD || +totalValueLockedUSDUntracked || 0
+  }
+
+  return +pool.totalValueLockedUSD || 0
+}
 
 export const getV3Pools = async <AccOnly extends boolean = false>({
   blockNumber,
@@ -28,7 +46,9 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
         ) {
           id
           totalValueLockedUSD
+          totalValueLockedUSDUntracked
           volumeUSD
+          untrackedVolumeUSD
           feesUSD
           protocolFeesUSD
           txCount
@@ -88,8 +108,8 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
         (pool) =>
           ({
             id: pool.id,
-            tvlUSD: +pool.totalValueLockedUSD,
-            volumeUSD: +pool.volumeUSD,
+            tvlUSD: parseTvlUSD(pool),
+            volumeUSD: parseVolumeUSD(pool),
             feeUSD: +pool.feesUSD,
             protocolFeeUSD: +pool.protocolFeesUSD,
             txCount: +pool.txCount,
@@ -110,8 +130,8 @@ export const getV3Pools = async <AccOnly extends boolean = false>({
             reserve0: +pool.totalValueLockedToken0,
             reserve1: +pool.totalValueLockedToken1,
             price: (+pool.sqrtPrice / FLOAT64_Q96) ** 2 * (10 ** +pool.token0.decimals / 10 ** +pool.token1.decimals),
-            tvlUSD: +pool.totalValueLockedUSD,
-            volumeUSD: +pool.volumeUSD,
+            tvlUSD: parseTvlUSD(pool),
+            volumeUSD: parseVolumeUSD(pool),
             feeUSD: +pool.feesUSD,
             protocolFeeUSD: +pool.protocolFeesUSD,
             txCount: +pool.txCount,

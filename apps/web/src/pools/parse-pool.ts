@@ -70,42 +70,75 @@ export const parseV2Pool = (pool: PoolV2Detailed): WithAPY<PoolV2Detailed> => {
   }
 }
 
-export const parseV3Pool = (pool: PoolV3Detailed): WithAPY<PoolV3Detailed> => {
-  const apy24H =
-    pool.feeUSD['24H'] === null || pool.protocolFeeUSD['24H'] === null
+const PROTOCOL_FEE_RATIO = 0.2 // 20% of the fees go to the protocol
+
+export const parseV3Pool = (
+  pool: PoolV3Detailed,
+  { useVolumeOverFee = false }: { useVolumeOverFee?: boolean } = {},
+): WithAPY<PoolV3Detailed> => {
+  const apy24H = useVolumeOverFee
+    ? pool.volumeUSD['24H'] === null
       ? null
       : calculateAPY({
-          interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
+          interest: pool.volumeUSD['24H'] * +pool.feeTier * 1e-6 * (1 - PROTOCOL_FEE_RATIO),
           principal: pool.tvlUSD.current,
           duration: DAY,
         })
+    : pool.feeUSD['24H'] === null || pool.protocolFeeUSD['24H'] === null
+    ? null
+    : calculateAPY({
+        interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
+        principal: pool.tvlUSD.current,
+        duration: DAY,
+      })
 
-  const apy7D =
-    pool.feeUSD['7D'] === null || pool.protocolFeeUSD['7D'] === null
+  const apy7D = useVolumeOverFee
+    ? pool.volumeUSD['7D'] === null
       ? null
       : calculateAPY({
-          interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
+          interest: pool.volumeUSD['7D'] * +pool.feeTier * 1e-6 * (1 - PROTOCOL_FEE_RATIO),
           principal: pool.tvlUSD.current,
           duration: WEEK,
         })
+    : pool.feeUSD['7D'] === null || pool.protocolFeeUSD['7D'] === null
+    ? null
+    : calculateAPY({
+        interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
+        principal: pool.tvlUSD.current,
+        duration: WEEK,
+      })
 
-  const apr24H =
-    pool.feeUSD['24H'] === null || pool.protocolFeeUSD['24H'] === null
+  const apr24H = useVolumeOverFee
+    ? pool.volumeUSD['24H'] === null
       ? null
       : calculateAPR({
-          interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
+          interest: pool.volumeUSD['24H'] * +pool.feeTier * 1e-6 * (1 - PROTOCOL_FEE_RATIO),
           principal: pool.tvlUSD.current,
           duration: DAY,
         })
+    : pool.feeUSD['24H'] === null || pool.protocolFeeUSD['24H'] === null
+    ? null
+    : calculateAPR({
+        interest: pool.feeUSD['24H'] - pool.protocolFeeUSD['24H'],
+        principal: pool.tvlUSD.current,
+        duration: DAY,
+      })
 
-  const apr7D =
-    pool.feeUSD['7D'] === null || pool.protocolFeeUSD['7D'] === null
+  const apr7D = useVolumeOverFee
+    ? pool.volumeUSD['7D'] === null
       ? null
       : calculateAPR({
-          interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
+          interest: pool.volumeUSD['7D'] * +pool.feeTier * 1e-6 * (1 - PROTOCOL_FEE_RATIO),
           principal: pool.tvlUSD.current,
           duration: WEEK,
         })
+    : pool.feeUSD['7D'] === null || pool.protocolFeeUSD['7D'] === null
+    ? null
+    : calculateAPR({
+        interest: pool.feeUSD['7D'] - pool.protocolFeeUSD['7D'],
+        principal: pool.tvlUSD.current,
+        duration: WEEK,
+      })
 
   return {
     type: 'v3',

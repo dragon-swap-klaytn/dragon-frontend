@@ -39,6 +39,9 @@ const WBTC_ADDRESSES = {
 
 const KRWO_ADDRESS = '0x7fc692699f2216647a0e06225d8bdf8cdee40e7f' as Address
 
+// eslint-disable-next-line address/addr-type
+export const FORCE_WHITELISTED_V3_POOLS = ['0x4b3f9a5a16aa5e8aebdb79c8b18328379214d9e3']
+
 export const tokensToBeOverridden: Record<
   Address,
   Partial<{
