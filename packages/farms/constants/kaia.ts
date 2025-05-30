@@ -214,6 +214,13 @@ export const farmsV3 = defineFarmV3Configs([
     token1: klaytnTokens.usdt,
     feeAmount: FeeAmount.LOW,
   },
+  {
+    pid: 30,
+    lpAddress: '0x6f4E769D2dCCfAe8BCC1918d991aB1BC6B4a404C',
+    token0: klaytnTokens.krwo,
+    token1: klaytnTokens.usdt,
+    feeAmount: FeeAmount.MEDIUM,
+  },
 ])
 
 export const farmsV3Finished = defineFarmV3Configs([
