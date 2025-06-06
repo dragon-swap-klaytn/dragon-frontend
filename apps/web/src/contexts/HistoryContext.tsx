@@ -44,8 +44,16 @@ function useHistoryManager() {
 
   const backTo = useCallback(() => {
     if (history.length > 1) {
-      router.push(history[history.length - 2])
-    } else {
+      const routerTo = history[history.length - 2]
+      // pop history
+      setHistory((h) => h.slice(0, -1))
+
+      // navigate to the previous page
+      router.push(routerTo)
+    } else if (history.length === 1) {
+      // reset history
+      setHistory(() => [])
+
       router.back()
     }
   }, [history, router])
