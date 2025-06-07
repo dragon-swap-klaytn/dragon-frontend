@@ -88,10 +88,12 @@
   "Claim Boost Rewards & Fees": "부스팅 보상 및 수수료 수령",
   "claim rewards & fees": "보상 및 수수료 수령",
   "unwrap RKLAY to KAIA": "RKLAY를 KAIA로 변환",
+  "unwrap RKAIA to KAIA": "RKAIA를 KAIA로 변환",
   "Waiting For Confirmation": "확인 대기 중",
   "claim rewards and fees": "보상 및 수수료 수령",
   "Confirm this transaction in your wallet": "지갑에서 이 거래를 확인하세요.",
   "You have received approximately {{rewardAmount}} RKLAY and wish to convert it to KAIA.": "약 {{rewardAmount}} RKLAY를 받았으며 이를 KAIA로 변환하려고 합니다.",
+  "You have received approximately {{rewardAmount}} RKAIA and wish to convert it to KAIA.": "약 {{rewardAmount}} RKAIA를 받았으며 이를 KAIA로 변환하려고 합니다.",
   "Would you like to proceed?": "진행하시겠습니까?",
   "Withdraw": "출금",
 

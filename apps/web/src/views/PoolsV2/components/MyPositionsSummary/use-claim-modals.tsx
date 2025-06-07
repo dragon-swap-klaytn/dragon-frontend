@@ -561,7 +561,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
         ) : (
           <div className="pb-5 text-sm text-on-surface text-center">
             <p>
-              {t('You have received approximately {{rewardAmount}} RKLAY and wish to convert it to KAIA.', {
+              {t('You have received approximately {{rewardAmount}} RKAIA and wish to convert it to KAIA.', {
                 rewardAmount: formatAmount(rewardAmountToCollect),
               })}
             </p>
@@ -601,7 +601,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
                 'text-on-surface': claimStep < 2,
               })}
             >
-              2. {t('unwrap RKLAY to KAIA')}
+              2. {t('unwrap RKAIA to KAIA')}
             </span>
           </div>
         </div>
