@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { ChainId, ERC20Token, Token } from '@pancakeswap/sdk'
-import { CAKE } from '@pancakeswap/tokens'
+import { CAKE, CAKE_SYMBOL } from '@pancakeswap/tokens'
 import { ButtonV2, CurrencyLogoWithAmount, useModal } from '@pancakeswap/uikit'
 import {
   CollectToOptions,
@@ -544,7 +544,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
                       <CurrencyLogoWithAmount
                         logoSize={20}
                         currencyA={rewardToken}
-                        symbol={rewardToken.symbol}
+                        symbol={CAKE_SYMBOL}
                         amount={rewardAmount.toLocaleString(undefined, {
                           minimumSignificantDigits: 6,
                           maximumSignificantDigits: 6,

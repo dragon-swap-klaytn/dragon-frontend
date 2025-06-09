@@ -1,4 +1,4 @@
-import { CAKE } from '@pancakeswap/tokens'
+import { CAKE, CAKE_SYMBOL } from '@pancakeswap/tokens'
 import { ButtonV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -76,7 +76,7 @@ export default function BoostingCard({
             <div className="flex flex-col space-y-2 items-start">
               <h5 className="text-on-surface-subtlest text-xs">{t('Harvested Amount')}</h5>
 
-              <span className="text-on-surface font-bold">{`${rewardAmount} ${rewardToken.symbol}`}</span>
+              <span className="text-on-surface font-bold">{`${rewardAmount} ${CAKE_SYMBOL}`}</span>
 
               <span className="text-on-surface-subtlest text-xs">
                 ~ {formatAmount(rewardAmount * cakePrice.toNumber())} USD
