@@ -1,7 +1,7 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { ChainId, ERC20Token, Token } from '@pancakeswap/sdk'
 import { CAKE, CAKE_SYMBOL } from '@pancakeswap/tokens'
-import { ButtonV2, CurrencyLogoWithAmount, useModal } from '@pancakeswap/uikit'
+import { ButtonV2, CurrencyLogoWithAmount, Dots, useModal } from '@pancakeswap/uikit'
 import {
   CollectToOptions,
   CollectV2Options,
@@ -20,7 +20,6 @@ import { useUnwrapRewardV2 } from 'hooks/useUnwrapRewardV2'
 import { useCallback, useMemo, useState } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
-import { formatAmount } from 'utils/formatInfoNumbers'
 import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { getViemClients } from 'utils/viem'
@@ -54,12 +53,15 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
   const [errorMessage, setErrorMessage] = useState('')
   const [txInflight, setTxInflight] = useState(false)
   const [claimStep, setClaimStep] = useState<1 | 2>(1)
-  const [rewardAmountToCollect, setRewardAmountToCollect] = useState(0)
 
   const rewardToken = CAKE[chainId]
   const rewardTokenPrice = priceMap[rewardToken.address.toLowerCase()] ?? 0
 
-  const { unwrapReward, inflight: unwrappingInflight } = useUnwrapRewardV2({
+  const {
+    inflight: unwrappingInflight,
+    unwrapAllReward,
+    rewardBalanceStr,
+  } = useUnwrapRewardV2({
     rewardToken,
     onDone: (tx: SendTransactionResult) => {
       setCollectMigrationHash(tx.hash)
@@ -225,14 +227,10 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     const harvestOptions: HarvestOptions[] = []
     const collectToOptions: CollectToOptions[] = []
 
-    let _rewardAmountToCollect = 0
-
     positions.staked.forEach((position) => {
       if (position.rewards) {
         const filteredRewards = position.rewards.filter(({ amount }) => amount > 0)
         if (filteredRewards.length > 0) {
-          _rewardAmountToCollect += filteredRewards.reduce((acc, { amount }) => acc + amount, 0)
-
           harvestOptions.push({
             tokenId: position.positionId,
             to: account,
@@ -248,8 +246,6 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
       }
     })
 
-    setRewardAmountToCollect(_rewardAmountToCollect)
-
     const { calldata, value } = MasterChefV3.harvestAndCollectToAllCallParameters({
       harvestOptions,
       collectToOptions,
@@ -263,24 +259,26 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     }
 
     const resp = await fetchWithCatchTxError(() =>
-      publicClient.estimateGas(txn).then((estimate) => {
+      publicClient.estimateGas(txn).then(async (estimate) => {
         const newTxn = {
           ...txn,
           gas: calculateGasMargin(estimate),
         }
 
         setTxInflight(true)
-        return sendTransactionAsync(newTxn).then((response) => {
+        const response = await sendTransactionAsync(newTxn).then((res) => {
           addTransaction(
-            { hash: response.hash },
+            { hash: res.hash },
             {
               type: 'harvest-and-collect-all',
               summary: 'Harvest and collect all',
             },
           )
 
-          return response
+          return res
         })
+
+        return response
       }),
     )
       .then((_resp) => {
@@ -335,7 +333,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
               stakedPositions={positions.staked}
               rewardToken={rewardToken}
               rewardTokenPrice={rewardTokenPrice}
-              rewardAmountToCollect={rewardAmountToCollect}
+              rewardBalanceStr={rewardBalanceStr}
               rewardClaimable={positions.rewardClaimable}
               claimStep={claimStep}
               tokenMap={tokenMap}
@@ -346,7 +344,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
             <ButtonV2
               variant="primary"
               fullWidth
-              onClick={claimStep === 1 ? claimStakedFeesAndRewards : () => unwrapReward(rewardAmountToCollect)}
+              onClick={claimStep === 1 ? claimStakedFeesAndRewards : () => unwrapAllReward()}
             >
               {claimStep === 1 ? t('Claim') : t('Unwrap to KAIA')}
             </ButtonV2>
@@ -359,7 +357,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     true,
     true,
     'TransactionConfirmationModalClaimRewardsAndFees',
-    [positions.staked, collectMigrationHash, txInflight, rewardToken, rewardAmountToCollect, claimStep],
+    [positions.staked, collectMigrationHash, txInflight, rewardToken, rewardBalanceStr, claimStep],
   )
 
   return {
@@ -445,7 +443,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
   stakedPositions,
   rewardToken,
   rewardTokenPrice,
-  rewardAmountToCollect,
+  rewardBalanceStr,
   rewardClaimable,
   claimStep,
   tokenMap,
@@ -454,7 +452,7 @@ function ClaimStakedFeesAndRewardsModalHeader({
   stakedPositions: PositionV3[]
   rewardToken: Token
   rewardTokenPrice: number
-  rewardAmountToCollect: number
+  rewardBalanceStr: string
   rewardClaimable: boolean
   claimStep: 1 | 2
   tokenMap: Record<string, Token>
@@ -560,12 +558,18 @@ function ClaimStakedFeesAndRewardsModalHeader({
           })
         ) : (
           <div className="pb-5 text-sm text-on-surface text-center">
-            <p>
-              {t('You have received approximately {{rewardAmount}} RKAIA and wish to convert it to KAIA.', {
-                rewardAmount: formatAmount(rewardAmountToCollect),
-              })}
-            </p>
-            <p className="mt-4">{t('Would you like to proceed?')}</p>
+            {+rewardBalanceStr > 0 ? (
+              <>
+                <p className="break-keep">
+                  {t('You are holding approximately {{rewardAmount}} RKAIA and wish to convert it to KAIA.', {
+                    rewardAmount: rewardBalanceStr,
+                  })}
+                </p>
+                <p className="mt-4">{t('Would you like to proceed?')}</p>
+              </>
+            ) : (
+              <Dots style={{ fontSize: '14px' }}>{t('Loading your RKAIA balance')}</Dots>
+            )}
           </div>
         )}
       </div>

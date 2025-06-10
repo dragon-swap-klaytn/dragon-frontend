@@ -97,10 +97,9 @@ export function useUnwrapRewardV2({ rewardToken, onDone, modalKey }: IProps) {
   )
 
   const { balance } = useTokenBalance(rewardToken.address)
+  const rewardBalanceStr = balance.div(10 ** rewardToken.decimals).toFixed(6)
   const unwrapAllReward = useCallback(async () => {
     setInflight(true)
-
-    const balanceStr = balance.div(10 ** rewardToken.decimals).toFixed(6)
 
     try {
       if (showKlipQrCode) {
@@ -112,10 +111,10 @@ export function useUnwrapRewardV2({ rewardToken, onDone, modalKey }: IProps) {
 
       addTransaction(txReceipt, {
         type: 'unwrap',
-        summary: `Unwrap ${balanceStr} ${rewardToken.symbol} to ${nativeInfo.symbol}`,
+        summary: `Unwrap ${rewardBalanceStr} ${rewardToken.symbol} to ${nativeInfo.symbol}`,
         translatableSummary: {
           text: 'Unwrap {{amount}} {{wrap}} to {{native}}',
-          data: { amount: balanceStr, wrap: rewardToken.symbol, native: nativeInfo.symbol },
+          data: { amount: rewardBalanceStr, wrap: rewardToken.symbol, native: nativeInfo.symbol },
         },
       })
 
@@ -141,6 +140,7 @@ export function useUnwrapRewardV2({ rewardToken, onDone, modalKey }: IProps) {
     showKlipQrCode,
     onPresentKlipTxModal,
     onDismissKlipTxModal,
+    rewardBalanceStr,
   ])
 
   const onAlert = useCallback(
@@ -174,5 +174,6 @@ export function useUnwrapRewardV2({ rewardToken, onDone, modalKey }: IProps) {
     unwrapAllReward,
     onAlert,
     inflight,
+    rewardBalanceStr,
   }
 }

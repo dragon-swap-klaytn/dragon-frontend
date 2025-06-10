@@ -94,6 +94,8 @@
   "Confirm this transaction in your wallet": "지갑에서 이 거래를 확인하세요.",
   "You have received approximately {{rewardAmount}} RKLAY and wish to convert it to KAIA.": "약 {{rewardAmount}} RKLAY를 받았으며 이를 KAIA로 변환하려고 합니다.",
   "You have received approximately {{rewardAmount}} RKAIA and wish to convert it to KAIA.": "약 {{rewardAmount}} RKAIA를 받았으며 이를 KAIA로 변환하려고 합니다.",
+  "You are holding approximately {{rewardAmount}} RKAIA and wish to convert it to KAIA.": "약 {{rewardAmount}} RKLAY를 보유하고 있고, 이를 KAIA로 변환하려고 합니다.",
+  "Loading your RKAIA balance": "RKAIA 잔액을 불러오는 중",
   "Would you like to proceed?": "진행하시겠습니까?",
   "Withdraw": "출금",
 
