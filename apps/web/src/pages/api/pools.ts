@@ -1,18 +1,16 @@
 import { ChainId } from '@pancakeswap/chains'
-import { createFarmFetcherV3 } from '@pancakeswap/farms'
-import { farmsV3ConfigChainMap } from '@pancakeswap/farms/constants/v3'
+import { fetchMasterChefV3Data } from '@pancakeswap/farms/src/fetchFarmsV3'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
-import { TOKEN_MAPPER } from 'const'
+import { MASTERCHEFV3_ADDRESS, TOKEN_MAPPER } from 'const'
 import { FORCE_WHITELISTED_V3_POOLS } from 'lib/graph-queries/const'
-import { getCachedTokenPricesFromSwapscanner } from 'lib/ss'
 import { NextApiHandler } from 'next'
+import { getBoostedPools } from 'pools/get-boosted-pools'
 
 import { getCachedPoolsData, getPoolsDataByIds } from 'pools/get-cached-pools-data'
 import { parseV2Pool, parseV3Pool } from 'pools/parse-pool'
 import { getCachedTokenPrices } from 'tokens/get-cached-token-prices'
 import { Simplify } from 'type-fest'
 import { calculateAPR } from 'utils/calculate-interests'
-import { duplicateChecksumPriceMap } from 'utils/duplicate-checksum-price-map'
 import { localCachedProactiveV2 } from 'utils/local-cached-proactive-v2'
 import lowered from 'utils/lowered'
 import { getViemClients } from 'utils/viem.server'
@@ -78,8 +76,6 @@ function filteredBySearchKey(pool: PoolParsed, searchKey?: string) {
   )
 }
 
-const farmsV3 = farmsV3ConfigChainMap[ChainId.KLAYTN]
-
 // special logic for KAIA/USD₮ and USDT/USD₮ pools
 localCachedProactiveV2(
   () =>
@@ -91,39 +87,42 @@ localCachedProactiveV2(
     ]),
   {
     interval: 1000 * 60,
-    logPrefix: '/api/pools',
+    logPrefix: '[/api/pools] proactive update for KAIA/USD₮ and USDT/USD₮',
   },
 )
+
+const getCachedBoostedPools = localCachedProactiveV2(getBoostedPools, {
+  interval: 1000 * 60 * 5, // 5 minutes
+  logPrefix: '[/api/pools] boosted pools',
+}).getData
+
+const getCachedMasterChefV3Data = localCachedProactiveV2(async () => {
+  const { poolLength, totalAllocPoint, latestPeriodCakePerSecond } = await fetchMasterChefV3Data({
+    provider: getViemClients,
+    masterChefAddress: MASTERCHEFV3_ADDRESS,
+    chainId: ChainId.KLAYTN,
+  })
+
+  return {
+    poolLength: Number(poolLength),
+    totalAllocPoint: Number(totalAllocPoint),
+    cakePerSecond: Number(latestPeriodCakePerSecond) / 1e18 / 1e12, // convert to KAIA
+  }
+}).getData
 
 const handler: NextApiHandler = async (req, res) => {
   const { types, onlyPoolIds, tokenAddress, boostedOnly, searchKey, sortBy, sortDirection, skip, limit } =
     await poolsSchema.parseAsync(req.query)
 
   try {
-    const [{ v2Pools, v3Pools }, prices, ssPrices] = await Promise.all([
+    const [{ v2Pools, v3Pools }, boostedPools, masterChefData, prices] = await Promise.all([
       getCachedPoolsData(),
+      getCachedBoostedPools(),
+      getCachedMasterChefV3Data(),
       getCachedTokenPrices(),
-      // use swapscanner prices as a fallback
-      getCachedTokenPricesFromSwapscanner().catch((err) => {
-        console.error('/api/pools', err)
-        return {}
-      }),
     ])
 
-    const commonPrice = duplicateChecksumPriceMap({ ...ssPrices, ...prices })
-
-    const farmFetcherV3 = createFarmFetcherV3(getViemClients)
-    const {
-      farmsWithPrice,
-      cakePerSecond,
-      totalAllocPoint: _,
-    } = await farmFetcherV3.fetchFarms({
-      chainId: ChainId.KLAYTN,
-      farms: farmsV3,
-      commonPrice,
-    })
-
-    const lpAddressToFarm = Object.fromEntries(farmsWithPrice.map((farm) => [lowered(farm.lpAddress), farm]))
+    const { poolLength: _, cakePerSecond, totalAllocPoint } = masterChefData
 
     if (onlyPoolIds.length > 0) {
       const onlyPoolIdsLowerCased = onlyPoolIds.map((id) => lowered(id))
@@ -146,21 +145,24 @@ const handler: NextApiHandler = async (req, res) => {
 
     const v2PoolsParsed = v2Pools.map(parseV2Pool)
     const v3PoolsParsed = v3Pools.map((pool) => {
-      if (!lpAddressToFarm[pool.id]) {
+      const boostedPool = boostedPools[pool.id]
+      if (!boostedPool) {
         return parseV3Pool(pool, { useVolumeOverFee: FORCE_WHITELISTED_V3_POOLS.includes(pool.id) })
       }
 
+      const poolCakePerSecond = (boostedPool.allocPoint / totalAllocPoint) * +cakePerSecond
+
       const rewardApr = calculateAPR({
-        interest: +lpAddressToFarm[pool.id].poolWeight * +cakePerSecond * prices.KAIA,
-        principal: pool.tvlUSD.current * (+lpAddressToFarm[pool.id].lmPoolLiquidity / +pool.liquidity),
+        interest: poolCakePerSecond * prices.KAIA,
+        principal: pool.tvlUSD.current * (+boostedPool.lmPoolLiquidity / +pool.liquidity),
         duration: 1_000,
       })
 
       return {
         ...parseV3Pool(pool, { useVolumeOverFee: FORCE_WHITELISTED_V3_POOLS.includes(pool.id) }),
         rewardApr: Number.isFinite(rewardApr) ? rewardApr : 0,
-        lmPoolLiquidity: lpAddressToFarm[pool.id].lmPoolLiquidity,
-        cakePerSecond: +lpAddressToFarm[pool.id].poolWeight * +cakePerSecond,
+        lmPoolLiquidity: boostedPool.lmPoolLiquidity,
+        cakePerSecond: poolCakePerSecond,
       }
     })
 
@@ -192,7 +194,7 @@ const handler: NextApiHandler = async (req, res) => {
     if (boostedOnly) {
       pools = pools.filter(
         (pool) =>
-          +lpAddressToFarm[pool.id]?.poolWeight > 0 &&
+          +boostedPools[pool.id]?.allocPoint > 0 &&
           (pool as PoolV3Parsed)?.rewardApr &&
           (pool as PoolV3Parsed).rewardApr > 0,
       )
