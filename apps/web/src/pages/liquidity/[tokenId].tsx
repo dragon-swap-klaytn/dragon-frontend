@@ -954,7 +954,7 @@ function PositionHistoryRow({
                 <span>
                   {isPlus ? '+' : '-'}{' '}
                   {position0AmountString
-                    ? Number(position0AmountString).toLocaleString(undefined, {
+                    ? Number(position0AmountString.replaceAll(',', '')).toLocaleString(undefined, {
                         maximumFractionDigits: 3,
                         maximumSignificantDigits: 3,
                       })
@@ -968,7 +968,7 @@ function PositionHistoryRow({
                 <span>
                   {isPlus ? '+' : '-'}{' '}
                   {position1AmountString
-                    ? Number(position1AmountString).toLocaleString(undefined, {
+                    ? Number(position1AmountString.replaceAll(',', '')).toLocaleString(undefined, {
                         maximumFractionDigits: 3,
                         maximumSignificantDigits: 3,
                       })
