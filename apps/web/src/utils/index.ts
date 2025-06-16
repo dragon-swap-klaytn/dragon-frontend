@@ -25,7 +25,7 @@ export function getBlockExploreLink(
   data: string | number | Address,
   type: 'transaction' | 'token' | 'address' | 'block' | 'countdown',
 ): string {
-  const blockExplorer = 'https://kaiascope.com'
+  const blockExplorer = 'https://kaiascan.io'
   switch (type) {
     case 'transaction': {
       return `${blockExplorer}/tx/${data}`
@@ -33,11 +33,9 @@ export function getBlockExploreLink(
     case 'token': {
       return `${blockExplorer}/token/${data}`
     }
-    case 'block': {
-      return `${blockExplorer}/block/${data}`
-    }
+    case 'block':
     case 'countdown': {
-      return `${blockExplorer}/block/countdown/${data}`
+      return `${blockExplorer}/block/${data}`
     }
     default: {
       return `${blockExplorer}/address/${data}`
@@ -46,7 +44,7 @@ export function getBlockExploreLink(
 }
 
 export function getBlockExploreName() {
-  return 'KaiaScope'
+  return 'KaiaScan'
 }
 
 export function getBscScanLinkForNft(collectionAddress: string, tokenId: string): string {
