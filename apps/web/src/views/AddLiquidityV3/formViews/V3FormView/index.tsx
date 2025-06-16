@@ -589,8 +589,8 @@ export default function V3FormView({
       return {
         ...returnData,
         type: 'base',
-        needed: neededTokenAAmount.toFixed(tokenADecimals),
-        swapAmount: +((neededTokenAAmount * tokenAPrice) / tokenBPrice).toFixed(tokenADecimals),
+        needed: neededTokenAAmount.toFixed(tokenBDecimals),
+        swapAmount: +((neededTokenAAmount * tokenAPrice) / tokenBPrice).toFixed(tokenBDecimals),
       }
     }
 
@@ -600,8 +600,8 @@ export default function V3FormView({
       return {
         ...returnData,
         type: 'quote',
-        needed: neededTokenBAmount.toFixed(tokenBDecimals),
-        swapAmount: +((neededTokenBAmount * tokenBPrice) / tokenAPrice).toFixed(tokenBDecimals),
+        needed: neededTokenBAmount.toFixed(tokenADecimals),
+        swapAmount: +((neededTokenBAmount * tokenBPrice) / tokenAPrice).toFixed(tokenADecimals),
         tokenAInput,
         tokenBInput,
       }
@@ -744,18 +744,19 @@ export default function V3FormView({
                 <ExternalLink
                   className="mb-2"
                   href={`https://swapscanner.io${router.locale === 'en' ? '' : '/ko'}/swap?from=${
-                    maxSwapToken.type === 'base' ? maxSwapToken.baseToken.address : maxSwapToken.quoteToken.address
-                  }&to=${
                     maxSwapToken.type === 'base' ? maxSwapToken.quoteToken.address : maxSwapToken.baseToken.address
+                  }&to=${
+                    maxSwapToken.type === 'base' ? maxSwapToken.baseToken.address : maxSwapToken.quoteToken.address
                   }&amountIn=${maxSwapToken.swapAmount}`}
                 >
                   {t('Use Swapscanner')}
                 </ExternalLink>
-                <div className="flex flex-col space-y-1 mb-2">
+                <div className="flex flex-col mb-2">
                   <h5>
-                    <b>▪︎ {t('Expected deposit amount after the swap')}:</b>
+                    <b>{t('Expected deposit amount after the swap')}</b>
                   </h5>
-                  <p className="indent-2.5">
+                  <p>
+                    ≈&nbsp;
                     <b>
                       {maxSwapToken.baseToken.tokenAmount.toLocaleString(undefined, {
                         maximumFractionDigits: 6,
