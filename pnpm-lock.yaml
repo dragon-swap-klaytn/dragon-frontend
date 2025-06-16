@@ -257,8 +257,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@kaiachain/ethers-ext':
-        specifier: ^2.0.3
-        version: 2.0.3(@babel/core@7.23.3)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+        specifier: ^2.0.5
+        version: 2.0.5(@babel/core@7.23.3)(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@next/bundle-analyzer':
         specifier: 13.0.7
         version: 13.0.7(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -3970,11 +3970,11 @@ packages:
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
 
-  '@kaiachain/ethers-ext@2.0.3':
-    resolution: {integrity: sha512-vwIM3d3Eg6LTNNwF9CH26YecolskvaiINfJgf7dG1Cyx3AyLxxia0zvnSAJzqxN5qAslv2Vh74Ebgfzep/GRZw==}
+  '@kaiachain/ethers-ext@2.0.5':
+    resolution: {integrity: sha512-hnjyiSgsQHtzXAutKQbqoHQMICEwGiGj8x0wNQd6R7a9WB/2b0ftToraXe6n3IbfpmqEHlp5vt3ShmK8x4eYiw==}
 
-  '@kaiachain/js-ext-core@2.0.3':
-    resolution: {integrity: sha512-YaKmYlkEWhZHLfDce+n1lElyyGfjovxilCyzlURbw13GcuRjfhAn51+X1pFOeZmKuhUrNRDeZO0SPrmdvkRKjA==}
+  '@kaiachain/js-ext-core@2.0.5':
+    resolution: {integrity: sha512-8xGi882dG1GN7iS8ghXFAHnV8xPh8PRabAKaE0V5kI2Eja0DSoEcxJ2ZRne9I9NeRRDYUguLO0JIBox+LZN5/A==}
 
   '@kaiachain/web3rpc@2.0.0':
     resolution: {integrity: sha512-brr46EiJoqQH1Ac25AtUxYy6XhH5FGRKKRTFBLPtvyBYhHlA+pAVWUiREp9MEdTH5Sy1aZkZIev/0l4oZ6umfg==}
@@ -14654,7 +14654,7 @@ snapshots:
     dependencies:
       '@binance/w3w-types': 1.1.0-alpha.1
       '@binance/w3w-utils': 1.1.0-alpha.1
-      ws: 8.14.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      ws: 8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -16256,8 +16256,9 @@ snapshots:
 
   '@juggle/resize-observer@3.4.0': {}
 
-  '@kaiachain/ethers-ext@2.0.3(@babel/core@7.23.3)(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@kaiachain/ethers-ext@2.0.5(@babel/core@7.23.3)(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
+      '@ethersproject/abi': 5.7.0
       '@ethersproject/abstract-provider': 5.7.0
       '@ethersproject/abstract-signer': 5.7.0
       '@ethersproject/address': 5.7.0
@@ -16276,7 +16277,7 @@ snapshots:
       '@ethersproject/transactions': 5.7.0
       '@ethersproject/wallet': 5.7.0
       '@ethersproject/web': 5.7.1
-      '@kaiachain/js-ext-core': 2.0.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@kaiachain/js-ext-core': 2.0.5(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@kaiachain/web3rpc': 2.0.0(@babel/core@7.23.3)
       ethers: 6.14.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       lodash: 4.17.21
@@ -16286,7 +16287,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@kaiachain/js-ext-core@2.0.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
+  '@kaiachain/js-ext-core@2.0.5(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/address': 5.7.0
       '@ethersproject/bignumber': 5.7.0
@@ -26774,7 +26775,7 @@ snapshots:
       '@babel/runtime': 7.26.9
       eventemitter3: 4.0.7
       uuid: 8.3.2
-      ws: 8.14.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      ws: 8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     optionalDependencies:
       bufferutil: 4.0.8
       utf-8-validate: 5.0.10
