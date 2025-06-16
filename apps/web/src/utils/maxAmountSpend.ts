@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
-import { BIG_INT_ZERO, MIN_BNB } from 'config/constants/exchange'
+import { BIG_INT_ZERO, MIN_KAIA } from 'config/constants/exchange'
 
 /**
  * Given some token amount, return the max that can be spent of it
@@ -8,8 +8,8 @@ import { BIG_INT_ZERO, MIN_BNB } from 'config/constants/exchange'
 export function maxAmountSpend(currencyAmount?: CurrencyAmount<Currency>): CurrencyAmount<Currency> | undefined {
   if (!currencyAmount) return undefined
   if (currencyAmount.currency?.isNative) {
-    if (currencyAmount.quotient > MIN_BNB) {
-      return CurrencyAmount.fromRawAmount(currencyAmount.currency, currencyAmount.quotient - MIN_BNB)
+    if (currencyAmount.quotient > MIN_KAIA) {
+      return CurrencyAmount.fromRawAmount(currencyAmount.currency, currencyAmount.quotient - MIN_KAIA)
     }
     return CurrencyAmount.fromRawAmount(currencyAmount.currency, BIG_INT_ZERO)
   }
