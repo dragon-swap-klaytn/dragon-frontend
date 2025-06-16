@@ -297,7 +297,7 @@ export function UniversalAddLiquidity({
       {selectorType === SELECTOR_TYPE.V2 && (
         <>
           <div>
-            <SectionTitle>{t('Choose Token Pair')}</SectionTitle>{' '}
+            <SectionTitle>{t('Choose Token Pair')}</SectionTitle>
             <div className="flex items-center space-x-3 mt-2">
               <CurrencySelect
                 id="add-liquidity-select-tokena"
