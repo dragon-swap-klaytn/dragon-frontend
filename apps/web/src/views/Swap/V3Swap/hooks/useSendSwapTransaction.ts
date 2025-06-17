@@ -154,9 +154,6 @@ export default function useSendSwapTransaction(
 
   const sendTx = useCallback(
     async (args: Pick<SendTransactionArgs, 'account' | 'chainId' | 'to' | 'data' | 'value' | 'gas'>) => {
-      return sendTransactionAsync(args)
-
-      // TODO: implement gas fee delegation for Kaia Wallet
       return isKaiaWallet.current ? sendTxGasFeeDelegated(args) : sendTransactionAsync(args)
     },
     [sendTxGasFeeDelegated, sendTransactionAsync],

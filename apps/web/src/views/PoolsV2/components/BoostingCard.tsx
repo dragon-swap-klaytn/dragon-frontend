@@ -1,7 +1,6 @@
-import { CAKE, CAKE_SYMBOL } from '@pancakeswap/tokens'
+import { CAKE_SYMBOL } from '@pancakeswap/tokens'
 import { ButtonV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { useActiveChainId } from 'hooks/useActiveChainId'
 import useBoost from 'hooks/useBoost'
 import { useCakePrice } from 'hooks/useCakePrice'
 import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/usePortfolio'
@@ -26,7 +25,6 @@ export default function BoostingCard({
 }) {
   const { t } = useTranslation()
   const { address: account } = useAccount()
-  const { chainId } = useActiveChainId()
   const { portfolio } = usePortfolio({ account, onlyPoolIds: [poolId] })
   const positionData = useMemo(() => {
     if (!portfolio || !portfolio[poolId]) return null
@@ -42,7 +40,6 @@ export default function BoostingCard({
   }, [positionData])
 
   const cakePrice = useCakePrice()
-  const rewardToken = CAKE[chainId]
   const { onStake, onUnstake, onHarvest, attemptingTxn } = useBoost({
     poolId,
     positionId,

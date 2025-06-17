@@ -34,8 +34,6 @@ const handler: NextApiHandler = async (req, res) => {
 
   const jsonData = await fetchResponse.json()
 
-  console.log('[fee-delegated-tx]:', senderSignedTx, ':', JSON.stringify(jsonData))
-
   if (jsonData.error) {
     return res.status(500).json({
       message: jsonData.message,

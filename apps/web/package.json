@@ -42,7 +42,7 @@
     "@gelatonetwork/limit-orders-lib": "^4.1.0",
     "@gnosis.pm/safe-apps-wagmi": "^1.2.0",
     "@headlessui/react": "^2.2.0",
-    "@kaiachain/ethers-ext": "^2.0.3",
+    "@kaiachain/ethers-ext": "^2.0.7",
     "@next/bundle-analyzer": "13.0.7",
     "@pancakeswap/chains": "workspace:*",
     "@pancakeswap/farms": "workspace:*",
