@@ -14,7 +14,8 @@ import { useCallback, useMemo } from 'react'
 import { calculateGasMargin } from 'utils'
 import { viemClients } from 'utils/viem'
 import { Address, hexToBigInt } from 'viem'
-import { useAccount, useQueryClient, useSendTransaction, useWalletClient } from 'wagmi'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
+import { useAccount, useQueryClient, useWalletClient } from 'wagmi'
 
 export default function useBoost({
   poolId,
@@ -29,7 +30,7 @@ export default function useBoost({
   const { address: account } = useAccount()
   const { data: signer } = useWalletClient()
   const { loading, setLoading, fetchWithCatchTxError } = useCatchTxError()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
   const { toastSuccess } = useToast()
   const { chainId } = useActiveChainId()
   const publicClient = viemClients[chainId as keyof typeof viemClients]
@@ -80,7 +81,7 @@ export default function useBoost({
           gas: calculateGasMargin(estimate),
         }
 
-        return sendTransactionAsync(newTxn)
+        return sendTx(newTxn)
       }),
     )
 
@@ -97,7 +98,7 @@ export default function useBoost({
     account,
     fetchWithCatchTxError,
     publicClient,
-    sendTransactionAsync,
+    sendTx,
     signer,
     t,
     toastSuccess,
@@ -151,7 +152,7 @@ export default function useBoost({
           gas: calculateGasMargin(estimate),
         }
 
-        return sendTransactionAsync(newTxn)
+        return sendTx(newTxn)
       }),
     )
 
@@ -172,7 +173,7 @@ export default function useBoost({
     account,
     fetchWithCatchTxError,
     publicClient,
-    sendTransactionAsync,
+    sendTx,
     signer,
     t,
     toastSuccess,
@@ -214,7 +215,7 @@ export default function useBoost({
             gas: calculateGasMargin(estimate),
           }
 
-          return sendTransactionAsync(newTxn)
+          return sendTx(newTxn)
         }),
     )
 
@@ -237,7 +238,7 @@ export default function useBoost({
     account,
     fetchWithCatchTxError,
     publicClient,
-    sendTransactionAsync,
+    sendTx,
     signer,
     t,
     toastSuccess,

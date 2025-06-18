@@ -4,13 +4,18 @@ import { useCallback, useEffect, useRef } from 'react'
 import { SendTransactionArgs, SendTransactionResult } from 'wagmi/dist/actions'
 
 import { v5 } from '@kaiachain/ethers-ext'
+import { ChainId } from '@pancakeswap/chains'
+import { SMART_ROUTER_ADDRESSES } from '@pancakeswap/smart-router'
+import { MASTERCHEFV3_ADDRESS, V3_NFT_POSITION_MANAGER_ADDRESS } from 'const'
 import { hexValue } from 'ethers/lib/utils'
 import { useSendTransaction } from 'wagmi'
 
 const { Web3Provider, TxType } = v5
 
 const whitelistedAddresses = new Set([
-  '0x5EA3e22C41B08DD7DC7217549939d987ED410354'.toLowerCase(), // smart router
+  SMART_ROUTER_ADDRESSES[ChainId.KLAYTN].toLowerCase(),
+  MASTERCHEFV3_ADDRESS.toLowerCase(),
+  V3_NFT_POSITION_MANAGER_ADDRESS.toLowerCase(),
 ])
 
 export function useSendFeeDelegatedTx() {

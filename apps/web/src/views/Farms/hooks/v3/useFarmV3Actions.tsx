@@ -13,7 +13,8 @@ import { getViemClients, viemClients } from 'utils/viem'
 import { Address, hexToBigInt } from 'viem'
 import { useFinishedFarm } from 'views/Farms/hooks/useFinishedFarm'
 import { useUnwrapReward } from 'views/Farms/hooks/useUnwrapReward'
-import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
+import { useAccount, useWalletClient } from 'wagmi'
 
 interface FarmV3ActionContainerChildrenProps {
   attemptingTxn: boolean
@@ -37,7 +38,7 @@ const useFarmV3Actions = ({
   const { address: account } = useAccount()
   const { data: signer } = useWalletClient()
   const { chainId } = useActiveChainId()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
   const queryClient = useQueryClient()
   const publicClient = viemClients[chainId as keyof typeof viemClients]
 
@@ -74,7 +75,7 @@ const useFarmV3Actions = ({
           gas: calculateGasMargin(estimate),
         }
 
-        return sendTransactionAsync(newTxn)
+        return sendTx(newTxn)
       }),
     )
     if (resp?.status) {
@@ -93,7 +94,7 @@ const useFarmV3Actions = ({
     fetchWithCatchTxError,
     masterChefV3Address,
     publicClient,
-    sendTransactionAsync,
+    sendTx,
     signer,
     t,
     toastSuccess,
@@ -126,7 +127,7 @@ const useFarmV3Actions = ({
           gas: calculateGasMargin(estimate),
         }
 
-        return sendTransactionAsync(newTxn)
+        return sendTx(newTxn)
       }),
     )
 
@@ -145,7 +146,7 @@ const useFarmV3Actions = ({
     masterChefV3Address,
     nftPositionManagerAddress,
     publicClient,
-    sendTransactionAsync,
+    sendTx,
     signer,
     t,
     toastSuccess,
@@ -177,7 +178,7 @@ const useFarmV3Actions = ({
             gas: calculateGasMargin(estimate),
           }
 
-          return sendTransactionAsync(newTxn)
+          return sendTx(newTxn)
         }),
     )
 
@@ -198,7 +199,7 @@ const useFarmV3Actions = ({
     fetchWithCatchTxError,
     masterChefV3Address,
     publicClient,
-    sendTransactionAsync,
+    sendTx,
     signer,
     t,
     toastSuccess,
@@ -222,7 +223,7 @@ export function useFarmsV3BatchHarvest() {
   const { data: signer } = useWalletClient()
   const { toastSuccess } = useToast()
   const { address: account } = useAccount()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
   const { loading, fetchWithCatchTxError, setLoading } = useCatchTxError()
   const queryClient = useQueryClient()
   const onDismissHarvestAll = useCallback(() => {
@@ -253,7 +254,7 @@ export function useFarmsV3BatchHarvest() {
             gas: calculateGasMargin(estimate),
           }
 
-          return sendTransactionAsync(newTxn)
+          return sendTx(newTxn)
         }),
       )
 
@@ -267,7 +268,7 @@ export function useFarmsV3BatchHarvest() {
         queryClient.invalidateQueries({ queryKey: ['mcv3-harvest'] })
       }
     },
-    [account, fetchWithCatchTxError, masterChefV3Address, sendTransactionAsync, signer, t, toastSuccess, queryClient],
+    [account, fetchWithCatchTxError, masterChefV3Address, sendTx, signer, t, toastSuccess, queryClient],
   )
 
   return {

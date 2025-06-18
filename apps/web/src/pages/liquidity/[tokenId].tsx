@@ -71,7 +71,8 @@ import { useIsBoostedPool, useUserPositionInfo } from 'views/Farms/components/Yi
 import { V3FarmWithoutStakedValue } from 'views/Farms/FarmsV3'
 import Page from 'views/Page'
 import BoostingCard from 'views/PoolsV2/components/BoostingCard'
-import { useSendTransaction, useWalletClient } from 'wagmi'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
+import { useWalletClient } from 'wagmi'
 
 const useInverter = ({
   priceLower,
@@ -192,7 +193,7 @@ export default function PoolPage() {
   const [receiveWNATIVE, setReceiveWNATIVE] = useState(false)
 
   const { data: signer } = useWalletClient()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
 
   const { account, chainId } = useAccountActiveChain()
 
@@ -350,7 +351,7 @@ export default function PoolPage() {
           gas: calculateGasMargin(estimate),
         }
 
-        return sendTransactionAsync(newTxn).then((response) => {
+        return sendTx(newTxn).then((response) => {
           setCollectMigrationHash(response.hash)
           setCollecting(false)
 
@@ -398,7 +399,7 @@ export default function PoolPage() {
     feeValue0,
     feeValue1,
     signer,
-    sendTransactionAsync,
+    sendTx,
     addTransaction,
     t,
   ])

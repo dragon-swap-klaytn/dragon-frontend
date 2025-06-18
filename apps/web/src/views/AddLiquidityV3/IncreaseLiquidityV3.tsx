@@ -23,7 +23,6 @@ import { useRouter } from 'next/router'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import Page from 'views/Page'
-import { useSendTransaction } from 'wagmi'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
@@ -36,6 +35,7 @@ import { hexToBigInt } from 'viem'
 
 import { useHistory } from 'contexts/HistoryContext'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
 import { V3SubmitButton } from './components/V3SubmitButton'
 import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
 import { PositionPreview } from './formViews/V3FormView/components/PositionPreview'
@@ -49,7 +49,7 @@ interface AddLiquidityV3PropsType {
 
 export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB }: AddLiquidityV3PropsType) {
   const router = useRouter()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
   const [txnErrorMessage, setTxnErrorMessage] = useState<string | undefined>()
 
@@ -170,7 +170,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
   const showApprovalB = approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
 
   const onIncrease = useCallback(async () => {
-    if (!chainId || !sendTransactionAsync || !account || !interfaceManager || !manager) return
+    if (!chainId || !sendTx || !account || !interfaceManager || !manager) return
 
     if (tokenIdsInMCv3Loading || !positionManager || !baseCurrency || !quoteCurrency) {
       return
@@ -204,7 +204,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
           value: hexToBigInt(value),
         })
         .then((gasLimit) => {
-          return sendTransactionAsync({
+          return sendTx({
             account,
             to: manager.address,
             data: calldata,
@@ -265,7 +265,7 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
     position,
     positionManager,
     quoteCurrency,
-    sendTransactionAsync,
+    sendTx,
     tokenId,
     tokenIdsInMCv3Loading,
     t,

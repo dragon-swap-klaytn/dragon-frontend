@@ -31,7 +31,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { hexToBigInt } from 'viem'
 import Page from 'views/Page'
-import { useSendTransaction, useWalletClient } from 'wagmi'
+import { useWalletClient } from 'wagmi'
 
 import { RangeTag } from 'components/RangeTag'
 import { calculateGasMargin } from 'utils'
@@ -45,6 +45,7 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { isUserRejected } from 'utils/sentry'
 import { toChecksumToken } from 'utils/toChecksumToken'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
 import { useBurnV3ActionHandlers } from './form/hooks'
 
 // redirect invalid tokenIds
@@ -117,7 +118,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
   const [txnHash, setTxnHash] = useState<string | undefined>()
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
 
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
 
   const positionManager = useV3NFTPositionManagerContract()
 
@@ -173,7 +174,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
     const publicClient = getViemClients({ chainId })
 
     publicClient?.estimateGas(txn).then((gas) => {
-      sendTransactionAsync({
+      sendTx({
         ...txn,
         gas: calculateGasMargin(gas),
         chainId,
@@ -225,7 +226,7 @@ function Remove({ tokenId }: { tokenId?: bigint }) {
     feeValue1,
     addTransaction,
     walletClient,
-    sendTransactionAsync,
+    sendTx,
     t,
   ])
 

@@ -25,7 +25,8 @@ import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToU
 import { getViemClients } from 'utils/viem'
 import { Address, hexToBigInt } from 'viem'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
-import { useAccount, useSendTransaction, useWalletClient } from 'wagmi'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
+import { useAccount, useWalletClient } from 'wagmi'
 import { SendTransactionResult } from 'wagmi/actions'
 
 const chainId = ChainId.KLAYTN
@@ -46,7 +47,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
 
   const { tokenMap = {} } = useTokenMap({ poolOnly: true })
 
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
   const { fetchWithCatchTxError } = useCatchTxError()
 
   const [collectMigrationHash, setCollectMigrationHash] = useState<string | null>(null)
@@ -141,7 +142,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
         }
 
         setTxInflight(true)
-        return sendTransactionAsync(newTxn).then((response) => {
+        return sendTx(newTxn).then((response) => {
           addTransaction(
             { hash: response.hash },
             {
@@ -182,7 +183,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     account,
     signer,
     fetchWithCatchTxError,
-    sendTransactionAsync,
+    sendTx,
     t,
     invalidatePortflio,
     addTransaction,
@@ -266,7 +267,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
         }
 
         setTxInflight(true)
-        const response = await sendTransactionAsync(newTxn).then((res) => {
+        const response = await sendTx(newTxn).then((res) => {
           addTransaction(
             { hash: res.hash },
             {
@@ -312,7 +313,7 @@ export default function useClaimModals({ priceMap, portfolio, invalidatePortflio
     positions.staked,
     account,
     fetchWithCatchTxError,
-    sendTransactionAsync,
+    sendTx,
     t,
     positions.rewardClaimable,
     addTransaction,

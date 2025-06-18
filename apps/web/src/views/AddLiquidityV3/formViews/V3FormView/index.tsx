@@ -57,7 +57,8 @@ import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
 import FeeSelector from 'views/AddLiquidityV3/formViews/V3FormView/components/FeeSelector'
 import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
 import { HandleFeePoolSelectFn, QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
-import { useSendTransaction, useWalletClient } from 'wagmi'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
+import { useWalletClient } from 'wagmi'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
 import RangeSelector from './components/RangeSelector'
@@ -117,7 +118,7 @@ export default function V3FormView({
 }: V3FormViewPropsType) {
   const router = useRouter()
   const { data: signer } = useWalletClient()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { sendTx } = useSendFeeDelegatedTx()
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
   const [txnErrorMessage, setTxnErrorMessage] = useState<string | undefined>()
 
@@ -276,7 +277,7 @@ export default function V3FormView({
       getViemClients({ chainId })
         ?.estimateGas(txn)
         .then((gas) => {
-          sendTransactionAsync({
+          sendTx({
             ...txn,
             gas: calculateGasMargin(gas),
           })
@@ -333,7 +334,7 @@ export default function V3FormView({
     position,
     positionManager,
     quoteCurrency,
-    sendTransactionAsync,
+    sendTx,
     signer,
     t,
   ])
