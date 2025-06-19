@@ -35,6 +35,8 @@ import { hexToBigInt } from 'viem'
 
 import { useHistory } from 'contexts/HistoryContext'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
+
+import MaxDepositAmount from 'components/MaxDepositAmount'
 import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
 import { V3SubmitButton } from './components/V3SubmitButton'
 import LockedDeposit from './formViews/V3FormView/components/LockedDeposit'
@@ -428,6 +430,19 @@ export default function IncreaseLiquidityV3({ currencyA: baseCurrency, currencyB
               />
             </LockedDeposit>
           </div>
+
+          <MaxDepositAmount
+            base={{
+              currency: baseCurrency || undefined,
+              amount: +(formattedAmounts[Field.CURRENCY_A] ?? '0'),
+              maxAmount: +(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '0'),
+            }}
+            quote={{
+              currency: quoteCurrency || undefined,
+              amount: +(formattedAmounts[Field.CURRENCY_B] ?? '0'),
+              maxAmount: +(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '0'),
+            }}
+          />
 
           <div className="mt-8">{buttons}</div>
         </div>

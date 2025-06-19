@@ -14,6 +14,7 @@ import { getBlockExploreLink } from 'utils'
 import { logGTMClickAddLiquidityEvent } from 'utils/customGTMEventTracking'
 import { LP2ChildrenProps } from 'views/AddLiquidity'
 
+import MaxDepositAmount from 'components/MaxDepositAmount'
 import { SectionTitle } from 'views/AddLiquidityV3'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
 
@@ -151,6 +152,19 @@ export default function V2FormView({
           id="add-liquidity-input-tokenb"
           showCommonBases
           commonBasesType={CommonBasesType.LIQUIDITY}
+        />
+
+        <MaxDepositAmount
+          base={{
+            currency: currencies[Field.CURRENCY_A],
+            amount: +(formattedAmounts[Field.CURRENCY_A] ?? '0'),
+            maxAmount: +(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '0'),
+          }}
+          quote={{
+            currency: currencies[Field.CURRENCY_B],
+            amount: +(formattedAmounts[Field.CURRENCY_B] ?? '0'),
+            maxAmount: +(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '0'),
+          }}
         />
       </div>
 

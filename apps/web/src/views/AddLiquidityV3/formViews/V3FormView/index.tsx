@@ -1,16 +1,7 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
 import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
-import {
-  AutoColumn,
-  ButtonV2,
-  ExternalLink,
-  Notification,
-  NumberFormat,
-  useModal,
-  useTooltip,
-  ZERO_ADDRESS,
-} from '@pancakeswap/uikit'
+import { AutoColumn, ButtonV2, ExternalLink, Notification, NumberFormat, useModal } from '@pancakeswap/uikit'
 import {
   ConfirmationModalContent,
   LiquidityChartRangeInput,
@@ -34,15 +25,14 @@ import { basisPointsToPercent } from 'utils/exchange'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import { Trans, useTranslation } from '@pancakeswap/localization'
-import { Info, Plus } from '@phosphor-icons/react'
+import { Plus } from '@phosphor-icons/react'
 import { CurrencySelect } from 'components/CurrencySelect'
+import MaxDepositAmount from 'components/MaxDepositAmount'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
-import { useStablecoinPriceAmount } from 'hooks/useBUSDPrice'
 import { useV3NFTPositionManagerContract } from 'hooks/useContract'
-import useTokenPrices from 'hooks/useTokenPrices'
 import { useRouter } from 'next/router'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { styled } from 'styled-components'
@@ -513,125 +503,6 @@ export default function V3FormView({
     feeAmount,
   })
 
-  const tokenAAmount = +(formattedAmounts[Field.CURRENCY_A] ?? '0')
-  const tokenBAmount = +(formattedAmounts[Field.CURRENCY_B] ?? '0')
-  const tokenAMaxAmount = +(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '0')
-  const tokenBMaxAmount = +(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '0')
-  const isAMax = tokenAAmount === tokenAMaxAmount
-  const isBMax = tokenBAmount === tokenBMaxAmount
-
-  const tokenAPrice =
-    useStablecoinPriceAmount(baseCurrency, 1, {
-      enabled: Boolean(baseCurrency),
-    }) || 0
-  const tokenBPrice =
-    useStablecoinPriceAmount(quoteCurrency, 1, {
-      enabled: Boolean(quoteCurrency),
-    }) || 0
-
-  const { prices } = useTokenPrices({
-    source: 'swapscanner',
-  })
-
-  const maxSwapToken = useMemo(() => {
-    if (!prices) {
-      return null
-    }
-    if (!isAMax && !isBMax) {
-      return null
-    }
-    if (tokenAAmount <= tokenAMaxAmount && tokenBAmount <= tokenBMaxAmount) {
-      return null
-    }
-
-    const tokenA = baseCurrency?.isNative ? ZERO_ADDRESS : baseCurrency?.wrapped.address.toLowerCase()
-    const tokenB = quoteCurrency?.isNative ? ZERO_ADDRESS : quoteCurrency?.wrapped.address.toLowerCase()
-
-    if (!tokenA || !tokenB) {
-      return null
-    }
-
-    if (!prices[tokenA] || !prices[tokenB]) {
-      return null
-    }
-
-    const tokenADecimals = baseCurrency?.decimals ?? 18
-    const tokenBDecimals = quoteCurrency?.decimals ?? 18
-
-    const tokenAValue = tokenAAmount * (tokenAPrice || 0)
-    const tokenBValue = tokenBAmount * (tokenBPrice || 0)
-
-    const tokenAValueRate = tokenAValue / (tokenAValue + tokenBValue)
-    const tokenBVAlueRate = tokenBValue / (tokenAValue + tokenBValue)
-
-    const tokenATotalValue = tokenAMaxAmount * tokenAPrice
-    const tokenBTotalVAlue = tokenBMaxAmount * tokenBPrice
-    const totalValue = tokenATotalValue + tokenBTotalVAlue
-
-    const tokenAInput = +((totalValue * tokenAValueRate) / tokenAPrice).toFixed(tokenADecimals)
-    const tokenBInput = +((totalValue * tokenBVAlueRate) / tokenBPrice).toFixed(tokenBDecimals)
-
-    const returnData = {
-      baseToken: {
-        address: baseCurrency?.isNative ? ZERO_ADDRESS : baseCurrency?.wrapped.address.toLowerCase(),
-        symbol: baseCurrency?.symbol,
-        tokenAmount: tokenAInput,
-      },
-      quoteToken: {
-        address: quoteCurrency?.isNative ? ZERO_ADDRESS : quoteCurrency?.wrapped.address.toLowerCase(),
-        symbol: quoteCurrency?.symbol,
-        tokenAmount: tokenBInput,
-      },
-    }
-
-    if (tokenAMaxAmount < tokenAInput) {
-      const neededTokenAAmount = tokenAInput - tokenAMaxAmount
-
-      return {
-        ...returnData,
-        type: 'base',
-        needed: neededTokenAAmount.toFixed(tokenBDecimals),
-        swapAmount: +((neededTokenAAmount * tokenAPrice) / tokenBPrice).toFixed(tokenBDecimals),
-      }
-    }
-
-    if (tokenBMaxAmount < tokenBInput) {
-      const neededTokenBAmount = tokenBInput - tokenBMaxAmount
-
-      return {
-        ...returnData,
-        type: 'quote',
-        needed: neededTokenBAmount.toFixed(tokenADecimals),
-        swapAmount: +((neededTokenBAmount * tokenBPrice) / tokenAPrice).toFixed(tokenADecimals),
-        tokenAInput,
-        tokenBInput,
-      }
-    }
-
-    return null
-  }, [
-    tokenAMaxAmount,
-    tokenBMaxAmount,
-    tokenAPrice,
-    tokenBPrice,
-    isAMax,
-    isBMax,
-    tokenAAmount,
-    tokenBAmount,
-    baseCurrency,
-    quoteCurrency,
-    prices,
-  ])
-
-  const { targetRef, tooltip, tooltipVisible } = useTooltip(
-    <p className="text-sm break-keep">
-      {t('Due to price fluctuations after the swap, some tokens may be insufficient or left over.')}
-    </p>,
-    {
-      placement: 'bottom',
-    },
-  )
-
   return (
     <>
       <div className="md:pr-4 md:border-r md:border-border">
@@ -716,68 +587,18 @@ export default function V3FormView({
               />
             </LockedDeposit>
 
-            {maxSwapToken && (
-              <Notification variant="positive" fullWidth className="mt-5">
-                <div className="flex items-center space-x-1 mb-2">
-                  <h4>{t('Want to maximize your token deposit?')}</h4>
-                  <div ref={targetRef}>
-                    <Info />
-                  </div>
-
-                  {tooltipVisible && tooltip}
-                </div>
-                <p className="mb-2 break-keep">
-                  {t(
-                    'To maximize your deposit, you need to swap {{aAmount}} {{aSymbol}} tokens to {{bSymbol}} tokens.',
-                    {
-                      aAmount: maxSwapToken.swapAmount.toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                        minimumFractionDigits: 6,
-                      }),
-                      aSymbol:
-                        maxSwapToken.type === 'base' ? maxSwapToken.quoteToken.symbol : maxSwapToken.baseToken.symbol,
-                      bSymbol:
-                        maxSwapToken.type === 'base' ? maxSwapToken.baseToken.symbol : maxSwapToken.quoteToken.symbol,
-                    },
-                  )}
-                </p>
-
-                <ExternalLink
-                  className="mb-2"
-                  href={`https://swapscanner.io${router.locale === 'en' ? '' : '/ko'}/swap?from=${
-                    maxSwapToken.type === 'base' ? maxSwapToken.quoteToken.address : maxSwapToken.baseToken.address
-                  }&to=${
-                    maxSwapToken.type === 'base' ? maxSwapToken.baseToken.address : maxSwapToken.quoteToken.address
-                  }&amountIn=${maxSwapToken.swapAmount}`}
-                >
-                  {t('Use Swapscanner')}
-                </ExternalLink>
-                <div className="flex flex-col mb-2">
-                  <h5>
-                    <b>{t('Expected deposit amount after the swap')}</b>
-                  </h5>
-                  <p>
-                    ≈&nbsp;
-                    <b>
-                      {maxSwapToken.baseToken.tokenAmount.toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                        minimumFractionDigits: 6,
-                      })}
-                    </b>
-                    &nbsp;
-                    {maxSwapToken.baseToken.symbol} +&nbsp;
-                    <b>
-                      {maxSwapToken.quoteToken.tokenAmount.toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                        minimumFractionDigits: 6,
-                      })}
-                    </b>
-                    &nbsp;
-                    {maxSwapToken.quoteToken.symbol}
-                  </p>
-                </div>
-              </Notification>
-            )}
+            <MaxDepositAmount
+              base={{
+                currency: baseCurrency,
+                amount: +(formattedAmounts[Field.CURRENCY_A] ?? '0'),
+                maxAmount: +(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '0'),
+              }}
+              quote={{
+                currency: quoteCurrency,
+                amount: +(formattedAmounts[Field.CURRENCY_B] ?? '0'),
+                maxAmount: +(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '0'),
+              }}
+            />
           </div>
         </DynamicSection>
       </div>
