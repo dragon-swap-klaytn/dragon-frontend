@@ -1,6 +1,6 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
-import { Currency, CurrencyAmount, Percent } from '@pancakeswap/sdk'
+import { Currency, CurrencyAmount, Percent, Price, Token } from '@pancakeswap/sdk'
 import { AutoColumn, ButtonV2, ExternalLink, Notification, NumberFormat, useModal } from '@pancakeswap/uikit'
 import {
   ConfirmationModalContent,
@@ -17,7 +17,7 @@ import { FeeAmount, NonfungiblePositionManager } from '@pancakeswap/v3-sdk'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import useV3DerivedInfo from 'hooks/v3/useV3DerivedInfo'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { Field } from 'state/mint/actions'
@@ -26,6 +26,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import { Trans, useTranslation } from '@pancakeswap/localization'
 import { Plus } from '@phosphor-icons/react'
+import clsx from 'clsx'
 import { CurrencySelect } from 'components/CurrencySelect'
 import MaxDepositAmount from 'components/MaxDepositAmount'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
@@ -49,6 +50,7 @@ import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartD
 import { HandleFeePoolSelectFn, QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
 import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
 import { useWalletClient } from 'wagmi'
+import { SendTransactionResult } from 'wagmi/dist/actions'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
 import RangeSelector from './components/RangeSelector'
@@ -434,31 +436,6 @@ export default function V3FormView({
     logGTMClickAddLiquidityEvent()
   }, [expertMode, onAdd, onPresentAddLiquidityModal])
 
-  const buttons = (
-    <V3SubmitButton
-      className="mt-5"
-      addIsUnsupported={addIsUnsupported}
-      addIsWarning={addIsWarning}
-      account={account ?? undefined}
-      isWrongNetwork={Boolean(isWrongNetwork)}
-      approvalA={approvalA}
-      approvalB={approvalB}
-      isValid={isValid}
-      showApprovalA={showApprovalA}
-      approveACallback={approveACallback}
-      currencies={currencies}
-      showApprovalB={showApprovalB}
-      approveBCallback={approveBCallback}
-      parsedAmounts={parsedAmounts}
-      onClick={handleButtonSubmit}
-      attemptingTxn={attemptingTxn}
-      errorMessage={errorMessage}
-      buttonText={t('Add')}
-      depositADisabled={depositADisabled}
-      depositBDisabled={depositBDisabled}
-    />
-  )
-
   useEffect(() => {
     if (!isQuickButtonUsed.current && activeQuickAction) {
       setActiveQuickAction(undefined)
@@ -503,6 +480,45 @@ export default function V3FormView({
     feeAmount,
   })
 
+  const submitButtonParams = {
+    addIsUnsupported,
+    addIsWarning,
+    account,
+    isWrongNetwork,
+    approvalA,
+    approvalB,
+    isValid,
+    showApprovalA,
+    approveACallback,
+    currencies,
+    showApprovalB,
+    approveBCallback,
+    parsedAmounts,
+    handleButtonSubmit,
+    attemptingTxn,
+    errorMessage: errorMessage ?? txnErrorMessage,
+    depositADisabled,
+    depositBDisabled,
+  }
+
+  const tokenInputsParams = {
+    feeAmount,
+    baseCurrency,
+    quoteCurrency,
+    currencies,
+    formattedAmounts,
+    maxAmounts,
+    invalidPool,
+    noLiquidity,
+    startPriceTypedValue,
+    onFieldAInput,
+    onFieldBInput,
+    depositADisabled,
+    depositBDisabled,
+    priceLower,
+    priceUpper,
+  }
+
   return (
     <>
       <div className="md:pr-4 md:border-r md:border-border">
@@ -540,67 +556,7 @@ export default function V3FormView({
           />
         </DynamicSection>
 
-        <DynamicSection
-          disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue) || (!priceLower && !priceUpper)}
-          className="mt-7"
-        >
-          <SectionTitle>{t('Deposit Amount')}</SectionTitle>
-
-          <div className="flex flex-col space-y-2 mt-2">
-            <LockedDeposit locked={depositADisabled}>
-              <CurrencyInputPanel
-                showUSDPrice
-                maxAmount={maxAmounts[Field.CURRENCY_A]}
-                onMax={() => onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')}
-                onPercentInput={(percent) =>
-                  onFieldAInput(maxAmounts[Field.CURRENCY_A]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
-                }
-                disableCurrencySelect
-                value={formattedAmounts[Field.CURRENCY_A] ?? '0'}
-                onUserInput={onFieldAInput}
-                showQuickInputButton
-                showMaxButton
-                currency={currencies[Field.CURRENCY_A]}
-                id="add-liquidity-input-tokena"
-                showCommonBases
-                commonBasesType={CommonBasesType.LIQUIDITY}
-              />
-            </LockedDeposit>
-
-            <LockedDeposit locked={depositBDisabled}>
-              <CurrencyInputPanel
-                showUSDPrice
-                maxAmount={maxAmounts[Field.CURRENCY_B]}
-                onMax={() => onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')}
-                onPercentInput={(percent) =>
-                  onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
-                }
-                disableCurrencySelect
-                value={formattedAmounts[Field.CURRENCY_B] ?? '0'}
-                onUserInput={onFieldBInput}
-                showQuickInputButton
-                showMaxButton
-                currency={currencies[Field.CURRENCY_B]}
-                id="add-liquidity-input-tokenb"
-                showCommonBases
-                commonBasesType={CommonBasesType.LIQUIDITY}
-              />
-            </LockedDeposit>
-
-            <MaxDepositAmount
-              base={{
-                currency: baseCurrency,
-                amount: +(formattedAmounts[Field.CURRENCY_A] ?? '0'),
-                maxAmount: +(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '0'),
-              }}
-              quote={{
-                currency: quoteCurrency,
-                amount: +(formattedAmounts[Field.CURRENCY_B] ?? '0'),
-                maxAmount: +(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '0'),
-              }}
-            />
-          </div>
-        </DynamicSection>
+        <TokenInputs {...tokenInputsParams} className="hidden md:block" />
       </div>
 
       <div>
@@ -828,8 +784,183 @@ export default function V3FormView({
           ) : null}
         </DynamicSection>
 
-        {buttons}
+        <SubmitButton {...submitButtonParams} className="hidden md:block mt-5" />
       </div>
+
+      <TokenInputs {...tokenInputsParams} className="md:hidden" />
+
+      <SubmitButton {...submitButtonParams} className="md:hidden" />
     </>
+  )
+}
+
+function TokenInputs({
+  feeAmount,
+  baseCurrency,
+  quoteCurrency,
+  currencies,
+  formattedAmounts,
+  maxAmounts,
+  invalidPool,
+  noLiquidity,
+  startPriceTypedValue,
+  onFieldAInput,
+  onFieldBInput,
+  depositADisabled,
+  depositBDisabled,
+  priceLower,
+  priceUpper,
+  className,
+}: {
+  feeAmount?: number
+  baseCurrency?: Currency
+  quoteCurrency?: Currency
+  currencies: { [field in Field]?: Currency }
+  formattedAmounts: { [field in Field]?: string }
+  maxAmounts: { [field in Field]?: CurrencyAmount<Currency> }
+  invalidPool: boolean
+  noLiquidity?: boolean
+  startPriceTypedValue?: string
+  onFieldAInput: (value: string) => void
+  onFieldBInput: (value: string) => void
+  depositADisabled: boolean
+  depositBDisabled: boolean
+  priceLower: Price<Token, Token> | undefined
+  priceUpper: Price<Token, Token> | undefined
+  className?: string
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <DynamicSection
+      disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue) || (!priceLower && !priceUpper)}
+      className={clsx('mt-7', className)}
+    >
+      <SectionTitle>{t('Deposit Amount')}</SectionTitle>
+
+      <div className="flex flex-col space-y-2 mt-2">
+        <LockedDeposit locked={depositADisabled}>
+          <CurrencyInputPanel
+            showUSDPrice
+            maxAmount={maxAmounts[Field.CURRENCY_A]}
+            onMax={() => onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')}
+            onPercentInput={(percent) =>
+              onFieldAInput(maxAmounts[Field.CURRENCY_A]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
+            }
+            disableCurrencySelect
+            value={formattedAmounts[Field.CURRENCY_A] ?? '0'}
+            onUserInput={onFieldAInput}
+            showQuickInputButton
+            showMaxButton
+            currency={currencies[Field.CURRENCY_A]}
+            id="add-liquidity-input-tokena"
+            showCommonBases
+            commonBasesType={CommonBasesType.LIQUIDITY}
+          />
+        </LockedDeposit>
+
+        <LockedDeposit locked={depositBDisabled}>
+          <CurrencyInputPanel
+            showUSDPrice
+            maxAmount={maxAmounts[Field.CURRENCY_B]}
+            onMax={() => onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')}
+            onPercentInput={(percent) =>
+              onFieldBInput(maxAmounts[Field.CURRENCY_B]?.multiply(new Percent(percent, 100))?.toExact() ?? '')
+            }
+            disableCurrencySelect
+            value={formattedAmounts[Field.CURRENCY_B] ?? '0'}
+            onUserInput={onFieldBInput}
+            showQuickInputButton
+            showMaxButton
+            currency={currencies[Field.CURRENCY_B]}
+            id="add-liquidity-input-tokenb"
+            showCommonBases
+            commonBasesType={CommonBasesType.LIQUIDITY}
+          />
+        </LockedDeposit>
+
+        <MaxDepositAmount
+          base={{
+            currency: baseCurrency,
+            amount: +(formattedAmounts[Field.CURRENCY_A] ?? '0'),
+            maxAmount: +(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '0'),
+          }}
+          quote={{
+            currency: quoteCurrency,
+            amount: +(formattedAmounts[Field.CURRENCY_B] ?? '0'),
+            maxAmount: +(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '0'),
+          }}
+        />
+      </div>
+    </DynamicSection>
+  )
+}
+
+function SubmitButton({
+  addIsUnsupported,
+  addIsWarning,
+  account,
+  isWrongNetwork,
+  approvalA,
+  approvalB,
+  isValid,
+  showApprovalA,
+  approveACallback,
+  currencies,
+  showApprovalB,
+  approveBCallback,
+  parsedAmounts,
+  handleButtonSubmit,
+  attemptingTxn,
+  errorMessage,
+  depositADisabled,
+  depositBDisabled,
+  className,
+}: {
+  addIsUnsupported: boolean
+  addIsWarning: boolean
+  account?: `0x${string}` | null
+  isWrongNetwork?: boolean
+  approvalA: ApprovalState
+  approvalB: ApprovalState
+  isValid: boolean
+  showApprovalA: boolean
+  approveACallback: () => Promise<SendTransactionResult | undefined>
+  currencies: { [field in Field]?: Currency }
+  showApprovalB: boolean
+  approveBCallback: () => Promise<SendTransactionResult | undefined>
+  parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
+  handleButtonSubmit: () => void
+  attemptingTxn: boolean
+  errorMessage?: ReactNode | string
+  depositADisabled: boolean
+  depositBDisabled: boolean
+  className?: string
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <V3SubmitButton
+      className={className}
+      addIsUnsupported={addIsUnsupported}
+      addIsWarning={addIsWarning}
+      account={account ?? undefined}
+      isWrongNetwork={Boolean(isWrongNetwork)}
+      approvalA={approvalA}
+      approvalB={approvalB}
+      isValid={isValid}
+      showApprovalA={showApprovalA}
+      approveACallback={approveACallback}
+      currencies={currencies}
+      showApprovalB={showApprovalB}
+      approveBCallback={approveBCallback}
+      parsedAmounts={parsedAmounts}
+      onClick={handleButtonSubmit}
+      attemptingTxn={attemptingTxn}
+      errorMessage={errorMessage}
+      buttonText={t('Add')}
+      depositADisabled={depositADisabled}
+      depositBDisabled={depositBDisabled}
+    />
   )
 }
