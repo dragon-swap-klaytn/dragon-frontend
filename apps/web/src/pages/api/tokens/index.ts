@@ -27,7 +27,7 @@ async function fetchTokenMap() {
   return tokenMap
 }
 
-const getCahcedTokenMap = localCachedV2<TokenMap>(fetchTokenMap, {
+const getCachedTokenMap = localCachedV2<TokenMap>(fetchTokenMap, {
   ttl: 1_000 * 60 * 10, // 10 minutes
 }).cachedFetcher
 
@@ -51,7 +51,7 @@ async function fetchTokenMapFromSs() {
   return parsedTokens
 }
 
-const getCahcedTokenMapFromSs = localCachedV2<TokenMap>(fetchTokenMapFromSs, {
+const getCachedTokenMapFromSs = localCachedV2<TokenMap>(fetchTokenMapFromSs, {
   ttl: 1_000 * 60 * 10, // 10 minutes
 }).cachedFetcher
 
@@ -64,8 +64,8 @@ const handler: NextApiHandler = async (req, res) => {
     const { poolOnly } = await tokensSchema.parseAsync(req.query)
 
     const [tokenMap, tokenMapFromSs] = await Promise.all([
-      getCahcedTokenMap(),
-      !poolOnly ? getCahcedTokenMapFromSs() : new Promise<TokenMap>((resovle) => resovle({})),
+      getCachedTokenMap(),
+      !poolOnly ? getCachedTokenMapFromSs() : new Promise<TokenMap>((resolve) => resolve({})),
     ])
 
     const defaultTokens = DEFAULT_TOKEN_LIST.reduce(

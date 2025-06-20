@@ -132,7 +132,7 @@ const getProactivelyCachedV2TokensData = localCachedProactiveV2(
   },
 ).getData
 
-const getV2TokensDatailedData = async () => {
+const getV2TokensDetailedData = async () => {
   const now = Date.now()
   const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
@@ -215,7 +215,7 @@ const getV2TokensDatailedData = async () => {
   return tokensDetailed
 }
 
-export const getCachedV2TokenStats = localCachedV2(getV2TokensDatailedData, {
+export const getCachedV2TokenStats = localCachedV2(getV2TokensDetailedData, {
   staleWhileRevalidate: true,
   ttl: 5 * MINUTE,
   ttlOnCatch: 5_000,
@@ -259,7 +259,7 @@ const getProactivelyCachedV3TokensData = localCachedProactiveV2(
   },
 ).getData
 
-const getV3TokensDatailedData = async () => {
+const getV3TokensDetailedData = async () => {
   const now = Date.now()
   const timestamps = [now - 7 * DAY, now - DAY]
   const blockNumbers = await getCachedBlockNumbers(timestamps)
@@ -342,7 +342,7 @@ const getV3TokensDatailedData = async () => {
   return tokensDetailed
 }
 
-export const getCachedV3TokenStats = localCachedV2(getV3TokensDatailedData, {
+export const getCachedV3TokenStats = localCachedV2(getV3TokensDetailedData, {
   staleWhileRevalidate: true,
   ttl: 5 * MINUTE,
   ttlOnCatch: 5_000,
