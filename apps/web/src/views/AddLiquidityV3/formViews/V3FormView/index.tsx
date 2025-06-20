@@ -26,7 +26,6 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import { Trans, useTranslation } from '@pancakeswap/localization'
 import { Plus } from '@phosphor-icons/react'
-import clsx from 'clsx'
 import { CurrencySelect } from 'components/CurrencySelect'
 import MaxDepositAmount from 'components/MaxDepositAmount'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
@@ -501,7 +500,7 @@ export default function V3FormView({
     depositBDisabled,
   }
 
-  const tokenInputsParams = {
+  const depositAmountsParams = {
     feeAmount,
     baseCurrency,
     quoteCurrency,
@@ -556,7 +555,7 @@ export default function V3FormView({
           />
         </DynamicSection>
 
-        <TokenInputs {...tokenInputsParams} className="hidden md:block" />
+        <DepositAmounts {...depositAmountsParams} className="hidden md:block mt-7" />
       </div>
 
       <div>
@@ -787,14 +786,14 @@ export default function V3FormView({
         <SubmitButton {...submitButtonParams} className="hidden md:block mt-5" />
       </div>
 
-      <TokenInputs {...tokenInputsParams} className="md:hidden" />
+      <DepositAmounts {...depositAmountsParams} className="md:hidden" />
 
       <SubmitButton {...submitButtonParams} className="md:hidden" />
     </>
   )
 }
 
-function TokenInputs({
+function DepositAmounts({
   feeAmount,
   baseCurrency,
   quoteCurrency,
@@ -834,7 +833,7 @@ function TokenInputs({
   return (
     <DynamicSection
       disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue) || (!priceLower && !priceUpper)}
-      className={clsx('mt-7', className)}
+      className={className}
     >
       <SectionTitle>{t('Deposit Amount')}</SectionTitle>
 
