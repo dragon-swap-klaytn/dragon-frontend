@@ -36,8 +36,8 @@ export function useSendFeeDelegatedTx() {
 
   const sendTxGasFeeDelegated = useCallback(
     async ({
-      account: _account,
-      chainId: _chainId,
+      account,
+      chainId,
       to,
       data,
       value,
@@ -46,7 +46,7 @@ export function useSendFeeDelegatedTx() {
       SendTransactionArgs,
       'account' | 'chainId' | 'to' | 'data' | 'value' | 'gas'
     >): Promise<SendTransactionResult> => {
-      if (!_account) {
+      if (!account) {
         throw new Error('Wallet not connected.')
       }
       // Use window.klaytn or window.kaia based on availability
@@ -60,14 +60,14 @@ export function useSendFeeDelegatedTx() {
       try {
         const txForSigning = {
           type: TxType.FeeDelegatedSmartContractExecution,
-          from: _account as string,
+          from: account as string,
           to: to as string,
           data: data as string,
           value: value ? hexValue(BigInt(value)) : '0x0',
-          nonce: await provider.getTransactionCount(_account as string),
+          nonce: await provider.getTransactionCount(account as string),
           gasLimit: gas ? hexValue(BigInt(gas)) : undefined,
           gasPrice: await provider.getFeeData().then((fee) => fee.gasPrice!),
-          chainId: _chainId,
+          chainId,
         }
 
         const signer = provider.getSigner()
@@ -83,6 +83,20 @@ export function useSendFeeDelegatedTx() {
           }),
         }).then(async (res) => {
           if (!res.ok) {
+            if (res.status === 400) {
+              console.warn(
+                'Fee delegation failed with 400 status code. This might be due to insufficient balance for fee delegation.',
+              )
+              return sendTransactionAsync({
+                account,
+                chainId,
+                to,
+                data,
+                value,
+                gas,
+              })
+            }
+
             return res.text().then((text) => {
               console.error('Server error response:', text)
               throw new Error(`Failed to send fee delegated transaction: ${res.status} ${res.statusText} - ${text}`)
@@ -100,7 +114,7 @@ export function useSendFeeDelegatedTx() {
         throw error
       }
     },
-    [],
+    [sendTransactionAsync],
   )
 
   const sendTx = useCallback(

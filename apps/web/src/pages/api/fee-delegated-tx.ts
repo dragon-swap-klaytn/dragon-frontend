@@ -27,7 +27,13 @@ const handler: NextApiHandler = async (req, res) => {
   })
 
   if (!fetchResponse.ok) {
-    const errorBody = await fetchResponse.text() // Try to get error body
+    const errorBody = await fetchResponse.clone().text() // Try to get error body
+
+    if (fetchResponse.status === 400 && errorBody.includes('Insufficient balance')) {
+      return res.status(400).json({
+        message: 'Insufficient balance for fee delegation',
+      })
+    }
 
     throw new Error(`Fee payer server request failed with status ${fetchResponse.status}: ${errorBody}`)
   }
