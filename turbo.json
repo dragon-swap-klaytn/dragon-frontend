@@ -4,7 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["RISK_APP_SECRET", "SERVER_NODE_REAL_API_ETH", "SERVER_NODE_REAL_API_GOERLI"],
+      "env": ["RISK_APP_SECRET", "SERVER_NODE_REAL_API_ETH", "SERVER_NODE_REAL_API_GOERLI", "SCNR_SIGNER_PK"],
       "outputs": ["dist/**", ".next/**/*", "!.next/cache/**", "!.vercel/**/*"]
     },
     "test": {
@@ -33,7 +33,7 @@
     },
     "start": {
       "cache": false,
-      "passThroughEnv": ["USE_MONGO_CACHE", "MONGODB"]
+      "passThroughEnv": ["USE_MONGO_CACHE", "MONGODB", "SCNR_SIGNER_PK"]
     },
     "build:list": {
       "outputs": ["list/**"]
