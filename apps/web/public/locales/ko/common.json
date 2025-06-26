@@ -70,7 +70,7 @@
   "Transaction receipt": "거래 영수증",
   "Add {{asset}} to Wallet": "{{asset}}을(를) 지갑에 추가",
   "Transaction Submitted": "거래 제출됨",
-  "wating approve...": "승인 대기 중...",
+  "waiting approve": "승인 대기 중",
 
   "Dec, 2024": "2024년 12월 기준",
 
@@ -136,7 +136,7 @@
   "Claim fees": "수수료 수령",
   "Collecting fees will withdraw currently available fees for you": "수수료 수령은 현재 사용 가능한 수수료를 가져옵니다.",
   "Transaction rejected": "트랜잭션 거부됨",
-  "wating confirm...": "확인 대기 중...",
+  "waiting confirm...": "확인 대기 중...",
   "Fees Earned": "획득한 수수료",
   "Update with a new quote?": "가격정보를 업데이트하시겠습니까?",
   "Accept": "허용",
@@ -483,5 +483,18 @@
   "Due to price fluctuations after the swap, some tokens may be insufficient or left over.": "스왑 이후 가격 변동으로 인해 토큰 일부가 부족하거나 남을 수 있습니다.",
   "Want to maximize your token deposit?": "최대한 많은 토큰을 예치하고 싶으신가요?",
   "To maximize your deposit, you need to swap {{aAmount}} {{aSymbol}} tokens to {{bSymbol}} tokens.": "최대로 예치하기 위해선 {{aAmount}}개의 {{aSymbol}} 토큰을 {{bSymbol}} 토큰으로 스왑하셔야 합니다.",
-  "Expected deposit amount after the swap": "스왑 이후 예상 예치 개수"
+  "Expected deposit amount after the swap": "스왑 이후 예상 예치 개수",
+  "Currently retrieving the quote": "견적을 받아오고 있는 중입니다",
+  "Swap with Swapscanner": "스왑스캐너로 스왑하기",
+  "<b>Swapscanner</b> aggregates all DEXs on the Kaia chain to provide the best swap quotes, and this swap is executed based on those quotes.": "<b>스왑스캐너</b>는 카이아 체인의 모든 DEX를 연동해 최적의 스왑 견적을 제공하며, 본 스왑도 이러한 견적을 기반으로 실행됩니다.",
+  "Swap Completed": "스왑 완료",
+  "The difference between the market price and your price due to trade size.": "거래 규모 때문에 시장 가격과 사용자의 거래 가격 사이에 생기는 차이",
+  "Due to fees and price fluctuations, some tokens may be insufficient or left over even after the swap.": "수수료와 가격 변동으로 인해 스왑 이후에도 일부 토큰이 부족하거나 남을 수 있습니다.",
+  "The swap fee consists of the DragonSwap fee and the Swapscanner fee.": "스왑 수수료는 드래곤스왑 수수료와 스왑스캐너 수수료로 구성됩니다.",
+  "Swapscanner-fee-link": "https://docs.swapscanner.io/service/swap#undefined-3",
+  "- Swapscanner fee": "- 스왑스캐너 수수료",
+  "- DragonSwap fee: {{fee}}% of the input token": "- 드래곤스왑 수수료: input 토큰의 {{fee}}%",
+  "Swap with": "로 스왑하기",
+  "Refresh quote": "견적 새로고침",
+  "Enable spending {{symbol}}": "{{symbol}} 사용 허용"
 }

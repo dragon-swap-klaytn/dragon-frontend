@@ -421,3 +421,8 @@ export const SYMBOL_ALIASES: Record<string, string[]> = {
 export const TOKEN_MAPPER = {
   usdt: [TETHER_TOKEN],
 }
+
+export const REFERRER_FEE_ACCOUNT = '0x0B315Db5574a3AA8b74CC72291327947d871b99E'.toLowerCase() as Address
+export const SS_REFERRER_FEE_NUMERATOR = '10'
+export const SS_REFERRER_FEE_DENOMINATOR = '100'
+export const SIGNER_PK = process.env.SCNR_SIGNER_PK || ''

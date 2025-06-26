@@ -3,7 +3,7 @@ import { ChainId, ERC20Token, Token } from '@pancakeswap/sdk'
 import { Currency } from '@pancakeswap/swap-sdk-core'
 
 import { TokenAddressMap } from '@pancakeswap/token-lists'
-import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
+import { VALID_ADDRESS_REGEX, ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { TOKEN_MAPPER } from 'const'
 import { useMemo } from 'react'
 import { useUnsupportedTokenList, useWarningTokenList } from 'state/lists/hooks'
@@ -218,7 +218,10 @@ export function useCurrency(
   { needChecksummed = false } = {},
 ): Currency | ERC20Token | null | undefined {
   const native = useNativeCurrency()
-  const isNative = useMemo(() => currencyId?.toLowerCase() === native.symbol?.toLowerCase(), [currencyId, native])
+  const isNative = useMemo(
+    () => currencyId?.toLowerCase() === native.symbol?.toLowerCase() || currencyId === ZERO_ADDRESS,
+    [currencyId, native],
+  )
   const token = useToken(isNative ? undefined : currencyId, { needChecksummed })
   return isNative ? native : token
 }

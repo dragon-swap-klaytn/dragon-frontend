@@ -1,7 +1,7 @@
-import { useMatchBreakpoints } from '@pancakeswap/uikit'
 import KlipProvider from '@pancakeswap/wagmi/connectors/klip/interface'
 import useKlip from 'hooks/useKlip'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { klipConnector } from 'utils/wagmi'
 import { useAccount } from 'wagmi'
 
@@ -11,7 +11,6 @@ const useA2AConnectorQRUri = () => {
   const a2aProviderRef = useRef<KlipProvider | null>(null)
 
   const { connector } = useAccount()
-  const { isMobile } = useMatchBreakpoints()
 
   const [qrUri, setQrUri] = useState('')
   const [requestKey, setRequestKey] = useState('')
@@ -52,7 +51,7 @@ const useA2AConnectorQRUri = () => {
         initProviderEvtHandler = false
       }
     }
-  }, [isA2AConnector, isMobile, displayUriHandler, requestKeyHandler])
+  }, [isA2AConnector, displayUriHandler, requestKeyHandler])
 
   useEffect(() => {
     return () => {

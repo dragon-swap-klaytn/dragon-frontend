@@ -1,9 +1,14 @@
 import { Currency } from '@pancakeswap/swap-sdk-core'
-import { ExternalLink, Notification, useTooltip } from '@pancakeswap/uikit'
-import { Info } from '@phosphor-icons/react'
+import { ButtonV2, Notification, useModal, useTooltip } from '@pancakeswap/uikit'
+import { useUserSlippage } from '@pancakeswap/utils/user'
+import { InfoIcon } from '@phosphor-icons/react'
+import clsx from 'clsx'
+import { SsLogo } from 'components/Vector'
+import useSsQuote from 'hooks/use-ss-quote'
+import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import useMaxDepositAmount from 'hooks/useMaxDepositAmount'
 import { useTranslation } from 'next-i18next'
-import { useRouter } from 'next/router'
+import { ConfirmSsSwapModal } from 'views/Swap/Ss/ConfirmSsSwapModal'
 
 export default function MaxDepositAmount({
   base,
@@ -20,12 +25,16 @@ export default function MaxDepositAmount({
     maxAmount: number
   }
 }) {
-  const router = useRouter()
-  const { t } = useTranslation()
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation()
+
+  const { account } = useActiveWeb3React()
 
   const { targetRef, tooltip, tooltipVisible } = useTooltip(
     <p className="text-sm break-keep">
-      {t('Due to price fluctuations after the swap, some tokens may be insufficient or left over.')}
+      {t('Due to fees and price fluctuations, some tokens may be insufficient or left over even after the swap.')}
     </p>,
     {
       placement: 'bottom',
@@ -45,6 +54,32 @@ export default function MaxDepositAmount({
     },
   })
 
+  const tokenIn = !maxSwapToken ? null : maxSwapToken.type === 'base' ? maxSwapToken.quoteToken : maxSwapToken.baseToken
+  const tokenOut = !maxSwapToken
+    ? null
+    : maxSwapToken.type === 'base'
+    ? maxSwapToken.baseToken
+    : maxSwapToken.quoteToken
+
+  const amount = !maxSwapToken || !tokenIn ? '0' : maxSwapToken.swapAmount.numerator.toString()
+  const [allowedSlippage] = useUserSlippage()
+  const { ssQuote, refreshSsQuote, ssQuoteIsLoading } = useSsQuote({
+    slippage: allowedSlippage.toString(),
+    from: account || '',
+    to: account || '',
+    tokenInAddress: tokenIn?.address || '',
+    tokenOutAddress: tokenOut?.address || '',
+    amount,
+    enable: !!maxSwapToken,
+  })
+  const [onPresentConfirmModal] = useModal(
+    <ConfirmSsSwapModal quote={ssQuote} refreshQuote={refreshSsQuote} refreshing={!ssQuote || ssQuoteIsLoading} />,
+    true,
+    true,
+    'ConfirmSsSwapModal',
+    [ssQuote, ssQuoteIsLoading],
+  )
+
   if (!maxSwapToken) {
     return null
   }
@@ -54,32 +89,31 @@ export default function MaxDepositAmount({
       <div className="flex items-center space-x-1 mb-2">
         <h4>{t('Want to maximize your token deposit?')}</h4>
         <div ref={targetRef}>
-          <Info />
+          <InfoIcon />
         </div>
 
         {tooltipVisible && tooltip}
       </div>
       <p className="mb-2 break-keep">
         {t('To maximize your deposit, you need to swap {{aAmount}} {{aSymbol}} tokens to {{bSymbol}} tokens.', {
-          aAmount: maxSwapToken.swapAmount.toLocaleString(undefined, {
-            maximumFractionDigits: 6,
-            minimumFractionDigits: 6,
-          }),
+          aAmount: maxSwapToken.swapAmount.toFixed(6),
           aSymbol: maxSwapToken.type === 'base' ? maxSwapToken.quoteToken.symbol : maxSwapToken.baseToken.symbol,
           bSymbol: maxSwapToken.type === 'base' ? maxSwapToken.baseToken.symbol : maxSwapToken.quoteToken.symbol,
         })}
       </p>
 
-      <ExternalLink
-        className="mb-2"
-        href={`https://swapscanner.io${router.locale === 'en' ? '' : '/ko'}/swap?from=${
-          maxSwapToken.type === 'base' ? maxSwapToken.quoteToken.address : maxSwapToken.baseToken.address
-        }&to=${
-          maxSwapToken.type === 'base' ? maxSwapToken.baseToken.address : maxSwapToken.quoteToken.address
-        }&amountIn=${maxSwapToken.swapAmount}`}
+      <ButtonV2
+        scale="xs"
+        variant="primary"
+        onClick={onPresentConfirmModal}
+        className={clsx('my-4 flex items-center gap-1', {
+          'flex-row-reverse': locale === 'ko',
+        })}
       >
-        {t('Use Swapscanner')}
-      </ExternalLink>
+        <span className="font-bold">{t('Swap with')}</span>
+        <SsLogo className="inline-block" width={92} />
+      </ButtonV2>
+
       <div className="flex flex-col mb-2">
         <h5>
           <b>{t('Expected deposit amount after the swap')}</b>
@@ -87,7 +121,7 @@ export default function MaxDepositAmount({
         <p>
           ≈&nbsp;
           <b>
-            {maxSwapToken.baseToken.tokenAmount.toLocaleString(undefined, {
+            {maxSwapToken.baseToken.amount.toLocaleString(undefined, {
               maximumFractionDigits: 6,
               minimumFractionDigits: 6,
             })}
@@ -95,7 +129,7 @@ export default function MaxDepositAmount({
           &nbsp;
           {maxSwapToken.baseToken.symbol} +&nbsp;
           <b>
-            {maxSwapToken.quoteToken.tokenAmount.toLocaleString(undefined, {
+            {maxSwapToken.quoteToken.amount.toLocaleString(undefined, {
               maximumFractionDigits: 6,
               minimumFractionDigits: 6,
             })}

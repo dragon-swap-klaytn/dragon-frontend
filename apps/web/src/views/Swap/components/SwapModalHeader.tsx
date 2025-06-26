@@ -83,7 +83,7 @@ export default function SwapModalHeader({
         </Notification>
       )}
 
-      <p className="text-center text-on-surface text-sm mt-4">{tradeInfoText}</p>
+      <p className="text-center text-on-surface text-sm mt-4 break-keep">{tradeInfoText}</p>
 
       {recipient ? (
         <div className="flex flex-col space-y-3 mt-4 bg-neutral">

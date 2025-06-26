@@ -38,7 +38,7 @@ const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
           )}
           <h2 className="text-lg font-bold text-on-surface">{title}</h2>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           {headerRightSlot}
 
           {!hideCloseButton && (

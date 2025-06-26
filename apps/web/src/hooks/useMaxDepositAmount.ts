@@ -1,4 +1,4 @@
-import { Currency } from '@pancakeswap/swap-sdk-core'
+import { Currency, CurrencyAmount } from '@pancakeswap/swap-sdk-core'
 import { ZERO_ADDRESS } from '@pancakeswap/uikit'
 import { useStablecoinPriceAmount } from 'hooks/useBUSDPrice'
 import useTokenPrices from 'hooks/useTokenPrices'
@@ -18,21 +18,7 @@ export default function useMaxDepositAmount({
     amount: number
     maxAmount: number
   }
-}): {
-  type: string
-  needed: string
-  swapAmount: number
-  baseToken: {
-    address: string | undefined
-    symbol: string | undefined
-    tokenAmount: number
-  }
-  quoteToken: {
-    address: string | undefined
-    symbol: string | undefined
-    tokenAmount: number
-  }
-} | null {
+}) {
   const isAMax = base.amount === base.maxAmount
   const isBMax = quote.amount === quote.maxAmount
 
@@ -91,51 +77,47 @@ export default function useMaxDepositAmount({
       baseToken: {
         address: base.currency?.isNative ? ZERO_ADDRESS : base.currency?.wrapped.address.toLowerCase(),
         symbol: base.currency?.symbol,
-        tokenAmount: tokenAInput,
+        amount: tokenAInput,
+        decimals: tokenADecimals,
       },
       quoteToken: {
         address: quote.currency?.isNative ? ZERO_ADDRESS : quote.currency?.wrapped.address.toLowerCase(),
         symbol: quote.currency?.symbol,
-        tokenAmount: tokenBInput,
+        amount: tokenBInput,
+        decimals: tokenBDecimals,
       },
     }
 
-    if (base.maxAmount < tokenAInput) {
+    if (base.maxAmount < tokenAInput && quote.currency) {
       const neededTokenAAmount = tokenAInput - base.maxAmount
 
       return {
         ...returnData,
         type: 'base',
-        needed: neededTokenAAmount.toFixed(tokenBDecimals),
-        swapAmount: +((neededTokenAAmount * tokenAPrice) / tokenBPrice).toFixed(tokenBDecimals),
+        needed: neededTokenAAmount.toFixed(tokenADecimals),
+        swapAmount: CurrencyAmount.fromRawAmount(
+          quote.currency,
+          (((neededTokenAAmount * tokenAPrice) / tokenBPrice) * 10 ** tokenBDecimals).toFixed(0),
+        ),
       }
     }
 
-    if (quote.maxAmount < tokenBInput) {
+    if (quote.maxAmount < tokenBInput && base.currency) {
       const neededTokenBAmount = tokenBInput - quote.maxAmount
 
       return {
         ...returnData,
         type: 'quote',
-        needed: neededTokenBAmount.toFixed(tokenADecimals),
-        swapAmount: +((neededTokenBAmount * tokenBPrice) / tokenAPrice).toFixed(tokenADecimals),
+        needed: neededTokenBAmount.toFixed(tokenBDecimals),
+        swapAmount: CurrencyAmount.fromRawAmount(
+          base.currency,
+          (((neededTokenBAmount * tokenBPrice) / tokenAPrice) * 10 ** tokenADecimals).toFixed(0),
+        ),
       }
     }
 
     return null
-  }, [
-    base.maxAmount,
-    quote.maxAmount,
-    tokenAPrice,
-    tokenBPrice,
-    isAMax,
-    isBMax,
-    base.amount,
-    quote.amount,
-    base.currency,
-    quote.currency,
-    prices,
-  ])
+  }, [tokenAPrice, tokenBPrice, isAMax, isBMax, prices, base, quote])
 
   return maxSwapToken
 }
