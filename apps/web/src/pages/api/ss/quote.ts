@@ -127,16 +127,16 @@ const quoteSchema = z.object({
 const handler: NextApiHandler = async (req, res) => {
   const { slippage, from, to, tokenInAddress, tokenOutAddress, amount } = await quoteSchema.parseAsync(req.query)
 
-  if (!SIGNER_PK) {
-    res.status(500).json({ error: 'SIGNER_PK is not set' })
-  }
-
-  if (!referrerAccount) {
-    const wallet = new Wallet(SIGNER_PK)
-    referrerAccount = wallet.address.toLowerCase()
-  }
-
   try {
+    if (!SIGNER_PK) {
+      res.status(500).json({ error: 'SIGNER_PK is not set' })
+    }
+
+    if (!referrerAccount) {
+      const wallet = new Wallet(SIGNER_PK)
+      referrerAccount = wallet.address.toLowerCase()
+    }
+
     const salt = `0x${crypto.randomBytes(32).toString('hex')}` as any
 
     const message = {
@@ -265,7 +265,7 @@ const handler: NextApiHandler = async (req, res) => {
 
     res.status(200).json(quoteResponse)
   } catch (err) {
-    console.error('/api/pools', err)
+    console.error('/api/ss/quote', referrerAccount, err)
 
     throw err
   }
