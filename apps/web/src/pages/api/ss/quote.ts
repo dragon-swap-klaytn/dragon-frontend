@@ -265,15 +265,7 @@ const handler: NextApiHandler = async (req, res) => {
 
     res.status(200).json(quoteResponse)
   } catch (err) {
-    console.error(
-      '/api/ss/quote',
-      {
-        type: typeof SIGNER_PK,
-        startsWith: SIGNER_PK?.startsWith('0x'),
-      },
-      referrerAccount,
-      err,
-    )
+    console.error('/api/ss/quote', err)
 
     throw err
   }

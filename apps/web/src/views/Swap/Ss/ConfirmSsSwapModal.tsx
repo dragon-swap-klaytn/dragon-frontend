@@ -87,9 +87,6 @@ export const ConfirmSsSwapModal = memo<InjectedModalProps & ConfirmSsSwapModalPr
 
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
 
-  const currencyA = useCurrency(quote?.input.address)
-  const currencyB = useCurrency(quote?.output.address)
-
   const [innerQuote, setInnerQuote] = useState<QuoteResponse | undefined>(quote)
   useEffect(() => {
     if (attemptingTxn) {
@@ -99,13 +96,16 @@ export const ConfirmSsSwapModal = memo<InjectedModalProps & ConfirmSsSwapModalPr
     setInnerQuote(quote)
   }, [quote, attemptingTxn])
 
+  const currencyA = useCurrency(innerQuote?.input.address)
+  const currencyB = useCurrency(innerQuote?.output.address)
+
   const [title, setTitle] = useState<string>('')
   const modalContent = useMemo(() => {
-    if (!currencyA || !currencyB) {
+    if (!innerQuote && (!currencyA || !currencyB)) {
       return <LoadingQuote />
     }
 
-    if (innerQuote?.type === 'approve') {
+    if (innerQuote?.type === 'approve' && currencyA) {
       setTitle(t('Enable spending {{symbol}}', { symbol: `${currencyA.symbol}` }))
     }
     if (innerQuote?.type === 'swap') {
@@ -117,7 +117,7 @@ export const ConfirmSsSwapModal = memo<InjectedModalProps & ConfirmSsSwapModalPr
         return <ApproveModalContent qrUri={qrUri} />
       }
 
-      if (innerQuote?.type === 'swap') {
+      if (innerQuote?.type === 'swap' && currencyA && currencyB) {
         const amountA = +innerQuote.input.amount / 10 ** currencyA.decimals
         const amountB = +innerQuote.output.estimatedAmountDeductingFee / 10 ** currencyB.decimals
 
