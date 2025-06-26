@@ -181,7 +181,7 @@ const handler: NextApiHandler = async (req, res) => {
 
     // sign the data (signTypedData_v4).
     const signature = signTypedData({
-      privateKey: SIGNER_PK as any,
+      privateKey: Buffer.from(SIGNER_PK.slice(2), 'hex'),
       data: {
         message,
         // all the entries in the domain field are fixed constants for now, except for the salt.
@@ -265,7 +265,15 @@ const handler: NextApiHandler = async (req, res) => {
 
     res.status(200).json(quoteResponse)
   } catch (err) {
-    console.error('/api/ss/quote', referrerAccount, err, typeof SIGNER_PK)
+    console.error(
+      '/api/ss/quote',
+      {
+        type: typeof SIGNER_PK,
+        startsWith: SIGNER_PK?.startsWith('0x'),
+      },
+      referrerAccount,
+      err,
+    )
 
     throw err
   }
