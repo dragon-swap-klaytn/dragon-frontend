@@ -181,7 +181,7 @@ const handler: NextApiHandler = async (req, res) => {
 
     // sign the data (signTypedData_v4).
     const signature = signTypedData({
-      privateKey: Buffer.from(SIGNER_PK, 'hex'),
+      privateKey: SIGNER_PK as any,
       data: {
         message,
         // all the entries in the domain field are fixed constants for now, except for the salt.
