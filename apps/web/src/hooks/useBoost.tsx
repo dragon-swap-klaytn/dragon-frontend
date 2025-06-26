@@ -43,7 +43,7 @@ export default function useBoost({
     <ApprovalConfirmationModal
       title={t('Confirm Transaction')}
       content={() => ''}
-      pendingText={t('wating confirm...')}
+      pendingText={t('waiting confirm...')}
       attemptingTxn={loading}
       customOnDismiss={handleDismissConfirmation}
     />,

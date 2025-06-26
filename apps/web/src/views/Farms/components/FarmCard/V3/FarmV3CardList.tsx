@@ -40,7 +40,7 @@ const FarmV3CardList: React.FunctionComponent<React.PropsWithChildren<FarmV3Card
     <ApprovalConfirmationModal
       title={t('Confirm Transaction')}
       content={() => ''}
-      pendingText="wating confirm..."
+      pendingText="waiting confirm..."
       attemptingTxn
       customOnDismiss={handleDismiss}
     />,

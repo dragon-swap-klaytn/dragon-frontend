@@ -38,7 +38,10 @@ const ApprovalConfirmationModal: React.FC<
   return (
     <Modal title={title} {...props} onDismiss={handleDismiss}>
       {attemptingTxn ? (
-        <ConfirmationPendingContent qrUri={qrUri} pendingText={pendingText ? t(pendingText) : t('wating approve...')} />
+        <ConfirmationPendingContent
+          qrUri={qrUri}
+          pendingText={pendingText ? t(pendingText) : t('waiting approve...')}
+        />
       ) : (
         content()
       )}

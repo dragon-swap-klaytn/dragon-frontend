@@ -7,7 +7,7 @@ import {
   // eslint-disable-next-line camelcase
   unstable_serialize,
 } from 'swr'
-import { BlockingData } from 'swr/_internal'
+import { BlockingData, IsLoadingResponse } from 'swr/_internal'
 
 declare module 'swr' {
   interface SWRResponse<Data = any, Error = any, Config = any> {
@@ -15,7 +15,7 @@ declare module 'swr' {
     error: Error | undefined
     mutate: KeyedMutator<Data>
     isValidating: boolean
-    isLoading: BlockingData<Data, Config> extends true ? false : boolean
+    isLoading: IsLoadingResponse<Data, Config>
     // Add global fetchStatus to SWRResponse
     status: TFetchStatus
   }

@@ -36,7 +36,7 @@ export function useUnwrapRewardV2({ rewardToken, onDone, modalKey }: IProps) {
     <ApprovalConfirmationModal
       title={t('Confirm Transaction')}
       content={() => ''}
-      pendingText={t('wating confirm...')}
+      pendingText={t('waiting confirm...')}
       attemptingTxn={inflight}
       customOnDismiss={handleDismissConfirmation}
     />,

@@ -110,7 +110,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     <ApprovalConfirmationModal
       title={t('Confirm Transaction')}
       content={() => ''}
-      pendingText="wating confirm..."
+      pendingText="waiting confirm..."
       attemptingTxn
     />,
     true,

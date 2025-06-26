@@ -141,7 +141,7 @@ const SingleFarmV3Card: React.FunctionComponent<
     <ApprovalConfirmationModal
       title={t('Confirm Transaction')}
       content={() => ''}
-      pendingText="wating confirm..."
+      pendingText="waiting confirm..."
       attemptingTxn
       customOnDismiss={handleDismiss}
     />,
