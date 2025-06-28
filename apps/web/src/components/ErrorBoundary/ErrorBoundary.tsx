@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<
             <div className="flex flex-col items-center justify-center space-y-3 h-[60vh]">
               <p className="text-on-surface text-lg">{this.props.fallback || 'Oops, something wrong.'}</p>
 
-              <ButtonV2 variant="primary" onClick={() => location.reload()}>
+              <ButtonV2 variant="primary" onClick={() => window.location.reload()}>
                 Reload
               </ButtonV2>
             </div>
