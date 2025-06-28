@@ -97,7 +97,7 @@ export default function useMaxDepositAmount({
         needed: neededTokenAAmount.toFixed(tokenADecimals),
         swapAmount: CurrencyAmount.fromRawAmount(
           quote.currency,
-          (((neededTokenAAmount * tokenAPrice) / tokenBPrice) * 10 ** tokenBDecimals).toFixed(0),
+          +(((neededTokenAAmount * tokenAPrice) / tokenBPrice) * 10 ** tokenBDecimals).toFixed(0),
         ),
       }
     }
@@ -111,7 +111,7 @@ export default function useMaxDepositAmount({
         needed: neededTokenBAmount.toFixed(tokenBDecimals),
         swapAmount: CurrencyAmount.fromRawAmount(
           base.currency,
-          (((neededTokenBAmount * tokenBPrice) / tokenAPrice) * 10 ** tokenADecimals).toFixed(0),
+          +(((neededTokenBAmount * tokenBPrice) / tokenAPrice) * 10 ** tokenADecimals).toFixed(0),
         ),
       }
     }
