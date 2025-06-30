@@ -75,7 +75,7 @@ export const ConfirmSsSwapModal = memo<InjectedModalProps & ConfirmSsSwapModalPr
 }) {
   const { chainId } = useActiveChainId()
   const { t } = useTranslation()
-  const { qrUri, requestKey, cancelKlipRequest } = useA2AConnectorQRUri()
+  const { qrUri, requestKey, cancelKlipRequest, initKlipRequest } = useA2AConnectorQRUri()
 
   const handleDismiss = useCallback(() => {
     onDismiss?.()
@@ -86,6 +86,22 @@ export const ConfirmSsSwapModal = memo<InjectedModalProps & ConfirmSsSwapModalPr
   }, [onDismiss, requestKey, cancelKlipRequest])
 
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
+
+  const onDone = useCallback(() => {
+    if (!quote) {
+      return
+    }
+
+    initKlipRequest()
+
+    if (quote.type === 'approve') {
+      refreshQuote()
+    }
+
+    if (quote.type === 'swap') {
+      handleDismiss()
+    }
+  }, [refreshQuote, quote, handleDismiss, initKlipRequest, qrUri, requestKey])
 
   const [innerQuote, setInnerQuote] = useState<QuoteResponse | undefined>(quote)
   useEffect(() => {
@@ -137,15 +153,8 @@ export const ConfirmSsSwapModal = memo<InjectedModalProps & ConfirmSsSwapModalPr
       return <LoadingQuote />
     }
 
-    return (
-      <SsSwapContent
-        quote={quote}
-        refreshQuote={refreshQuote}
-        setAttemptingTxn={setAttemptingTxn}
-        handleDismiss={handleDismiss}
-      />
-    )
-  }, [quote, currencyA, currencyB, attemptingTxn, t, qrUri, refreshQuote, handleDismiss, innerQuote])
+    return <SsSwapContent quote={quote} onDone={onDone} setAttemptingTxn={setAttemptingTxn} />
+  }, [quote, currencyA, currencyB, attemptingTxn, t, qrUri, onDone, innerQuote])
 
   if (!chainId) return null
 
@@ -174,14 +183,12 @@ function LoadingQuote() {
 
 function SsSwapContent({
   quote,
-  refreshQuote,
+  onDone,
   setAttemptingTxn,
-  handleDismiss,
 }: {
   quote: QuoteResponse
-  refreshQuote: () => void
+  onDone: () => void
   setAttemptingTxn: Dispatch<SetStateAction<boolean>>
-  handleDismiss: () => void
 }) {
   const { t } = useTranslation()
 
@@ -240,15 +247,6 @@ function SsSwapContent({
   const { chainId } = useActiveChainId()
   const publicClient = viemClients[chainId as keyof typeof viemClients]
 
-  const onDone = useCallback(() => {
-    if (quote.type === 'approve') {
-      refreshQuote()
-    }
-
-    if (quote.type === 'swap') {
-      handleDismiss()
-    }
-  }, [refreshQuote, quote, handleDismiss])
   const executeQuote = useCallback(async () => {
     try {
       if (!quote) {
