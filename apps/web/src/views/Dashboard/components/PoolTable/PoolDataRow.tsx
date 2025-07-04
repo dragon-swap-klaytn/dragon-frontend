@@ -110,7 +110,7 @@ export const PoolDataRow = ({
     [poolData.token0.symbol, poolData.token1.symbol],
   )
 
-  const isBoosted = !!(poolData as PoolV3Parsed).rewardApr && (poolData as PoolV3Parsed).rewardApr > 0
+  const isBoosted = !!(poolData as PoolV3Parsed).cakePerSecond
   const containsOutOfBounds =
     (portfolioData as PortfolioV3DataBigInt)?.positions &&
     (portfolioData as PortfolioV3DataBigInt).positions.some((p) => p.isOutOfBounds)
