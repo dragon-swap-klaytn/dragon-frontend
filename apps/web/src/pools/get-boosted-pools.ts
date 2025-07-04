@@ -99,8 +99,6 @@ export const getBoostedPools = async () => {
   )
 
   return Object.fromEntries(
-    poolInfos
-      .filter((pool) => pool.allocPoint > 0 && pool.totalBoostLiquidity !== '0')
-      .map((pool) => [pool.poolAddress.toLowerCase(), pool]),
+    poolInfos.filter((pool) => pool.allocPoint > 0).map((pool) => [pool.poolAddress.toLowerCase(), pool]),
   )
 }
