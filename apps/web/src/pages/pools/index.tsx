@@ -7,13 +7,15 @@ import { ButtonV2, Chip, Notification, SearchBar, SegmentedControl, Spinner } fr
 import clsx from 'clsx'
 import Page from 'components/Layout/Page'
 import { DEFAULT_POOLS_FILTERS } from 'const'
-import usePortfolio from 'hooks/usePortfolio'
+import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import useRouterReady from 'hooks/useRouterReady'
 import useTokenBalance from 'hooks/useTokenBalance'
+import useTokenPricesWithFallback from 'hooks/useTokenPricesWithFallback'
 import { useUnwrapRewardV2 } from 'hooks/useUnwrapRewardV2'
 import NextLink from 'next/link'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useState } from 'react'
+import { PortfolioV2Data } from 'pages/api/portfolio'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PoolType } from 'types'
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import isEmptyObject from 'utils/isEmptyObject'
@@ -33,6 +35,12 @@ type PoolsBaseParams = {
   myPositionOnly: boolean
   addresses?: Address[]
 }
+
+export type PortfolioWithDepositedTvlData = (PortfolioV2Data | PortfolioV3DataBigInt) & { depositedTvl: number }
+export type PortfolioWithDepositedTvlMap = {
+  [poolId: Address]: PortfolioWithDepositedTvlData
+}
+
 const PoolsPage = () => {
   const { address: account } = useAccount()
 
@@ -54,12 +62,88 @@ const PoolsPage = () => {
   const isRouterReady = useRouterReady()
 
   const [baseParams, setBaseParams] = useState<PoolsBaseParams>({} as PoolsBaseParams)
-  const addresses =
-    myPositionOnly && portfolio
-      ? Object.values(portfolio)
-          .filter(({ type }) => poolTypeOptions.find((option) => option.value === type))
-          .map(({ poolId }) => poolId)
-      : undefined
+  const { priceMap } = useTokenPricesWithFallback()
+
+  const portfolioWithDepositedTvl = useMemo(() => {
+    if (!portfolio || !priceMap || !Object.keys(priceMap).length) return {}
+
+    return Object.entries(portfolio).reduce((acc, [poolId, position]) => {
+      let depositedTvl = 0
+      if (position.type === 'v2') {
+        const { token0, token1 } = position as PortfolioV2Data
+
+        const token0Value = (priceMap?.[token0.address] || 0) * token0.amount
+        const token1Value = (priceMap?.[token1.address] || 0) * token1.amount
+
+        depositedTvl = token0Value + token1Value
+      } else {
+        const { positions } = position as PortfolioV3DataBigInt
+
+        for (const pos of positions) {
+          const { token0, token1 } = pos
+
+          const token0Value = (priceMap?.[token0.address] || 0) * token0.amount
+          const token1Value = (priceMap?.[token1.address] || 0) * token1.amount
+
+          depositedTvl += token0Value + token1Value
+        }
+      }
+
+      return {
+        ...acc,
+        [poolId]: {
+          ...position,
+          depositedTvl,
+        },
+      }
+    }, {} as PortfolioWithDepositedTvlMap)
+  }, [portfolio, priceMap])
+
+  const positions = useMemo(
+    () =>
+      portfolio
+        ? Object.values(portfolio).filter(({ type }) => poolTypeOptions.find((option) => option.value === type))
+        : [],
+    [portfolio, poolTypeOptions],
+  )
+
+  const sortedPositionPoolIds = useMemo(() => {
+    if (!priceMap || !Object.keys(priceMap).length || !myPositionOnly) return []
+
+    const positionsWithDepositedTvl = positions.reduce((acc, position) => {
+      let depositedTvl = 0
+      if (position.type === 'v2') {
+        const { token0, token1 } = position as PortfolioV2Data
+
+        const token0Value = (priceMap?.[token0.address] || 0) * token0.amount
+        const token1Value = (priceMap?.[token1.address] || 0) * token1.amount
+
+        depositedTvl = token0Value + token1Value
+      } else {
+        const { positions } = position as PortfolioV3DataBigInt
+
+        for (const pos of positions) {
+          const { token0, token1 } = pos
+
+          const token0Value = (priceMap?.[token0.address] || 0) * token0.amount
+          const token1Value = (priceMap?.[token1.address] || 0) * token1.amount
+
+          depositedTvl += token0Value + token1Value
+        }
+      }
+
+      return {
+        ...acc,
+        [position.poolId]: depositedTvl,
+      }
+    }, {} as { [poolId: Address]: number })
+
+    const sortedPositionPools = Object.entries(positionsWithDepositedTvl)
+      .sort(([, a], [, b]) => a - b)
+      .map(([poolId]) => poolId as Address)
+
+    return sortedPositionPools
+  }, [priceMap, positions, myPositionOnly])
 
   useEffect(() => {
     if (!router.isReady || !isRouterReady) return
@@ -117,9 +201,9 @@ const PoolsPage = () => {
       boostedOnly: newBoostedOnly,
       searchKey: newSearchKey,
       myPositionOnly: newMyPositionOnly,
-      addresses,
+      addresses: sortedPositionPoolIds,
     })
-  }, [router.query, router.isReady, baseParams, isRouterReady, addresses])
+  }, [router.query, router.isReady, baseParams, isRouterReady, sortedPositionPoolIds])
 
   useDeepCompareEffect(() => {
     if (isEmptyObject(baseParams) || !isRouterReady) return
@@ -128,9 +212,17 @@ const PoolsPage = () => {
       boostedOnly,
       myPositionOnly,
       searchKey: debouncedSearchKey,
-      addresses,
+      addresses: sortedPositionPoolIds,
     })
-  }, [poolTypeOptions, boostedOnly, myPositionOnly, debouncedSearchKey, baseParams, isRouterReady, addresses])
+  }, [
+    poolTypeOptions,
+    boostedOnly,
+    myPositionOnly,
+    debouncedSearchKey,
+    baseParams,
+    isRouterReady,
+    sortedPositionPoolIds,
+  ])
 
   const cake = CAKE[ChainId.KLAYTN]
   const { balance: cakeBalance, refetch: refetchCakeBalance } = useTokenBalance(cake.address)
@@ -278,10 +370,10 @@ const PoolsPage = () => {
             placeholder={t('Search...')}
           />
         </div>
-        <div className="mt-5">
+        <div className="mt-5 overflow-x-auto">
           <PoolTable
             baseParams={baseParams}
-            portfolio={portfolio}
+            portfolio={portfolioWithDepositedTvl}
             mutatePortfolio={mutatePortfolio}
             initialSortBy="apy24H"
             openable

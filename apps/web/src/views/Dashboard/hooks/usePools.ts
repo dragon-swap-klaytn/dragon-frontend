@@ -62,7 +62,7 @@ export function buildUsePoolsSearchParams({
   return params
 }
 
-export const POOLS_SORT_BY_LIST = ['apy24H', 'apy7D', 'volume24H', 'volume7D', 'tvl'] as const
+export const POOLS_SORT_BY_LIST = ['apy24H', 'apy7D', 'volume24H', 'volume7D', 'tvl', 'poolIds'] as const
 export type PoolsSortBy = (typeof POOLS_SORT_BY_LIST)[number]
 
 type UsePoolsOptions = {

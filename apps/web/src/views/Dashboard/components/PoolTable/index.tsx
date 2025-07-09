@@ -1,3 +1,4 @@
+import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
 import { ButtonV2, Notification, Spinner } from '@pancakeswap/uikit'
 import clsx from 'clsx'
@@ -5,6 +6,7 @@ import { DEFAULT_POOLS_FILTERS } from 'const'
 import { Portfolio, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { PortfolioWithDepositedTvlMap } from 'pages/pools'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { KeyedMutator } from 'swr'
@@ -17,11 +19,12 @@ import { PoolDataRow, PoolDataRowSkeleton } from 'views/Dashboard/components/Poo
 import SortHeaderButton from 'views/Dashboard/components/SortHeaderButton'
 import usePools, { buildUsePoolsSearchParams, PoolsSortBy } from 'views/Dashboard/hooks/usePools'
 import { SortDirection } from 'views/Dashboard/types'
+import { useAccount } from 'wagmi'
 
-const HEADER_IDS = ['pool', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
+const HEADER_IDS = ['pool', 'myDeposits', 'tvl', 'apy24H', 'apy7D', 'volume24H', 'volume7D'] as const
 type HeaderId = (typeof HEADER_IDS)[number]
 
-const TITLES = ['Pool', 'TVL', 'Apy 24H', 'Apy 7D', 'Volume 24H', 'Volume 7D'] as const
+const TITLES = ['Pool', 'My Deposits', 'TVL', 'Apy 24H', 'Apy 7D', 'Volume 24H', 'Volume 7D'] as const
 type Title = (typeof TITLES)[number]
 
 type PoolTableHeader = {
@@ -30,12 +33,15 @@ type PoolTableHeader = {
   sortBy?: PoolsSortBy
   hideBelow?: 's' | 'sm' | 'md' | 'lg'
   displayClassName?: string
+  isCentered?: boolean
+  onlyMyPosition?: boolean
 }
 
 const HEADERS: PoolTableHeader[] = [
   { id: 'pool', title: 'Pool' },
-  { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H' },
-  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D', displayClassName: 'hidden lg:table-cell' },
+  { id: 'myDeposits', title: 'My Deposits', sortBy: 'poolIds', onlyMyPosition: true },
+  { id: 'apy24H', title: 'Apy 24H', sortBy: 'apy24H', isCentered: true },
+  { id: 'apy7D', title: 'Apy 7D', sortBy: 'apy7D', displayClassName: 'hidden lg:table-cell', isCentered: true },
   { id: 'tvl', title: 'TVL', sortBy: 'tvl', displayClassName: 'hidden sm:table-cell' },
   { id: 'volume24H', title: 'Volume 24H', sortBy: 'volume24H', displayClassName: 'hidden s:table-cell' },
   { id: 'volume7D', title: 'Volume 7D', sortBy: 'volume7D', displayClassName: 'hidden lg:table-cell' },
@@ -66,7 +72,7 @@ export default function PoolTable({
     addresses?: Address[]
   }
   openable?: boolean
-  portfolio?: Portfolio
+  portfolio?: PortfolioWithDepositedTvlMap
   mutatePortfolio?: KeyedMutator<Portfolio>
   initialSortBy?: PoolsSortBy
   resetPoolTypeOptions?: () => void
@@ -76,6 +82,7 @@ export default function PoolTable({
     t,
     i18n: { language: locale },
   } = useTranslation()
+  const { address: account } = useAccount()
 
   // for sorting
   const [sortBy, setSortBy] = useState<PoolsSortBy>(initialSortBy)
@@ -154,6 +161,12 @@ export default function PoolTable({
     })
   }, [page, sortBy, sortDirection, additionalParams])
 
+  const [newRouterUrl, setNewRouterUrl] = useState<{
+    pathName: string
+    query: string
+  } | null>(null)
+  const debouncedNewRouterUrl = useDebounce(newRouterUrl, 500)
+
   useDeepCompareEffect(() => {
     if (!router.isReady || isFirstRenderRef.current || !isRouterReady) return
     if (isEmptyObject(baseParams) || isEmptyObject(additionalParams)) return
@@ -173,15 +186,24 @@ export default function PoolTable({
     urlSearchParams.set('boostedOnly', boostedOnly ? boostedOnly.toString() : 'false')
     urlSearchParams.set('poolsSearchKey', searchKey || '')
 
+    setNewRouterUrl({
+      pathName: router.pathname,
+      query: urlSearchParams.toString(),
+    })
+  }, [baseParams, additionalParams, router.isReady, locale, isRouterReady])
+
+  useEffect(() => {
+    if (!debouncedNewRouterUrl) return
+
     router.replace(
       {
-        pathname: router.pathname,
-        query: urlSearchParams.toString(),
+        pathname: debouncedNewRouterUrl.pathName,
+        query: debouncedNewRouterUrl.query,
       },
       undefined,
       { shallow: true, locale },
     )
-  }, [baseParams, additionalParams, router.isReady, locale, isRouterReady])
+  }, [debouncedNewRouterUrl])
 
   const query = useMemo(() => {
     if (isEmptyObject(baseParams) || isEmptyObject(additionalParams)) return ''
@@ -193,11 +215,16 @@ export default function PoolTable({
     })
   }, [baseParams, additionalParams])
 
-  const {
-    poolsData,
-    totalPage: fetchedTotalPage,
-    totalCount,
-  } = usePools(query.toString(), { paused: !query.toString() })
+  const debouncedQuery = useDebounce(query.toString(), 500)
+
+  const debouncedMyPositionOnly = useMemo(() => {
+    if (!debouncedNewRouterUrl) return
+
+    const newSearchParams = new URLSearchParams(debouncedNewRouterUrl.query)
+    return newSearchParams.get('myPositionOnly') === 'true'
+  }, [debouncedNewRouterUrl])
+
+  const { poolsData, totalPage: fetchedTotalPage, totalCount } = usePools(debouncedQuery, { paused: !debouncedQuery })
   useEffect(() => {
     if (!poolsData) return
 
@@ -290,11 +317,13 @@ export default function PoolTable({
             <colgroup>
               {/* Pool */}
               <col width="*" />
-              {/* apy24H */}
               <col width="88px" className="xs:hidden" />
-              <col width="124px" className="hidden xs:table-column" />
+              {/* My Deposits */}
+              {account && debouncedMyPositionOnly && <col width="80px" className="hidden xs:table-column" />}
+              {/* apy24H */}
+              <col width="100px" className="hidden xs:table-column" />
               {/* apy7D */}
-              <col width="124px" className="hidden lg:table-column" />
+              <col width="100px" className="hidden lg:table-column" />
               {/* TVL */}
               <col width="80px" className="hidden sm:table-column" />
               {/* volume24H */}
@@ -310,28 +339,35 @@ export default function PoolTable({
                   hidden: poolsData?.length === 0,
                 })}
               >
-                {HEADERS.map(({ title, sortBy: s, displayClassName }, index) => (
+                {HEADERS.map(({ title, sortBy: s, displayClassName, isCentered, onlyMyPosition }, index) => (
                   <th
                     key={`poolTable:${s}`}
                     className={clsx('py-3 text-left', displayClassName, {
                       'px-4 s:px-6': index === 0,
                       'px-4': index !== 0,
+                      hidden: onlyMyPosition && (!debouncedMyPositionOnly || !account),
                     })}
                   >
-                    {s ? (
-                      <SortHeaderButton
-                        title={title}
-                        onClick={() => handleSort(s as PoolsSortBy)}
-                        isSelected={sortBy === s}
-                        sortDirection={sortDirection}
-                      />
-                    ) : (
-                      <span className="font-medium">{title}</span>
-                    )}
+                    <div className={clsx({ 'flex justify-center': !!isCentered })}>
+                      {s ? (
+                        <SortHeaderButton
+                          title={title}
+                          onClick={() => handleSort(s as PoolsSortBy)}
+                          isSelected={sortBy === s}
+                          sortDirection={sortDirection}
+                        />
+                      ) : (
+                        <span className="font-medium">{title}</span>
+                      )}
+                    </div>
                   </th>
                 ))}
 
-                <th className="sr-only">open details</th>
+                {openable && (
+                  <th className="relative">
+                    <span className="sr-only">open details</span>
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -342,6 +378,7 @@ export default function PoolTable({
                       key={`poolTableSkeleton:${index + 1}`}
                       isLastIndex={index === SHOW_POOL_COUNT - 1}
                       openable={openable}
+                      myPositionOnly={account && debouncedMyPositionOnly}
                     />
                   ))
                 ) : poolsData.length > 0 ? (
@@ -353,6 +390,7 @@ export default function PoolTable({
                       poolData={poolData}
                       isLastIndex={index === poolsData.length - 1}
                       openable={openable}
+                      myPositionOnly={account && debouncedMyPositionOnly}
                     />
                   ))
                 ) : (
