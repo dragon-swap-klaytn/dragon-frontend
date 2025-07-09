@@ -120,9 +120,9 @@ const PoolsPage = () => {
 
         depositedTvl = token0Value + token1Value
       } else {
-        const { positions } = position as PortfolioV3DataBigInt
+        const { positions: _positions } = position as PortfolioV3DataBigInt
 
-        for (const pos of positions) {
+        for (const pos of _positions) {
           const { token0, token1 } = pos
 
           const token0Value = (priceMap?.[token0.address] || 0) * token0.amount

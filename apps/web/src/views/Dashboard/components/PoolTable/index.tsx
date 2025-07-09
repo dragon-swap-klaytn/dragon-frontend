@@ -161,10 +161,7 @@ export default function PoolTable({
     })
   }, [page, sortBy, sortDirection, additionalParams])
 
-  const [newRouterUrl, setNewRouterUrl] = useState<{
-    pathName: string
-    query: string
-  } | null>(null)
+  const [newRouterUrl, setNewRouterUrl] = useState('')
   const debouncedNewRouterUrl = useDebounce(newRouterUrl, 500)
 
   useDeepCompareEffect(() => {
@@ -186,24 +183,28 @@ export default function PoolTable({
     urlSearchParams.set('boostedOnly', boostedOnly ? boostedOnly.toString() : 'false')
     urlSearchParams.set('poolsSearchKey', searchKey || '')
 
-    setNewRouterUrl({
-      pathName: router.pathname,
-      query: urlSearchParams.toString(),
-    })
+    setNewRouterUrl(
+      JSON.stringify({
+        pathName: router.pathname,
+        query: urlSearchParams.toString(),
+      }),
+    )
   }, [baseParams, additionalParams, router.isReady, locale, isRouterReady])
 
   useEffect(() => {
     if (!debouncedNewRouterUrl) return
 
+    const { pathName: _pathName, query: _query } = JSON.parse(debouncedNewRouterUrl)
+
     router.replace(
       {
-        pathname: debouncedNewRouterUrl.pathName,
-        query: debouncedNewRouterUrl.query,
+        pathname: _pathName,
+        query: _query,
       },
       undefined,
       { shallow: true, locale },
     )
-  }, [debouncedNewRouterUrl])
+  }, [debouncedNewRouterUrl, locale])
 
   const query = useMemo(() => {
     if (isEmptyObject(baseParams) || isEmptyObject(additionalParams)) return ''
@@ -218,9 +219,12 @@ export default function PoolTable({
   const debouncedQuery = useDebounce(query.toString(), 500)
 
   const debouncedMyPositionOnly = useMemo(() => {
-    if (!debouncedNewRouterUrl) return
+    if (!debouncedNewRouterUrl) return false
 
-    const newSearchParams = new URLSearchParams(debouncedNewRouterUrl.query)
+    const { query: _query } = JSON.parse(debouncedNewRouterUrl)
+    if (!_query) return false
+
+    const newSearchParams = new URLSearchParams(_query)
     return newSearchParams.get('myPositionOnly') === 'true'
   }, [debouncedNewRouterUrl])
 

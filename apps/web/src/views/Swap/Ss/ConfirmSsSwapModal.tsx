@@ -101,7 +101,7 @@ export const ConfirmSsSwapModal = memo<InjectedModalProps & ConfirmSsSwapModalPr
     if (quote.type === 'swap') {
       handleDismiss()
     }
-  }, [refreshQuote, quote, handleDismiss, initKlipRequest, qrUri, requestKey])
+  }, [refreshQuote, quote, handleDismiss, initKlipRequest])
 
   const [innerQuote, setInnerQuote] = useState<QuoteResponse | undefined>(quote)
   useEffect(() => {
@@ -242,7 +242,7 @@ function SsSwapContent({
 
   const { data: signer } = useWalletClient()
   const { sendTx } = useSendFeeDelegatedTx()
-  const { loading, setLoading, fetchWithCatchTxError } = useCatchTxError()
+  const { fetchWithCatchTxError } = useCatchTxError()
   const { toastSuccess } = useToast()
   const { chainId } = useActiveChainId()
   const publicClient = viemClients[chainId as keyof typeof viemClients]

@@ -51,7 +51,7 @@ const useA2AConnectorQRUri = () => {
         initProviderEvtHandler = false
       }
     }
-  }, [initProviderEvtHandler, isA2AConnector, displayUriHandler, requestKeyHandler])
+  }, [isA2AConnector, displayUriHandler, requestKeyHandler])
 
   useEffect(() => {
     return () => {
@@ -66,14 +66,6 @@ const useA2AConnectorQRUri = () => {
   }, [a2aProviderRef, requestKey, displayUriHandler, requestKeyHandler])
 
   const klip = useKlip()
-  const cancelKlipRequest = useCallback(() => {
-    if (!klip) return
-    if (!isA2AConnector || !connector || !requestKey) return
-    if (!klip.cancelRequest) return
-
-    klip.cancelRequest(requestKey)
-    initKlipRequest()
-  }, [klip, isA2AConnector, connector, requestKey, setRequestKey, setQrUri])
 
   const initKlipRequest = useCallback(() => {
     if (!klip) return
@@ -84,6 +76,15 @@ const useA2AConnectorQRUri = () => {
     setQrUri('')
     initProviderEvtHandler = false
   }, [klip, isA2AConnector, connector, setRequestKey, setQrUri])
+
+  const cancelKlipRequest = useCallback(() => {
+    if (!klip) return
+    if (!isA2AConnector || !connector || !requestKey) return
+    if (!klip.cancelRequest) return
+
+    klip.cancelRequest(requestKey)
+    initKlipRequest()
+  }, [klip, isA2AConnector, connector, requestKey, initKlipRequest])
 
   return { qrUri, requestKey, isA2AConnector, connector, cancelKlipRequest, initKlipRequest }
 }
