@@ -38,7 +38,7 @@ const poolsSchema = z.object({
   tokenAddress: z.string().regex(VALID_ADDRESS_REGEX).optional(),
   boostedOnly: z.preprocess((v) => v === 'true', z.boolean()).optional(),
   searchKey: z.string().optional(),
-  sortBy: z.enum(['apy24H', 'apy7D', 'volume24H', 'volume7D', 'tvl']).optional().default('volume24H'),
+  sortBy: z.enum(['apy24H', 'apy7D', 'volume24H', 'volume7D', 'tvl', 'poolIds']).optional().default('volume24H'),
   sortDirection: z.enum(['asc', 'desc']).optional().default('desc'),
 
   skip: z.coerce.number().optional().default(0),
@@ -235,6 +235,20 @@ const handler: NextApiHandler = async (req, res) => {
       }
       case 'tvl': {
         pools.sort((a, b) => useDesc * (a.tvlUSD.current - b.tvlUSD.current))
+        break
+      }
+      case 'poolIds': {
+        pools.sort((a, b) => {
+          const indexA = onlyPoolIds.indexOf(a.id)
+          const indexB = onlyPoolIds.indexOf(b.id)
+
+          if (indexA === -1 && indexB === -1) return 0
+          if (indexA === -1) return 1
+          if (indexB === -1) return -1
+
+          return useDesc * (indexA - indexB)
+        })
+
         break
       }
       default: {

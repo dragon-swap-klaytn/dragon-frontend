@@ -58,7 +58,7 @@ export default function Footer() {
       <div className="w-full flex flex-col space-y-10 md:space-y-2 md:flex-row-reverse md:items-start md:space-x-2 md:justify-between">
         <ExternalLinks />
 
-        <div className="flex items-start space-x-12">
+        <div className="flex items-start space-x-6 s:space-x-12">
           <div className="flex flex-col items-start space-y-5">
             <h4 className="font-bold text-on-surface">Ecosystem</h4>
 

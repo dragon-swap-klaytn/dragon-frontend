@@ -4,10 +4,11 @@ import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 
-import { Portfolio, PortfolioData, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
+import { Portfolio, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import { useTranslation } from 'next-i18next'
 import NextLink from 'next/link'
 import { PoolParsed, PoolV3Parsed } from 'pages/api/pools'
+import { PortfolioWithDepositedTvlData } from 'pages/pools'
 import { useMemo, useState } from 'react'
 import { KeyedMutator } from 'swr'
 import { getBlockExploreLink, getBlockExploreName } from 'utils'
@@ -19,9 +20,11 @@ import PositionCardList from 'views/PoolsV2/components/PositionCard'
 export const PoolDataRowSkeleton = ({
   isLastIndex,
   openable = false,
+  myPositionOnly = false,
 }: {
   isLastIndex?: boolean
   openable?: boolean
+  myPositionOnly?: boolean
 }) => {
   return (
     <tr
@@ -29,8 +32,8 @@ export const PoolDataRowSkeleton = ({
         'border-b border-border': !isLastIndex,
       })}
     >
-      <td className="text-on-surface px-4 s:px-6 py-6 text-left">
-        <div className="flex flex-col s:flex-row items-start s:items-center gap-2 sm">
+      <td className="text-on-surface px-4 s:px-6 py-5 text-left">
+        <div className="flex items-center gap-2">
           <CurrencyLogoWithSymbol
             addressA="dummy"
             addressB="dummy"
@@ -44,28 +47,35 @@ export const PoolDataRowSkeleton = ({
           </div>
         </div>
       </td>
+      {/* Deposited TVL */}
+      {myPositionOnly && (
+        <td className="text-on-surface px-4 py-5 text-left">
+          <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
+        </td>
+      )}
+
       {/* APY24H */}
-      <td className="text-on-surface px-4 py-6 text-left">
-        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
+      <td className="text-on-surface px-4 py-5 text-center">
+        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse justify-self-center" />
       </td>
       {/* APY7D */}
-      <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
-        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
+      <td className="text-on-surface px-4 py-5 text-center hidden lg:table-cell">
+        <div className="w-12 h-6 bg-neutral rounded-full animate-pulse justify-self-center" />
       </td>
       {/* TVL */}
-      <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
+      <td className="text-on-surface px-4 py-5 text-left hidden sm:table-cell">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Volume24H */}
-      <td className="text-on-surface px-4 py-6 text-left hidden s:table-cell">
+      <td className="text-on-surface px-4 py-5 text-left hidden s:table-cell">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {/* Volume7D */}
-      <td className="text-on-surface px-4 py-6 text-left hidden lg:table-cell">
+      <td className="text-on-surface px-4 py-5 text-left hidden lg:table-cell">
         <div className="w-12 h-6 bg-neutral rounded-full animate-pulse" />
       </td>
       {openable && (
-        <td className="text-on-surface pr-4 py-6 text-left">
+        <td className="text-on-surface pr-4 py-5 text-left">
           <CaretRight size={16} />
         </td>
       )}
@@ -77,12 +87,12 @@ const APRWithBoost = ({ lpApr, rewardApr, isBoosted }: { lpApr: number; rewardAp
   return (
     <>
       {isBoosted ? (
-        <div className="space-x-2">
+        <div className="flex flex-col space-y-1 items-center">
           <span className="text-brand">{getPercentage(lpApr + (rewardApr ?? 0))}</span>
-          <span className="line-through text-gray-500 hidden md:inline">{getPercentage(lpApr)}</span>
+          <span className="line-through text-gray-500 hidden md:inline text-xs">{getPercentage(lpApr)}</span>
         </div>
       ) : (
-        <>{getPercentage(lpApr)}</>
+        <span className="text-center">{getPercentage(lpApr)}</span>
       )}
     </>
   )
@@ -95,12 +105,14 @@ export const PoolDataRow = ({
   mutatePortfolio,
   isLastIndex,
   openable = false,
+  myPositionOnly,
 }: {
   poolData: PoolParsed
-  portfolioData?: PortfolioData
+  portfolioData?: PortfolioWithDepositedTvlData
   mutatePortfolio?: KeyedMutator<Portfolio>
   isLastIndex: boolean
   openable?: boolean
+  myPositionOnly?: boolean
 }) => {
   const { t } = useTranslation()
   const [showPortfolioData, setShowPortfolioData] = useState(false)
@@ -127,7 +139,7 @@ export const PoolDataRow = ({
           if (openable) setShowPortfolioData((p) => !p)
         }}
       >
-        <td className="text-on-surface px-4 s:px-6 py-6 text-left">
+        <td className="text-on-surface px-4 s:px-6 py-5 text-left">
           <div className="flex items-start gap-2">
             <NextLink
               href={`/pools/${poolData.type}/${poolData.id}`}
@@ -170,7 +182,20 @@ export const PoolDataRow = ({
             </div>
           </div>
         </td>
-        <td className="text-on-surface px-4 py-6 text-left">
+        {myPositionOnly && (
+          <td className="text-on-surface px-4 py-5 text-left">
+            <span>
+              {portfolioData
+                ? formatDollarAmountV2({
+                    num: portfolioData.depositedTvl,
+                    withDollarSign: true,
+                  })
+                : '-'}
+            </span>
+          </td>
+        )}
+
+        <td className="text-on-surface px-4 py-5 text-center">
           {poolData.apy['24H'] === null ? (
             '-'
           ) : (
@@ -181,7 +206,7 @@ export const PoolDataRow = ({
             />
           )}
         </td>
-        <td className="text-on-surface px-4 py-6 hidden lg:table-cell text-left">
+        <td className="text-on-surface px-4 py-5 hidden lg:table-cell text-center">
           {poolData.apy['7D'] === null ? (
             '-'
           ) : (
@@ -192,7 +217,7 @@ export const PoolDataRow = ({
             />
           )}
         </td>
-        <td className="text-on-surface px-4 py-6 text-left hidden sm:table-cell">
+        <td className="text-on-surface px-4 py-5 text-left hidden sm:table-cell">
           <span>
             {formatDollarAmountV2({
               num: poolData.tvlUSD.current,
@@ -201,7 +226,7 @@ export const PoolDataRow = ({
           </span>
         </td>
         <td
-          className={clsx('text-on-surface px-4 py-6 hidden s:table-cell', {
+          className={clsx('text-on-surface px-4 py-5 hidden s:table-cell', {
             'text-center': poolData.volumeUSD['24H'] === null,
             'text-left': poolData.volumeUSD['24H'] !== null,
           })}
@@ -216,7 +241,7 @@ export const PoolDataRow = ({
           </span>
         </td>
         <td
-          className={clsx('text-on-surface px-4 py-6 text-left hidden lg:table-cell', {
+          className={clsx('text-on-surface px-4 py-5 text-left hidden lg:table-cell', {
             'text-center': poolData.volumeUSD['7D'] === null,
             'text-left': poolData.volumeUSD['7D'] !== null,
           })}
@@ -229,7 +254,7 @@ export const PoolDataRow = ({
               })}
         </td>
         {openable && (
-          <td className="text-on-surface pr-4 py-6 text-left">
+          <td className="text-on-surface pr-4 py-5 text-left">
             <CaretRight
               size={16}
               className={clsx({
@@ -253,7 +278,7 @@ export const PoolDataRow = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <td className="bg-neutral" colSpan={7}>
+          <td className="bg-neutral" colSpan={myPositionOnly ? 8 : 7}>
             <div className="px-2 sm:px-5 py-5 space-y-5 sm:space-y-0 sm:space-x-10 sm:flex">
               <div>
                 <div className="px-5 sm:px-0 flex sm:flex-col sm:space-y-1 justify-between sm:justify-start">
