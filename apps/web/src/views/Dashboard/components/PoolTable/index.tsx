@@ -219,14 +219,16 @@ export default function PoolTable({
   const debouncedQuery = useDebounce(query.toString(), 500)
 
   const debouncedMyPositionOnly = useMemo(() => {
-    if (!debouncedNewRouterUrl) return false
+    if (!debouncedNewRouterUrl) {
+      return baseParams?.myPositionOnly || false
+    }
 
     const { query: _query } = JSON.parse(debouncedNewRouterUrl)
     if (!_query) return false
 
     const newSearchParams = new URLSearchParams(_query)
     return newSearchParams.get('myPositionOnly') === 'true'
-  }, [debouncedNewRouterUrl])
+  }, [debouncedNewRouterUrl, baseParams?.myPositionOnly])
 
   const { poolsData, totalPage: fetchedTotalPage, totalCount } = usePools(debouncedQuery, { paused: !debouncedQuery })
   useEffect(() => {
