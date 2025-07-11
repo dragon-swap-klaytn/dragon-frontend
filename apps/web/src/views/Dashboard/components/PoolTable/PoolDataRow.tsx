@@ -28,7 +28,7 @@ export const PoolDataRowSkeleton = ({
 }) => {
   return (
     <tr
-      className={clsx('bg-surface-raised text-sm', {
+      className={clsx('bg-surface-raised text-sm md:h-20', {
         'border-b border-border': !isLastIndex,
       })}
     >
@@ -87,7 +87,7 @@ const APRWithBoost = ({ lpApr, rewardApr, isBoosted }: { lpApr: number; rewardAp
   return (
     <>
       {isBoosted ? (
-        <div className="flex flex-col space-y-1 items-center">
+        <div className="flex flex-col space-y-0.5 items-center">
           <span className="text-brand">{getPercentage(lpApr + (rewardApr ?? 0))}</span>
           <span className="line-through text-gray-500 hidden md:inline text-xs">{getPercentage(lpApr)}</span>
         </div>
@@ -131,7 +131,7 @@ export const PoolDataRow = ({
   return (
     <>
       <tr
-        className={clsx('bg-surface-raised text-sm', {
+        className={clsx('bg-surface-raised text-sm md:h-20', {
           'border-b border-border': !isLastIndex,
           'cursor-pointer': openable,
         })}

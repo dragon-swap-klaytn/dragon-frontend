@@ -935,7 +935,11 @@ function PositionHistoryRow({
 
   if (isMobile) {
     return (
-      <tr className="border-b border-border">
+      <tr
+        className={clsx({
+          'border-b border-border': !isLastIndex,
+        })}
+      >
         <td className="p-3">
           <ExternalLink
             href={getBlockExploreLink(positionTx.id.split('#')[0], 'transaction')}
