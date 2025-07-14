@@ -39,6 +39,7 @@ import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContract'
+import useTokenPricesWithFallback from 'hooks/useTokenPricesWithFallback'
 import { PoolState } from 'hooks/v3/types'
 import useIsTickAtLimit from 'hooks/v3/useIsTickAtLimit'
 import { usePool } from 'hooks/v3/usePools'
@@ -289,12 +290,13 @@ export default function PoolPage() {
     return amount0.add(amount1)
   }, [price0, price1, feeValue0, feeValue1])
 
-  const fiatValueOfLiquidity: CurrencyAmount<Currency> | null = useMemo(() => {
-    if (!price0 || !price1 || !position) return null
-    const amount0 = price0.quote(position.amount0)
-    const amount1 = price1.quote(position.amount1)
+  const { priceMap } = useTokenPricesWithFallback()
+  const fiatValueOfLiquidity: number | null = useMemo(() => {
+    if (!priceMap || !position) return null
+    const value0 = (priceMap[currency0?.wrapped.address] ?? 0) * +position.amount0.toExact()
+    const value1 = (priceMap[currency1?.wrapped.address] ?? 0) * +position.amount1.toExact()
 
-    return amount0.add(amount1)
+    return value0 + value1
   }, [price0, price1, position])
 
   const addTransaction = useTransactionAdder()
@@ -575,8 +577,11 @@ export default function PoolPage() {
                   <div className="w-full flex flex-wrap items-center gap-2 justify-between mt-3 border-b border-border pb-2">
                     <span className="font-bold text-on-surface text-xl">
                       $
-                      {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100))
-                        ? fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })
+                      {fiatValueOfLiquidity
+                        ? fiatValueOfLiquidity.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
                         : '-'}
                     </span>
                     <AprCalculator
