@@ -391,6 +391,13 @@ export const DEFAULT_TOKEN_LIST = [
     symbol: 'ELDE',
     decimals: 18,
   },
+  {
+    chainId: ChainId.KLAYTN,
+    address: '0x23CcAB1de32E06a6235a7997C266F86440C2Cbe6'.toLowerCase(),
+    name: 'Delabs Games',
+    symbol: 'DELABS',
+    decimals: 18,
+  },
 ]
 
 export const MASTERCHEFV3_ADDRESS = '0x6AC953CAD04b0Ce38a454f17D1d92620e456c9C0' as Address
