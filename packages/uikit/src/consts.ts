@@ -6,23 +6,25 @@ export const SUPPORTED_CHAIN_IDS = [ChainId.KLAYTN, ChainId.KLAYTN_TESTNET];
 export const DGSWAP_DOMAIN = "https://dgswap.io";
 
 export enum WalletIds {
-  kaiawallet = "kaiawallet",
+  kaiaWallet = "kaiawallet",
   klip = "klip",
   metamask = "metamask",
   // injected = 'injected',
-  walletconnect = "walletconnect",
+  walletConnect = "walletconnect",
   tokenpocket = "tokenpocket",
-  okxwallet = "okxwallet",
+  okxWallet = "okxwallet",
+  dappPortalWallet = "dappportalwallet",
 }
 export type WalletId = `${WalletIds}`;
 
 export enum ConnectorIds {
-  kaiawallet = "kaiawallet",
+  kaiaWallet = "kaiawallet",
   klip = "klip",
   metamask = "metaMask",
-  walletconnect = "walletConnect",
+  walletConnect = "walletConnect",
   tokenpocket = "tokenpocket",
-  okxwallet = "okxwallet",
+  okxWallet = "okxwallet",
+  dappPortalWallet = "dappportalwallet",
 }
 
 export type ConnectorId = `${ConnectorIds}`;

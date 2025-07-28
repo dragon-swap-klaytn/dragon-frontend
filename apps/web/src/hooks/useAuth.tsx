@@ -5,6 +5,7 @@ import {
   WalletConnectorNotFoundError,
   WalletSwitchChainError,
 } from '@pancakeswap/ui-wallets'
+import { ConnectorIds } from '@pancakeswap/uikit'
 import { useCallback, useRef } from 'react'
 import { useAppDispatch } from 'state'
 import {
@@ -21,7 +22,7 @@ import { useSessionChainId } from './useSessionChainId'
 
 const useAuth = () => {
   const dispatch = useAppDispatch()
-  const { isConnected } = useAccount()
+  const { isConnected, connector } = useAccount()
   const { connectAsync, connectors } = useConnect()
   const { chain } = useNetwork()
   const { disconnectAsync } = useDisconnect()
@@ -76,6 +77,14 @@ const useAuth = () => {
     try {
       resetWalletStorage()
 
+      if (connector && connector.id === ConnectorIds.dappPortalWallet) {
+        const provider = await connector.getProvider()
+        if (provider) {
+          await provider.disconnectWallet()
+          window.location.reload()
+        }
+      }
+
       await disconnectAsync()
       setSelected(null)
     } catch (error) {
@@ -84,7 +93,7 @@ const useAuth = () => {
       // clear web2app state
       clearUserStates(dispatch, { chainId: chain?.id })
     }
-  }, [disconnectAsync, dispatch, chain?.id, setSelected])
+  }, [disconnectAsync, dispatch, chain?.id, setSelected, connector])
 
   return { login, logout }
 }

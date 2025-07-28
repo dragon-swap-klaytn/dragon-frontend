@@ -170,7 +170,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
               }
 
               localStorage?.setItem(WalletStorageKey.WALLET, wallet.id)
-              localStorage?.setItem(WalletStorageKey.CONNECTOR, ConnectorIds.walletconnect)
+              localStorage?.setItem(WalletStorageKey.CONNECTOR, ConnectorIds.walletConnect)
               localStorage?.setItem(WalletStorageKey.ADDRESS, account)
 
               setSelected(null)
@@ -244,7 +244,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
       if (isMobile) {
         switch (wallet.id) {
-          case WalletIds.okxwallet: {
+          case WalletIds.okxWallet: {
             const ua = navigator.userAgent
             const isOKApp = /OKApp/i.test(ua)
 
@@ -300,7 +300,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
             break
           }
-          case WalletIds.kaiawallet: {
+          case WalletIds.kaiaWallet: {
             if (window.klaytn || window.caver) {
               connectWallet(wallet)
               setQrCode(undefined)
@@ -327,7 +327,7 @@ export function WalletModalV2(props: WalletModalV2Props) {
 
             break
           }
-          case WalletIds.okxwallet: {
+          case WalletIds.okxWallet: {
             if (window.okxwallet) {
               connectWallet(wallet)
               setQrCode(undefined)

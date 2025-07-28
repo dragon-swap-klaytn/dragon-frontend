@@ -8,13 +8,14 @@ import { klipConnector, walletConnectNoQrCodeConnector } from '../utils/wagmi'
 export const DEFAULT_WALLET_ICON = '/images/wallets/default.png'
 export function getWalletIcon(id: WalletId): string {
   const icon: { [_id in WalletId]: string } = {
-    klip: '/images/wallets/klip.png',
-    kaiawallet: '/images/wallets/kaiawallet.png',
-    metamask: '/images/wallets/metamask.png',
-    tokenpocket: '/images/wallets/tokenpocket.png',
-    walletconnect: '/images/wallets/walletconnect.png',
+    [WalletIds.klip]: '/images/wallets/klip.png',
+    [WalletIds.kaiaWallet]: '/images/wallets/kaia-wallet.png',
+    [WalletIds.metamask]: '/images/wallets/metamask.png',
+    [WalletIds.tokenpocket]: '/images/wallets/tokenpocket.png',
+    [WalletIds.walletConnect]: '/images/wallets/walletconnect.png',
     // injected: DEFAULT_WALLET_ICON,
-    okxwallet: '/images/wallets/okxwallet.png',
+    [WalletIds.okxWallet]: '/images/wallets/okx-wallet.png',
+    [WalletIds.dappPortalWallet]: '/images/wallets/dapp-portal-wallet.png',
   }
 
   return icon[id] || DEFAULT_WALLET_ICON
@@ -67,17 +68,17 @@ export const WALLET_MAP: {
     deepLink?: string
   }
 } = {
-  [WalletIds.kaiawallet]: {
-    title: 'KaiaWallet',
-    icon: getWalletIcon('kaiawallet'),
-    connectorId: ConnectorIds.kaiawallet,
+  [WalletIds.kaiaWallet]: {
+    title: 'Kaia Wallet',
+    icon: getWalletIcon(WalletIds.kaiaWallet),
+    connectorId: ConnectorIds.kaiaWallet,
     installed: isKaiaWalletInstalled(),
     downloadLink: 'https://www.kaiawallet.io/',
     deepLink: `https://app.kaikas.io/u/${DGSWAP_DOMAIN}`,
   },
   [WalletIds.klip]: {
     title: 'Klip',
-    icon: getWalletIcon('klip'),
+    icon: getWalletIcon(WalletIds.klip),
     connectorId: ConnectorIds.klip,
     installed: true,
     cancelRequest: async (requestKey: string) => {
@@ -90,7 +91,7 @@ export const WALLET_MAP: {
   },
   [WalletIds.metamask]: {
     title: 'MetaMask',
-    icon: getWalletIcon('metamask'),
+    icon: getWalletIcon(WalletIds.metamask),
     connectorId: ConnectorIds.metamask,
     installed: isMetamaskInstalled(),
     downloadLink: 'https://metamask.app.link/dapp/dgswap.io',
@@ -101,15 +102,15 @@ export const WALLET_MAP: {
   //   icon: getWalletIcon('injected'),
   //   connectorId: 'injected',
   // },
-  [WalletIds.walletconnect]: {
+  [WalletIds.walletConnect]: {
     title: 'WalletConnect',
-    icon: getWalletIcon('walletconnect'),
-    connectorId: ConnectorIds.walletconnect,
+    icon: getWalletIcon(WalletIds.walletConnect),
+    connectorId: ConnectorIds.walletConnect,
     installed: Boolean(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID),
   },
   [WalletIds.tokenpocket]: {
     title: 'TokenPocket',
-    icon: getWalletIcon('tokenpocket'),
+    icon: getWalletIcon(WalletIds.tokenpocket),
     connectorId: ConnectorIds.tokenpocket,
     installed: true,
     deepLink: `tpdapp://open?params=${encodeURIComponent(JSON.stringify({ url: DGSWAP_DOMAIN, chain: 'KAIA' }))}`,
@@ -117,15 +118,21 @@ export const WALLET_MAP: {
       ? 'https://www.tokenpocket.pro/en/download/app'
       : 'https://chromewebstore.google.com/detail/%ED%86%A0%ED%81%B0%ED%8F%AC%EC%BC%93-%EC%9B%B93-nostr-%EC%A7%80%EA%B0%91/mfgccjchihfkkindfppnaooecgfneiii',
   },
-  [WalletIds.okxwallet]: {
+  [WalletIds.okxWallet]: {
     title: 'OKX Wallet',
-    icon: getWalletIcon('okxwallet'),
-    connectorId: ConnectorIds.okxwallet,
+    icon: getWalletIcon(WalletIds.okxWallet),
+    connectorId: ConnectorIds.okxWallet,
     installed: true,
     downloadLink: 'https://chromewebstore.google.com/detail/okx-wallet/mcohilncbfahbmgdjkbpemcciiolgcge',
     deepLink: `https://www.okx.com/download?deeplink=${encodeURIComponent(
       `okx://wallet/dapp/url?dappUrl=${encodeURIComponent(DGSWAP_DOMAIN)}`,
     )}`,
+  },
+  [WalletIds.dappPortalWallet]: {
+    title: 'Dapp Portal',
+    icon: getWalletIcon(WalletIds.dappPortalWallet),
+    connectorId: ConnectorIds.dappPortalWallet,
+    installed: true,
   },
 }
 

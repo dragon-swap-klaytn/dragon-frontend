@@ -12,7 +12,7 @@
     "directory": "packages/wagmi"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup --config tsup.config.ts && tsup --config tsup.dappPortalWallet.config.ts",
     "dev": "tsup --watch",
     "prepublishOnly": "pnpm run build",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
@@ -27,6 +27,7 @@
   "dependencies": {
     "platform": "^1.3.6",
     "@json-rpc-tools/provider": "^1.7.6",
+    "@linenext/dapp-portal-sdk": "^1.3.8",
     "eip1193-provider": "^1.0.1",
     "eventemitter3": "^4.0.7",
     "web3-utils": "^1.8.0",
@@ -88,6 +89,10 @@
       "types": "./dist/connectors/tokenPocket.d.ts",
       "import": "./dist/connectors/tokenPocket.mjs",
       "require": "./dist/connectors/tokenPocket.js"
+    },
+    "./connectors/dappPortalWallet": {
+      "types": "./dist/connectors/dappPortalWallet.d.ts",
+      "import": "./dist/connectors/dappPortalWallet.mjs"
     }
   },
   "peerDependenciesMeta": {

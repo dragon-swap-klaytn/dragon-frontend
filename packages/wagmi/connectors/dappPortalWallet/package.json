@@ -1,0 +1,4 @@
+{
+  "module": "../../dist/connectors/dappPortalWallet.mjs",
+  "types": "../../dist/connectors/dappPortalWallet.d.ts"
+}

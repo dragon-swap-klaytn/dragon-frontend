@@ -54,6 +54,7 @@ const config = {
   experimental: {
     scrollRestoration: true,
     fallbackNodePolyfills: false,
+    esmExternals: 'loose',
   },
   transpilePackages: [
     '@pancakeswap/farms',
@@ -64,6 +65,7 @@ const config = {
     '@pancakeswap/widgets-internal',
     '@pancakeswap/ifos',
     '@pancakeswap/gauges',
+    '@linenext/dapp-portal-sdk',
   ],
   reactStrictMode: true,
   images: {
