@@ -46,8 +46,6 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
       ...options_,
     }
     super({ chains, options })
-
-    this.getProvider()
   }
 
   async connect(_: { chainId?: number } = {}) {
@@ -74,7 +72,7 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
       }
 
       if (provider) {
-        const account = await this.getAccount()
+        const account = await this.requestAccount()
 
         return { account, chain: { id: chainId, unsupported: false } }
       }
@@ -132,6 +130,23 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
     provider.removeListener('disconnect', this.onDisconnect)
   }
 
+  // Request accounts with permission (used during connection)
+  async requestAccount() {
+    const provider = await this.getProvider()
+    if (!provider) {
+      throw new Error('connector not found error.')
+    }
+
+    const accounts = await provider.request({ method: 'kaia_requestAccounts' })
+    if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+      throw new Error('No accounts found')
+    }
+
+    const account = accounts[0]
+    this.account = account
+    return account
+  }
+
   async getAccount() {
     if (this.account) {
       return this.account
@@ -142,7 +157,8 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
       throw new Error('connector not found error.')
     }
 
-    const accounts = await provider.request({ method: 'kaia_requestAccounts' })
+    // Use kaia_accounts instead of kaia_requestAccounts to avoid triggering permission request
+    const accounts = await provider.request({ method: 'kaia_accounts' })
     if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
       throw new Error('No accounts found')
     }
@@ -192,15 +208,21 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
     return _walletClient
   }
 
-  async isAuthorized() {
+  async isAuthorized(): Promise<boolean> {
     try {
+      // Check if we already have a cached account without requesting new one
+      if (this.account) {
+        return true
+      }
+
       const provider = await this.getProvider()
       if (!provider) {
-        throw new Error('Connector not founded')
+        return false
       }
-      const account = await this.getAccount()
 
-      return Boolean(account)
+      // Check existing accounts without triggering permission request
+      const accounts = await provider.request({ method: 'kaia_accounts' })
+      return Boolean(accounts && Array.isArray(accounts) && accounts.length > 0)
     } catch {
       return false
     }
