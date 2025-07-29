@@ -1,11 +1,15 @@
 import { useTranslation } from '@pancakeswap/localization'
 import {
+  recentlyConnectedWalletIdsAtom,
   resetWalletStorage,
   useSelectedWallet,
   WalletConnectorNotFoundError,
+  WalletStorageKey,
   WalletSwitchChainError,
 } from '@pancakeswap/ui-wallets'
-import { ConnectorIds } from '@pancakeswap/uikit'
+import { ConnectorId, ConnectorIds, WalletId } from '@pancakeswap/uikit'
+import { getWalletIdByConnectorId } from 'config/wallet'
+import { useAtom } from 'jotai'
 import { useCallback, useRef } from 'react'
 import { useAppDispatch } from 'state'
 import {
@@ -33,12 +37,18 @@ const useAuth = () => {
 
   const lastRequestedConnectorIdRef = useRef('')
 
+  const [, setRecentlyConnectedWalletIds] = useAtom(recentlyConnectedWalletIdsAtom)
+
   const login = useCallback(
     async (connectorID: string) => {
       if (isConnected) {
         return undefined
       }
+
       const findConnector = connectors.find((c) => c.id === connectorID)
+      if (!findConnector) {
+        throw new WalletConnectorNotFoundError(t('Wallet Connector not found'))
+      }
 
       lastRequestedConnectorIdRef.current = connectorID
       try {
@@ -55,6 +65,24 @@ const useAuth = () => {
           setSessionChainId(connected.chain.id)
           lastRequestedConnectorIdRef.current = ''
         }
+
+        if (findConnector.id && Object.values(ConnectorIds).includes(findConnector.id as any)) {
+          const walletId = getWalletIdByConnectorId(findConnector.id as ConnectorId)
+
+          setRecentlyConnectedWalletIds((prev) => {
+            const newWalletIds: WalletId[] = []
+
+            if (prev.includes(walletId)) {
+              newWalletIds.push(walletId, ...prev.filter((id) => id !== walletId))
+            } else {
+              newWalletIds.push(walletId, ...prev)
+            }
+
+            localStorage?.setItem(WalletStorageKey.RECENTLY_CONNECTED, JSON.stringify(newWalletIds))
+            return newWalletIds
+          })
+        }
+
         return connected
       } catch (error) {
         if (error instanceof ConnectorNotFoundError) {
@@ -70,7 +98,17 @@ const useAuth = () => {
       }
       return undefined
     },
-    [connectors, connectAsync, chainId, setSessionChainId, t, disconnectAsync, setSelected, isConnected],
+    [
+      connectors,
+      connectAsync,
+      chainId,
+      setSessionChainId,
+      t,
+      disconnectAsync,
+      setSelected,
+      isConnected,
+      setRecentlyConnectedWalletIds,
+    ],
   )
 
   const logout = useCallback(async () => {

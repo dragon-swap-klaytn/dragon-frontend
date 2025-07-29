@@ -496,5 +496,7 @@
   "- DragonSwap fee: {{fee}}% of the input token": "- 드래곤스왑 수수료: input 토큰의 {{fee}}%",
   "Swap with": "로 스왑하기",
   "Refresh quote": "견적 새로고침",
-  "Enable spending {{symbol}}": "{{symbol}} 사용 허용"
+  "Enable spending {{symbol}}": "{{symbol}} 사용 허용",
+  "recently connected": "최근 연결됨",
+  "not installed": "설치되지 않음"
 }

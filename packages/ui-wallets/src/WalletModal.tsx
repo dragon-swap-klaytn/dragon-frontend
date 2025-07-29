@@ -1,6 +1,7 @@
 import { usePreloadImages } from '@pancakeswap/hooks'
 import { Trans, useTranslation } from '@pancakeswap/localization'
-import { ConnectorId, ConnectorIds, Image, Modal, ModalV2Props, WalletIds } from '@pancakeswap/uikit'
+import { ConnectorId, ConnectorIds, Image, Modal, ModalV2Props, WalletId, WalletIds } from '@pancakeswap/uikit'
+import { useWindowSize } from '@pancakeswap/uikit/hooks/useWindowSize'
 import clsx from 'clsx'
 import { atom, useAtom } from 'jotai'
 import { Dispatch, SetStateAction, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -23,16 +24,20 @@ export function useSelectedWallet(): [WalletConfigV2 | null, Dispatch<SetStateAc
 }
 
 const MOBILE_DEFAULT_DISPLAY_COUNT = 8
-const lastUsedWalletNameAtom = atom<string>('')
+export const recentlyConnectedWalletIdsAtom = atom<WalletId[]>([])
 
-lastUsedWalletNameAtom.onMount = (set) => {
-  const preferred = localStorage?.getItem(WalletStorageKey.WALLET)
-  if (preferred) {
-    set(preferred)
+recentlyConnectedWalletIdsAtom.onMount = (set) => {
+  const preferred = localStorage?.getItem(WalletStorageKey.RECENTLY_CONNECTED)
+
+  try {
+    const parsed = preferred ? JSON.parse(preferred) : []
+    set(parsed)
+  } catch (e) {
+    console.error('Failed to parse connected wallet ids from localStorage', e)
   }
 }
 
-function sortWallets(wallets: WalletConfigV2[], lastUsedWalletName: string | null) {
+function sortWallets(wallets: WalletConfigV2[], recentlyConnectedWalletIds: string[]) {
   const sorted = [...wallets].sort((a, b) => {
     if (!a.installed && b.installed) {
       return 1
@@ -45,12 +50,28 @@ function sortWallets(wallets: WalletConfigV2[], lastUsedWalletName: string | nul
     return -1
   })
 
-  if (!lastUsedWalletName) {
+  if (!recentlyConnectedWalletIds || recentlyConnectedWalletIds.length === 0) {
     return sorted
   }
-  const foundLastUsedWallet = wallets.find((w) => w.title === lastUsedWalletName)
-  if (!foundLastUsedWallet) return sorted
-  return [foundLastUsedWallet, ...sorted.filter((w) => w.id !== foundLastUsedWallet.id)]
+
+  return sorted.sort((a, b) => {
+    const aIndex = recentlyConnectedWalletIds.indexOf(a.id)
+    const bIndex = recentlyConnectedWalletIds.indexOf(b.id)
+
+    if (aIndex === -1 && bIndex === -1) {
+      return 0
+    }
+
+    if (aIndex === -1) {
+      return 1
+    }
+
+    if (bIndex === -1) {
+      return -1
+    }
+
+    return aIndex - bIndex
+  })
 }
 
 interface WalletModalV2Props extends ModalV2Props {
@@ -70,9 +91,12 @@ export function WalletModalV2(props: WalletModalV2Props) {
     walletConnectNoQrCodeConnector,
     ...rest
   } = props
-  const [lastUsedWalletName] = useAtom(lastUsedWalletNameAtom)
+  const [recentlyConnectedWalletIds] = useAtom(recentlyConnectedWalletIdsAtom)
 
-  const wallets = useMemo(() => sortWallets(_wallets, lastUsedWalletName), [_wallets, lastUsedWalletName])
+  const wallets = useMemo(
+    () => sortWallets(_wallets, recentlyConnectedWalletIds),
+    [_wallets, recentlyConnectedWalletIds],
+  )
   const [selected, setSelected] = useSelectedWallet()
   const [error, setError] = useAtom(errorAtom)
   const [qrCode, setQrCode] = useState<string | undefined>(undefined)
@@ -365,6 +389,8 @@ export function WalletModalV2(props: WalletModalV2Props) {
     [connectWallet, setQrCode, setSelected, t, connectWithQrCode, setError],
   )
 
+  const { width } = useWindowSize()
+
   return (
     <Modal title={t('Connect Wallet')} onDismiss={onDismissHandler} {...rest}>
       {!(qrCode && selected) && (
@@ -427,11 +453,11 @@ export function WalletModalV2(props: WalletModalV2Props) {
                   <span>{wallet.title}</span>
                 </div>
 
-                {wallet.installed === false && wallet.downloadLink && (
-                  <div className="px-1.5 py-0.5 rounded-md bg-transparent border text-xs ml-1">
-                    {t('not installed')}
-                  </div>
-                )}
+                {wallet.installed === false && wallet.downloadLink ? (
+                  <Badge title={t('not installed')} type="notInstalled" />
+                ) : recentlyConnectedWalletIds.includes(wallet.id) ? (
+                  <Badge title={width < 450 ? t('recently') : t('recently connected')} type="recentlyConnected" />
+                ) : null}
               </button>
             )
           })}
@@ -469,6 +495,19 @@ export function WalletModalV2(props: WalletModalV2Props) {
         {error}
       </p>
     </Modal>
+  )
+}
+
+function Badge({ title, type }: { title: string; type: 'notInstalled' | 'recentlyConnected' }) {
+  return (
+    <span
+      className={clsx('px-1.5 py-0.5 rounded-md bg-transparent border text-xs ml-1', {
+        'text-red-400 border-red-400': type === 'notInstalled',
+        'text-brand border-brand': type === 'recentlyConnected',
+      })}
+    >
+      {title}
+    </span>
   )
 }
 
