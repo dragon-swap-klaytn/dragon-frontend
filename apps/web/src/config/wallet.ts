@@ -74,7 +74,7 @@ export const WALLET_MAP: {
     connectorId: ConnectorIds.kaiaWallet,
     installed: isKaiaWalletInstalled(),
     downloadLink: 'https://www.kaiawallet.io/',
-    deepLink: `https://app.kaikas.io/u/${DGSWAP_DOMAIN}`,
+    deepLink: `https://app.kaiawallet.io/u/${DGSWAP_DOMAIN}`,
   },
   [WalletIds.klip]: {
     title: 'Klip',
