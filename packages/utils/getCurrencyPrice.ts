@@ -53,6 +53,14 @@ type PriceMap = Record<string, number>
 export async function fetchCurrencyPriceMap(): Promise<PriceMap> {
   return getTokenPrices()
 }
+export async function fetchCurrencyPriceMapWithFallback(): Promise<PriceMap> {
+  const [priceMap, ssPriceMap] = await Promise.all([getTokenPrices('default'), getTokenPrices('swapscanner')])
+
+  return {
+    ...priceMap,
+    ...ssPriceMap,
+  }
+}
 
 export async function getCurrencyListUsdPrice(currencyListParams?: CurrencyParams[]): Promise<CurrencyUsdResult> {
   if (!currencyListParams) {

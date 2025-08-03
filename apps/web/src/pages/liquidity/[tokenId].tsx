@@ -293,11 +293,13 @@ export default function PoolPage() {
   const { priceMap } = useTokenPricesWithFallback()
   const fiatValueOfLiquidity: number | null = useMemo(() => {
     if (!priceMap || !position) return null
-    const value0 = (priceMap[currency0?.wrapped.address] ?? 0) * +position.amount0.toExact()
-    const value1 = (priceMap[currency1?.wrapped.address] ?? 0) * +position.amount1.toExact()
+    const value0 =
+      (currency0?.wrapped.address ? priceMap[currency0.wrapped.address] ?? 0 : 0) * +position.amount0.toExact()
+    const value1 =
+      (currency1?.wrapped.address ? priceMap[currency1.wrapped.address] ?? 0 : 0) * +position.amount1.toExact()
 
     return value0 + value1
-  }, [price0, price1, position])
+  }, [position, currency0?.wrapped.address, currency1?.wrapped.address, priceMap])
 
   const addTransaction = useTransactionAdder()
 

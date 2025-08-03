@@ -22,7 +22,7 @@ import { Field } from 'state/mint/actions'
 import currencyId from 'utils/currencyId'
 
 import { Calculator } from '@phosphor-icons/react'
-import useTokenPrices from 'hooks/useTokenPrices'
+import useTokenPricesWithFallback from 'hooks/useTokenPricesWithFallback'
 import { PoolV3Parsed } from 'pages/api/pools'
 import { calculateAPR } from 'utils/calculate-interests'
 import usePools, { buildUsePoolsSearchParams } from 'views/Dashboard/hooks/usePools'
@@ -62,16 +62,7 @@ export function AprCalculator({
   const [isOpen, setOpen] = useState(false)
   const [priceSpan, setPriceSpan] = useState(0)
   const { data: farm } = useFarm({ currencyA: baseCurrency, currencyB: quoteCurrency, feeAmount })
-  const { prices } = useTokenPrices()
-  const { prices: ssPrices } = useTokenPrices({ source: 'swapscanner' })
-
-  const priceMap = useMemo(
-    () => ({
-      ...ssPrices,
-      ...prices,
-    }),
-    [prices, ssPrices],
-  )
+  const { priceMap } = useTokenPricesWithFallback()
 
   const tokenA = (baseCurrency ?? undefined)?.wrapped
   const tokenB = (quoteCurrency ?? undefined)?.wrapped
@@ -219,18 +210,28 @@ export function AprCalculator({
   const [amount0, amount1] = inverted ? [validAmountB, validAmountA] : [validAmountA, validAmountB]
   const inRange = useMemo(() => isPoolTickInRange(pool, tickLower, tickUpper), [pool, tickLower, tickUpper])
   const { positionFarmApr, positionFarmAprFactor } = useMemo(() => {
-    if (!farm || !cakePrice || !positionLiquidity || !amount0 || !amount1 || !inRange) {
+    if (
+      !farm ||
+      !cakePrice ||
+      !positionLiquidity ||
+      !amount0 ||
+      !amount1 ||
+      !inRange ||
+      !priceMap[tokenA?.address.toLowerCase() ?? ''] ||
+      !priceMap[tokenB?.address.toLowerCase() ?? '']
+    ) {
       return {
         positionFarmApr: '0',
         positionFarmAprFactor: BIG_ZERO,
       }
     }
     const { farm: farmDetail, cakePerSecond } = farm
-    const { poolWeight, token, quoteToken, tokenPriceBusd, quoteTokenPriceBusd, lmPoolLiquidity } = farmDetail
+    const { poolWeight, token, quoteToken, lmPoolLiquidity } = farmDetail
     const [token0Price, token1Price] = token.sortsBefore(quoteToken)
-      ? [tokenPriceBusd, quoteTokenPriceBusd]
-      : [quoteTokenPriceBusd, tokenPriceBusd]
+      ? [priceMap[token.address.toLowerCase()] ?? 0, priceMap[quoteToken.address.toLowerCase()] ?? 0]
+      : [priceMap[quoteToken.address.toLowerCase()] ?? 0, priceMap[token.address.toLowerCase()] ?? 0]
     const positionTvlUsd = +amount0.toExact() * +token0Price + +amount1.toExact() * +token1Price
+
     return {
       positionFarmApr: getPositionFarmApr({
         poolWeight,
@@ -250,7 +251,18 @@ export function AprCalculator({
         excludePositionLiquidity,
       }),
     }
-  }, [farm, cakePrice, positionLiquidity, amount0, amount1, inRange, excludePositionLiquidity])
+  }, [
+    farm,
+    cakePrice,
+    positionLiquidity,
+    amount0,
+    amount1,
+    inRange,
+    excludePositionLiquidity,
+    priceMap,
+    tokenA,
+    tokenB,
+  ])
 
   // NOTE: Assume no liquidity when opening modal
   const { onFieldAInput, onBothRangeInput, onSetFullRange } = useV3MintActionHandlers(false)

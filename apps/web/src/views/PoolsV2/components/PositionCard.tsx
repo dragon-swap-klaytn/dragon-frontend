@@ -1,5 +1,5 @@
 import { useTranslation } from '@pancakeswap/localization'
-import { Price, Token } from '@pancakeswap/swap-sdk-core'
+import { CurrencyAmount, Price, Token } from '@pancakeswap/swap-sdk-core'
 import { ButtonV2, TagV2, useMatchBreakpoints } from '@pancakeswap/uikit'
 import { FeeCalculator, Pool, Position } from '@pancakeswap/v3-sdk'
 import { Bound } from '@pancakeswap/widgets-internal'
@@ -167,11 +167,20 @@ export function V3PositionCard({
   }, [_position, priceMap])
 
   const { lpApr, lpApy: _lpApy } = useMemo(() => {
+    const amountA = CurrencyAmount.fromRawAmount(
+      pool.token0,
+      BigInt(_position.token0.amount * 10 ** pool.token0.decimals),
+    )
+    const amountB = CurrencyAmount.fromRawAmount(
+      pool.token1,
+      BigInt(_position.token1.amount * 10 ** pool.token1.decimals),
+    )
+
     const fee24HFraction = FeeCalculator.getEstimatedLPFeeByAmounts({
-      amountA: position.amount0,
-      amountB: position.amount1,
-      tickLower: position.tickLower,
-      tickUpper: position.tickUpper,
+      amountA,
+      amountB,
+      tickLower: _position.lower,
+      tickUpper: _position.upper,
       volume24H: volume24H ?? 0,
       sqrtRatioX96: pool.sqrtRatioX96,
       mostActiveLiquidity: pool.liquidity,
@@ -194,7 +203,7 @@ export function V3PositionCard({
         duration,
       }),
     }
-  }, [pool, position, volume24H, token0USD, token1USD])
+  }, [pool, volume24H, token0USD, token1USD, _position])
 
   const tickAtLimit = useIsTickAtLimit(pool.fee, _position.lower, _position.upper)
   const priceLower = inverted ? position.token0PriceLower : position.token0PriceUpper.invert()

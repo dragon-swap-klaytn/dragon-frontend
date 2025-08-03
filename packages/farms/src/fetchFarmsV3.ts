@@ -8,7 +8,11 @@ import chunk from 'lodash/chunk'
 import { Address, PublicClient } from 'viem'
 
 import { ZERO_ADDRESS } from '@pancakeswap/uikit'
-import { fetchCurrencyPriceMap, getCurrencyKey, getCurrencyListUsdPrice } from '@pancakeswap/utils/getCurrencyPrice'
+import {
+  fetchCurrencyPriceMapWithFallback,
+  getCurrencyKey,
+  getCurrencyListUsdPrice,
+} from '@pancakeswap/utils/getCurrencyPrice'
 import { DEFAULT_COMMON_PRICE, PriceHelper } from '../constants/common'
 import { getFarmApr } from './apr'
 import { FarmV3SupportedChainId, supportedChainIdV3 } from './const'
@@ -52,6 +56,7 @@ export async function farmV3FetchFarms({
         return null
       }
       const lmPoolAddress = v3PoolData[index][1]
+
       return {
         ...f,
         token,
@@ -430,7 +435,7 @@ export const fetchTokenUSDValues = async (currencies: Currency[] = []): Promise<
     return {}
   }
 
-  const priceMap = await fetchCurrencyPriceMap()
+  const priceMap = await fetchCurrencyPriceMapWithFallback()
 
   if (currencies.some((c) => c.chainId !== ChainId.KLAYTN)) {
     throw new Error('Contains an invalid token')
@@ -450,6 +455,7 @@ export const fetchTokenUSDValues = async (currencies: Currency[] = []): Promise<
       return {
         ...acc,
         [c.address]: price.toString(),
+        [c.address.toLowerCase()]: price.toString(),
       }
     }
 
@@ -466,12 +472,16 @@ export function getFarmsPrices(
     let tokenPriceBusd = BIG_ZERO
     let quoteTokenPriceBusd = BIG_ZERO
 
+    const quoteTokenAddress = farm.quoteToken.address.toLowerCase()
+    const tokenAddress = farm.token.address.toLowerCase()
+
     // try to get price via common price
-    if (commonPrice[farm.quoteToken.address]) {
-      quoteTokenPriceBusd = new BN(commonPrice[farm.quoteToken.address])
+    if (commonPrice[farm.quoteToken.address] || commonPrice[quoteTokenAddress]) {
+      quoteTokenPriceBusd = new BN(commonPrice[farm.quoteToken.address] || commonPrice[quoteTokenAddress])
     }
-    if (commonPrice[farm.token.address]) {
-      tokenPriceBusd = new BN(commonPrice[farm.token.address])
+
+    if (commonPrice[farm.token.address] || commonPrice[tokenAddress]) {
+      tokenPriceBusd = new BN(commonPrice[farm.token.address] || commonPrice[tokenAddress])
     }
 
     // try price via CAKE
