@@ -57,8 +57,8 @@ export async function fetchCurrencyPriceMapWithFallback(): Promise<PriceMap> {
   const [priceMap, ssPriceMap] = await Promise.all([getTokenPrices('default'), getTokenPrices('swapscanner')])
 
   return {
-    ...priceMap,
     ...ssPriceMap,
+    ...priceMap,
   }
 }
 
