@@ -726,11 +726,24 @@ type PositionTX = {
   amount1: string
   timestamp: string
   logIndex: string
+  tickLower: number
+  tickUpper: number
 }
 
 type PositionHistoryResult = {
   positionSnapshots: {
     id: string
+    pool: {
+      id: string
+    }
+    position: {
+      tickLower: {
+        tickIdx: number
+      }
+      tickUpper: {
+        tickIdx: number
+      }
+    }
     transaction: {
       mints: PositionTX[]
       burns: PositionTX[]
@@ -761,6 +774,17 @@ function PositionHistory_({
           query positionHistory($tokenId: String!) {
             positionSnapshots(where: { position: $tokenId }, orderBy: timestamp, orderDirection: desc, first: 30) {
               id
+              pool {
+                id
+              }
+              position {
+                tickLower {
+                  tickIdx
+                }
+                tickUpper {
+                  tickIdx
+                }
+              }
               transaction {
                 mints(where: { or: [{ amount0_gt: "0" }, { amount1_gt: "0" }] }) {
                   id
@@ -768,6 +792,8 @@ function PositionHistory_({
                   amount1
                   amount0
                   logIndex
+                  tickLower
+                  tickUpper
                 }
                 burns(where: { or: [{ amount0_gt: "0" }, { amount1_gt: "0" }] }) {
                   id
@@ -775,6 +801,8 @@ function PositionHistory_({
                   amount1
                   amount0
                   logIndex
+                  tickLower
+                  tickUpper
                 }
                 collects(where: { or: [{ amount0_gt: "0" }, { amount1_gt: "0" }] }) {
                   id
@@ -782,6 +810,8 @@ function PositionHistory_({
                   amount0
                   amount1
                   logIndex
+                  tickLower
+                  tickUpper
                 }
               }
             }
@@ -792,10 +822,35 @@ function PositionHistory_({
         },
       )
 
-      return result.positionSnapshots.filter((snapshot) => {
-        const { transaction } = snapshot
-        return transaction.mints.length > 0 || transaction.burns.length > 0 || transaction.collects.length > 0
-      })
+      return result.positionSnapshots
+        .map((snapshot) => {
+          const positionTickLower = snapshot.position.tickLower.tickIdx
+          const positionTickUpper = snapshot.position.tickUpper.tickIdx
+
+          const filteredMints = snapshot.transaction.mints.filter(
+            (mint) => mint.tickLower === positionTickLower && mint.tickUpper === positionTickUpper,
+          )
+          const filteredBurns = snapshot.transaction.burns.filter(
+            (burn) => burn.tickLower === positionTickLower && burn.tickUpper === positionTickUpper,
+          )
+          const filteredCollects = snapshot.transaction.collects.filter(
+            (collect) => collect.tickLower === positionTickLower && collect.tickUpper === positionTickUpper,
+          )
+
+          return {
+            ...snapshot,
+            transaction: {
+              ...snapshot.transaction,
+              mints: filteredMints,
+              burns: filteredBurns,
+              collects: filteredCollects,
+            },
+          }
+        })
+        .filter((snapshot) => {
+          const { transaction } = snapshot
+          return transaction.mints.length > 0 || transaction.burns.length > 0 || transaction.collects.length > 0
+        })
     },
     {
       enabled: Boolean(client && tokenId),
