@@ -42,6 +42,7 @@ interface Props {
   tokenAmount1?: CurrencyAmount<Token>
   className?: string
   excludePositionLiquidity?: boolean
+  isStaked?: boolean
 }
 
 export function AprCalculator({
@@ -57,6 +58,7 @@ export function AprCalculator({
   tokenAmount1,
   className,
   excludePositionLiquidity = false,
+  isStaked = false,
 }: Props) {
   const { t } = useTranslation()
   const [isOpen, setOpen] = useState(false)
@@ -218,7 +220,8 @@ export function AprCalculator({
       !amount1 ||
       !inRange ||
       !priceMap[tokenA?.address.toLowerCase() ?? ''] ||
-      !priceMap[tokenB?.address.toLowerCase() ?? '']
+      !priceMap[tokenB?.address.toLowerCase() ?? ''] ||
+      !isStaked
     ) {
       return {
         positionFarmApr: '0',
@@ -262,6 +265,7 @@ export function AprCalculator({
     priceMap,
     tokenA,
     tokenB,
+    isStaked,
   ])
 
   // NOTE: Assume no liquidity when opening modal

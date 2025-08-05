@@ -597,6 +597,7 @@ export default function PoolPage() {
                       tokenAmount0={inRange ? position?.amount0 : undefined}
                       tokenAmount1={inRange ? position?.amount1 : undefined}
                       excludePositionLiquidity
+                      isStaked={isStakedInMCv3}
                     />
                   </div>
 

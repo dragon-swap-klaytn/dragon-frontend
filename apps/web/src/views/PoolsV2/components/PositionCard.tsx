@@ -21,6 +21,7 @@ import { PortfolioV2Data } from 'pages/api/portfolio'
 import { useMemo, useState } from 'react'
 import { KeyedMutator } from 'swr'
 import { calculateAPR, calculateAPY } from 'utils/calculate-interests'
+import numerateAmount from 'utils/numerateAmount'
 import toChecksumTokenId from 'utils/toChecksumTokenId'
 import { formatDollarAmountV2 } from 'views/Dashboard/utils/numbers'
 import { Address, useAccount } from 'wagmi'
@@ -169,11 +170,11 @@ export function V3PositionCard({
   const { lpApr, lpApy: _lpApy } = useMemo(() => {
     const amountA = CurrencyAmount.fromRawAmount(
       pool.token0,
-      BigInt(_position.token0.amount * 10 ** pool.token0.decimals),
+      BigInt(numerateAmount(_position.token0.amount, pool.token0.decimals)),
     )
     const amountB = CurrencyAmount.fromRawAmount(
       pool.token1,
-      BigInt(_position.token1.amount * 10 ** pool.token1.decimals),
+      BigInt(numerateAmount(_position.token1.amount, pool.token1.decimals)),
     )
 
     const fee24HFraction = FeeCalculator.getEstimatedLPFeeByAmounts({
@@ -191,17 +192,21 @@ export function V3PositionCard({
     const positionLiquidity = token0USD.deposited + token1USD.deposited
     const duration = 24 * 60 * 60 * 1000
 
+    const lpAPR = calculateAPR({
+      interest: estimatedFee24H,
+      principal: positionLiquidity,
+      duration,
+    })
+
+    const lpAPY = calculateAPY({
+      interest: estimatedFee24H,
+      principal: positionLiquidity,
+      duration,
+    })
+
     return {
-      lpApr: calculateAPR({
-        interest: estimatedFee24H,
-        principal: positionLiquidity,
-        duration,
-      }),
-      lpApy: calculateAPY({
-        interest: estimatedFee24H,
-        principal: positionLiquidity,
-        duration,
-      }),
+      lpApr: Number.isNaN(lpAPR) ? 0 : lpAPR,
+      lpApy: Number.isNaN(lpAPY) ? 0 : lpAPY,
     }
   }, [pool, volume24H, token0USD, token1USD, _position])
 
