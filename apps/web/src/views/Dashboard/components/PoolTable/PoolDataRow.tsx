@@ -84,15 +84,28 @@ export const PoolDataRowSkeleton = ({
 }
 
 const APRWithBoost = ({ lpApr, rewardApr, isBoosted }: { lpApr: number; rewardApr?: number; isBoosted?: boolean }) => {
+  const { t } = useTranslation()
+
+  const formatAPY = (apy: number) => {
+    if (apy > 10) {
+      return t('Unusually High')
+    }
+    return getPercentage(apy)
+  }
+
+  const totalApr = lpApr + (rewardApr ?? 0)
+
   return (
     <>
       {isBoosted ? (
         <div className="flex flex-col space-y-0.5 items-center">
-          <span className="text-brand">{getPercentage(lpApr + (rewardApr ?? 0))}</span>
-          <span className="line-through text-gray-500 hidden md:inline text-xs">{getPercentage(lpApr)}</span>
+          <span className="text-brand">{formatAPY(totalApr)}</span>
+          {lpApr <= 10 && (
+            <span className="line-through text-gray-500 hidden md:inline text-xs">{getPercentage(lpApr)}</span>
+          )}
         </div>
       ) : (
-        <span className="text-center">{getPercentage(lpApr)}</span>
+        <span className="text-center">{formatAPY(lpApr)}</span>
       )}
     </>
   )
