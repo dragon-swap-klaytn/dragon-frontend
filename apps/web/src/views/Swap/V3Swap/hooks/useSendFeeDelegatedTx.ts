@@ -119,15 +119,18 @@ export function useSendFeeDelegatedTx() {
 
   const sendTx = useCallback(
     async (args: Pick<SendTransactionArgs, 'account' | 'chainId' | 'to' | 'data' | 'value' | 'gas'>) => {
-      if (whitelistedAddresses.has(args.to.toLowerCase())) {
-        if (isKaiaWallet.current) {
-          return sendTxGasFeeDelegated(args)
-        }
-      }
+      // if (whitelistedAddresses.has(args.to.toLowerCase())) {
+      //   if (isKaiaWallet.current) {
+      //     return sendTxGasFeeDelegated(args)
+      //   }
+      // }
 
       return sendTransactionAsync(args)
     },
-    [sendTxGasFeeDelegated, sendTransactionAsync],
+    [
+      // sendTxGasFeeDelegated,
+      sendTransactionAsync,
+    ],
   )
 
   return {
