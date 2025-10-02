@@ -204,6 +204,7 @@ export default function PoolTable({
       undefined,
       { shallow: true, locale },
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedNewRouterUrl, locale])
 
   const query = useMemo(() => {

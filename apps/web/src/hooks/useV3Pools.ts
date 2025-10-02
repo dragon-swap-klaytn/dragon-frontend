@@ -4,7 +4,7 @@ import { Tick } from '@pancakeswap/v3-sdk'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { POOLS_FAST_REVALIDATE, POOLS_SLOW_REVALIDATE } from 'config/pools'
+import { POOLS_NORMAL_REVALIDATE, POOLS_SLOW_REVALIDATE } from 'config/pools'
 import { v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
 
@@ -85,7 +85,7 @@ export function useV3CandidatePoolsWithoutTicks(
     if (!currencyA?.chainId) {
       return 0
     }
-    return POOLS_FAST_REVALIDATE[currencyA.chainId] || 0
+    return POOLS_NORMAL_REVALIDATE[currencyA.chainId] || 0
   }, [currencyA?.chainId])
 
   const {

@@ -12,6 +12,7 @@ import { useSendTransaction } from 'wagmi'
 
 const { Web3Provider, TxType } = v5
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const whitelistedAddresses = new Set([
   SMART_ROUTER_ADDRESSES[ChainId.KLAYTN].toLowerCase(),
   MASTERCHEFV3_ADDRESS.toLowerCase(),

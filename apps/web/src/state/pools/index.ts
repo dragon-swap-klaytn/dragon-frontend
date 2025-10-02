@@ -49,6 +49,7 @@ import { publicClient } from 'utils/wagmi'
 import { Address, erc20ABI } from 'wagmi'
 
 import { getTokenPrices } from 'hooks/useTokenPrices'
+import { getBucketedBlockNumber } from 'lib/get-cached-block-numbers'
 import fetchFarms from '../farms/fetchFarms'
 import { nativeStableLpMap } from '../farms/getFarmsPrices'
 import { resetUserState } from '../global/actions'
@@ -148,7 +149,7 @@ export const fetchCakePoolUserDataAsync =
 export const fetchPoolsPublicDataAsync = (chainId: number) => async (dispatch, getState) => {
   try {
     const [block, timeLimits] = await Promise.all([
-      getViemClients({ chainId })?.getBlock({ blockTag: 'latest' }),
+      getBucketedBlockNumber(Date.now()),
       fetchPoolsTimeLimits(chainId, getViemClients),
     ])
     const timeLimitsSousIdMap = keyBy(timeLimits, 'sousId')

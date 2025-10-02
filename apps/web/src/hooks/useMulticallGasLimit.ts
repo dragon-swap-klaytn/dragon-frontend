@@ -7,7 +7,13 @@ import { getViemClients } from 'utils/viem'
 
 const CHAINS_TO_USE_DEFAULT = [ChainId.KLAYTN_TESTNET, ChainId.KLAYTN]
 
-export function useMulticallGasLimit(chainId?: ChainId) {
+export function useMulticallGasLimit({
+  chainId,
+  enabled = true,
+}: {
+  chainId?: ChainId
+  enabled?: boolean
+} = {}) {
   const shouldUseDefault = useMemo(() => Boolean(chainId && CHAINS_TO_USE_DEFAULT.includes(chainId)), [chainId])
   const defaultGasLimit = useMemo(() => getDefaultGasLimit(chainId), [chainId])
   const client = useMemo(() => getViemClients({ chainId }), [chainId])
@@ -15,9 +21,9 @@ export function useMulticallGasLimit(chainId?: ChainId) {
   const { data: gasLimitOnChain } = useQuery({
     queryKey: [chainId],
     queryFn: async () => {
-      return chainId === ChainId.KLAYTN ? defaultGasLimit : getGasLimitOnChain({ chainId, client })
+      return !chainId ? 0n : chainId === ChainId.KLAYTN ? defaultGasLimit : getGasLimitOnChain({ chainId, client })
     },
-    enabled: Boolean(chainId && client && !shouldUseDefault),
+    enabled: Boolean(chainId && client && !shouldUseDefault && enabled),
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchInterval: 30_000,

@@ -1,4 +1,4 @@
-import { FAST_INTERVAL, SLOW_INTERVAL } from 'config/constants'
+import { FAST_INTERVAL, MEDIUM_INTERVAL, SLOW_INTERVAL } from 'config/constants'
 // eslint-disable-next-line camelcase
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -37,6 +37,19 @@ export const usePollBlockNumber = () => {
     },
   )
 
+  // MEDIUM_INTERVAL
+  useQuery(
+    [MEDIUM_INTERVAL, 'blockNumber', chainId],
+    async () => {
+      const blockNumber = await fetchBlockNumber()
+      return blockNumber
+    },
+    {
+      enabled: Boolean(chainId),
+      refetchInterval: MEDIUM_INTERVAL,
+    },
+  )
+
   // Optionally, poll with a slow interval as well
   useQuery(
     [SLOW_INTERVAL, 'blockNumber', chainId],
@@ -54,6 +67,17 @@ export const usePollBlockNumber = () => {
 export const useCurrentBlock = (): number => {
   const { chainId } = useActiveChainId()
   const { data: currentBlock = 0 } = useQuery<number>(['blockNumber', chainId], {
+    enabled: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  })
+  return Number(currentBlock)
+}
+
+export const useCurrentBlockByMediumInterval = (): number => {
+  const { chainId } = useActiveChainId()
+  const { data: currentBlock = 0 } = useQuery<number>([MEDIUM_INTERVAL, 'blockNumber', chainId], {
     enabled: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,

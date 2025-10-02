@@ -3,7 +3,7 @@ import { SmartRouter, V2Pool } from '@pancakeswap/smart-router/evm'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useRef } from 'react'
 
-import { POOLS_FAST_REVALIDATE } from 'config/pools'
+import { POOLS_NORMAL_REVALIDATE } from 'config/pools'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { infoClientWithChain, v3Clients } from 'utils/graphql'
 import { getViemClients } from 'utils/viem'
@@ -35,7 +35,7 @@ export function useV2CandidatePools(
     if (!chainId) {
       return 0
     }
-    return POOLS_FAST_REVALIDATE[chainId] || 0
+    return POOLS_NORMAL_REVALIDATE[chainId] || 0
   }, [currencyA])
 
   const key = useMemo(() => {

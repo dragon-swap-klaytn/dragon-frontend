@@ -357,11 +357,7 @@ export function useSingleCallResult<TAbi extends Abi | readonly unknown[], TFunc
 
   const result = useCallsData(calls, options)[0]
 
-  const queryClient = useQueryClient()
-  const { chainId } = useActiveChainId()
-
   return useMemo(() => {
-    const currentBlockNumber = queryClient.getQueryCache().find<number>(['blockNumber', chainId])?.state?.data
-    return toCallState(result, contract?.abi, functionName, currentBlockNumber)
-  }, [queryClient, chainId, result, contract?.abi, functionName])
+    return toCallState(result, contract?.abi, functionName, result?.blockNumber)
+  }, [result, contract?.abi, functionName])
 }

@@ -75,6 +75,7 @@ export async function getBucketedBlockNumber(timestamp: number, { bucketSize = 1
     return {
       timestamp: bucketedTimestamp,
       blockNumber: cachedBlockNumber,
+      toBeCached: false,
     }
   }
 

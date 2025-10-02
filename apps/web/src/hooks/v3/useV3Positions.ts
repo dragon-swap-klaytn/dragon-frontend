@@ -6,6 +6,7 @@ import { useMasterchefV3, useV3NFTPositionManagerContract } from 'hooks/useContr
 import { useMounted } from 'hooks/useMounted'
 import usePortfolio, { PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import { useCallback, useEffect, useMemo } from 'react'
+import { useCurrentBlockByMediumInterval } from 'state/block/hooks'
 import { Address, useContractRead, useContractReads } from 'wagmi'
 
 interface UseV3PositionsResults {
@@ -44,11 +45,19 @@ export function useV3PositionsFromTokenIds(tokenIds: bigint[] | undefined): UseV
     refetch,
   } = useContractReads({
     contracts: inputs,
-    watch: true,
+    watch: false,
+    staleTime: Infinity,
     allowFailure: true,
     enabled: isMounted && !!inputs.length,
     keepPreviousData: true,
   })
+
+  const currentBlock = useCurrentBlockByMediumInterval()
+  useEffect(() => {
+    if (!currentBlock || !chainId) return
+
+    refetch()
+  }, [currentBlock, chainId, refetch])
 
   return {
     loading: isLoading,
@@ -119,9 +128,16 @@ export function useV3TokenIdsByAccount(contractAddress?: Address, account?: Addr
     args: [account || '0x'],
     functionName: 'balanceOf',
     enabled,
-    watch: true,
+    watch: false,
+    staleTime: Infinity,
     chainId,
   })
+
+  const currentBlock = useCurrentBlockByMediumInterval()
+  useEffect(() => {
+    if (!account || !currentBlock) return
+    refetchBalance()
+  }, [currentBlock, account, chainId, refetchBalance])
 
   const tokenIdsArgs = useMemo(() => {
     if (accountBalance && account) {
@@ -152,11 +168,18 @@ export function useV3TokenIdsByAccount(contractAddress?: Address, account?: Addr
     refetch: refetchTokenIds,
   } = useContractReads({
     contracts: tokenIdsArgs,
-    watch: true,
+    watch: false,
+    staleTime: Infinity,
     allowFailure: true,
     enabled: !!tokenIdsArgs.length,
     keepPreviousData: true,
   })
+
+  useEffect(() => {
+    if (!account || !currentBlock) return
+
+    refetchTokenIds()
+  }, [currentBlock, account, chainId, refetchTokenIds, tokenIds])
 
   // refetch when account changes, It seems like the useContractReads doesn't refetch when the account changes on production
   // check if we can remove this effect when we upgrade to the latest version of wagmi

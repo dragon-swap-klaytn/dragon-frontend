@@ -26,6 +26,7 @@ import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled
 import { useRouter } from 'next/router'
 import { useStore } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
+import { usePollFeeData } from 'state/fee-data/hooks'
 import { Blocklist, Updaters } from '..'
 import nextI18NextConfig from '../../next-i18next.config.js'
 import { defaultSeoEN, defaultSeoKO } from '../../next-seo.config'
@@ -43,6 +44,7 @@ function GlobalHooks() {
   // useDataDogRUM()
   useLoadExperimentalFeatures()
   usePollBlockNumber()
+  usePollFeeData()
   useUserAgent()
   useEagerConnect()
   useAccountEventListener()
