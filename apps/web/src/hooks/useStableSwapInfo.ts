@@ -1,15 +1,21 @@
-import { Percent } from '@pancakeswap/sdk'
+import { BigintIsh, Percent } from '@pancakeswap/sdk'
 
 import { lpTokenABI } from 'config/abi/lpTokenAbi'
 import { stableSwapABI } from 'config/abi/stableSwapAbi'
+import { useEffect } from 'react'
+import { useCurrentBlockByMediumInterval } from 'state/block/hooks'
 import { Address, useContractReads } from 'wagmi'
 import { useActiveChainId } from './useActiveChainId'
 
 export function useStableSwapInfo(stableSwapAddress: Address | undefined, lpAddress: Address | undefined) {
   const { chainId } = useActiveChainId()
 
-  const { data: results, isLoading } = useContractReads({
-    watch: true,
+  const {
+    data: results,
+    isLoading,
+    refetch,
+  } = useContractReads({
+    watch: false,
     enabled: Boolean(stableSwapAddress && lpAddress),
     contracts: [
       {
@@ -53,6 +59,13 @@ export function useStableSwapInfo(stableSwapAddress: Address | undefined, lpAddr
     ],
   })
 
+  const currentBlock = useCurrentBlockByMediumInterval()
+  useEffect(() => {
+    if (!currentBlock) return
+
+    refetch()
+  }, [currentBlock, chainId, refetch])
+
   const feeNumerator = results?.[4]?.result
   const feeDenominator = results?.[5]?.result
 
@@ -60,7 +73,7 @@ export function useStableSwapInfo(stableSwapAddress: Address | undefined, lpAddr
     balances: [results?.[0].result, results?.[1].result],
     amplifier: results?.[2].result,
     totalSupply: results?.[3].result,
-    fee: feeNumerator && feeDenominator && new Percent(feeNumerator, feeDenominator),
+    fee: feeNumerator && feeDenominator && new Percent(feeNumerator as BigintIsh, feeDenominator as BigintIsh),
     loading: isLoading,
   }
 }

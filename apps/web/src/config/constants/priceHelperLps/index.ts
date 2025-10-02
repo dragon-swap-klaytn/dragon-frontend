@@ -6,6 +6,6 @@ export { getFarmsPriceHelperLpFiles }
 export const getPoolsPriceHelperLpFiles = (chainId: ChainId) => {
   switch (chainId) {
     default:
-      return []
+      return [] as any[]
   }
 }

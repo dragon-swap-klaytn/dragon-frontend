@@ -70,8 +70,8 @@ export function useFarm({ currencyA, currencyB, feeAmount }: FarmParams) {
     },
     {
       enabled: Boolean(chainId && farmConfig),
-      refetchInterval: FAST_INTERVAL * 3,
-      staleTime: FAST_INTERVAL,
+      refetchInterval: FAST_INTERVAL * 2,
+      staleTime: FAST_INTERVAL * 2,
     },
   )
 }

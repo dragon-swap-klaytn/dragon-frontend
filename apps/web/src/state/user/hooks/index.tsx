@@ -9,9 +9,9 @@ import flatMap from 'lodash/flatMap'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { AppState, useAppDispatch } from 'state'
+import { useCurrentGasPrice, useCurrentMaxFeePerGas, useCurrentMaxPriorityFeePerGas } from 'state/fee-data/hooks'
 import useSWRImmutable from 'swr/immutable'
 import { safeGetAddress } from 'utils'
-import { useFeeData } from 'wagmi'
 import {
   addSerializedPair,
   addSerializedToken,
@@ -246,29 +246,19 @@ export function useRemoveUserAddedToken(): (chainId: number, address: string) =>
   )
 }
 
-export function useFeeDataWithGasPrice(chainIdOverride?: number): {
+export function useFeeDataWithGasPrice(): {
   gasPrice?: bigint
   maxFeePerGas?: bigint
   maxPriorityFeePerGas?: bigint
 } {
-  const { chainId: chainId_ } = useActiveChainId()
-  const chainId = chainIdOverride ?? chainId_
-  const gasPrice = useGasPrice(chainId)
-  const { data } = useFeeData({
-    chainId,
-    watch: true,
-  })
-
-  if (gasPrice) {
-    return {
-      gasPrice,
-    }
-  }
+  const gasPrice = useCurrentGasPrice()
+  const maxFeePerGas = useCurrentMaxFeePerGas()
+  const maxPriorityFeePerGas = useCurrentMaxPriorityFeePerGas()
 
   return {
-    gasPrice: data?.gasPrice ?? undefined,
-    maxFeePerGas: data?.maxFeePerGas ?? undefined,
-    maxPriorityFeePerGas: data?.maxPriorityFeePerGas ?? undefined,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
   }
 }
 

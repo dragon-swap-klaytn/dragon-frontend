@@ -16,7 +16,9 @@ export const getFreshBlockNumberFromSwapscanner = async () => {
 
 export const getFreshBlockNumber = async () => {
   try {
-    const blockNumber = await Promise.any([getFreshBlockNumberFromPublicNode(), getFreshBlockNumberFromSwapscanner()])
+    // use only swapscanner for now
+    // const blockNumber = await Promise.any([getFreshBlockNumberFromPublicNode(), getFreshBlockNumberFromSwapscanner()])
+    const blockNumber = await getFreshBlockNumberFromSwapscanner()
     return blockNumber
   } catch (error) {
     console.error('All promises failed to resolve', error)

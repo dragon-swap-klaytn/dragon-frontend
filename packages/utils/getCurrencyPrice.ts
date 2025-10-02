@@ -63,16 +63,14 @@ export async function fetchCurrencyPriceMapWithFallback(): Promise<PriceMap> {
 }
 
 export async function getCurrencyListUsdPrice(currencyListParams?: CurrencyParams[]): Promise<CurrencyUsdResult> {
+  const priceMap = typeof window === 'undefined' ? await getPricesFromSS() : await getTokenPrices('swapscanner')
   if (!currencyListParams) {
-    const priceMap = typeof window === 'undefined' ? await getPricesFromSS() : await getTokenPrices('swapscanner')
     return priceMap
   }
 
   if (currencyListParams.some((c) => c.chainId !== ChainId.KLAYTN)) {
     throw new Error('Contains an invalid token')
   }
-
-  const priceMap = typeof window === 'undefined' ? await getPricesFromSS() : await getTokenPrices('swapscanner')
 
   return currencyListParams.reduce((acc, currency) => {
     const key = getCurrencyKey(currency)

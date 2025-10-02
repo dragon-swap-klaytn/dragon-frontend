@@ -1,8 +1,8 @@
+import { PositionDetails } from '@pancakeswap/farms'
 import { Currency, CurrencyAmount, Token } from '@pancakeswap/sdk'
 import { FeeAmount, Position } from '@pancakeswap/v3-sdk'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useMemo } from 'react'
-import { PositionDetails } from '@pancakeswap/farms'
 import { usePool } from './usePools'
 
 interface LiquidityTotalHookProps {
@@ -29,18 +29,18 @@ export function useV3LiquidityTotal({
     })
   }, [positionsDetailsList, pool])
 
-  const price0 = useStablecoinPrice(token0 ?? undefined)
-  const price1 = useStablecoinPrice(token1 ?? undefined)
+  const price0 = useStablecoinPrice(token0 ?? undefined, { enabled: Boolean(token0) })
+  const price1 = useStablecoinPrice(token1 ?? undefined, { enabled: Boolean(token1) })
 
   return useMemo(() => {
     if (!price0 || !price1) return null
 
     const liqArr = positions.map((position) => {
-      const amount0 = price0.quote(position.amount0)
-      const amount1 = price1.quote(position.amount1)
+      const amount0 = position?.amount0 ? price0.quote(position?.amount0) : CurrencyAmount.fromRawAmount(token0, 0)
+      const amount1 = position?.amount1 ? price1.quote(position?.amount1) : CurrencyAmount.fromRawAmount(token1, 0)
       return amount0.add(amount1)
     })
 
     return liqArr.reduce((sum, liquidity) => (sum ? sum.add(liquidity) : sum))
-  }, [positions, price0, price1])
+  }, [positions, price0, price1, token0, token1])
 }

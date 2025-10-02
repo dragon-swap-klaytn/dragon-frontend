@@ -3,6 +3,9 @@ import { viemClients } from 'utils/viem'
 
 const publicClient = viemClients[8217]
 
+// Dedupes concurrent requests for the same blockNumber
+const inFlightBlockTs = new Map<string, Promise<number>>()
+
 export const getBlockTimestampMSFromPublicNode = async (blockNumber: bigint) => {
   const { timestamp } = await publicClient.getBlock({ blockNumber })
   return Number(timestamp) * 1000
@@ -19,25 +22,37 @@ export const getBlockTimestampMSFromSwapscanner = async (blockNumber: bigint) =>
 export const getBlockTimestampMS = async (blockNumber: bigint) => {
   const key = blockNumber.toString()
 
-  // check lru-cache
-  const ts = blockTimestampCache.get(key)
-
-  if (ts) {
-    return ts
+  // 1) Return from LRU cache if present
+  const cached = blockTimestampCache.get(key)
+  if (typeof cached === 'number') {
+    return cached
   }
 
-  try {
-    const timestamp = await Promise.any([
-      getBlockTimestampMSFromPublicNode(blockNumber),
-      getBlockTimestampMSFromSwapscanner(blockNumber),
-    ])
-
-    // cache the result
-    blockTimestampCache.put(key, timestamp)
-
-    return timestamp
-  } catch (error) {
-    console.error('All promises failed to resolve', error)
-    throw new Error('Could not fetch block timestamp from any source.')
+  // 2) If a request for this key is already in-flight, await it
+  const existing = inFlightBlockTs.get(key)
+  if (existing) {
+    return existing
   }
+
+  // 3) Otherwise, start a new request and store the *promise* in the in-flight map
+  const fetchPromise: Promise<number> = (async () => {
+    try {
+      // use only swapscanner for now
+      const timestamp = await getBlockTimestampMSFromSwapscanner(blockNumber)
+      // const timestamp = await Promise.any([
+      //   getBlockTimestampMSFromPublicNode(blockNumber),
+      //   getBlockTimestampMSFromSwapscanner(blockNumber),
+      // ]);
+
+      // Cache the resolved value (number) in LRU and return it
+      blockTimestampCache.put(key, timestamp)
+      return timestamp
+    } finally {
+      // Always clear the in-flight entry (on success or failure)
+      inFlightBlockTs.delete(key)
+    }
+  })()
+
+  inFlightBlockTs.set(key, fetchPromise)
+  return fetchPromise
 }

@@ -1,5 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { SerializedPool, getPoolsConfig } from '@pancakeswap/pools'
+import { getBucketedBlockNumber } from 'lib/get-cached-block-numbers'
 
 import chunk from 'lodash/chunk'
 import { publicClient } from 'utils/wagmi'
@@ -36,27 +37,30 @@ const ABI = [
 /**
  * Returns the total number of pools that were active at a given block
  */
-export const getActivePools = async (chainId: ChainId, block?: number): Promise<SerializedPool[]> => {
+export const getActivePools = async (chainId: ChainId): Promise<SerializedPool[]> => {
   const poolsConfig = getPoolsConfig(chainId)
-  const eligiblePools = poolsConfig
-    .filter((pool) => pool.sousId !== 0)
-    .filter((pool) => pool.isFinished === false || pool.isFinished === undefined)
-  const startBlockCalls = eligiblePools.map(
-    ({ contractAddress }) =>
-      ({
-        abi: ABI,
-        address: contractAddress,
-        functionName: 'startBlock',
-      } as const),
-  )
-  const endBlockCalls = eligiblePools.map(
-    ({ contractAddress }) =>
-      ({
-        abi: ABI,
-        address: contractAddress,
-        functionName: 'bonusEndBlock',
-      } as const),
-  )
+  const eligiblePools =
+    poolsConfig
+      ?.filter((pool) => pool.sousId !== 0)
+      .filter((pool) => pool.isFinished === false || pool.isFinished === undefined) || []
+  const startBlockCalls =
+    eligiblePools?.map(
+      ({ contractAddress }) =>
+        ({
+          abi: ABI,
+          address: contractAddress,
+          functionName: 'startBlock',
+        } as const),
+    ) || []
+  const endBlockCalls =
+    eligiblePools?.map(
+      ({ contractAddress }) =>
+        ({
+          abi: ABI,
+          address: contractAddress,
+          functionName: 'bonusEndBlock',
+        } as const),
+    ) || []
 
   const calls = [...startBlockCalls, ...endBlockCalls]
   const resultsRaw = await publicClient({ chainId }).multicall({
@@ -64,7 +68,7 @@ export const getActivePools = async (chainId: ChainId, block?: number): Promise<
     allowFailure: false,
   })
 
-  const blockNumber = block ? BigInt(block) : await publicClient({ chainId }).getBlockNumber()
+  const blockNumber = await getBucketedBlockNumber(Date.now()).then((res) => res.blockNumber)
 
   const blockCallsRaw = chunk(resultsRaw, resultsRaw.length / 2)
 
@@ -84,5 +88,5 @@ export const getActivePools = async (chainId: ChainId, block?: number): Promise<
     }
 
     return [...accum, poolCheck]
-  }, [])
+  }, [] as SerializedPool[])
 }

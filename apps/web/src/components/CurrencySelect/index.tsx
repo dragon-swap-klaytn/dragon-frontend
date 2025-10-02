@@ -38,7 +38,9 @@ export const CurrencySelect = ({
     />,
   )
 
-  const price = useStablecoinPrice(selectedCurrencyBalance && selectedCurrency ? selectedCurrency : undefined)
+  const price = useStablecoinPrice(
+    account && !hideBalance && selectedCurrencyBalance && selectedCurrency ? selectedCurrency : undefined,
+  )
   const quoted = selectedCurrencyBalance && price?.quote(selectedCurrencyBalance)
 
   return (

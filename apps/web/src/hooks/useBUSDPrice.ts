@@ -53,8 +53,7 @@ export function useStablecoinPrice(
     baseCurrency: stableCoin,
     tradeType: TradeType.EXACT_OUTPUT,
     maxSplits: 0,
-    // enabled: Boolean(!isLoading && !priceFromApi && shouldEnabled),
-    enabled: Boolean(!isLoading && shouldEnabled),
+    enabled: Boolean(!isLoading && shouldEnabled && currency && stableCoin),
     autoRevalidate: false,
     type: 'api',
   })

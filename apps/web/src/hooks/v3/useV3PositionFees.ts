@@ -2,10 +2,11 @@ import { Currency, CurrencyAmount } from '@pancakeswap/sdk'
 import { Pool } from '@pancakeswap/v3-sdk'
 import { useV3NFTPositionManagerContract } from 'hooks/useContract'
 import { useEffect, useMemo, useState } from 'react'
-import { useCurrentBlock } from 'state/block/hooks'
+import { useCurrentBlockByMediumInterval } from 'state/block/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { toChecksumCurrencyAmount } from 'utils/toChecksumCurrencyAmount'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+import { Address } from 'viem'
 
 const MAX_UINT128 = 2n ** 128n - 1n
 
@@ -17,12 +18,12 @@ export function useV3PositionFees(
 ): [CurrencyAmount<Currency>, CurrencyAmount<Currency>] | [undefined, undefined] {
   const positionManager = useV3NFTPositionManagerContract()
   const owner = useSingleCallResult({
-    contract: tokenId ? positionManager : null,
+    contract: tokenId ? (positionManager as any) : null,
     functionName: 'ownerOf',
     args: useMemo(() => [tokenId] as const, [tokenId]),
-  }).result
+  }).result as Address | null
 
-  const latestBlockNumber = useCurrentBlock()
+  const latestBlockNumber = useCurrentBlockByMediumInterval()
 
   // we can't use multicall for this because we need to simulate the call from a specific address
   // latestBlockNumber is included to ensure data stays up-to-date every block
@@ -34,7 +35,7 @@ export function useV3PositionFees(
           [
             {
               tokenId,
-              recipient: owner, // some tokens might fail if transferred to address(0)
+              recipient: owner as Address, // some tokens might fail if transferred to address(0)
               amount0Max: MAX_UINT128,
               amount1Max: MAX_UINT128,
             },
