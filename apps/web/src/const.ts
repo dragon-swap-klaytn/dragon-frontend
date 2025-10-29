@@ -398,6 +398,13 @@ export const DEFAULT_TOKEN_LIST = [
     symbol: 'DELABS',
     decimals: 18,
   },
+  {
+    chainId: ChainId.KLAYTN,
+    address: '0x18Bc5bcC660cf2B9cE3cd51a404aFe1a0cBD3C22'.toLowerCase(),
+    name: 'IDRX',
+    symbol: 'IDRX',
+    decimals: 2,
+  },
 ]
 
 export const MASTERCHEFV3_ADDRESS = '0x6AC953CAD04b0Ce38a454f17D1d92620e456c9C0' as Address
