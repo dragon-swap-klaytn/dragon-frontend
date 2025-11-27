@@ -10,11 +10,19 @@ export function localCachedProactiveV2<T = any>(
   let resolveInitialPromise: (value: T) => void
   let rejectInitialPromise: (reason?: any) => void
   let initialPromiseSettled = false
+  let initialPromise: Promise<T> | null = null
 
-  const initialPromise = new Promise<T>((resolve, reject) => {
-    resolveInitialPromise = resolve
-    rejectInitialPromise = reject
-  })
+  const createInitialPromise = () => {
+    initialPromiseSettled = false
+    initialPromise = new Promise<T>((resolve, reject) => {
+      resolveInitialPromise = resolve
+      rejectInitialPromise = reject
+    })
+    return initialPromise
+  }
+
+  // Create the first initial promise
+  createInitialPromise()
 
   const performFetch = async () => {
     if (!active) return // Do not fetch anymore if stopped
@@ -57,8 +65,13 @@ export function localCachedProactiveV2<T = any>(
       return data
     }
     // If data is not yet available (initial fetch is in progress or failed),
-    // return initialPromise so the caller can wait or handle the error.
-    return initialPromise
+    // check if we need to create a new promise for retry
+    if (initialPromiseSettled && lastError) {
+      // Previous attempt failed, create a new promise for the next attempt
+      createInitialPromise()
+    }
+    // Return the current or newly created promise
+    return initialPromise!
   }
 
   const stop = () => {
