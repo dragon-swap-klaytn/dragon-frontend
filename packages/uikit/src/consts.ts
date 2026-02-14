@@ -13,7 +13,7 @@ export enum WalletIds {
   walletConnect = "walletconnect",
   tokenpocket = "tokenpocket",
   okxWallet = "okxwallet",
-  dappPortalWallet = "dappportalwallet",
+  unifiWallet = "unifiwallet",
 }
 export type WalletId = `${WalletIds}`;
 
@@ -24,7 +24,7 @@ export enum ConnectorIds {
   walletConnect = "walletConnect",
   tokenpocket = "tokenpocket",
   okxWallet = "okxwallet",
-  dappPortalWallet = "dappportalwallet",
+  unifiWallet = "unifiwallet",
 }
 
 export type ConnectorId = `${ConnectorIds}`;

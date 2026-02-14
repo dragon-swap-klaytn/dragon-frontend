@@ -1,4 +1,4 @@
-import { DappPortalWalletConnector } from '@pancakeswap/wagmi/connectors/dappPortalWallet'
+import { UnifiWalletConnector } from '@pancakeswap/wagmi/connectors/dappPortalWallet'
 import { KaiaWalletConnector } from '@pancakeswap/wagmi/connectors/kaiaWallet'
 import { KlipConnector } from '@pancakeswap/wagmi/connectors/klip'
 import { OKXWalletConnector } from '@pancakeswap/wagmi/connectors/okxWallet'
@@ -46,7 +46,7 @@ export const metaMaskConnector = new MetaMaskConnector({
 const kaiaWalletConnector = new KaiaWalletConnector({ chains })
 const okxWalletConnector = new OKXWalletConnector({ chains })
 const tokenPocketConnector = new TokenPocketConnector({ chains })
-const dappPortalWalletConnector = new DappPortalWalletConnector({ chains })
+const unifiWalletConnector = new UnifiWalletConnector({ chains })
 
 export const klipConnector = new KlipConnector({
   chains,
@@ -85,7 +85,7 @@ export const wagmiConfig = createConfig({
     ...(klipConnector ? [klipConnector as any] : []),
     ...(okxWalletConnector ? [okxWalletConnector as any] : []),
     ...(tokenPocketConnector ? [tokenPocketConnector as any] : []),
-    ...(dappPortalWalletConnector ? [dappPortalWalletConnector as any] : []),
+    ...(unifiWalletConnector ? [unifiWalletConnector as any] : []),
     // new InjectedConnector({
     //   chains,
     //   options: {
