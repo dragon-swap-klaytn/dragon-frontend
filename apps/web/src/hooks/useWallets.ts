@@ -12,7 +12,7 @@ export default function useWallets() {
   const filteredWallets = useMemo(
     () =>
       wallets.filter((wallet) => {
-        if (wallet.id === WalletIds.dappPortalWallet) {
+        if (wallet.id === WalletIds.unifiWallet) {
           const connector = connectors.find((c) => c.id === wallet.connectorId)
           if (!connector || !('isSupportedBrowser' in connector) || !connector.isSupportedBrowser) return false
 

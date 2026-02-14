@@ -15,7 +15,7 @@ export function getWalletIcon(id: WalletId): string {
     [WalletIds.walletConnect]: '/images/wallets/walletconnect.png',
     // injected: DEFAULT_WALLET_ICON,
     [WalletIds.okxWallet]: '/images/wallets/okx-wallet.png',
-    [WalletIds.dappPortalWallet]: '/images/wallets/dapp-portal-wallet.png',
+    [WalletIds.unifiWallet]: '/images/wallets/unifi-wallet.png',
   }
 
   return icon[id] || DEFAULT_WALLET_ICON
@@ -128,10 +128,10 @@ export const WALLET_MAP: {
       `okx://wallet/dapp/url?dappUrl=${encodeURIComponent(DGSWAP_DOMAIN)}`,
     )}`,
   },
-  [WalletIds.dappPortalWallet]: {
-    title: 'Dapp Portal',
-    icon: getWalletIcon(WalletIds.dappPortalWallet),
-    connectorId: ConnectorIds.dappPortalWallet,
+  [WalletIds.unifiWallet]: {
+    title: 'Unifi Wallet',
+    icon: getWalletIcon(WalletIds.unifiWallet),
+    connectorId: ConnectorIds.unifiWallet,
     installed: true,
   },
 }

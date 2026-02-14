@@ -115,7 +115,7 @@ const useAuth = () => {
     try {
       resetWalletStorage()
 
-      if (connector && connector.id === ConnectorIds.dappPortalWallet) {
+      if (connector && connector.id === ConnectorIds.unifiWallet) {
         const provider = await connector.getProvider()
         if (provider) {
           await provider.disconnectWallet()

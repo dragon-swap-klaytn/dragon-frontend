@@ -17,10 +17,10 @@ import { Connector } from 'wagmi/connectors'
 const KAIA_CHAINS = [1001, 8217]
 
 // @ts-ignore
-export class DappPortalWalletConnector extends Connector<WalletProvider | undefined, any> {
-  readonly id: string = 'dappportalwallet'
+export class UnifiWalletConnector extends Connector<WalletProvider | undefined, any> {
+  readonly id: string = 'unifiwallet'
 
-  readonly name: string = 'DappPortalWallet'
+  readonly name: string = 'UnifiWallet'
 
   readonly ready: boolean = true
 
@@ -32,7 +32,10 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
 
   public isSupportedBrowser: boolean = true
 
-  private clientId: string = process.env.NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID || 'c7890211-c60d-4ec6-9a5c-4d58c61b312d'
+  private clientId: string =
+    process.env.NEXT_PUBLIC_UNIFI_CLIENT_ID ||
+    process.env.NEXT_PUBLIC_DAPP_PORTAL_CLIENT_ID ||
+    'c7890211-c60d-4ec6-9a5c-4d58c61b312d'
 
   // Rome-ignore lint/correctness/noUnreachableSuper: <explanation>
   constructor({
@@ -66,9 +69,9 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
 
       if (provider.on) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        provider.on('accountsChanged', this.onAccountsChanged)
-        provider.on('networkChanged', this.onChainChanged)
-        provider.on('disconnected', this.onAccountsChanged)
+        provider.on('accountsChanged', (args: any) => this.onAccountsChanged(args))
+        provider.on('networkChanged', (args: any) => this.onChainChanged(args))
+        provider.on('disconnected', (args: any) => this.onAccountsChanged(args))
       }
 
       if (provider) {
@@ -90,7 +93,7 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
   // eslint-disable-next-line class-methods-use-this
   async getProvider() {
     if (!this.clientId) {
-      throw new Error('DappPortal client ID is not set.')
+      throw new Error('Unifi client ID is not set.')
     }
 
     if (typeof window === 'undefined') {
@@ -102,9 +105,9 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
     }
 
     try {
-      const { default: DappPortalSDK } = await import('@linenext/dapp-portal-sdk')
+      const { default: UnifiSDK } = await import('@linenext/dapp-portal-sdk')
 
-      const sdk = await DappPortalSDK.init({
+      const sdk = await UnifiSDK.init({
         chainId: '8217',
         clientId: this.clientId,
       })
@@ -112,15 +115,15 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
       this.walletProvider = sdk.getWalletProvider()
       this.isSupportedBrowser = sdk.isSupportedBrowser()
     } catch (error) {
-      console.error('Error initializing DappPortalSDK:', error)
-      throw new Error('DappPortalSDK initialization failed')
+      console.error('Error initializing UnifiSDK:', error)
+      throw new Error('UnifiSDK initialization failed')
     }
 
     return this.walletProvider
   }
 
   async disconnect() {
-    const provider = await this.getProvider()
+    const provider = (await this.getProvider()) as any
     if (!provider?.removeListener) {
       return
     }
@@ -201,6 +204,18 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
       chain,
       transport: custom(provider as any),
     } as WalletClientConfig)
+
+    // Note: For USDT transfers/swaps via smart contract, you must include
+    // `depositTokenAddress` and `depositAmount` in the transaction parameters
+    // when calling `sendTransaction` or `kaia_sendTransaction`.
+    // Example:
+    // walletClient.sendTransaction({
+    //   to: contractAddress,
+    //   data: input,
+    //   depositTokenAddress: '0xd07730da403d154737750808b3504a50d4023773',
+    //   depositAmount: '100',
+    //   ...
+    // })
 
     this.walletClient = _walletClient
 
@@ -332,5 +347,17 @@ export class DappPortalWalletConnector extends Connector<WalletProvider | undefi
         }
       }
     }
+  }
+
+  async getErc20TokenBalanceWithDepositedBalance(params: {
+    tokenAddress: string
+    userAddress: string
+  }): Promise<string> {
+    const provider = await this.getProvider()
+    if (!provider) throw new Error('Provider not found')
+    return provider.request({
+      method: 'kaia_getErc20TokenBalanceWithDepositedBalance',
+      params: [params],
+    }) as Promise<string>
   }
 }
