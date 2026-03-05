@@ -440,3 +440,6 @@ export const REFERRER_FEE_ACCOUNT = '0x0B315Db5574a3AA8b74CC72291327947d871b99E'
 export const SS_REFERRER_FEE_NUMERATOR = '10'
 export const SS_REFERRER_FEE_DENOMINATOR = '100'
 export const SIGNER_PK = process.env.SCNR_SIGNER_PK || ''
+
+export const UNIFI_WALLET_GAS = '0x2dc6c0' // For Unifi Wallet, gas estimation may fail with execution revert because USDT is auto-deposited; hardcoding ~3,000,000 is recommended by Unifi Wallet team
+export const UNIFI_WALLET_TYPE_INT = 48 // 48 for swap according to Unifi Wallet team

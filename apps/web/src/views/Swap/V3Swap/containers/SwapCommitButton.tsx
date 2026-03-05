@@ -30,6 +30,7 @@ import { warningSeverity } from 'utils/exchange'
 
 import { useDebounce } from '@pancakeswap/hooks'
 import ApprovalConfirmationModal from 'components/ApprovalConfirmationModal'
+import { refreshUnifiWalletUSDTBalanceAtom } from 'contexts/UnifiWalletContext'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useTokenPrices from 'hooks/useTokenPrices'
 import { useAtom } from 'jotai'
@@ -59,6 +60,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
   const { t } = useTranslation()
   const { address: account } = useAccount()
   const [isExpertMode] = useExpertMode()
+  const [{ fn: refreshUnifiWalletUSDTBalance }] = useAtom(refreshUnifiWalletUSDTBalanceAtom)
   const {
     typedValue,
     independentField,
@@ -215,6 +217,9 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     return swapCallback()
       .then((res) => {
         setSwapState({ attemptingTxn: false, tradeToConfirm, swapErrorMessage: undefined, txHash: res.hash })
+        setTimeout(() => {
+          refreshUnifiWalletUSDTBalance()
+        }, 1_000)
       })
       .catch((error) => {
         if (error instanceof TransactionRejectedError) {

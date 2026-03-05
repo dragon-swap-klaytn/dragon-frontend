@@ -20,6 +20,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { appWithTranslation } from '@pancakeswap/localization'
 import Footer from 'components/Menu/Footer'
 import Oops from 'components/Oops'
+import { useUnifiWalletUSDTBalances } from 'contexts/UnifiWalletContext'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import useEagerConnect from 'hooks/useEagerConnect'
 import { useLoadExperimentalFeatures } from 'hooks/useExperimentalFeatureEnabled'
@@ -51,6 +52,7 @@ function GlobalHooks() {
   useSentryUser()
   useThemeCookie()
   useLockedEndNotification()
+  useUnifiWalletUSDTBalances()
   return null
 }
 

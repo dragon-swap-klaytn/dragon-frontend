@@ -17,8 +17,13 @@ import { viemClients } from 'utils/viem'
 import { Address, Hex, hexToBigInt, TransactionExecutionError } from 'viem'
 import { SendTransactionResult } from 'wagmi/actions'
 
+import { TETHER_ADDRESS } from '@pancakeswap/uikit'
+import { UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
+import { unifiWalletProviderAtom } from 'contexts/UnifiWalletContext'
+import { useAtom } from 'jotai'
 import { logger } from 'utils/datadog'
 import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
+import { useAccount } from 'wagmi'
 import { isZero } from '../utils/isZero'
 
 interface SwapCall {
@@ -48,12 +53,17 @@ interface FailedCall extends SwapCallEstimate {
 export class TransactionRejectedError extends Error {}
 
 // returns a function that will execute a swap, if the parameters are all valid
-export default function useSendSwapTransaction(
-  account?: Address,
-  chainId?: number,
-  trade?: SmartRouterTrade<TradeType> | null, // trade to execute, required
-  swapCalls: SwapCall[] | WallchainSwapCall[] = [],
-): { callback: null | (() => Promise<SendTransactionResult>) } {
+export default function useSendSwapTransaction({
+  account,
+  chainId,
+  trade,
+  swapCalls,
+}: {
+  account?: Address
+  chainId?: number
+  trade?: SmartRouterTrade<TradeType> | null // trade to execute, required
+  swapCalls: SwapCall[] | WallchainSwapCall[]
+}): { callback: null | (() => Promise<SendTransactionResult>) } {
   const { t } = useTranslation()
   const addTransaction = useTransactionAdder()
   const publicClient = viemClients[chainId as ChainId]
@@ -63,81 +73,123 @@ export default function useSendSwapTransaction(
 
   const { sendTx } = useSendFeeDelegatedTx()
 
+  const { connector } = useAccount()
+
+  const inputToken =
+    trade?.inputAmount.currency && 'address' in trade.inputAmount.currency ? trade?.inputAmount.currency.address : null
+  const isUnifiWalletWithTetherInput =
+    connector?.id === 'unifiwallet' && inputToken && safeGetAddress(inputToken) === safeGetAddress(TETHER_ADDRESS)
+  const [unifiWalletProvider] = useAtom(unifiWalletProviderAtom)
+
   if (!trade || !account || !chainId || !publicClient) {
     return { callback: null }
   }
 
   return {
     callback: async function onSwap(): Promise<SendTransactionResult> {
-      const estimatedCalls: SwapCallEstimate[] = await Promise.all(
-        swapCalls.map((call) => {
-          const { address, calldata, value } = call
-          if ('getCall' in call) {
-            // Only WallchainSwapCall, don't use rest of pipeline
-            return {
-              call,
-              gasEstimate: undefined,
-            }
-          }
-          const tx =
-            !value || isZero(value)
-              ? { account, to: address, data: calldata, value: 0n }
-              : {
-                  account,
-                  to: address,
-                  data: calldata,
-                  value: hexToBigInt(value),
-                }
-
-          return publicClient
-            .estimateGas(tx)
-            .then((gasEstimate) => {
+      let estimatedCalls: SwapCallEstimate[] | undefined
+      if (!isUnifiWalletWithTetherInput) {
+        estimatedCalls = await Promise.all(
+          swapCalls.map(async (call) => {
+            const { address, calldata, value } = call
+            if ('getCall' in call) {
+              // Only WallchainSwapCall, don't use rest of pipeline
               return {
                 call,
-                gasEstimate,
+                gasEstimate: undefined,
               }
-            })
-            .catch((gasError) => {
-              console.debug('Gas estimate failed, trying to extract error', call, gasError)
-              return { call, error: transactionErrorToUserReadableMessage(gasError, t) }
-            })
-        }),
-      )
+            }
+            const tx =
+              !value || isZero(value)
+                ? { account, to: address, data: calldata, value: 0n }
+                : {
+                    account,
+                    to: address,
+                    data: calldata,
+                    value: hexToBigInt(value),
+                  }
+
+            return publicClient
+              .estimateGas(tx)
+              .then((gasEstimate) => {
+                return {
+                  call,
+                  gasEstimate,
+                }
+              })
+              .catch((gasError) => {
+                console.debug('Gas estimate failed, trying to extract error', call, gasError)
+                return { call, error: transactionErrorToUserReadableMessage(gasError, t) }
+              })
+          }),
+        )
+      }
 
       // a successful estimation is a bignumber gas estimate and the next call is also a bignumber gas estimate
-      let bestCallOption: SuccessfulCall | SwapCallEstimate | undefined = estimatedCalls.find(
+      let bestCallOption: SuccessfulCall | SwapCallEstimate | undefined = estimatedCalls?.find(
         (el, ix, list): el is SuccessfulCall =>
           'gasEstimate' in el && (ix === list.length - 1 || 'gasEstimate' in list[ix + 1]),
       )
 
       // check if any calls errored with a recognizable error
-      if (!bestCallOption) {
-        const errorCalls = estimatedCalls.filter((call): call is FailedCall => 'error' in call)
+      if (!bestCallOption && !isUnifiWalletWithTetherInput && estimatedCalls) {
+        const errorCalls = estimatedCalls?.filter((call): call is FailedCall => 'error' in call) || []
         if (errorCalls.length > 0) throw errorCalls[errorCalls.length - 1].error
-        const firstNoErrorCall = estimatedCalls.find<SwapCallEstimate>(
+        const firstNoErrorCall = estimatedCalls?.find<SwapCallEstimate>(
           (call): call is SwapCallEstimate => !('error' in call),
         )
         if (!firstNoErrorCall) throw new Error(t('Unexpected error. Could not estimate gas for the swap.'))
         bestCallOption = firstNoErrorCall
       }
 
-      const call =
-        'getCall' in bestCallOption.call
-          ? await bestCallOption.call.getCall()
-          : (bestCallOption.call as SwapCall & { gas?: string | bigint })
+      const call = (
+        bestCallOption
+          ? 'getCall' in bestCallOption.call
+            ? await bestCallOption.call.getCall()
+            : bestCallOption.call
+          : swapCalls[0]
+      ) as SwapCall & { gas?: string | bigint }
 
-      if ('error' in call) {
+      if (call && 'error' in call) {
         throw new Error('Route lost. Need to restart.')
       }
 
-      if ('gas' in call && call.gas) {
+      if (call && 'gas' in call && call.gas && !isUnifiWalletWithTetherInput) {
         // prepared Wallchain's call have gas estimate inside
         call.gas = BigInt(call.gas)
       } else {
         call.gas =
-          'gasEstimate' in bestCallOption && bestCallOption.gasEstimate
+          bestCallOption && 'gasEstimate' in bestCallOption && bestCallOption.gasEstimate
             ? calculateGasMargin(bestCallOption.gasEstimate)
             : undefined
+      }
+
+      if (isUnifiWalletWithTetherInput && unifiWalletProvider && 'request' in unifiWalletProvider) {
+        return unifiWalletProvider
+          .request({
+            method: 'kaia_sendTransaction',
+            params: [
+              {
+                typeInt: UNIFI_WALLET_TYPE_INT,
+                from: account.toLowerCase() as string,
+                to: call.address,
+                input: call.calldata,
+                value: '0x0',
+                gas: UNIFI_WALLET_GAS,
+                depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
+                depositAmount: trade.inputAmount.numerator.toString(),
+              },
+            ],
+          })
+          .then((response: any) => {
+            return {
+              hash: response,
+            }
+          })
+          .catch((error: any) => {
+            console.error('Kaia sendTransaction failed', error)
+            throw new Error(`Kaia sendTransaction failed: ${transactionErrorToUserReadableMessage(error, t)}`)
+          })
       }
 
       return sendTx({
