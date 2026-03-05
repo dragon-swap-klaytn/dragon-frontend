@@ -349,15 +349,12 @@ export class UnifiWalletConnector extends Connector<WalletProvider | undefined, 
     }
   }
 
-  async getErc20TokenBalanceWithDepositedBalance(params: {
-    tokenAddress: string
-    userAddress: string
-  }): Promise<string> {
+  async getErc20TokenBalanceWithDepositedBalance(tokenAddress: string, userAddress: string): Promise<string> {
     const provider = await this.getProvider()
     if (!provider) throw new Error('Provider not found')
-    return provider.request({
-      method: 'kaia_getErc20TokenBalanceWithDepositedBalance',
-      params: [params],
-    }) as Promise<string>
+
+    const { getErc20TokenBalanceWithDepositedBalance: _getErc20TokenBalanceWithDepositedBalance } = provider
+
+    return _getErc20TokenBalanceWithDepositedBalance(tokenAddress, userAddress)
   }
 }

@@ -105,7 +105,7 @@ export function useWallchainSwapCallArguments(
   previousSwapCalls: { address: `0x${string}`; calldata: `0x${string}`; value: `0x${string}` }[] | undefined | null,
   account: string | undefined | null,
   onWallchainDrop: () => void,
-  masterInput?: [TMEVFoundResponse['searcherRequest'], string],
+  masterInput?: TWallchainMasterInput,
 ): SwapCall[] | WallchainSwapCall[] {
   const [swapCalls, setSwapCalls] = useState<SwapCall[] | WallchainSwapCall[]>([])
   const { data: walletClient } = useWalletClient()

@@ -13,8 +13,8 @@ import { basisPointsToPercent } from 'utils/exchange'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
 import { getAddress } from 'viem'
+import useSendSwapTransaction from 'views/Swap/V3Swap/hooks/useSendSwapTransaction'
 import { SendTransactionResult } from 'wagmi/actions'
-import useSendSwapTransaction from './useSendSwapTransaction'
 import { useSwapCallArguments } from './useSwapCallArguments'
 
 import type { TWallchainMasterInput } from './useWallchain'
@@ -83,13 +83,13 @@ export function useSwapCallback({
     wallchainMasterInput,
   )
 
-  const { callback } = useSendSwapTransaction(
+  const { callback } = useSendSwapTransaction({
     account,
     chainId,
     trade,
     // @ts-expect-error uncompatible types side-by-side cause wrong type assertion
-    wallchainSwapCalls,
-  )
+    swapCalls: wallchainSwapCalls,
+  })
 
   return useMemo(() => {
     if (!trade || !account || !chainId || !callback) {

@@ -1,5 +1,7 @@
 import { Currency, CurrencyAmount, Native, Token } from '@pancakeswap/sdk'
+import { TETHER_ADDRESS } from '@pancakeswap/uikit'
 import { multicallABI } from 'config/abi/Multicall'
+import { useUnifiWalletUSDTBalance } from 'contexts/UnifiWalletContext'
 import { useTokenMap } from 'hooks/Tokens'
 import useNativeCurrency from 'hooks/useNativeCurrency'
 import orderBy from 'lodash/orderBy'
@@ -62,6 +64,9 @@ export function useTokenBalancesWithLoadingIndicator(
     [tokens],
   )
 
+  const unifiWalletUSDTBalance = useUnifiWalletUSDTBalance()
+  const { connector } = useAccount()
+
   const validatedTokenAddresses = useMemo(() => validatedTokens.map((vt) => vt.address), [validatedTokens])
 
   const balances = useMultipleContractSingleData({
@@ -81,6 +86,11 @@ export function useTokenBalancesWithLoadingIndicator(
       () =>
         address && validatedTokens.length > 0
           ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
+              if (connector?.id === 'unifiwallet' && token.address.toLowerCase() === TETHER_ADDRESS.toLowerCase()) {
+                memo[token.address] = unifiWalletUSDTBalance
+                return memo
+              }
+
               const value = balances?.[i]?.result
               const amount = typeof value !== 'undefined' ? BigInt(value.toString()) : undefined
               if (typeof amount !== 'undefined') {
@@ -89,7 +99,7 @@ export function useTokenBalancesWithLoadingIndicator(
               return memo
             }, {})
           : {},
-      [address, validatedTokens, balances],
+      [address, validatedTokens, balances, connector, unifiWalletUSDTBalance],
     ),
     anyLoading,
   ]
