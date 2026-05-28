@@ -9,7 +9,7 @@
     "scripts"
   ],
   "engines": {
-    "node": "18.20.4"
+    "node": "24"
   },
   "packageManager": "pnpm@9.15.2",
   "scripts": {
