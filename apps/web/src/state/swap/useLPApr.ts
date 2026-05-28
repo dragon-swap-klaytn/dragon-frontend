@@ -61,7 +61,7 @@ const fetchPoolVolumeAndReserveData = async (block7d: number, poolAddress: strin
       }
     `
 
-    const data = await request(subgraphUrls.v3Exchange, query)
+    const data = await request(subgraphUrls.v2Exchange, query)
     return { data, error: false }
   } catch (error) {
     console.error('Failed to fetch pool data', error)

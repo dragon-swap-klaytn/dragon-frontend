@@ -11,23 +11,38 @@ const getPoolChartData = async (
 
   try {
     const query = gql`
-      query pairDayDatas($startTime: Int!, $skip: Int!, $address: Bytes!) {
-        pairDayDatas(
+      query pairStats_collection($startTime: Timestamp!, $skip: Int!, $address: String!) {
+        pairStats_collection(
           first: 1000
           skip: $skip
-          where: { pairAddress: $address, date_gt: $startTime }
-          orderBy: date
+          interval: "day"
+          where: { pair: $address, timestamp_gt: $startTime }
+          orderBy: timestamp
           orderDirection: asc
         ) {
-          date
+          timestamp
           dailyVolumeUSD
           reserveUSD
         }
       }
     `
 
-    const { pairDayDatas } = await request(subgraphUrls.v2Exchange, query, { startTime: 145315220, skip, address })
-    const data = pairDayDatas?.map(mapPairDayData)
+    const { pairStats_collection: pairStats } = await request<{
+      pairStats_collection: { timestamp: string | number; dailyVolumeUSD: string; reserveUSD: string }[]
+    }>(subgraphUrls.v2Exchange, query, {
+      // Timestamp scalar is microseconds since epoch, passed as a string (the server rejects numeric literals)
+      startTime: String(145315220 * 1_000_000),
+      skip,
+      address,
+    })
+    // Convert microseconds back to seconds so downstream helpers work unchanged
+    const data = pairStats
+      ?.map((row) => ({
+        date: Math.floor(Number(row.timestamp) / 1_000_000),
+        dailyVolumeUSD: row.dailyVolumeUSD,
+        reserveUSD: row.reserveUSD,
+      }))
+      .map(mapPairDayData)
     return { data, error: false }
   } catch (error) {
     console.error('Failed to fetch pool chart data', error)

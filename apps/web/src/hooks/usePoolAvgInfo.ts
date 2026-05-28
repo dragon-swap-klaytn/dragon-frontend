@@ -53,8 +53,14 @@ export function usePoolAvgInfo({ address = '', chainId }: UsePoolAvgInfoParams) 
       }
 
       const query = gql`
-        query getVolume($hours: Int!, $address: ID!) {
-          poolHourDatas(first: $hours, orderBy: periodStartUnix, orderDirection: desc, where: { pool: $address }) {
+        query getVolume($hours: Int!, $address: String!) {
+          poolStats_collection(
+            first: $hours
+            interval: "hour"
+            orderBy: timestamp
+            orderDirection: desc
+            where: { pool: $address }
+          ) {
             volumeUSD
             tvlUSD
             feesUSD
@@ -63,18 +69,18 @@ export function usePoolAvgInfo({ address = '', chainId }: UsePoolAvgInfoParams) 
         }
       `
       // TODO : 7 days?
-      const { poolHourDatas } = await client.request(query, {
+      const { poolStats_collection: poolStats } = await client.request(query, {
         hours: 24,
         address: address.toLocaleLowerCase(),
       })
-      const volumes = poolHourDatas.map((d: { volumeUSD: string }) => Number(d.volumeUSD))
-      const feeUSDs = poolHourDatas.map(
+      const volumes = poolStats.map((d: { volumeUSD: string }) => Number(d.volumeUSD))
+      const feeUSDs = poolStats.map(
         (d: { feesUSD: string; protocolFeesUSD: string }) => Number(d.feesUSD) - Number(d.protocolFeesUSD),
       )
 
       return {
         volumeUSD: sumArray(volumes),
-        tvlUSD: parseFloat(poolHourDatas[0]?.tvlUSD) || 0,
+        tvlUSD: parseFloat(poolStats[0]?.tvlUSD) || 0,
         feeUSD: sumArray(feeUSDs),
       }
     },

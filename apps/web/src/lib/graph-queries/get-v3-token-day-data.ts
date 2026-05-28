@@ -4,9 +4,15 @@ import { TokenDayDataV3 } from 'lib/graph-queries/types'
 
 export const getV3TokenDayData = async (poolAddress: string, { length = 30 } = {}): Promise<TokenDayDataV3[]> => {
   const document = gql`
-    query ($first: Int, $address: Bytes!) {
-      tokenDayDatas(first: $first, where: { token: $address }, orderBy: date, orderDirection: desc) {
-        date
+    query ($first: Int, $address: String!) {
+      tokenStats_collection(
+        first: $first
+        interval: "day"
+        where: { token: $address }
+        orderBy: timestamp
+        orderDirection: desc
+      ) {
+        timestamp
         volumeUSD
         totalValueLockedUSD
         feesUSD
@@ -19,7 +25,7 @@ export const getV3TokenDayData = async (poolAddress: string, { length = 30 } = {
     }
   `
 
-  const { tokenDayDatas } = await request(
+  const { tokenStats_collection: tokenStats } = await request(
     subgraphUrls.v3Exchange,
     document,
     { first: length, address: poolAddress },
@@ -28,9 +34,10 @@ export const getV3TokenDayData = async (poolAddress: string, { length = 30 } = {
     },
   )
 
-  return tokenDayDatas
-    .map(({ date, volumeUSD, totalValueLockedUSD, feesUSD, protocolFeesUSD, open, high, low, close }) => ({
-      timestamp: date * 1000,
+  return tokenStats
+    .map(({ timestamp, volumeUSD, totalValueLockedUSD, feesUSD, protocolFeesUSD, open, high, low, close }) => ({
+      // Timestamp scalar is microseconds since epoch; convert to ms
+      timestamp: Number(timestamp) / 1000,
       volumeUSD: +volumeUSD,
       tvlUSD: +totalValueLockedUSD,
       feeUSD: +feesUSD,

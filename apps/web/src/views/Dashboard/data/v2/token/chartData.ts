@@ -2,32 +2,42 @@ import { ChainId, SUBGRAPH_START_BLOCK } from '@pancakeswap/chains'
 import request, { gql } from 'graphql-request'
 import { subgraphUrls } from 'lib/graph-queries/const'
 import { fetchChartDataWithAddress, mapDayData } from 'views/Dashboard/helpers'
-import { TokenDayDatasResponse } from 'views/Dashboard/types'
 
 async function getTokenChartData(skip: number, address: string) {
   try {
     const query = gql`
-      query tokenDayDatas($startTime: Int!, $skip: Int!, $address: String!) {
-        tokenDayDatas(
+      query tokenStats_collection($startTime: Timestamp!, $skip: Int!, $address: String!) {
+        tokenStats_collection(
           first: 100
           skip: $skip
-          where: { token: $address, date_gt: $startTime }
-          orderBy: date
+          interval: "day"
+          where: { token: $address, timestamp_gt: $startTime }
+          orderBy: timestamp
           orderDirection: asc
         ) {
-          date
+          timestamp
           dailyVolumeUSD
           totalLiquidityUSD
         }
       }
     `
-    const { tokenDayDatas } = await request<TokenDayDatasResponse>(subgraphUrls.v2Exchange, query, {
-      startTime: SUBGRAPH_START_BLOCK[ChainId.KLAYTN],
+    const { tokenStats_collection: tokenStats } = await request<{
+      tokenStats_collection: { timestamp: string | number; dailyVolumeUSD: string; totalLiquidityUSD: string }[]
+    }>(subgraphUrls.v2Exchange, query, {
+      // Timestamp scalar is microseconds since epoch, passed as a string (the server rejects numeric literals)
+      startTime: String(SUBGRAPH_START_BLOCK[ChainId.KLAYTN] * 1_000_000),
       skip,
       address,
     })
 
-    const data = tokenDayDatas.map(mapDayData)
+    // Convert microseconds back to seconds so downstream helpers work unchanged
+    const data = tokenStats
+      .map((row) => ({
+        date: Math.floor(Number(row.timestamp) / 1_000_000),
+        dailyVolumeUSD: row.dailyVolumeUSD,
+        totalLiquidityUSD: row.totalLiquidityUSD,
+      }))
+      .map(mapDayData)
     return { data, error: false }
   } catch (error) {
     console.error('Failed to fetch token chart data', error)

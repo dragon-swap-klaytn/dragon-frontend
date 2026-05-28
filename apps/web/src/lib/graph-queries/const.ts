@@ -5,8 +5,8 @@ import { Address } from 'viem'
 export const GRAPH_NODE = 'https://gateway.graph.dgswap.io'
 
 export const subgraphUrls = {
-  v3Exchange: `${GRAPH_NODE}/dgswap-exchange-v3-kaia`,
-  v2Exchange: `${GRAPH_NODE}/dgswap-exchange-v2-kaia`,
+  v3Exchange: `${GRAPH_NODE}/dgswap-exchange-v3-v131-kaia`,
+  v2Exchange: `${GRAPH_NODE}/dgswap-exchange-v2-v120-kaia`,
 }
 
 export const BATCH_SIZE = 1_000 // Defines the number of pairs fetched per request to avoid exceeding API limits.

@@ -11,10 +11,16 @@ dayjs.extend(weekOfYear)
 const ONE_DAY_UNIX = 24 * 60 * 60
 
 const GLOBAL_CHART = gql`
-  query pancakeDayDatas($startTime: Int!, $skip: Int!) {
-    pancakeDayDatas(first: 1000, skip: $skip, where: { date_gt: $startTime }, orderBy: date, orderDirection: asc) {
-      id
-      date
+  query protocolStats_collection($startTime: Timestamp!, $skip: Int!) {
+    protocolStats_collection(
+      first: 1000
+      skip: $skip
+      interval: "day"
+      where: { timestamp_gt: $startTime }
+      orderBy: timestamp
+      orderDirection: asc
+    ) {
+      timestamp
       volumeUSD
       tvlUSD
     }
@@ -22,8 +28,8 @@ const GLOBAL_CHART = gql`
 `
 
 interface ChartResults {
-  pancakeDayDatas: {
-    date: number
+  protocolStats_collection: {
+    timestamp: string | number
     volumeUSD: string
     tvlUSD: string
   }[]
@@ -43,11 +49,17 @@ export async function fetchChartData() {
 
   try {
     const chartData = await request<ChartResults>(subgraphUrls.v3Exchange, GLOBAL_CHART, {
-      startTime: startTimestamp,
+      // Timestamp scalar is microseconds since epoch, passed as a string (the server rejects numeric literals)
+      startTime: String(startTimestamp * 1_000_000),
       skip,
     })
 
-    data = chartData.pancakeDayDatas
+    // Convert microseconds back to seconds so downstream gap-fill logic works unchanged
+    data = chartData.protocolStats_collection.map((row) => ({
+      date: Math.floor(Number(row.timestamp) / 1_000_000),
+      volumeUSD: row.volumeUSD,
+      tvlUSD: row.tvlUSD,
+    }))
   } catch {
     error = true
   }

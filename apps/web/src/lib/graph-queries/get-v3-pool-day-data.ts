@@ -4,9 +4,15 @@ import { PoolDayDataV3 } from 'lib/graph-queries/types'
 
 export const getV3PoolDayData = async (poolAddress: string, { length = 30 } = {}): Promise<PoolDayDataV3[]> => {
   const document = gql`
-    query ($first: Int, $address: Bytes!) {
-      poolDayDatas(first: $first, where: { pool: $address }, orderBy: date, orderDirection: desc) {
-        date
+    query ($first: Int, $address: String!) {
+      poolStats_collection(
+        first: $first
+        interval: "day"
+        where: { pool: $address }
+        orderBy: timestamp
+        orderDirection: desc
+      ) {
+        timestamp
         volumeUSD
         tvlUSD
         txCount
@@ -16,7 +22,7 @@ export const getV3PoolDayData = async (poolAddress: string, { length = 30 } = {}
     }
   `
 
-  const { poolDayDatas } = await request(
+  const { poolStats_collection: poolStats } = await request(
     subgraphUrls.v3Exchange,
     document,
     { first: length, address: poolAddress },
@@ -25,9 +31,10 @@ export const getV3PoolDayData = async (poolAddress: string, { length = 30 } = {}
     },
   )
 
-  return poolDayDatas
-    .map(({ date, volumeUSD, tvlUSD, txCount, feesUSD, protocolFeesUSD }) => ({
-      timestamp: date * 1000,
+  return poolStats
+    .map(({ timestamp, volumeUSD, tvlUSD, txCount, feesUSD, protocolFeesUSD }) => ({
+      // Timestamp scalar is microseconds since epoch; convert to ms
+      timestamp: Number(timestamp) / 1000,
       volumeUSD: +volumeUSD,
       tvlUSD: +tvlUSD,
       txCount: +txCount,
