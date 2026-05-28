@@ -4,9 +4,15 @@ import { TokenDayDataV2 } from 'lib/graph-queries/types'
 
 export const getV2TokenDayData = async (tokenAddress: string, { length = 30 } = {}): Promise<TokenDayDataV2[]> => {
   const document = gql`
-    query ($first: Int, $address: Bytes!) {
-      tokenDayDatas(first: $first, where: { token: $address }, orderBy: date, orderDirection: desc) {
-        date
+    query ($first: Int, $address: String!) {
+      tokenStats_collection(
+        first: $first
+        interval: "day"
+        where: { token: $address }
+        orderBy: timestamp
+        orderDirection: desc
+      ) {
+        timestamp
         dailyVolumeUSD
         totalLiquidityUSD
         dailyTxns
@@ -15,7 +21,7 @@ export const getV2TokenDayData = async (tokenAddress: string, { length = 30 } = 
     }
   `
 
-  const { tokenDayDatas } = await request(
+  const { tokenStats_collection: tokenStats } = await request(
     subgraphUrls.v2Exchange,
     document,
     { first: length, address: tokenAddress },
@@ -24,9 +30,10 @@ export const getV2TokenDayData = async (tokenAddress: string, { length = 30 } = 
     },
   )
 
-  return tokenDayDatas
-    .map(({ date, dailyVolumeUSD, totalLiquidityUSD, dailyTxns, priceUSD }) => ({
-      timestamp: date * 1000,
+  return tokenStats
+    .map(({ timestamp, dailyVolumeUSD, totalLiquidityUSD, dailyTxns, priceUSD }) => ({
+      // Timestamp scalar is microseconds since epoch; convert to ms
+      timestamp: Number(timestamp) / 1000,
       volumeUSD: +dailyVolumeUSD,
       tvlUSD: +totalLiquidityUSD,
       txCount: +dailyTxns,

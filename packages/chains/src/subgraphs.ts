@@ -13,14 +13,14 @@ export const STABLESWAP_SUBGRAPHS = {
 // NOTE [체인설정]_10 : subgraph url 설정
 export function getV3Subgraphs() {
   return {
-    [ChainId.KLAYTN]: `${DGSWAP_GATEWAY}/dgswap-exchange-v3-kaia`,
+    [ChainId.KLAYTN]: `${DGSWAP_GATEWAY}/dgswap-exchange-v3-v131-kaia`,
     [ChainId.KLAYTN_TESTNET]: '',
   } satisfies Record<ChainId, string | null>
 }
 
 export function getV2Subgraphs() {
   return {
-    [ChainId.KLAYTN]: `${DGSWAP_GATEWAY}/dgswap-exchange-v2-kaia`,
+    [ChainId.KLAYTN]: `${DGSWAP_GATEWAY}/dgswap-exchange-v2-v120-kaia`,
     [ChainId.KLAYTN_TESTNET]: '',
   }
 }

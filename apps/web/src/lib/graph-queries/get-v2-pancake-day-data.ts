@@ -5,8 +5,8 @@ import { PancakeDayDataV2 } from 'lib/graph-queries/types'
 export const getV2PancakeDayData = async ({ length = 30 } = {}): Promise<PancakeDayDataV2[]> => {
   const document = gql`
     query ($first: Int) {
-      pancakeDayDatas(first: $first, orderBy: date, orderDirection: desc) {
-        date
+      protocolStats_collection(first: $first, interval: "day", orderBy: timestamp, orderDirection: desc) {
+        timestamp
         dailyVolumeUSD
         totalLiquidityUSD
         totalTransactions
@@ -14,7 +14,7 @@ export const getV2PancakeDayData = async ({ length = 30 } = {}): Promise<Pancake
     }
   `
 
-  const { pancakeDayDatas } = await request(
+  const { protocolStats_collection: protocolStats } = await request(
     subgraphUrls.v2Exchange,
     document,
     { first: length },
@@ -23,9 +23,10 @@ export const getV2PancakeDayData = async ({ length = 30 } = {}): Promise<Pancake
     },
   )
 
-  return pancakeDayDatas
-    .map(({ date, dailyVolumeUSD, totalLiquidityUSD, totalTransactions }) => ({
-      timestamp: date * 1000,
+  return protocolStats
+    .map(({ timestamp, dailyVolumeUSD, totalLiquidityUSD, totalTransactions }) => ({
+      // Timestamp scalar is microseconds since epoch; convert to ms
+      timestamp: Number(timestamp) / 1000,
       volumeUSD: +dailyVolumeUSD,
       tvlUSD: +totalLiquidityUSD,
       txCount: +totalTransactions,

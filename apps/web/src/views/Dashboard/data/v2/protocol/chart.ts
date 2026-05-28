@@ -5,15 +5,22 @@ import request, { gql } from 'graphql-request'
 import { subgraphUrls } from 'lib/graph-queries/const'
 import { useEffect, useState } from 'react'
 import { fetchChartData, mapDayData } from 'views/Dashboard/helpers'
-import { PancakeDayDatasResponse, V2TokenChartEntry } from 'views/Dashboard/types'
+import { V2TokenChartEntry } from 'views/Dashboard/types'
 
 /**
  * Data for displaying Liquidity and Volume charts on Overview page
  */
 const PANCAKE_DAY_DATAS = gql`
-  query overviewCharts($startTime: Int!, $skip: Int!) {
-    pancakeDayDatas(first: 1000, skip: $skip, where: { date_gt: $startTime }, orderBy: date, orderDirection: asc) {
-      date
+  query overviewCharts($startTime: Timestamp!, $skip: Int!) {
+    protocolStats_collection(
+      first: 1000
+      skip: $skip
+      interval: "day"
+      where: { timestamp_gt: $startTime }
+      orderBy: timestamp
+      orderDirection: asc
+    ) {
+      timestamp
       dailyVolumeUSD
       totalLiquidityUSD
     }
@@ -22,12 +29,22 @@ const PANCAKE_DAY_DATAS = gql`
 
 const getOverviewChartData = async (skip: number) => {
   try {
-    const { pancakeDayDatas } = await request<PancakeDayDatasResponse>(subgraphUrls.v2Exchange, PANCAKE_DAY_DATAS, {
-      startTime: SUBGRAPH_START_BLOCK[ChainId.KLAYTN],
+    const { protocolStats_collection: protocolStats } = await request<{
+      protocolStats_collection: { timestamp: string | number; dailyVolumeUSD: string; totalLiquidityUSD: string }[]
+    }>(subgraphUrls.v2Exchange, PANCAKE_DAY_DATAS, {
+      // Timestamp scalar is microseconds since epoch, passed as a string (the server rejects numeric literals)
+      startTime: String(SUBGRAPH_START_BLOCK[ChainId.KLAYTN] * 1_000_000),
       skip,
     })
 
-    const data = pancakeDayDatas.map(mapDayData)
+    // Convert microseconds back to seconds so downstream helpers work unchanged
+    const data = protocolStats
+      .map((row) => ({
+        date: Math.floor(Number(row.timestamp) / 1_000_000),
+        dailyVolumeUSD: row.dailyVolumeUSD,
+        totalLiquidityUSD: row.totalLiquidityUSD,
+      }))
+      .map(mapDayData)
     return { data, error: false }
   } catch (error) {
     console.error('Failed to fetch overview chart data', error)

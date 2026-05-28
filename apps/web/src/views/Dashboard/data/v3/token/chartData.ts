@@ -11,15 +11,16 @@ dayjs.extend(weekOfYear)
 const ONE_DAY_UNIX = 24 * 60 * 60
 
 const TOKEN_CHART = gql`
-  query tokenDayDatas($startTime: Int!, $skip: Int!, $address: String) {
-    tokenDayDatas(
+  query tokenStats_collection($startTime: Timestamp!, $skip: Int!, $address: String!) {
+    tokenStats_collection(
       first: 100
       skip: $skip
-      where: { token: $address, date_gt: $startTime }
-      orderBy: date
+      interval: "day"
+      where: { token: $address, timestamp_gt: $startTime }
+      orderBy: timestamp
       orderDirection: asc
     ) {
-      date
+      timestamp
       volumeUSD
       totalValueLockedUSD
     }
@@ -27,8 +28,8 @@ const TOKEN_CHART = gql`
 `
 
 interface ChartResults {
-  tokenDayDatas: {
-    date: number
+  tokenStats_collection: {
+    timestamp: string | number
     volumeUSD: string
     totalValueLockedUSD: string
   }[]
@@ -40,7 +41,6 @@ export async function fetchTokenChartData(address: string) {
     volumeUSD: string
     totalValueLockedUSD: string
   }[] = []
-  // const startTimestamp = dayjs.utc().sub 1619170975
   const startTimestamp = dayjs.utc().subtract(1, 'month').unix()
   const endTimestamp = dayjs.utc().unix()
 
@@ -52,19 +52,27 @@ export async function fetchTokenChartData(address: string) {
     while (!allFound) {
       // eslint-disable-next-line no-await-in-loop
       const chartResData = await request<ChartResults>(subgraphUrls.v3Exchange, TOKEN_CHART, {
-        startTime: startTimestamp,
+        // Timestamp scalar is microseconds since epoch, passed as a string (the server rejects numeric literals)
+        startTime: String(startTimestamp * 1_000_000),
         skip,
         address,
       })
 
-      if (chartResData.tokenDayDatas.length > 0) {
+      if (chartResData.tokenStats_collection.length > 0) {
         skip += 100
 
         if (chartResData) {
-          data = data.concat(chartResData.tokenDayDatas)
+          // Convert microseconds back to seconds so downstream gap-fill logic works unchanged
+          data = data.concat(
+            chartResData.tokenStats_collection.map((row) => ({
+              date: Math.floor(Number(row.timestamp) / 1_000_000),
+              volumeUSD: row.volumeUSD,
+              totalValueLockedUSD: row.totalValueLockedUSD,
+            })),
+          )
         }
 
-        if (chartResData.tokenDayDatas.length < 100 || error) {
+        if (chartResData.tokenStats_collection.length < 100 || error) {
           allFound = true
         }
       }

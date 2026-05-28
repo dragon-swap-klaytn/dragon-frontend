@@ -13,15 +13,16 @@ dayjs.extend(weekOfYear)
 const ONE_DAY_UNIX = 24 * 60 * 60
 
 const POOL_CHART = gql`
-  query poolDayDatas($startTime: Int!, $skip: Int!, $address: Bytes!) {
-    poolDayDatas(
+  query poolStats_collection($startTime: Timestamp!, $skip: Int!, $address: String!) {
+    poolStats_collection(
       first: 1000
       skip: $skip
-      where: { pool: $address, date_gt: $startTime }
-      orderBy: date
+      interval: "day"
+      where: { pool: $address, timestamp_gt: $startTime }
+      orderBy: timestamp
       orderDirection: asc
     ) {
-      date
+      timestamp
       volumeUSD
       tvlUSD
       feesUSD
@@ -34,8 +35,8 @@ const POOL_CHART = gql`
 `
 
 interface ChartResults {
-  poolDayDatas: {
-    date: number
+  poolStats_collection: {
+    timestamp: string | number
     volumeUSD: string
     tvlUSD: string
     feesUSD: string
@@ -69,17 +70,28 @@ export async function fetchPoolChartData(address: string) {
       // eslint-disable-next-line no-await-in-loop
       const chartData = await request<ChartResults>(subgraphUrls.v3Exchange, POOL_CHART, {
         address,
-        startTime: startTimestamp,
+        // Timestamp scalar is microseconds since epoch, passed as a string (the server rejects numeric literals)
+        startTime: String(startTimestamp * 1_000_000),
         skip,
       })
 
-      if (chartData.poolDayDatas.length > 0) {
+      if (chartData.poolStats_collection.length > 0) {
         skip += 1000
-        if (chartData.poolDayDatas.length < 1000 || error) {
+        if (chartData.poolStats_collection.length < 1000 || error) {
           allFound = true
         }
-        if (chartData.poolDayDatas) {
-          data = data.concat(chartData.poolDayDatas)
+        if (chartData.poolStats_collection) {
+          // Convert microseconds back to seconds so downstream gap-fill logic works unchanged
+          data = data.concat(
+            chartData.poolStats_collection.map((row) => ({
+              date: Math.floor(Number(row.timestamp) / 1_000_000),
+              volumeUSD: row.volumeUSD,
+              tvlUSD: row.tvlUSD,
+              feesUSD: row.feesUSD,
+              protocolFeesUSD: row.protocolFeesUSD,
+              pool: row.pool,
+            })),
+          )
         }
       }
     }
