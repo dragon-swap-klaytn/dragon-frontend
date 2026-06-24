@@ -4,6 +4,7 @@ import {
   addMulticallListeners,
   errorFetchingMulticallResults,
   fetchingMulticallResults,
+  invalidateMulticallResults,
   removeMulticallListeners,
   toCallKey,
   updateMulticallResults,
@@ -107,6 +108,19 @@ export const multicallReducer = createReducer(initialState, (builder) =>
           data: results[callKey],
           blockNumber,
         }
+      })
+    })
+    .addCase(invalidateMulticallResults, (state, { payload: { chainId, calls } }) => {
+      if (!state.callResults[chainId]) return
+
+      if (!calls || calls.length === 0) {
+        state.callResults[chainId] = {}
+        return
+      }
+
+      calls.forEach((call) => {
+        const callKey = toCallKey(call)
+        delete state.callResults[chainId][callKey]
       })
     }),
 )

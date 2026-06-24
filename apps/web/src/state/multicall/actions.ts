@@ -61,3 +61,8 @@ export const updateMulticallResults = createAction<{
     [callKey: string]: string | null
   }
 }>('multicall/updateMulticallResults')
+
+export const invalidateMulticallResults = createAction<{
+  chainId: number
+  calls?: Call[]
+}>('multicall/invalidateMulticallResults')
