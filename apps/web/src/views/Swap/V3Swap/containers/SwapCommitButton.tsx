@@ -25,7 +25,7 @@ import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { useSwapActionHandlers } from 'state/swap/useSwapActionHandlers'
 import { useRoutingSettingChanged } from 'state/user/smartRouter'
-import { useCurrencyBalances } from 'state/wallet/hooks'
+import { useCurrencyBalances, useRefreshCurrencyBalances } from 'state/wallet/hooks'
 import { warningSeverity } from 'utils/exchange'
 
 import { useDebounce } from '@pancakeswap/hooks'
@@ -146,6 +146,11 @@ export const SwapCommitButton = memo(function SwapCommitButton({
     [Field.OUTPUT]: relevantTokenBalances[1],
   }
 
+  const refreshCurrencyBalances = useRefreshCurrencyBalances(account ?? undefined, [
+    inputCurrency ?? undefined,
+    outputCurrency ?? undefined,
+  ])
+
   // check whether the user has approved the router on the input token
   const { approvalState, approveCallback, revokeCallback, currentAllowance, isPendingError } = useApproveCallback(
     amountToApprove,
@@ -219,6 +224,7 @@ export const SwapCommitButton = memo(function SwapCommitButton({
         setSwapState({ attemptingTxn: false, tradeToConfirm, swapErrorMessage: undefined, txHash: res.hash })
         setTimeout(() => {
           refreshUnifiWalletUSDTBalance()
+          refreshCurrencyBalances()
         }, 1_000)
       })
       .catch((error) => {

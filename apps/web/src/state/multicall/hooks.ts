@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useAtom } from 'jotai'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { multicallReducerAtom } from 'state/multicall/reducer'
 import {
   Abi,
@@ -17,6 +17,7 @@ import {
 } from 'viem'
 import {
   Call,
+  invalidateMulticallResults,
   ListenerOptions,
   ListenerOptionsWithGas,
   addMulticallListeners,
@@ -38,6 +39,24 @@ const INVALID_RESULT: CallResult = { valid: false, blockNumber: undefined, data:
 // use this options object
 export const NEVER_RELOAD: ListenerOptions = {
   blocksPerFetch: Infinity,
+}
+
+export function useInvalidateMulticallResults(): (calls?: Call[]) => void {
+  const { chainId } = useActiveChainId()
+  const [, dispatch] = useAtom(multicallReducerAtom)
+
+  return useCallback(
+    (calls?: Call[]) => {
+      if (!chainId) return
+      dispatch(
+        invalidateMulticallResults({
+          chainId,
+          calls,
+        }),
+      )
+    },
+    [chainId, dispatch],
+  )
 }
 
 // the lowest level call for subscribing to contract data

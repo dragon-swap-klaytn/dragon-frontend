@@ -8,9 +8,14 @@ import orderBy from 'lodash/orderBy'
 import { useMemo } from 'react'
 import { safeGetAddress } from 'utils'
 import { getMulticallAddress } from 'utils/addressHelpers'
-import { Address, isAddress } from 'viem'
+import { Address, encodeFunctionData, isAddress } from 'viem'
 import { erc20ABI, useAccount } from 'wagmi'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from '../multicall/hooks'
+import { Call } from '../multicall/actions'
+import {
+  useInvalidateMulticallResults,
+  useMultipleContractSingleData,
+  useSingleContractMultipleData,
+} from '../multicall/hooks'
 
 /**
  * Returns a map of the given addresses to their eventually consistent BNB balances.
@@ -163,6 +168,53 @@ export function useCurrencyBalance(account?: string, currency?: Currency | null)
     account,
     useMemo(() => [currency], [currency]),
   )[0]
+}
+
+export function useRefreshCurrencyBalances(account?: string, currencies?: (Currency | undefined | null)[]): () => void {
+  const native = useNativeCurrency()
+  const invalidateMulticallResults = useInvalidateMulticallResults()
+
+  const refreshCalls = useMemo(() => {
+    if (!account || !isAddress(account)) return []
+
+    const validatedTokens: Token[] = currencies?.filter((currency): currency is Token => !!currency?.isToken) ?? []
+
+    const tokenBalanceOfCallData = encodeFunctionData({
+      abi: erc20ABI,
+      functionName: 'balanceOf',
+      args: [account],
+    })
+
+    const tokenBalanceCalls: Call[] = validatedTokens.map((token) => ({
+      address: token.address,
+      callData: tokenBalanceOfCallData,
+    }))
+
+    const nativeBalanceCallData = encodeFunctionData({
+      abi: multicallABI,
+      functionName: 'getEthBalance',
+      args: [account],
+    })
+
+    const hasNativeCurrency = currencies?.some((currency) => currency?.isNative) ?? false
+    const nativeBalanceCall: Call[] = hasNativeCurrency
+      ? [
+          {
+            address: getMulticallAddress(native.chainId),
+            callData: nativeBalanceCallData,
+          },
+        ]
+      : []
+
+    return [...tokenBalanceCalls, ...nativeBalanceCall]
+  }, [account, currencies, native.chainId])
+
+  return useMemo(
+    () => () => {
+      invalidateMulticallResults(refreshCalls)
+    },
+    [invalidateMulticallResults, refreshCalls],
+  )
 }
 
 // mimics useAllBalances
