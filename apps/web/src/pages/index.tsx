@@ -184,7 +184,6 @@ const HomePage = () => {
                 }
               />
             </div>
-            <p className="mt-3 text-xs text-on-surface-subtlest text-right">{t('Dec, 2024')}</p>
           </div>
 
           {/* Features Section */}
