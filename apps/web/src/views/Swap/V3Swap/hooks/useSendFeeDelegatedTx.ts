@@ -1,14 +1,17 @@
 import { WalletStorageKey } from '@pancakeswap/ui-wallets'
-import { ConnectorId } from '@pancakeswap/uikit'
+import { ConnectorId, TETHER_ADDRESS } from '@pancakeswap/uikit'
+import { useAtom } from 'jotai'
 import { useCallback, useEffect, useRef } from 'react'
 import { SendTransactionArgs, SendTransactionResult } from 'wagmi/dist/actions'
 
 import { v5 } from '@kaiachain/ethers-ext'
 import { ChainId } from '@pancakeswap/chains'
 import { SMART_ROUTER_ADDRESSES } from '@pancakeswap/smart-router'
-import { MASTERCHEFV3_ADDRESS, V3_NFT_POSITION_MANAGER_ADDRESS } from 'const'
+import { MASTERCHEFV3_ADDRESS, UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT, V3_NFT_POSITION_MANAGER_ADDRESS } from 'const'
+import { unifiWalletProviderAtom } from 'contexts/UnifiWalletContext'
 import { hexValue } from 'ethers/lib/utils'
-import { useSendTransaction } from 'wagmi'
+import { Merge } from 'type-fest'
+import { useAccount, useSendTransaction } from 'wagmi'
 
 const { Web3Provider, TxType } = v5
 
@@ -22,6 +25,9 @@ const whitelistedAddresses = new Set([
 export function useSendFeeDelegatedTx() {
   const { sendTransactionAsync } = useSendTransaction()
   const isKaiaWallet = useRef(false)
+  const [unifiWalletProvider] = useAtom(unifiWalletProviderAtom)
+  const { connector } = useAccount()
+  const isUnifiWallet = connector?.id === 'unifiwallet'
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -119,19 +125,52 @@ export function useSendFeeDelegatedTx() {
   )
 
   const sendTx = useCallback(
-    async (args: Pick<SendTransactionArgs, 'account' | 'chainId' | 'to' | 'data' | 'value' | 'gas'>) => {
-      // if (whitelistedAddresses.has(args.to.toLowerCase())) {
-      //   if (isKaiaWallet.current) {
-      //     return sendTxGasFeeDelegated(args)
-      //   }
-      // }
+    async (
+      args: Merge<
+        Pick<SendTransactionArgs, 'account' | 'chainId' | 'to' | 'gas'>,
+        // for unifi wallet
+        {
+          data?: SendTransactionArgs['data']
+          input?: SendTransactionArgs['data']
+          depositAmount?: string
+          value: `0x${string}` | bigint
+        }
+      >,
+    ) => {
+      const { account, to, input, data, value, depositAmount } = args
+      if (isUnifiWallet && account && depositAmount && unifiWalletProvider && 'request' in unifiWalletProvider) {
+        const tx = {
+          method: 'kaia_sendTransaction',
+          params: [
+            {
+              typeInt: UNIFI_WALLET_TYPE_INT,
+              from: (account as string).toLowerCase() as string,
+              to,
+              input,
+              value,
+              gas: UNIFI_WALLET_GAS,
+              depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
+              depositAmount,
+            },
+          ],
+        }
 
-      return sendTransactionAsync(args)
+        return unifiWalletProvider
+          .request(tx)
+          .then((response) => ({ hash: response }))
+          .catch((error) => {
+            console.error('Failed to send transaction via UniFi Wallet:', error)
+            throw error
+          })
+      }
+
+      return sendTransactionAsync({
+        ...args,
+        data: data ?? input,
+        value: BigInt(value),
+      })
     },
-    [
-      // sendTxGasFeeDelegated,
-      sendTransactionAsync,
-    ],
+    [sendTransactionAsync, unifiWalletProvider, isUnifiWallet],
   )
 
   return {

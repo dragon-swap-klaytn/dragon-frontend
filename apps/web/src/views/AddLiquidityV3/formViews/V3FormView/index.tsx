@@ -1,7 +1,15 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
 import { Currency, CurrencyAmount, Percent, Price, Token } from '@pancakeswap/sdk'
-import { AutoColumn, ButtonV2, ExternalLink, Notification, NumberFormat, useModal } from '@pancakeswap/uikit'
+import {
+  AutoColumn,
+  ButtonV2,
+  ExternalLink,
+  Notification,
+  NumberFormat,
+  TETHER_ADDRESS,
+  useModal,
+} from '@pancakeswap/uikit'
 import {
   ConfirmationModalContent,
   LiquidityChartRangeInput,
@@ -30,6 +38,7 @@ import { CurrencySelect } from 'components/CurrencySelect'
 import MaxDepositAmount from 'components/MaxDepositAmount'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
+import { TETHER_TOKEN, UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { useV3NFTPositionManagerContract } from 'hooks/useContract'
@@ -41,14 +50,14 @@ import { formatCurrencyAmount, formatRawAmount } from 'utils/formatCurrencyAmoun
 import { isUserRejected } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { getViemClients } from 'utils/viem'
-import { hexToBigInt } from 'viem'
+import { hexToBigInt } from 'viem/utils'
 import { DynamicSection, SectionTitle } from 'views/AddLiquidityV3'
 import { V3SubmitButton } from 'views/AddLiquidityV3/components/V3SubmitButton'
 import FeeSelector from 'views/AddLiquidityV3/formViews/V3FormView/components/FeeSelector'
 import { useDensityChartData } from 'views/AddLiquidityV3/hooks/useDensityChartData'
 import { HandleFeePoolSelectFn, QUICK_ACTION_CONFIGS } from 'views/AddLiquidityV3/types'
 import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
-import { useWalletClient } from 'wagmi'
+import { useAccount, useWalletClient } from 'wagmi'
 import { SendTransactionResult } from 'wagmi/dist/actions'
 import LockedDeposit from './components/LockedDeposit'
 import { PositionPreview } from './components/PositionPreview'
@@ -112,6 +121,8 @@ export default function V3FormView({
   const { sendTx } = useSendFeeDelegatedTx()
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
   const [txnErrorMessage, setTxnErrorMessage] = useState<string | undefined>()
+  const { connector } = useAccount()
+  const isUnifiWallet = connector?.id === 'unifiwallet'
 
   const {
     t,
@@ -258,58 +269,68 @@ export default function V3FormView({
         createPool: noLiquidity,
       })
 
+      const baseAmountRaw = parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0'
+      const quoteAmountRaw = parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0'
+
       setAttemptingTxn(true)
-      const txn = {
-        data: calldata,
-        to: nftPositionManagerAddress,
-        value: hexToBigInt(value),
-        account,
-      }
-      getViemClients({ chainId })
-        ?.estimateGas(txn)
-        .then((gas) => {
-          sendTx({
+
+      let txn: any = null
+      try {
+        if (isUnifiWallet && (baseCurrency.equals(TETHER_TOKEN) || quoteCurrency.equals(TETHER_TOKEN))) {
+          txn = {
+            input: calldata,
+            to: nftPositionManagerAddress,
+            value,
+            account,
+            typeInt: UNIFI_WALLET_TYPE_INT,
+            from: account.toLowerCase() as string,
+            depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
+            depositAmount: baseCurrency.isNative ? quoteAmountRaw : baseAmountRaw,
+            gas: BigInt(UNIFI_WALLET_GAS),
+          }
+        } else {
+          txn = {
+            data: calldata,
+            to: nftPositionManagerAddress,
+            value: hexToBigInt(value),
+            account,
+          }
+          const gas = await getViemClients({ chainId })?.estimateGas(txn)
+          txn = {
             ...txn,
             gas: calculateGasMargin(gas),
-          })
-            .then((response) => {
-              const baseAmount = formatRawAmount(
-                parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
-                baseCurrency.decimals,
-                4,
-              )
-              const quoteAmount = formatRawAmount(
-                parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
-                quoteCurrency.decimals,
-                4,
-              )
+          }
+        }
 
-              setAttemptingTxn(false)
-              addTransaction(response, {
-                type: 'add-liquidity-v3',
-                summary: `Add ${baseAmount} ${baseCurrency?.symbol} and ${quoteAmount} ${quoteCurrency?.symbol}`,
-                translatableSummary: {
-                  text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
-                  data: {
-                    amountA: baseAmount,
-                    symbolA: baseCurrency?.symbol,
-                    amountB: quoteAmount,
-                    symbolB: quoteCurrency?.symbol,
-                  },
-                },
-              })
-              setTxHash(response.hash)
-              onAddLiquidityCallback(response.hash)
-            })
-            .catch((error) => {
-              console.error('Failed to send transaction', error)
-              // we only care if the error is something _other_ than the user rejected the tx
-              if (!isUserRejected(error)) {
-                setTxnErrorMessage(transactionErrorToUserReadableMessage(error, t))
-              }
-              setAttemptingTxn(false)
-            })
+        sendTx(txn).then((response) => {
+          const baseAmount = formatRawAmount(baseAmountRaw, baseCurrency.decimals, 4)
+          const quoteAmount = formatRawAmount(quoteAmountRaw, quoteCurrency.decimals, 4)
+
+          setAttemptingTxn(false)
+          addTransaction(response, {
+            type: 'add-liquidity-v3',
+            summary: `Add ${baseAmount} ${baseCurrency?.symbol} and ${quoteAmount} ${quoteCurrency?.symbol}`,
+            translatableSummary: {
+              text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
+              data: {
+                amountA: baseAmount,
+                symbolA: baseCurrency?.symbol,
+                amountB: quoteAmount,
+                symbolB: quoteCurrency?.symbol,
+              },
+            },
+          })
+          setTxHash(response.hash)
+          onAddLiquidityCallback(response.hash)
         })
+      } catch (error) {
+        console.error('Failed to send transaction', error)
+        // we only care if the error is something _other_ than the user rejected the tx
+        if (!isUserRejected(error)) {
+          setTxnErrorMessage(transactionErrorToUserReadableMessage(error, t))
+        }
+        setAttemptingTxn(false)
+      }
     }
   }, [
     account,

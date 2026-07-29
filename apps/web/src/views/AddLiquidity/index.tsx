@@ -1,17 +1,18 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Percent, Price, Token } from '@pancakeswap/sdk'
-import { useModal } from '@pancakeswap/uikit'
+import { TETHER_ADDRESS, useModal } from '@pancakeswap/uikit'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { ReactElement, useCallback, useMemo, useState } from 'react'
 
+import { pancakeRouter02ABI } from 'config/abi/IPancakeRouter02'
 import { V2_ROUTER_ADDRESS } from 'config/constants/exchange'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import { useLPApr } from 'state/swap/useLPApr'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { isUserRejected, logError } from 'utils/sentry'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
-import { Hash } from 'viem'
-import { useWalletClient } from 'wagmi'
+import { Hash, encodeFunctionData } from 'viem'
+import { useAccount, useWalletClient } from 'wagmi'
 import { SendTransactionResult } from 'wagmi/actions'
 
 import useAccountActiveChain from 'hooks/useAccountActiveChain'
@@ -21,12 +22,14 @@ import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers } from 'state/mint/hooks'
 
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
+import { TETHER_TOKEN, UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
 import { useAddLiquidityV2FormState } from 'state/mint/reducer'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useGasPrice, usePairAdder } from 'state/user/hooks'
 import { calculateGasMargin } from 'utils'
 import { calculateSlippageAmount, useRouterContract } from 'utils/exchange'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { useSendFeeDelegatedTx } from 'views/Swap/V3Swap/hooks/useSendFeeDelegatedTx'
 import SettingsModal from '../../components/Menu/GlobalSettings/SettingsModal'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import ConfirmAddLiquidityModal from './components/ConfirmAddLiquidityModal'
@@ -168,6 +171,55 @@ export default function AddLiquidity({
   const addTransaction = useTransactionAdder()
 
   const routerContract = useRouterContract()
+  const { connector } = useAccount()
+  const isUnifiWallet = connector?.id === 'unifiwallet'
+  const { sendTx } = useSendFeeDelegatedTx()
+
+  const handleAddLiquiditySuccess = useCallback(
+    (responseHash: Hash) => {
+      setLiquidityState({ attemptingTxn: false, liquidityErrorMessage: undefined, txHash: responseHash })
+
+      const symbolA = currencies[Field.CURRENCY_A]?.symbol
+      const amountA = parsedAmounts[Field.CURRENCY_A]?.toSignificant(3)
+      const symbolB = currencies[Field.CURRENCY_B]?.symbol
+      const amountB = parsedAmounts[Field.CURRENCY_B]?.toSignificant(3)
+      addTransaction(
+        { hash: responseHash },
+        {
+          summary: `Add ${amountA} ${symbolA} and ${amountB} ${symbolB}`,
+          translatableSummary: {
+            text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
+            data: { amountA, symbolA, amountB, symbolB },
+          },
+          type: 'add-liquidity',
+        },
+      )
+
+      if (pair) {
+        addPair(pair)
+      }
+    },
+    [addPair, addTransaction, currencies, parsedAmounts, pair],
+  )
+
+  const handleAddLiquidityError = useCallback(
+    (err: any, args: Array<string | string[] | number | bigint>, value: bigint | `0x${string}` | null) => {
+      if (err && !isUserRejected(err)) {
+        logError(err)
+        console.error(`Add Liquidity failed`, err, args, value)
+      }
+
+      setLiquidityState({
+        attemptingTxn: false,
+        liquidityErrorMessage:
+          err && !isUserRejected(err)
+            ? t('Add liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
+            : undefined,
+        txHash: undefined,
+      })
+    },
+    [t],
+  )
 
   async function onAdd() {
     if (!chainId || !account || !routerContract || !walletClient) return
@@ -182,92 +234,119 @@ export default function AddLiquidity({
       [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
     }
 
-    // eslint-disable-next-line
-    let estimate: any
-    // eslint-disable-next-line
-    let method: any
-    // eslint-disable-next-line
-    let args: Array<string | string[] | number | bigint>
-    let value: bigint | null
-    if (currencyA?.isNative || currencyB?.isNative) {
-      const tokenBIsNative = currencyB?.isNative
-      estimate = routerContract.estimateGas.addLiquidityETH
-      method = routerContract.write.addLiquidityETH
-      args = [
-        (tokenBIsNative ? currencyA : currencyB)?.wrapped?.address ?? '', // token
-        (tokenBIsNative ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
-        amountsMin[tokenBIsNative ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
-        amountsMin[tokenBIsNative ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
-        account,
-        deadline,
-      ]
-      value = (tokenBIsNative ? parsedAmountB : parsedAmountA).quotient
-    } else {
-      estimate = routerContract.estimateGas.addLiquidity
-      method = routerContract.write.addLiquidity
-      args = [
-        currencyA?.wrapped?.address ?? '',
-        currencyB?.wrapped?.address ?? '',
-        parsedAmountA.quotient.toString(),
-        parsedAmountB.quotient.toString(),
-        amountsMin[Field.CURRENCY_A].toString(),
-        amountsMin[Field.CURRENCY_B].toString(),
-        account,
-        deadline,
-      ]
-      value = null
-    }
+    if (isUnifiWallet && (currencyA?.equals(TETHER_TOKEN) || currencyB?.equals(TETHER_TOKEN))) {
+      let estimate: any
+      let args: Array<string | string[] | number | bigint>
+      let value: `0x${string}` = '0x0'
 
-    setLiquidityState({ attemptingTxn: true, liquidityErrorMessage: undefined, txHash: undefined })
-    await estimate(
-      args,
-      value
-        ? { value, account: routerContract.account, chain: routerContract.chain }
-        : { account: routerContract.account, chain: routerContract.chain },
-    )
-      .then((estimatedGasLimit: any) =>
-        method(args, {
-          ...(value ? { value } : {}),
-          gas: calculateGasMargin(estimatedGasLimit),
-          gasPrice,
-        }).then((response: Hash) => {
-          setLiquidityState({ attemptingTxn: false, liquidityErrorMessage: undefined, txHash: response })
+      if (currencyA?.isNative || currencyB?.isNative) {
+        const tokenBIsNative = currencyB?.isNative
+        estimate = routerContract.estimateGas.addLiquidityETH
+        args = [
+          (tokenBIsNative ? currencyA : currencyB)?.wrapped?.address ?? '',
+          (tokenBIsNative ? parsedAmountA : parsedAmountB).quotient.toString(),
+          amountsMin[tokenBIsNative ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
+          amountsMin[tokenBIsNative ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
+          account,
+          deadline,
+        ]
 
-          const symbolA = currencies[Field.CURRENCY_A]?.symbol
-          const amountA = parsedAmounts[Field.CURRENCY_A]?.toSignificant(3)
-          const symbolB = currencies[Field.CURRENCY_B]?.symbol
-          const amountB = parsedAmounts[Field.CURRENCY_B]?.toSignificant(3)
-          addTransaction(
-            { hash: response },
-            {
-              summary: `Add ${amountA} ${symbolA} and ${amountB} ${symbolB}`,
-              translatableSummary: {
-                text: 'Add {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}',
-                data: { amountA, symbolA, amountB, symbolB },
-              },
-              type: 'add-liquidity',
-            },
-          )
+        value = `0x${(tokenBIsNative ? parsedAmountB : parsedAmountA).quotient.toString(16)}`
+      } else {
+        estimate = routerContract.estimateGas.addLiquidity
+        args = [
+          currencyA?.wrapped?.address ?? '',
+          currencyB?.wrapped?.address ?? '',
+          parsedAmountA.quotient.toString(),
+          parsedAmountB.quotient.toString(),
+          amountsMin[Field.CURRENCY_A].toString(),
+          amountsMin[Field.CURRENCY_B].toString(),
+          account,
+          deadline,
+        ]
+      }
 
-          if (pair) {
-            addPair(pair)
-          }
-        }),
-      )
-      ?.catch((err: any) => {
-        if (err && !isUserRejected(err)) {
-          logError(err)
-          console.error(`Add Liquidity failed`, err, args, value)
-        }
-        setLiquidityState({
-          attemptingTxn: false,
-          liquidityErrorMessage:
-            err && !isUserRejected(err)
-              ? t('Add liquidity failed: {{message}}', { message: transactionErrorToUserReadableMessage(err, t) })
-              : undefined,
-          txHash: undefined,
-        })
+      const calldata = encodeFunctionData({
+        abi: pancakeRouter02ABI,
+        functionName: currencyA?.isNative || currencyB?.isNative ? 'addLiquidityETH' : 'addLiquidity',
+        args: args as any,
       })
+
+      const txn = {
+        input: calldata,
+        to: V2_ROUTER_ADDRESS[chainId],
+        value,
+        account,
+        typeInt: UNIFI_WALLET_TYPE_INT,
+        from: account.toLowerCase() as string,
+        depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
+        depositAmount: currencyA.isNative ? parsedAmountB.quotient.toString() : parsedAmountA.quotient.toString(),
+        gas: BigInt(UNIFI_WALLET_GAS),
+      }
+
+      setLiquidityState({ attemptingTxn: true, liquidityErrorMessage: undefined, txHash: undefined })
+      sendTx({
+        ...txn,
+        chainId,
+      })
+        .then((response) => {
+          handleAddLiquiditySuccess(response.hash)
+        })
+        .catch((err: any) => handleAddLiquidityError(err, args, value))
+    } else {
+      // eslint-disable-next-line
+      let estimate: any
+      // eslint-disable-next-line
+      let method: any
+      // eslint-disable-next-line
+      let args: Array<string | string[] | number | bigint>
+      let value: bigint | null
+      if (currencyA?.isNative || currencyB?.isNative) {
+        const tokenBIsNative = currencyB?.isNative
+        estimate = routerContract.estimateGas.addLiquidityETH
+        method = routerContract.write.addLiquidityETH
+
+        args = [
+          (tokenBIsNative ? currencyA : currencyB)?.wrapped?.address ?? '', // token
+          (tokenBIsNative ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
+          amountsMin[tokenBIsNative ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
+          amountsMin[tokenBIsNative ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
+          account,
+          deadline,
+        ]
+        value = (tokenBIsNative ? parsedAmountB : parsedAmountA).quotient
+      } else {
+        estimate = routerContract.estimateGas.addLiquidity
+        method = routerContract.write.addLiquidity
+        args = [
+          currencyA?.wrapped?.address ?? '',
+          currencyB?.wrapped?.address ?? '',
+          parsedAmountA.quotient.toString(),
+          parsedAmountB.quotient.toString(),
+          amountsMin[Field.CURRENCY_A].toString(),
+          amountsMin[Field.CURRENCY_B].toString(),
+          account,
+          deadline,
+        ]
+        value = null
+      }
+
+      setLiquidityState({ attemptingTxn: true, liquidityErrorMessage: undefined, txHash: undefined })
+      await estimate(
+        args,
+        value
+          ? { value, account: routerContract.account, chain: routerContract.chain }
+          : { account: routerContract.account, chain: routerContract.chain },
+      )
+        .then((estimatedGasLimit: any) =>
+          method(args, {
+            ...(value ? { value } : {}),
+            gas: calculateGasMargin(estimatedGasLimit),
+            gasPrice,
+          }).then((response: Hash) => handleAddLiquiditySuccess(response)),
+        )
+        ?.catch((err: any) => handleAddLiquidityError(err, args, value))
+    }
   }
 
   const pendingText = t('Supplying {{amountA}} {{symbolA}} and {{amountB}} {{symbolB}}', {
