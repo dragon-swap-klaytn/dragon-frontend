@@ -79,7 +79,9 @@ export function useTransactionAdder(): (
 
       let hash: Hash | string | undefined
 
-      if ('hash' in response) {
+      if (typeof response === 'string') {
+        hash = response
+      } else if ('hash' in response) {
         // eslint-disable-next-line prefer-destructuring
         hash = response.hash
       } else if ('transactionHash' in response) {
