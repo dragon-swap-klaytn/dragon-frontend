@@ -127,12 +127,17 @@ export function useSendFeeDelegatedTx() {
   const sendTx = useCallback(
     async (
       args: Merge<
-        Pick<SendTransactionArgs, 'account' | 'chainId' | 'to' | 'data' | 'gas'>,
+        Pick<SendTransactionArgs, 'account' | 'chainId' | 'to' | 'gas'>,
         // for unifi wallet
-        { input?: string; depositAmount?: string; value: `0x${string}` | bigint }
+        {
+          data?: SendTransactionArgs['data']
+          input?: SendTransactionArgs['data']
+          depositAmount?: string
+          value: `0x${string}` | bigint
+        }
       >,
     ) => {
-      const { account, to, input, value, depositAmount } = args
+      const { account, to, input, data, value, depositAmount } = args
       if (isUnifiWallet && account && depositAmount && unifiWalletProvider && 'request' in unifiWalletProvider) {
         const tx = {
           method: 'kaia_sendTransaction',
@@ -161,6 +166,7 @@ export function useSendFeeDelegatedTx() {
 
       return sendTransactionAsync({
         ...args,
+        data: data ?? input,
         value: BigInt(value),
       })
     },
