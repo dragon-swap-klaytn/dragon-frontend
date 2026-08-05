@@ -76,3 +76,7 @@ export const TETHER_ADDRESS = "0xd077A400968890Eacc75cdc901F0356c943e4fDb";
 export const TETHER_NAME = "Tether USD";
 export const TETHER_SYMBOL = "USD₮";
 export const TETHER_DECIMALS = 6;
+export const JPYC_ADDRESS = "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29";
+export const JPYC_NAME = "JPY Coin";
+export const JPYC_SYMBOL = "JPYC";
+export const JPYC_DECIMALS = 18;

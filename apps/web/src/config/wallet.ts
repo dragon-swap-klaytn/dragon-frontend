@@ -68,6 +68,12 @@ export const WALLET_MAP: {
     deepLink?: string
   }
 } = {
+  [WalletIds.unifiWallet]: {
+    title: 'Unifi Wallet',
+    icon: getWalletIcon(WalletIds.unifiWallet),
+    connectorId: ConnectorIds.unifiWallet,
+    installed: true,
+  },
   [WalletIds.kaiaWallet]: {
     title: 'Kaia Wallet',
     icon: getWalletIcon(WalletIds.kaiaWallet),
@@ -127,12 +133,6 @@ export const WALLET_MAP: {
     deepLink: `https://www.okx.com/download?deeplink=${encodeURIComponent(
       `okx://wallet/dapp/url?dappUrl=${encodeURIComponent(DGSWAP_DOMAIN)}`,
     )}`,
-  },
-  [WalletIds.unifiWallet]: {
-    title: 'Unifi Wallet',
-    icon: getWalletIcon(WalletIds.unifiWallet),
-    connectorId: ConnectorIds.unifiWallet,
-    installed: true,
   },
 }
 

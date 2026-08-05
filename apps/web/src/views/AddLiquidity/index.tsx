@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Currency, CurrencyAmount, Pair, Percent, Price, Token } from '@pancakeswap/sdk'
-import { TETHER_ADDRESS, useModal } from '@pancakeswap/uikit'
+import { useModal } from '@pancakeswap/uikit'
 import { useUserSlippage } from '@pancakeswap/utils/user'
 import { ReactElement, useCallback, useMemo, useState } from 'react'
 
@@ -22,7 +22,7 @@ import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers } from 'state/mint/hooks'
 
 import { SettingsMode } from 'components/Menu/GlobalSettings/types'
-import { TETHER_TOKEN, UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
+import { JPYC_TOKEN, TETHER_TOKEN, UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
 import { useAddLiquidityV2FormState } from 'state/mint/reducer'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useGasPrice, usePairAdder } from 'state/user/hooks'
@@ -175,6 +175,23 @@ export default function AddLiquidity({
   const isUnifiWallet = connector?.id === 'unifiwallet'
   const { sendTx } = useSendFeeDelegatedTx()
 
+  const unifiDepositField = useMemo(() => {
+    if (currencies[Field.CURRENCY_A]?.equals(TETHER_TOKEN) || currencies[Field.CURRENCY_A]?.equals(JPYC_TOKEN)) {
+      return Field.CURRENCY_A
+    }
+    if (currencies[Field.CURRENCY_B]?.equals(TETHER_TOKEN) || currencies[Field.CURRENCY_B]?.equals(JPYC_TOKEN)) {
+      return Field.CURRENCY_B
+    }
+    return null
+  }, [currencies])
+
+  const unifiDepositTokenAddress = useMemo(() => {
+    if (!unifiDepositField) {
+      return null
+    }
+    return currencies[unifiDepositField]?.wrapped?.address?.toLowerCase() ?? null
+  }, [currencies, unifiDepositField])
+
   const handleAddLiquiditySuccess = useCallback(
     (responseHash: Hash) => {
       setLiquidityState({ attemptingTxn: false, liquidityErrorMessage: undefined, txHash: responseHash })
@@ -234,7 +251,7 @@ export default function AddLiquidity({
       [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
     }
 
-    if (isUnifiWallet && (currencyA?.equals(TETHER_TOKEN) || currencyB?.equals(TETHER_TOKEN))) {
+    if (isUnifiWallet && unifiDepositField && unifiDepositTokenAddress) {
       let estimate: any
       let args: Array<string | string[] | number | bigint>
       let value: `0x${string}` = '0x0'
@@ -279,8 +296,8 @@ export default function AddLiquidity({
         account,
         typeInt: UNIFI_WALLET_TYPE_INT,
         from: account.toLowerCase() as string,
-        depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
-        depositAmount: currencyA.isNative ? parsedAmountB.quotient.toString() : parsedAmountA.quotient.toString(),
+        depositTokenAddress: unifiDepositTokenAddress,
+        depositAmount: mintParsedAmounts[unifiDepositField]?.quotient.toString() ?? '0',
         gas: BigInt(UNIFI_WALLET_GAS),
       }
 

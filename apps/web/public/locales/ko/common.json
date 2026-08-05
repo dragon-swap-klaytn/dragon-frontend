@@ -498,5 +498,6 @@
   "Refresh quote": "견적 새로고침",
   "Enable spending {{symbol}}": "{{symbol}} 사용 허용",
   "recently connected": "최근 연결됨",
-  "not installed": "설치되지 않음"
+  "not installed": "설치되지 않음",
+  "Pool not currently supported in Unifi Wallet": "현재 Unifi 지갑에서는 지원하지 않는 풀입니다"
 }

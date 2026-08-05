@@ -1,6 +1,16 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Token } from '@pancakeswap/swap-sdk-core'
-import { TETHER_ADDRESS, TETHER_DECIMALS, TETHER_NAME, TETHER_SYMBOL, WKAIA_ADDRESS } from '@pancakeswap/uikit'
+import {
+  JPYC_ADDRESS,
+  JPYC_DECIMALS,
+  JPYC_NAME,
+  JPYC_SYMBOL,
+  TETHER_ADDRESS,
+  TETHER_DECIMALS,
+  TETHER_NAME,
+  TETHER_SYMBOL,
+  WKAIA_ADDRESS,
+} from '@pancakeswap/uikit'
 import { PoolType } from 'types'
 import { Address } from 'viem'
 import { poolTypeSelectorOptions } from 'views/PoolsV2/components/PoolTypeSelector'
@@ -426,6 +436,14 @@ export const TETHER_TOKEN = new Token(
   TETHER_DECIMALS,
   TETHER_SYMBOL,
   TETHER_NAME,
+)
+
+export const JPYC_TOKEN = new Token(
+  ChainId.KLAYTN,
+  JPYC_ADDRESS.toLowerCase() as Address,
+  JPYC_DECIMALS,
+  JPYC_SYMBOL,
+  JPYC_NAME,
 )
 
 export const SYMBOL_ALIASES: Record<string, string[]> = {

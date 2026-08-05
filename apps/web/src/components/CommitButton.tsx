@@ -18,6 +18,7 @@ export const CommitButton = (props: ButtonProps) => {
       }}
       disabled={props.disabled || switchNetworkLoading}
       fullWidth
+      className={props.className}
     >
       {props.children}
     </ButtonV2>

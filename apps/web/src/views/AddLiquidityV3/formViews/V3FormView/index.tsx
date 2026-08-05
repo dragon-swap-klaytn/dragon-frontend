@@ -1,15 +1,7 @@
 import { CommonBasesType } from 'components/SearchModal/types'
 
 import { Currency, CurrencyAmount, Percent, Price, Token } from '@pancakeswap/sdk'
-import {
-  AutoColumn,
-  ButtonV2,
-  ExternalLink,
-  Notification,
-  NumberFormat,
-  TETHER_ADDRESS,
-  useModal,
-} from '@pancakeswap/uikit'
+import { AutoColumn, ButtonV2, ExternalLink, Notification, NumberFormat, useModal } from '@pancakeswap/uikit'
 import {
   ConfirmationModalContent,
   LiquidityChartRangeInput,
@@ -38,7 +30,7 @@ import { CurrencySelect } from 'components/CurrencySelect'
 import MaxDepositAmount from 'components/MaxDepositAmount'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { Bound } from 'config/constants/types'
-import { TETHER_TOKEN, UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
+import { JPYC_TOKEN, TETHER_TOKEN, UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
 import { useIsTransactionUnsupported, useIsTransactionWarning } from 'hooks/Trades'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { useV3NFTPositionManagerContract } from 'hooks/useContract'
@@ -276,7 +268,14 @@ export default function V3FormView({
 
       let txn: any = null
       try {
-        if (isUnifiWallet && (baseCurrency.equals(TETHER_TOKEN) || quoteCurrency.equals(TETHER_TOKEN))) {
+        const unifiDepositCurrency =
+          baseCurrency.equals(TETHER_TOKEN) || baseCurrency.equals(JPYC_TOKEN)
+            ? baseCurrency
+            : quoteCurrency.equals(TETHER_TOKEN) || quoteCurrency.equals(JPYC_TOKEN)
+            ? quoteCurrency
+            : null
+
+        if (isUnifiWallet && unifiDepositCurrency) {
           txn = {
             input: calldata,
             to: nftPositionManagerAddress,
@@ -284,8 +283,8 @@ export default function V3FormView({
             account,
             typeInt: UNIFI_WALLET_TYPE_INT,
             from: account.toLowerCase() as string,
-            depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
-            depositAmount: baseCurrency.isNative ? quoteAmountRaw : baseAmountRaw,
+            depositTokenAddress: unifiDepositCurrency.wrapped.address.toLowerCase(),
+            depositAmount: unifiDepositCurrency.equals(baseCurrency) ? baseAmountRaw : quoteAmountRaw,
             gas: BigInt(UNIFI_WALLET_GAS),
           }
         } else {
