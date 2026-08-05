@@ -5,7 +5,7 @@ WORKDIR /workspace
 
 # install git, ssh, pnpm, turbo
 RUN apk add --no-cache git bash openssh python3 build-base libc6-compat && \
-    npm install -g pnpm turbo tsup typescript
+    npm install -g pnpm@9.15.2 turbo tsup typescript
 
 # set pnpm env
 ENV PNPM_HOME=/app/.pnpm
