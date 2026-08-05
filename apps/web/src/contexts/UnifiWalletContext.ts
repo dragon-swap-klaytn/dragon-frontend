@@ -1,22 +1,31 @@
 import { atom, useAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { CurrencyAmount } from '@pancakeswap/swap-sdk-core'
-import { TETHER_ADDRESS } from '@pancakeswap/uikit'
-import { TETHER_TOKEN } from 'const'
+import { CurrencyAmount, Token } from '@pancakeswap/swap-sdk-core'
+import { JPYC_TOKEN, TETHER_TOKEN } from 'const'
 import { useAccount } from 'wagmi'
 
-const cachedUnifiWalletUSDTBalanceAtom = atom<{
-  [address: string]: string
+const cachedUnifiWalletTokenBalancesAtom = atom<{
+  [address: string]: {
+    [tokenAddress: string]: string
+  }
 }>({})
-export const refreshUnifiWalletUSDTBalanceAtom = atom<{ fn: () => void }>({ fn: () => {} })
+export const refreshUnifiWalletManagedTokenBalancesAtom = atom<{ fn: () => void }>({ fn: () => {} })
+export const refreshUnifiWalletUSDTBalanceAtom = refreshUnifiWalletManagedTokenBalancesAtom
 export const unifiWalletProviderAtom = atom(null as any)
 
-export function useUnifiWalletUSDTBalances() {
+const UNIFI_MANAGED_TOKENS = [TETHER_TOKEN, JPYC_TOKEN] as const
+const UNIFI_MANAGED_TOKEN_ADDRESS_SET = new Set(UNIFI_MANAGED_TOKENS.map((token) => token.address.toLowerCase()))
+
+export function isUnifiWalletManagedTokenAddress(address?: string | null) {
+  return Boolean(address && UNIFI_MANAGED_TOKEN_ADDRESS_SET.has(address.toLowerCase()))
+}
+
+export function useUnifiWalletManagedTokenBalancesSync() {
   const { connector, address: account } = useAccount()
 
-  const [, setCachedUnifiWalletUSDTBalances] = useAtom(cachedUnifiWalletUSDTBalanceAtom)
-  const [, setRefreshUnifiWalletUSDTBalance] = useAtom(refreshUnifiWalletUSDTBalanceAtom)
+  const [, setCachedUnifiWalletTokenBalances] = useAtom(cachedUnifiWalletTokenBalancesAtom)
+  const [, setRefreshUnifiWalletManagedTokenBalances] = useAtom(refreshUnifiWalletManagedTokenBalancesAtom)
   const [, setUnifiWalletConnector] = useAtom(unifiWalletProviderAtom)
 
   useEffect(() => {
@@ -37,39 +46,54 @@ export function useUnifiWalletUSDTBalances() {
       })
   }, [connector, setUnifiWalletConnector])
 
-  const pendingUnifiWalletUSDTBalanceRef = useRef<boolean>(false)
-  const refreshUnifiWalletUSDTBalance = useCallback(() => {
+  const pendingUnifiWalletTokenBalancesRef = useRef<boolean>(false)
+  const refreshUnifiWalletManagedTokenBalances = useCallback(() => {
     if (!connector || connector.id !== 'unifiwallet' || !account) {
       return
     }
 
-    if (pendingUnifiWalletUSDTBalanceRef.current) {
+    if (pendingUnifiWalletTokenBalancesRef.current) {
       return
     }
 
-    pendingUnifiWalletUSDTBalanceRef.current = true
+    pendingUnifiWalletTokenBalancesRef.current = true
 
     connector
       .getProvider()
       ?.then((provider) =>
-        provider.getErc20TokenBalanceWithDepositedBalance(TETHER_ADDRESS, account).then((balance) => {
-          setCachedUnifiWalletUSDTBalances((prev) => ({
+        Promise.all(
+          UNIFI_MANAGED_TOKENS.map((token) => token.address.toLowerCase()).map((tokenAddress) =>
+            provider.getErc20TokenBalanceWithDepositedBalance(tokenAddress, account).then((balance) => ({
+              tokenAddress,
+              balance: balance.toString(),
+            })),
+          ),
+        ).then((balances) => {
+          setCachedUnifiWalletTokenBalances((prev) => ({
             ...prev,
-            [account]: balance.toString(),
+            [account]: {
+              ...(prev[account] ?? {}),
+              ...balances.reduce<{ [tokenAddress: string]: string }>((acc, item) => {
+                return {
+                  ...acc,
+                  [item.tokenAddress]: item.balance,
+                }
+              }, {}),
+            },
           }))
         }),
       )
       .catch((error) => {
-        console.error('Failed to fetch UniFi wallet USDT balance:', error)
+        console.error('Failed to fetch UniFi wallet token balances:', error)
       })
       .finally(() => {
-        pendingUnifiWalletUSDTBalanceRef.current = false
+        pendingUnifiWalletTokenBalancesRef.current = false
       })
-  }, [connector, account, setCachedUnifiWalletUSDTBalances])
+  }, [connector, account, setCachedUnifiWalletTokenBalances])
 
   useEffect(() => {
-    setRefreshUnifiWalletUSDTBalance({ fn: refreshUnifiWalletUSDTBalance })
-  }, [refreshUnifiWalletUSDTBalance, setRefreshUnifiWalletUSDTBalance])
+    setRefreshUnifiWalletManagedTokenBalances({ fn: refreshUnifiWalletManagedTokenBalances })
+  }, [refreshUnifiWalletManagedTokenBalances, setRefreshUnifiWalletManagedTokenBalances])
 
   const isUnifiWallet = connector?.id === 'unifiwallet'
 
@@ -78,33 +102,57 @@ export function useUnifiWalletUSDTBalances() {
     let cleanup: (() => void) | undefined
 
     if (isUnifiWallet && account) {
-      refreshUnifiWalletUSDTBalance()
-      const intervalId = setInterval(refreshUnifiWalletUSDTBalance, 30 * 1_000)
+      refreshUnifiWalletManagedTokenBalances()
+      const intervalId = setInterval(refreshUnifiWalletManagedTokenBalances, 30 * 1_000)
       cleanup = () => {
         clearInterval(intervalId)
       }
     }
 
     return cleanup
-  }, [isUnifiWallet, account, refreshUnifiWalletUSDTBalance])
+  }, [isUnifiWallet, account, refreshUnifiWalletManagedTokenBalances])
 
   return {
-    refreshUnifiWalletUSDTBalance,
+    refreshUnifiWalletManagedTokenBalances,
   }
 }
 
-export function useUnifiWalletUSDTBalance() {
+export function useUnifiWalletUSDTBalances() {
+  return useUnifiWalletManagedTokenBalancesSync()
+}
+
+export function useUnifiWalletManagedTokenBalances() {
   const { connector, address: account } = useAccount()
-  const [cachedUnifiWalletUSDTBalances] = useAtom(cachedUnifiWalletUSDTBalanceAtom)
+  const [cachedUnifiWalletTokenBalances] = useAtom(cachedUnifiWalletTokenBalancesAtom)
 
   const isUnifiWallet = connector?.id === 'unifiwallet'
-  const balance = account ? cachedUnifiWalletUSDTBalances[account] : undefined
+  const accountBalances = account ? cachedUnifiWalletTokenBalances[account] : undefined
 
-  const unifiWalletUSDTBalance = useMemo(() => {
-    if (!isUnifiWallet || !account) return undefined
+  return useMemo(() => {
+    if (!isUnifiWallet || !account || !accountBalances) {
+      return {} as Record<string, CurrencyAmount<Token> | undefined>
+    }
 
-    return balance ? CurrencyAmount.fromRawAmount(TETHER_TOKEN, BigInt(balance)) : undefined
-  }, [isUnifiWallet, account, balance])
+    return UNIFI_MANAGED_TOKENS.reduce<Record<string, CurrencyAmount<Token> | undefined>>((memo, token) => {
+      const tokenAddress = token.address.toLowerCase()
+      const balance = accountBalances[tokenAddress]
+      memo[tokenAddress] = balance ? CurrencyAmount.fromRawAmount(token, BigInt(balance)) : undefined
+      return memo
+    }, {})
+  }, [isUnifiWallet, account, accountBalances])
+}
 
-  return unifiWalletUSDTBalance
+export function useUnifiWalletManagedTokenBalance(token?: Token) {
+  const balances = useUnifiWalletManagedTokenBalances()
+  const tokenAddress = token?.address?.toLowerCase()
+  if (!tokenAddress) return undefined
+  return balances[tokenAddress]
+}
+
+export function useUnifiWalletUSDTBalance() {
+  return useUnifiWalletManagedTokenBalance(TETHER_TOKEN)
+}
+
+export function useUnifiWalletJPYCBalance() {
+  return useUnifiWalletManagedTokenBalance(JPYC_TOKEN)
 }

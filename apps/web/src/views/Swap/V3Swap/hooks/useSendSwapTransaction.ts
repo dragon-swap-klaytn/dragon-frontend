@@ -1,6 +1,5 @@
-import { ChainId } from '@pancakeswap/chains'
+import type { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { TradeType } from '@pancakeswap/sdk'
 import { SmartRouter, SmartRouterTrade } from '@pancakeswap/smart-router/evm'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
 import truncateHash from '@pancakeswap/utils/truncateHash'
@@ -17,7 +16,8 @@ import { viemClients } from 'utils/viem'
 import { Address, Hex, hexToBigInt, TransactionExecutionError } from 'viem'
 import { SendTransactionResult } from 'wagmi/actions'
 
-import { TETHER_ADDRESS } from '@pancakeswap/uikit'
+import { TradeType } from '@pancakeswap/swap-sdk-core'
+import { JPYC_ADDRESS, TETHER_ADDRESS } from '@pancakeswap/uikit'
 import { UNIFI_WALLET_GAS, UNIFI_WALLET_TYPE_INT } from 'const'
 import { unifiWalletProviderAtom } from 'contexts/UnifiWalletContext'
 import { useAtom } from 'jotai'
@@ -77,8 +77,12 @@ export default function useSendSwapTransaction({
 
   const inputToken =
     trade?.inputAmount.currency && 'address' in trade.inputAmount.currency ? trade?.inputAmount.currency.address : null
-  const isUnifiWalletWithTetherInput =
-    connector?.id === 'unifiwallet' && inputToken && safeGetAddress(inputToken) === safeGetAddress(TETHER_ADDRESS)
+  const inputTokenAddress = inputToken ? safeGetAddress(inputToken) : null
+  const tetherAddress = safeGetAddress(TETHER_ADDRESS)
+  const jpycAddress = safeGetAddress(JPYC_ADDRESS)
+  const unifiDepositTokenAddress =
+    inputTokenAddress === tetherAddress ? tetherAddress : inputTokenAddress === jpycAddress ? jpycAddress : null
+  const isUnifiWalletWithSupportedDepositToken = connector?.id === 'unifiwallet' && !!unifiDepositTokenAddress
   const [unifiWalletProvider] = useAtom(unifiWalletProviderAtom)
 
   if (!trade || !account || !chainId || !publicClient) {
@@ -88,7 +92,7 @@ export default function useSendSwapTransaction({
   return {
     callback: async function onSwap(): Promise<SendTransactionResult> {
       let estimatedCalls: SwapCallEstimate[] | undefined
-      if (!isUnifiWalletWithTetherInput) {
+      if (!isUnifiWalletWithSupportedDepositToken) {
         estimatedCalls = await Promise.all(
           swapCalls.map(async (call) => {
             const { address, calldata, value } = call
@@ -132,7 +136,7 @@ export default function useSendSwapTransaction({
       )
 
       // check if any calls errored with a recognizable error
-      if (!bestCallOption && !isUnifiWalletWithTetherInput && estimatedCalls) {
+      if (!bestCallOption && !isUnifiWalletWithSupportedDepositToken && estimatedCalls) {
         const errorCalls = estimatedCalls?.filter((call): call is FailedCall => 'error' in call) || []
         if (errorCalls.length > 0) throw errorCalls[errorCalls.length - 1].error
         const firstNoErrorCall = estimatedCalls?.find<SwapCallEstimate>(
@@ -154,7 +158,7 @@ export default function useSendSwapTransaction({
         throw new Error('Route lost. Need to restart.')
       }
 
-      if (call && 'gas' in call && call.gas && !isUnifiWalletWithTetherInput) {
+      if (call && 'gas' in call && call.gas && !isUnifiWalletWithSupportedDepositToken) {
         // prepared Wallchain's call have gas estimate inside
         call.gas = BigInt(call.gas)
       } else {
@@ -164,7 +168,7 @@ export default function useSendSwapTransaction({
             : undefined
       }
 
-      if (isUnifiWalletWithTetherInput && unifiWalletProvider && 'request' in unifiWalletProvider) {
+      if (isUnifiWalletWithSupportedDepositToken && unifiWalletProvider && 'request' in unifiWalletProvider) {
         return unifiWalletProvider
           .request({
             method: 'kaia_sendTransaction',
@@ -176,7 +180,7 @@ export default function useSendSwapTransaction({
                 input: call.calldata,
                 value: '0x0',
                 gas: UNIFI_WALLET_GAS,
-                depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
+                depositTokenAddress: unifiDepositTokenAddress.toLowerCase(),
                 depositAmount: trade.inputAmount.numerator.toString(),
               },
             ],

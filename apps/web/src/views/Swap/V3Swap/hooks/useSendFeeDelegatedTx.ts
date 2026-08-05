@@ -132,12 +132,13 @@ export function useSendFeeDelegatedTx() {
         {
           data?: SendTransactionArgs['data']
           input?: SendTransactionArgs['data']
+          depositTokenAddress?: string
           depositAmount?: string
           value: `0x${string}` | bigint
         }
       >,
     ) => {
-      const { account, to, input, data, value, depositAmount } = args
+      const { account, to, input, data, value, depositAmount, depositTokenAddress } = args
       if (isUnifiWallet && account && depositAmount && unifiWalletProvider && 'request' in unifiWalletProvider) {
         const tx = {
           method: 'kaia_sendTransaction',
@@ -149,7 +150,7 @@ export function useSendFeeDelegatedTx() {
               input,
               value,
               gas: UNIFI_WALLET_GAS,
-              depositTokenAddress: TETHER_ADDRESS.toLowerCase(),
+              depositTokenAddress: (depositTokenAddress ?? TETHER_ADDRESS).toLowerCase(),
               depositAmount,
             },
           ],

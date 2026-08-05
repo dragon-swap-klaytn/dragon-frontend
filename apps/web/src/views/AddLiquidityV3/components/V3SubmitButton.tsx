@@ -4,9 +4,11 @@ import { ButtonV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import { isUnifiWalletManagedTokenAddress } from 'contexts/UnifiWalletContext'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { ReactNode, useMemo } from 'react'
 import ApproveLiquidityTokens from 'views/AddLiquidityV3/components/ApproveLiquidityTokens'
+import { useAccount } from 'wagmi'
 import { SendTransactionResult } from 'wagmi/actions'
 import { Field } from '../formViews/V3FormView/form/actions'
 
@@ -62,7 +64,7 @@ export function V3SubmitButton({
   className,
 }: V3SubmitButtonProps) {
   const { t } = useTranslation()
-
+  const { connector } = useAccount()
   const shouldShowApprovalGroup = useMemo(
     () =>
       (approvalA === ApprovalState.NOT_APPROVED ||
@@ -71,6 +73,25 @@ export function V3SubmitButton({
         approvalB === ApprovalState.PENDING) &&
       isValid,
     [approvalA, approvalB, isValid],
+  )
+
+  const isUnifiWalletDisabled = useMemo(
+    () =>
+      connector?.id === 'unifiwallet' &&
+      isUnifiWalletManagedTokenAddress(currencies.CURRENCY_A?.wrapped.address) &&
+      isUnifiWalletManagedTokenAddress(currencies.CURRENCY_B?.wrapped.address),
+    [connector, currencies],
+  )
+
+  const buttonDisabled = useMemo(
+    () =>
+      !isValid ||
+      attemptingTxn ||
+      (approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
+      (approvalB !== ApprovalState.APPROVED && !depositBDisabled) ||
+      // Unifi Wallet currently doesn't support using multiple auto-deposited tokens together, so keep this button disabled for now.
+      isUnifiWalletDisabled,
+    [isValid, attemptingTxn, approvalA, approvalB, depositADisabled, depositBDisabled, connector, currencies],
   )
 
   let buttons: ReactNode = null
@@ -102,14 +123,10 @@ export function V3SubmitButton({
             !isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B] ? 'danger' : 'primary'
           }
           onClick={onClick}
-          disabled={
-            !isValid ||
-            attemptingTxn ||
-            (approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
-            (approvalB !== ApprovalState.APPROVED && !depositBDisabled)
-          }
+          disabled={buttonDisabled}
+          className="break-keep"
         >
-          {errorMessage || buttonText}
+          {isUnifiWalletDisabled ? t('Pool not currently supported in Unifi Wallet') : errorMessage || buttonText}
         </CommitButton>
       </div>
     )
