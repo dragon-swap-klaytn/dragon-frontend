@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import BundleAnalyzer from '@next/bundle-analyzer'
 import { withWebSecurityHeaders } from '@pancakeswap/next-config/withWebSecurityHeaders'
-import smartRouterPkgs from '@pancakeswap/smart-router/package.json' with { type: 'json' }
 // import { withSentryConfig } from '@sentry/nextjs'
 import { createVanillaExtractPlugin } from '@vanilla-extract/next-plugin'
+import { createRequire } from 'module'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import i18nConfig from './next-i18next.config.js'
+
+const require = createRequire(import.meta.url)
+const smartRouterPkgs = require('@pancakeswap/smart-router/package.json')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -126,6 +129,16 @@ const config = {
   async redirects() {
     return [
       {
+        source: '/ko',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/ko/:path*',
+        destination: '/:path*',
+        permanent: true,
+      },
+      {
         source: '/swap/:outputCurrency',
         destination: '/swap?outputCurrency=:outputCurrency',
         permanent: true,
@@ -137,7 +150,7 @@ const config = {
       },
     ]
   },
-  webpack: (webpackConfig, { webpack, isServer }) => {
+  webpack: (webpackConfig, { webpack: _webpack, isServer }) => {
     /* tree shake sentry tracing
     webpackConfig.plugins.push(
       new webpack.DefinePlugin({
@@ -167,11 +180,8 @@ const config = {
   },
 }
 
-let projectNextConfig
-if (process.env.STANDALONE) {
-  projectNextConfig = withVanillaExtract(withWebSecurityHeaders(config))
-} else {
-  projectNextConfig = withBundleAnalyzer(withVanillaExtract(withWebSecurityHeaders(config)))
-}
+const baseNextConfig = withVanillaExtract(withWebSecurityHeaders(config))
+
+const projectNextConfig = process.env.STANDALONE ? baseNextConfig : withBundleAnalyzer(baseNextConfig)
 
 export default projectNextConfig
