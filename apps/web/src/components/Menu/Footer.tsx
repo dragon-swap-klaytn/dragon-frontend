@@ -1,6 +1,6 @@
 import { ExternalLink } from '@pancakeswap/uikit'
 import clsx from 'clsx'
-import { CoingeckoLogo, GithubLogo, MediumLogo, TelegramLogo, TwitterLogo } from 'components/Vector'
+import { CoingeckoLogo, GithubLogo, MediumLogo, TwitterLogo } from 'components/Vector'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/router'
@@ -16,11 +16,11 @@ const EXTERNAL_LINKS = [
     icon: <GithubLogo />,
     href: 'https://github.com/dragon-swap-klaytn',
   },
-  {
-    id: 'telegram',
-    icon: <TelegramLogo />,
-    href: 'https://t.me/DragonSwap_ANN',
-  },
+  // {
+  //   id: 'telegram',
+  //   icon: <TelegramLogo />,
+  //   href: 'https://t.me/DragonSwap_ANN',
+  // },
   {
     id: 'medium',
     icon: <MediumLogo />,
