@@ -4,6 +4,7 @@ import { ButtonV2 } from '@pancakeswap/uikit'
 import clsx from 'clsx'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import { isHiddenTokenAddress } from 'components/SearchModal/hiddenTokens'
 import { isUnifiWalletManagedTokenAddress } from 'contexts/UnifiWalletContext'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { ReactNode, useMemo } from 'react'
@@ -83,6 +84,16 @@ export function V3SubmitButton({
     [connector, currencies],
   )
 
+  const hiddenTokenSymbols = useMemo(() => {
+    const tokenSymbols = [currencies.CURRENCY_A, currencies.CURRENCY_B]
+      .filter((currency) => isHiddenTokenAddress(currency?.wrapped?.address))
+      .map((currency) => currency?.symbol || 'Unknown')
+
+    return Array.from(new Set(tokenSymbols))
+  }, [currencies])
+
+  const isHiddenTokenDisabled = hiddenTokenSymbols.length > 0
+
   const buttonDisabled = useMemo(
     () =>
       !isValid ||
@@ -90,8 +101,18 @@ export function V3SubmitButton({
       (approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
       (approvalB !== ApprovalState.APPROVED && !depositBDisabled) ||
       // Unifi Wallet currently doesn't support using multiple auto-deposited tokens together, so keep this button disabled for now.
+      isUnifiWalletDisabled ||
+      isHiddenTokenDisabled,
+    [
+      isValid,
+      attemptingTxn,
+      approvalA,
+      approvalB,
+      depositADisabled,
+      depositBDisabled,
       isUnifiWalletDisabled,
-    [isValid, attemptingTxn, approvalA, approvalB, depositADisabled, depositBDisabled, connector, currencies],
+      isHiddenTokenDisabled,
+    ],
   )
 
   let buttons: ReactNode = null
@@ -126,7 +147,13 @@ export function V3SubmitButton({
           disabled={buttonDisabled}
           className="break-keep"
         >
-          {isUnifiWalletDisabled ? t('Pool not currently supported in Unifi Wallet') : errorMessage || buttonText}
+          {isHiddenTokenDisabled
+            ? t('This pool includes tokens whose supply is temporarily suspended: {{tokens}}', {
+                tokens: hiddenTokenSymbols.join(', '),
+              })
+            : isUnifiWalletDisabled
+            ? t('Pool not currently supported in Unifi Wallet')
+            : errorMessage || buttonText}
         </CommitButton>
       </div>
     )

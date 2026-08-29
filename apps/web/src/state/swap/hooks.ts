@@ -4,6 +4,7 @@ import { STABLE_COIN, USDC, USDT } from '@pancakeswap/tokens'
 import { VALID_ADDRESS_REGEX } from '@pancakeswap/uikit'
 import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
 import { useUserSlippage } from '@pancakeswap/utils/user'
+import { isHiddenTokenAddress } from 'components/SearchModal/hiddenTokens'
 import { DEFAULT_INPUT_CURRENCY } from 'config/constants/exchange'
 import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
 import { useActiveChainId } from 'hooks/useActiveChainId'
@@ -208,15 +209,26 @@ function validatedRecipient(recipient: any): string | null {
   return null
 }
 
+function getVisibleCurrencyId(currencyId?: string) {
+  return isHiddenTokenAddress(currencyId) ? undefined : currencyId
+}
+
+function hasHiddenTokenQuery(parsedQs: ParsedUrlQuery) {
+  return [parsedQs.inputCurrency, parsedQs.outputCurrency].some(
+    (currencyParam) => typeof currencyParam === 'string' && isHiddenTokenAddress(safeGetAddress(currencyParam)),
+  )
+}
+
 export function queryParametersToSwapState(
   parsedQs: ParsedUrlQuery,
   nativeSymbol?: string,
   defaultOutputCurrency?: string,
 ): SwapState {
-  let inputCurrency = safeGetAddress(parsedQs.inputCurrency) || (nativeSymbol ?? DEFAULT_INPUT_CURRENCY)
+  let inputCurrency =
+    getVisibleCurrencyId(safeGetAddress(parsedQs.inputCurrency)) || (nativeSymbol ?? DEFAULT_INPUT_CURRENCY)
   let outputCurrency =
     typeof parsedQs.outputCurrency === 'string'
-      ? safeGetAddress(parsedQs.outputCurrency) || nativeSymbol
+      ? getVisibleCurrencyId(safeGetAddress(parsedQs.outputCurrency)) || nativeSymbol
       : defaultOutputCurrency
   if (inputCurrency === outputCurrency) {
     if (typeof parsedQs.outputCurrency === 'string') {
@@ -250,13 +262,18 @@ export function useDefaultsFromURLSearch():
   const { chainId } = useActiveChainId()
   const [, dispatch] = useAtom(swapReducerAtom)
   const native = useNativeCurrency()
-  const { query, isReady } = useRouter()
+  const router = useRouter()
+  const { query, isReady } = router
   const [result, setResult] = useState<
     { inputCurrencyId: string | undefined; outputCurrencyId: string | undefined } | undefined
   >()
 
   useEffect(() => {
     if (!chainId || !native || !isReady) return
+    if (hasHiddenTokenQuery(query)) {
+      router.replace('/swap', undefined, { shallow: true })
+    }
+
     const parsed = queryParametersToSwapState(
       query,
       native.symbol,
@@ -273,7 +290,7 @@ export function useDefaultsFromURLSearch():
       }),
     )
     setResult({ inputCurrencyId: parsed[Field.INPUT].currencyId, outputCurrencyId: parsed[Field.OUTPUT].currencyId })
-  }, [dispatch, chainId, query, native, isReady])
+  }, [dispatch, chainId, query, native, isReady, router])
 
   return result
 }

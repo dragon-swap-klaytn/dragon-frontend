@@ -19,7 +19,7 @@ import AddLiquidity from 'views/AddLiquidity'
 import AddStableLiquidity from 'views/AddLiquidity/AddStableLiquidity'
 import useStableConfig, { StableConfigContext } from 'views/Swap/hooks/useStableConfig'
 
-import { ArrowClockwise, Plus } from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import noop from 'lodash/noop'
@@ -308,7 +308,7 @@ export function UniversalAddLiquidity({
                 hideBalance
               />
 
-              <Plus size={16} className="text-on-surface shrink-0" />
+              <PlusIcon size={16} className="text-on-surface shrink-0" />
 
               <CurrencySelect
                 id="add-liquidity-select-tokenb"
@@ -425,7 +425,7 @@ export function AddLiquidityV3Layout({
 
               {showRefreshButton && (
                 <MenuIconButton onClick={handleRefresh || noop}>
-                  <ArrowClockwise size={24} className="text-gray-50" weight="fill" />
+                  <ArrowClockwiseIcon size={24} className="text-gray-50" weight="fill" />
                 </MenuIconButton>
               )}
             </>

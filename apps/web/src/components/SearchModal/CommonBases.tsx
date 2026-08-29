@@ -6,6 +6,7 @@ import useNativeCurrency from 'hooks/useNativeCurrency'
 
 import { TETHER_TOKEN } from 'const'
 import useRecentSelectedCurrencies from 'hooks/useRecentSelectedCurrencies'
+import { isHiddenTokenAddress } from './hiddenTokens'
 import { CommonBasesType } from './types'
 
 export const PINNED_CURRENCIES = [TETHER_TOKEN]
@@ -52,24 +53,26 @@ export default function CommonBases({
           />
         ))}
 
-        {recentSelectedCurrencies.map((currency) => {
-          const address = currency?.address
-          const selected = selectedCurrency?.wrapped?.address.toLocaleLowerCase() === address.toLowerCase()
+        {recentSelectedCurrencies
+          .filter((currency) => !isHiddenTokenAddress(currency.address))
+          .map((currency) => {
+            const address = currency?.address
+            const selected = selectedCurrency?.wrapped?.address.toLocaleLowerCase() === address.toLowerCase()
 
-          return (
-            <RecentTokenButton
-              key={`recentTokenButton:${address}`}
-              onClick={() => {
-                onSelect(currency)
-                setRecentSelectedCurrency(currency as Token)
-              }}
-              currency={currency}
-              address={address}
-              selected={selected}
-              symbol={currency.symbol}
-            />
-          )
-        })}
+            return (
+              <RecentTokenButton
+                key={`recentTokenButton:${address}`}
+                onClick={() => {
+                  onSelect(currency)
+                  setRecentSelectedCurrency(currency as Token)
+                }}
+                currency={currency}
+                address={address}
+                selected={selected}
+                symbol={currency.symbol}
+              />
+            )
+          })}
       </div>
     </div>
   )
