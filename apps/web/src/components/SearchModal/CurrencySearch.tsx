@@ -11,6 +11,7 @@ import { safeGetAddress } from 'utils'
 import { useTokenMap, useTokens } from '../../hooks/Tokens'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
+import { isHiddenTokenAddress } from './hiddenTokens'
 import { getSwapSound } from './swapSound'
 
 interface CurrencySearchProps {
@@ -57,7 +58,10 @@ function CurrencySearch({
   }, [debouncedQuery, native, tokensToShow])
 
   const currencies = useMemo(
-    () => searchTokens || (onlyPoolTokenMap ? Object.values(onlyPoolTokenMap) : ([] as Token[])),
+    () =>
+      (searchTokens || (onlyPoolTokenMap ? Object.values(onlyPoolTokenMap) : ([] as Token[]))).filter(
+        (token) => !isHiddenTokenAddress(token.wrapped.address),
+      ),
     [onlyPoolTokenMap, searchTokens],
   )
   const handleCurrencySelect = useCallback(

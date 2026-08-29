@@ -7,6 +7,7 @@ import { ReactNode, useMemo } from 'react'
 import { CommitButton } from 'components/CommitButton'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import { isHiddenTokenAddress } from 'components/SearchModal/hiddenTokens'
 import { CommonBasesType } from 'components/SearchModal/types'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { Field } from 'state/mint/actions'
@@ -47,6 +48,17 @@ export default function V2FormView({
     () => pair && getBlockExploreLink(Pair.getAddress(pair.token0, pair.token1), 'address'),
     [pair],
   )
+
+  const hiddenTokenSymbols = useMemo(() => {
+    const tokenSymbols = [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]]
+      .filter((currency) => isHiddenTokenAddress(currency?.wrapped?.address))
+      .map((currency) => currency?.symbol || 'Unknown')
+
+    return Array.from(new Set(tokenSymbols))
+  }, [currencies])
+
+  const isHiddenTokenDisabled = hiddenTokenSymbols.length > 0
+  const isSubmitDisabled = buttonDisabled || isHiddenTokenDisabled
 
   let buttons: ReactNode = null
   if (addIsUnsupported || addIsWarning) {
@@ -91,15 +103,19 @@ export default function V2FormView({
         ) : null}
 
         <CommitButton
-          variant={buttonDisabled ? 'danger' : 'primary'}
+          variant={isSubmitDisabled ? 'danger' : 'primary'}
           onClick={() => {
             // eslint-disable-next-line no-unused-expressions
             expertMode ? onAdd() : onPresentAddLiquidityModal()
             logGTMClickAddLiquidityEvent()
           }}
-          disabled={buttonDisabled}
+          disabled={isSubmitDisabled}
         >
-          {errorText || t('Add')}
+          {isHiddenTokenDisabled
+            ? t('This pool includes tokens whose supply is temporarily suspended: {{tokens}}', {
+                tokens: hiddenTokenSymbols.join(', '),
+              })
+            : errorText || t('Add')}
         </CommitButton>
       </div>
     )

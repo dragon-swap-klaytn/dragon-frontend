@@ -2,7 +2,7 @@ import { useTranslation } from '@pancakeswap/localization'
 import { BoxProps, useModal } from '@pancakeswap/uikit'
 import { formatNumber } from '@pancakeswap/utils/formatBalance'
 import { formatAmount } from '@pancakeswap/utils/formatFractions'
-import { CaretDown } from '@phosphor-icons/react'
+import { CaretDownIcon } from '@phosphor-icons/react'
 import CurrencySearchModal, { CurrencySearchModalProps } from 'components/SearchModal/CurrencySearchModal'
 import { useStablecoinPrice } from 'hooks/useBUSDPrice'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -67,7 +67,7 @@ export const CurrencySelect = ({
           </div>
         )}
 
-        <CaretDown size={16} className="text-on-surface ml-2" />
+        <CaretDownIcon size={16} className="text-on-surface ml-2" />
       </button>
 
       {account && !!selectedCurrency && !hideBalance && (

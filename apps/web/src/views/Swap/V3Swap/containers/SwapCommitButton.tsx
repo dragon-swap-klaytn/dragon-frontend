@@ -245,7 +245,15 @@ export const SwapCommitButton = memo(function SwapCommitButton({
           txHash: undefined,
         })
       })
-  }, [priceImpactWithoutFee, t, swapCallback, tradeToConfirm, revertReason])
+  }, [
+    priceImpactWithoutFee,
+    t,
+    swapCallback,
+    tradeToConfirm,
+    revertReason,
+    refreshCurrencyBalances,
+    refreshUnifiWalletManagedTokenBalances,
+  ])
 
   const { confirmModalState, pendingModalSteps, startSwapFlow, resetSwapFlow } = useConfirmModalState({
     txHash,

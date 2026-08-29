@@ -11,6 +11,7 @@ import { useRemoveUserAddedToken } from 'state/user/hooks'
 import { useUserAddedTokensFromLs } from 'state/user/hooks/useUserAddedTokens'
 import { safeGetAddress } from 'utils'
 import { Address } from 'viem'
+import { isHiddenTokenAddress } from './hiddenTokens'
 import { CurrencyModalView } from './types'
 
 export default function ManageTokens({
@@ -42,6 +43,11 @@ export default function ManageTokens({
   const { userAddedTokens, isLoading, refresh } = useUserAddedTokensFromLs()
   const removeToken = useRemoveUserAddedToken()
 
+  const visibleUserAddedTokens = useMemo(
+    () => userAddedTokens.filter((token) => !isHiddenTokenAddress(token.address)),
+    [userAddedTokens],
+  )
+
   const removeTokenHandler = useCallback(
     (address: Address) => {
       removeToken(chainId, address)
@@ -51,17 +57,17 @@ export default function ManageTokens({
   )
 
   const handleRemoveAll = useCallback(() => {
-    if (!chainId || !userAddedTokens) return
+    if (!chainId || !visibleUserAddedTokens) return
 
-    userAddedTokens.forEach((token) => {
+    visibleUserAddedTokens.forEach((token) => {
       return removeToken(chainId, token.address)
     })
 
     refresh()
-  }, [removeToken, userAddedTokens, chainId, refresh])
+  }, [removeToken, visibleUserAddedTokens, chainId, refresh])
 
   const searchedUserAddedTokens = useMemo(() => {
-    return userAddedTokens
+    return visibleUserAddedTokens
       .filter(
         (token) =>
           (token?.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -72,24 +78,27 @@ export default function ManageTokens({
         ...token,
         isAdded: true,
       }))
-  }, [userAddedTokens, searchQuery])
+  }, [visibleUserAddedTokens, searchQuery])
 
   const unimportedTokens = useMemo(() => {
-    if (!poolOnlyTokenMap || !searchTokens || !userAddedTokens) return []
+    if (!poolOnlyTokenMap || !searchTokens || !visibleUserAddedTokens) return []
 
     return (
       searchTokens
         ?.filter(
           (token) =>
+            !isHiddenTokenAddress(token.address) &&
             !poolOnlyTokenMap[token.address.toLowerCase()] &&
-            !userAddedTokens.find((addedToken) => addedToken.address.toLowerCase() === token.address.toLowerCase()),
+            !visibleUserAddedTokens.find(
+              (addedToken) => addedToken.address.toLowerCase() === token.address.toLowerCase(),
+            ),
         )
         .map((token) => ({
           ...token,
           isAdded: false,
         })) ?? []
     )
-  }, [searchTokens, userAddedTokens, poolOnlyTokenMap])
+  }, [searchTokens, visibleUserAddedTokens, poolOnlyTokenMap])
 
   return (
     <div className="flex flex-col">
@@ -122,19 +131,20 @@ export default function ManageTokens({
         </div>
       )}
 
-      {userAddedTokens && userAddedTokens?.length > 0 ? (
+      {visibleUserAddedTokens && visibleUserAddedTokens.length > 0 ? (
         <div className="flex items-center space-x-2 justify-between px-2 mt-4">
           <span className="text-sm text-on-surface">
-            {userAddedTokens?.length} {userAddedTokens.length === 1 ? t('Imported Token') : t('Imported Tokens')}
+            {visibleUserAddedTokens.length}{' '}
+            {visibleUserAddedTokens.length === 1 ? t('Imported Token') : t('Imported Tokens')}
           </span>
 
-          {userAddedTokens.length > 0 && (
+          {visibleUserAddedTokens.length > 0 && (
             <ButtonV2 variant="subtle" onClick={handleRemoveAll} scale="sm">
               {t('Clear all')}
             </ButtonV2>
           )}
         </div>
-      ) : !debouncedQuery && !isLoading && userAddedTokens.length === 0 ? (
+      ) : !debouncedQuery && !isLoading && visibleUserAddedTokens.length === 0 ? (
         <p className="text-center py-4 text-on-surface text-sm">{t('No imported tokens.')}</p>
       ) : !!debouncedQuery && (searchTokens?.length || 0) === 0 ? (
         <p className="text-center py-4 text-on-surface text-sm">{t('No results found.')}</p>

@@ -348,6 +348,7 @@ export default function V3FormView({
     sendTx,
     signer,
     t,
+    isUnifiWallet,
   ])
 
   const handleDismissConfirmation = useCallback(() => {

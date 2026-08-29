@@ -1,6 +1,6 @@
 import { Trans, useTranslation } from '@pancakeswap/localization'
 import { COMMON_BUTTON_STYLE, DragonSwapLogo, MD_BUTTON_STYLE } from '@pancakeswap/uikit'
-import { ArrowsCounterClockwise, ArrowUpRight, SwimmingPool } from '@phosphor-icons/react'
+import { ArrowsCounterClockwiseIcon, ArrowUpRightIcon, SwimmingPoolIcon } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import Link from 'next/link'
 import { ReactNode } from 'react'
@@ -192,7 +192,7 @@ const HomePage = () => {
               <FeatureCard
                 href="/swap"
                 title={t('Swap')}
-                icon={<ArrowsCounterClockwise size={24} className="text-black" />}
+                icon={<ArrowsCounterClockwiseIcon size={24} className="text-black" />}
                 descriptionKey="main-swap-description"
                 screenshot={
                   <div className="h-[300px] lg:h-[400px] pt-[46px] lg:pt-[56px] bg-[#050404] rounded-xl overflow-hidden">
@@ -209,7 +209,7 @@ const HomePage = () => {
               <FeatureCard
                 href="/pools"
                 title={t('Pools')}
-                icon={<SwimmingPool size={24} className="text-black" />}
+                icon={<SwimmingPoolIcon size={24} className="text-black" />}
                 descriptionKey="main-pools-description"
                 screenshot={
                   <div className="h-[300px] lg:h-[400px] flex justify-center items-center bg-[#050404] rounded-xl overflow-hidden">
@@ -324,7 +324,7 @@ function FeatureCard({
   return (
     <Link href={href} className={className}>
       <div className="relative p-5 md:p-7 flex flex-col w-full h-full rounded-[20px] bg-white bg-opacity-[0.04] border border-white/10 backdrop-blur-2xl hover:bg-opacity-[0.08] transition-colors duration-200">
-        <ArrowUpRight className="absolute top-4 right-4" size={24} />
+        <ArrowUpRightIcon className="absolute top-4 right-4" size={24} />
 
         <div className="flex items-center space-x-5">
           <div className="p-3 rounded-xl bg-white">{icon}</div>
