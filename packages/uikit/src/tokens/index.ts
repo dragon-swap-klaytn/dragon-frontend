@@ -80,3 +80,7 @@ export const JPYC_ADDRESS = "0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29";
 export const JPYC_NAME = "JPY Coin";
 export const JPYC_SYMBOL = "JPYC";
 export const JPYC_DECIMALS = 18;
+export const IDRP_ADDRESS = "0xC16d986585407A74Ab87d17C3d0Dc19822E3EB35";
+export const IDRP_NAME = "IDRP";
+export const IDRP_SYMBOL = "IDRP";
+export const IDRP_DECIMALS = 6;
