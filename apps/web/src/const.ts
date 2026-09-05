@@ -1,6 +1,10 @@
 import { ChainId } from '@pancakeswap/chains'
 import { Token } from '@pancakeswap/swap-sdk-core'
 import {
+  IDRP_ADDRESS,
+  IDRP_DECIMALS,
+  IDRP_NAME,
+  IDRP_SYMBOL,
   JPYC_ADDRESS,
   JPYC_DECIMALS,
   JPYC_NAME,
@@ -22,6 +26,27 @@ export const DEFAULT_TOKEN_LIST = [
     decimals: 18,
     symbol: 'WKAIA',
     name: 'Wrapped KAIA',
+  },
+  {
+    chainId: ChainId.KLAYTN,
+    address: TETHER_ADDRESS.toLowerCase(),
+    name: TETHER_NAME,
+    symbol: TETHER_SYMBOL,
+    decimals: TETHER_DECIMALS,
+  },
+  {
+    chainId: ChainId.KLAYTN,
+    address: JPYC_ADDRESS.toLowerCase(),
+    decimals: JPYC_DECIMALS,
+    symbol: JPYC_SYMBOL,
+    name: JPYC_NAME,
+  },
+  {
+    chainId: ChainId.KLAYTN,
+    address: IDRP_ADDRESS.toLowerCase(),
+    name: IDRP_NAME,
+    symbol: IDRP_SYMBOL,
+    decimals: IDRP_DECIMALS,
   },
   {
     chainId: ChainId.KLAYTN,
@@ -386,13 +411,6 @@ export const DEFAULT_TOKEN_LIST = [
     name: 'Shin',
     symbol: 'Shin',
     decimals: 18,
-  },
-  {
-    chainId: ChainId.KLAYTN,
-    address: TETHER_ADDRESS.toLowerCase(),
-    name: TETHER_NAME,
-    symbol: TETHER_SYMBOL,
-    decimals: TETHER_DECIMALS,
   },
   {
     chainId: ChainId.KLAYTN,
