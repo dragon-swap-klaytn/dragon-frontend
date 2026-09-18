@@ -6,6 +6,7 @@ import { Bound } from '@pancakeswap/widgets-internal'
 import { ArrowsLeftRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import PoolApy from 'components/PoolApy'
 import { MASTERCHEFV3_ADDRESS } from 'const'
 import useBoost from 'hooks/useBoost'
 import { Portfolio, PortfolioData, PortfolioV3DataBigInt, PositionV3 } from 'hooks/usePortfolio'
@@ -495,13 +496,7 @@ function V2PositionCard({
         </div>
         <div className="s:min-w-24">
           <div className="text-sm">
-            {poolAPY === null
-              ? '-'
-              : poolAPY.toLocaleString(undefined, {
-                  style: 'percent',
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+            <PoolApy value={poolAPY} />
           </div>
 
           <div className="mt-1 text-xs text-on-surface-subtlest">{t('APY')}</div>

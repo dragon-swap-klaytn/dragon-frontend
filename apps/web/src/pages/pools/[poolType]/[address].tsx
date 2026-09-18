@@ -4,6 +4,7 @@ import { ArrowUp } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
 import Page from 'components/Layout/Page'
+import PoolApy from 'components/PoolApy'
 import usePoolPositions from 'hooks/usePoolPositions'
 import { Portfolio, PositionV2, PositionV3 } from 'hooks/usePortfolio'
 import useTokenPrices from 'hooks/useTokenPrices'
@@ -228,25 +229,13 @@ const PoolDetailsPage = <T extends PoolType>({ poolType, address }: { poolType: 
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">{t('APY 24H')}</h4>
                     <p className="text-xl font-medium text-emerald-400">
-                      {poolData.apy['24H']
-                        ? poolData.apy['24H'].toLocaleString(undefined, {
-                            style: 'percent',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : '-'}
+                      <PoolApy value={poolData.apy['24H']} />
                     </p>
                   </div>
                   <div className="space-y-1.5 flex-1">
                     <h4 className="text-xs">{t('APY 7D')}</h4>
                     <p className="text-xl font-medium text-emerald-400">
-                      {poolData.apy['7D']
-                        ? poolData.apy['7D'].toLocaleString(undefined, {
-                            style: 'percent',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : '-'}
+                      <PoolApy value={poolData.apy['7D']} />
                     </p>
                   </div>
                 </div>

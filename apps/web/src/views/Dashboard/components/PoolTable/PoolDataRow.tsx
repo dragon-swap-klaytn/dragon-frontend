@@ -3,6 +3,7 @@ import { ButtonV2, CurrencyLogoWithSymbol, ExternalLink, TagV2 } from '@pancakes
 import { CaretRight } from '@phosphor-icons/react'
 import clsx from 'clsx'
 import { AddLiquidityButtonV2 } from 'components/AddLiquidityButtonV2'
+import PoolApy, { HIGH_POOL_APY } from 'components/PoolApy'
 
 import { Portfolio, PortfolioV3DataBigInt } from 'hooks/usePortfolio'
 import { useTranslation } from 'next-i18next'
@@ -84,28 +85,23 @@ export const PoolDataRowSkeleton = ({
 }
 
 const APRWithBoost = ({ lpApr, rewardApr, isBoosted }: { lpApr: number; rewardApr?: number; isBoosted?: boolean }) => {
-  const { t } = useTranslation()
-
-  const formatAPY = (apy: number) => {
-    if (apy > 10) {
-      return t('Unusually High')
-    }
-    return getPercentage(apy)
-  }
-
   const totalApr = lpApr + (rewardApr ?? 0)
 
   return (
     <>
       {isBoosted ? (
         <div className="flex flex-col space-y-0.5 items-center">
-          <span className="text-brand">{formatAPY(totalApr)}</span>
-          {lpApr <= 10 && (
+          <span className="text-brand">
+            <PoolApy value={totalApr} />
+          </span>
+          {lpApr <= HIGH_POOL_APY && (
             <span className="line-through text-gray-500 hidden md:inline text-xs">{getPercentage(lpApr)}</span>
           )}
         </div>
       ) : (
-        <span className="text-center">{formatAPY(lpApr)}</span>
+        <span className="text-center">
+          <PoolApy value={lpApr} />
+        </span>
       )}
     </>
   )
