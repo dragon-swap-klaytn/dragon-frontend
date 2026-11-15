@@ -39,6 +39,8 @@ const WBTC_ADDRESSES = {
 
 const KRWO_ADDRESS = '0x7fc692699f2216647a0e06225d8bdf8cdee40e7f' as Address
 
+export const USDT_JPYC_V3_POOL_ADDRESS = '0x2c1791dc0d80c7f26a3cd03a31ed77ce8b5c1f51' as Address
+
 // eslint-disable-next-line address/addr-type
 export const FORCE_WHITELISTED_V3_POOLS: string[] = []
 

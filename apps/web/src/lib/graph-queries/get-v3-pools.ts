@@ -1,5 +1,10 @@
 import { gql, request } from 'graphql-request'
-import { BATCH_SIZE, FORCE_WHITELISTED_V3_POOLS, subgraphUrls } from 'lib/graph-queries/const'
+import {
+  BATCH_SIZE,
+  FORCE_WHITELISTED_V3_POOLS,
+  USDT_JPYC_V3_POOL_ADDRESS,
+  subgraphUrls,
+} from 'lib/graph-queries/const'
 import { PoolV3AccData, PoolV3Raw } from 'lib/graph-queries/types'
 import { overrideToken } from 'lib/graph-queries/utils'
 
@@ -15,6 +20,11 @@ const parseVolumeUSD = (pool: any): number => {
 }
 
 const parseTvlUSD = (pool: any): number => {
+  if (pool.id === USDT_JPYC_V3_POOL_ADDRESS) {
+    // The tracked TVL doubles the USD₮ balance. The untracked TVL values both token balances.
+    return +pool.totalValueLockedUSDUntracked || 0
+  }
+
   if (FORCE_WHITELISTED_V3_POOLS.includes(pool.id)) {
     const { totalValueLockedUSD, totalValueLockedUSDUntracked } = pool
     return +totalValueLockedUSD || +totalValueLockedUSDUntracked || 0
